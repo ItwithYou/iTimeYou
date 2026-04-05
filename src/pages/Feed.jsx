@@ -5,7 +5,7 @@ import PostCard from '../components/PostCard';
 import StarRating from '../components/StarRating';
 import TrustBadge from '../components/TrustBadge';
 import { CAT_KEYS, CAT_ICONS } from '../hooks/useLang';
-import { Camera } from 'lucide-react';
+import { Camera, Image, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Feed() {
@@ -16,6 +16,7 @@ export default function Feed() {
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [posting, setPosting] = useState(false);
+  const [filterCat, setFilterCat] = useState('all');
 
   const loadPosts = async () => {
     const data = await base44.entities.Post.list('-created_date', 30);
@@ -59,100 +60,144 @@ export default function Feed() {
     toast.success(lang === 'lo' ? 'ໂພສສຳເລັດ ✅' : 'Posted! ✅');
   };
 
+  const filteredPosts = filterCat === 'all' ? posts : posts.filter(p => p.category === filterCat);
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Sidebar */}
-        <div className="hidden lg:block">
-          <div className="bg-card rounded-xl p-5 shadow-sm text-center">
-            <img
-              src={profile?.photo_url || profile?.avatar_url || ''}
-              alt=""
-              className="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-primary object-cover"
-            />
-            <h3 className="font-semibold text-sm">{profile?.first_name} {profile?.last_name}</h3>
-            {profile?.is_verified && (
-              <span className="inline-block text-xs text-emerald-600 mt-1">✅ {t.verStatus}</span>
-            )}
-            <div className="mt-2">
-              <StarRating rating={profile?.trust_stars || 0} size={14} />
+    <div className="max-w-4xl mx-auto px-3 sm:px-4 py-5">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
+        {/* Sidebar — desktop only */}
+        <div className="hidden lg:block space-y-3">
+          <div className="bg-card rounded-2xl p-5 shadow-sm border border-border text-center">
+            <div className="relative inline-block mb-3">
+              <img
+                src={profile?.photo_url || profile?.avatar_url || ''}
+                alt=""
+                className="w-16 h-16 rounded-full border-3 border-primary object-cover"
+              />
+              {profile?.is_verified && (
+                <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center text-white text-[10px]">✓</span>
+              )}
             </div>
-            <TrustBadge stars={profile?.trust_stars || 0} lang={lang} />
-            <p className="text-xs text-muted-foreground mt-2">{lang === 'lo' ? profile?.bio_lao : profile?.bio}</p>
-            <div className="flex justify-center gap-4 mt-3 pt-3 border-t border-border text-xs">
+            <h3 className="font-bold text-sm">{profile?.first_name} {profile?.last_name}</h3>
+            <div className="mt-1.5 flex justify-center">
+              <StarRating rating={profile?.trust_stars || 0} size={13} />
+            </div>
+            <div className="mt-1.5">
+              <TrustBadge stars={profile?.trust_stars || 0} lang={lang} />
+            </div>
+            {profile?.bio && <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{lang === 'lo' ? profile?.bio_lao : profile?.bio}</p>}
+            <div className="flex justify-around mt-3 pt-3 border-t border-border text-xs">
               <div className="text-center">
-                <strong>{(profile?.friends || []).length}</strong>
+                <strong className="text-base font-bold">{(profile?.friends || []).length}</strong>
                 <div className="text-muted-foreground">{t.friends}</div>
               </div>
               <div className="text-center">
-                <strong>${profile?.wallet_balance || 0}</strong>
+                <strong className="text-base font-bold text-primary">${profile?.wallet_balance || 0}</strong>
                 <div className="text-muted-foreground">{t.wallet}</div>
               </div>
             </div>
           </div>
-          <div className="bg-card rounded-xl mt-3 p-2 shadow-sm">
-            <Link to="/explore" className="block px-3 py-2 rounded-lg text-sm hover:bg-muted transition-colors">🏛️ {t.explore}</Link>
-            <Link to="/wallet" className="block px-3 py-2 rounded-lg text-sm hover:bg-muted transition-colors">💰 {t.wallet}</Link>
-            <Link to="/messages" className="block px-3 py-2 rounded-lg text-sm hover:bg-muted transition-colors">💬 {t.messages}</Link>
-            <Link to="/bookings" className="block px-3 py-2 rounded-lg text-sm hover:bg-muted transition-colors">📅 {t.trips}</Link>
+          <div className="bg-card rounded-2xl border border-border p-2 shadow-sm">
+            {[
+              { to: '/explore', icon: '🏛️', label: t.explore },
+              { to: '/wallet', icon: '💰', label: t.wallet },
+              { to: '/messages', icon: '💬', label: t.messages },
+              { to: '/bookings', icon: '📅', label: t.trips },
+            ].map(item => (
+              <Link key={item.to} to={item.to} className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm hover:bg-muted transition-colors font-medium">
+                <span>{item.icon}</span> {item.label}
+              </Link>
+            ))}
           </div>
         </div>
 
         {/* Main feed */}
         <div className="lg:col-span-3 space-y-4">
-          {/* Create post */}
-          <div className="bg-card rounded-xl p-4 shadow-sm">
-            <textarea
-              value={newText}
-              onChange={e => setNewText(e.target.value)}
-              placeholder={t.postPlaceholder}
-              rows={3}
-              className="w-full bg-transparent border border-border rounded-lg p-3 text-sm outline-none focus:border-primary resize-none"
-            />
+          {/* Create post card */}
+          <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
+            <div className="flex gap-3 mb-3">
+              <img
+                src={profile?.photo_url || profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser?.email}`}
+                alt=""
+                className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+              />
+              <textarea
+                value={newText}
+                onChange={e => setNewText(e.target.value)}
+                placeholder={t.postPlaceholder}
+                rows={2}
+                className="flex-1 bg-muted/50 border border-border rounded-2xl px-4 py-2.5 text-sm outline-none focus:border-primary resize-none transition-colors"
+              />
+            </div>
+
             {photoPreview && (
-              <div className="relative inline-block mt-2">
-                <img src={photoPreview} alt="" className="max-h-36 rounded-lg" />
+              <div className="relative inline-block mb-3 ml-12">
+                <img src={photoPreview} alt="" className="max-h-40 rounded-xl border border-border" />
                 <button
                   onClick={() => { setPhotoFile(null); setPhotoPreview(null); }}
-                  className="absolute top-1 right-1 bg-black/60 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-                >✕</button>
+                  className="absolute top-1.5 right-1.5 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                >
+                  <X size={12} />
+                </button>
               </div>
             )}
-            <div className="flex items-center justify-between mt-3">
-              <div className="flex items-center gap-2">
-                <label className="cursor-pointer text-muted-foreground hover:text-primary transition-colors">
-                  <Camera size={18} />
+
+            {/* Category select + actions */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+                <label className="cursor-pointer text-muted-foreground hover:text-primary transition-colors flex-shrink-0 p-1">
+                  <Image size={18} />
                   <input type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
                 </label>
-                <div className="flex gap-1.5 flex-wrap">
+                <div className="flex gap-1 flex-shrink-0">
                   {CAT_KEYS.map((cat, i) => (
                     <button
                       key={cat}
                       onClick={() => setSelectedCat(cat)}
-                      className={`px-2.5 py-0.5 rounded-full text-xs border transition-all ${
+                      title={t.categories[i]}
+                      className={`w-8 h-8 rounded-full text-base flex items-center justify-center transition-all border ${
                         selectedCat === cat
-                          ? 'bg-primary text-primary-foreground border-primary'
-                          : 'border-border text-muted-foreground hover:border-primary'
+                          ? 'bg-primary/15 border-primary shadow-sm scale-110'
+                          : 'border-border hover:border-primary/50'
                       }`}
                     >
-                      {CAT_ICONS[cat]} {t.categories[i]}
+                      {CAT_ICONS[cat]}
                     </button>
                   ))}
                 </div>
               </div>
               <button
                 onClick={createPost}
-                disabled={posting}
-                className="bg-primary text-primary-foreground px-4 py-1.5 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+                disabled={posting || (!newText.trim() && !photoFile)}
+                className="bg-gradient-to-r from-tiffany to-deep-green text-white px-5 py-2 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-40 flex-shrink-0"
               >
-                📤 {t.post}
+                {posting ? '...' : t.post}
               </button>
             </div>
           </div>
 
+          {/* Filter tabs */}
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+            <button
+              onClick={() => setFilterCat('all')}
+              className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${filterCat === 'all' ? 'bg-primary text-white border-primary' : 'border-border text-muted-foreground hover:border-primary/50'}`}
+            >
+              🌐 {lang === 'lo' ? 'ທັງໝົດ' : 'All'}
+            </button>
+            {CAT_KEYS.map((cat, i) => (
+              <button
+                key={cat}
+                onClick={() => setFilterCat(cat)}
+                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${filterCat === cat ? 'bg-primary text-white border-primary' : 'border-border text-muted-foreground hover:border-primary/50'}`}
+              >
+                {CAT_ICONS[cat]} {t.categories[i]}
+              </button>
+            ))}
+          </div>
+
           {/* Posts */}
           <div className="space-y-4">
-            {posts.map(post => (
+            {filteredPosts.map(post => (
               <PostCard
                 key={post.id}
                 post={post}
@@ -162,10 +207,10 @@ export default function Feed() {
                 onRefresh={loadPosts}
               />
             ))}
-            {posts.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground">
-                <p className="text-4xl mb-3">📝</p>
-                <p>{t.noPosts}</p>
+            {filteredPosts.length === 0 && (
+              <div className="text-center py-14 text-muted-foreground">
+                <p className="text-5xl mb-3">📝</p>
+                <p className="font-semibold">{t.noPosts}</p>
               </div>
             )}
           </div>

@@ -51,6 +51,8 @@ module.exports = {
         success: 'hsl(var(--success))',
         warning: 'hsl(var(--warning))',
         info: 'hsl(var(--info))',
+        tiffany: 'hsl(var(--tiffany))',
+        'deep-green': 'hsl(var(--deep-green))',
   			chart: {
   				'1': 'hsl(var(--chart-1))',
   				'2': 'hsl(var(--chart-2))',
