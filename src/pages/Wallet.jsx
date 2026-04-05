@@ -69,7 +69,7 @@ export default function Wallet() {
       )}
 
       {/* Balance card */}
-      <div className="relative bg-gradient-to-br from-[#0ABAB5] via-[#08A8A4] to-[#2E7D5E] rounded-3xl p-6 text-white overflow-hidden mb-5 shadow-xl">
+      <div className="relative bg-gradient-to-br from-[#1a6b62] via-[#134f44] to-[#0d3d2e] rounded-3xl p-6 text-white overflow-hidden mb-5 shadow-xl">
         <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/8" />
         <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-white/6" />
         <p className="text-sm opacity-75 font-medium mb-1">{t.balance}</p>

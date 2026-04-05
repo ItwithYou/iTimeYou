@@ -15,9 +15,9 @@
     --card-foreground: 220 25% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 220 25% 10%;
-    --primary: 178 87% 38%;
+    --primary: 175 72% 28%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 158 42% 32%;
+    --secondary: 158 52% 23%;
     --secondary-foreground: 0 0% 100%;
     --muted: 200 15% 94%;
     --muted-foreground: 220 10% 48%;
@@ -27,8 +27,8 @@
     --destructive-foreground: 0 0% 98%;
     --border: 210 20% 89%;
     --input: 210 20% 89%;
-    --ring: 178 87% 38%;
-    --chart-1: 178 87% 38%;
+    --ring: 175 72% 28%;
+    --chart-1: 175 72% 28%;
     --chart-2: 158 42% 32%;
     --chart-3: 43 74% 53%;
     --chart-4: 12 76% 61%;
@@ -39,17 +39,17 @@
     --success: 158 55% 40%;
     --warning: 38 100% 53%;
     --info: 178 87% 38%;
-    --tiffany: 178 87% 38%;
-    --deep-green: 158 42% 32%;
+    --tiffany: 175 72% 28%;
+    --deep-green: 158 52% 23%;
 
     --sidebar-background: 0 0% 99%;
     --sidebar-foreground: 220 25% 10%;
-    --sidebar-primary: 178 87% 38%;
+    --sidebar-primary: 175 72% 28%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 200 15% 94%;
     --sidebar-accent-foreground: 220 25% 10%;
     --sidebar-border: 210 20% 89%;
-    --sidebar-ring: 178 87% 38%;
+    --sidebar-ring: 175 72% 28%;
   }
 
   .dark {
@@ -59,9 +59,9 @@
     --card-foreground: 210 20% 95%;
     --popover: 222 18% 11%;
     --popover-foreground: 210 20% 95%;
-    --primary: 178 87% 42%;
+    --primary: 175 72% 36%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 158 42% 38%;
+    --secondary: 158 52% 32%;
     --secondary-foreground: 0 0% 100%;
     --muted: 220 14% 16%;
     --muted-foreground: 215 12% 58%;
@@ -71,8 +71,8 @@
     --destructive-foreground: 0 0% 98%;
     --border: 220 15% 20%;
     --input: 220 15% 20%;
-    --ring: 178 87% 42%;
-    --chart-1: 178 87% 42%;
+    --ring: 175 72% 36%;
+    --chart-1: 175 72% 36%;
     --chart-2: 158 42% 38%;
     --chart-3: 43 85% 58%;
     --chart-4: 12 76% 65%;
@@ -82,17 +82,17 @@
     --success: 158 55% 45%;
     --warning: 38 100% 55%;
     --info: 178 87% 42%;
-    --tiffany: 178 87% 42%;
-    --deep-green: 158 42% 38%;
+    --tiffany: 175 72% 36%;
+    --deep-green: 158 52% 32%;
 
     --sidebar-background: 222 18% 8%;
     --sidebar-foreground: 210 20% 95%;
-    --sidebar-primary: 178 87% 42%;
+    --sidebar-primary: 175 72% 36%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 14% 16%;
     --sidebar-accent-foreground: 210 20% 95%;
     --sidebar-border: 220 15% 20%;
-    --sidebar-ring: 178 87% 42%;
+    --sidebar-ring: 175 72% 36%;
   }
 }
 

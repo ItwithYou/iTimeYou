@@ -33,7 +33,7 @@ export default function Home() {
       {/* Hero */}
       <section className="relative min-h-[480px] sm:min-h-[560px] flex items-center overflow-hidden">
         {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0ABAB5] via-[#0EA89E] to-[#2E7D5E]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1a6b62] via-[#155e52] to-[#0d3d2e]" />
         <div className="absolute inset-0 opacity-20"
           style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, #ffffff33 0%, transparent 50%), radial-gradient(circle at 80% 20%, #ffffff22 0%, transparent 40%)' }} />
 
@@ -149,7 +149,7 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="py-14 bg-gradient-to-r from-[#0ABAB5] to-[#2E7D5E] text-white text-center">
+      <section className="py-14 bg-gradient-to-r from-[#1a6b62] to-[#0d3d2e] text-white text-center">
         <div className="max-w-2xl mx-auto px-5">
           <h2 className="text-2xl sm:text-3xl font-black mb-3">{t.ctaTitle}</h2>
           <p className="opacity-85 mb-8 text-sm sm:text-base">{t.ctaDesc}</p>
