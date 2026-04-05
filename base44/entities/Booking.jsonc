@@ -1,0 +1,48 @@
+{
+  "name": "Booking",
+  "type": "object",
+  "properties": {
+    "listing_id": {
+      "type": "string"
+    },
+    "guest_email": {
+      "type": "string"
+    },
+    "host_email": {
+      "type": "string"
+    },
+    "check_in": {
+      "type": "string"
+    },
+    "check_out": {
+      "type": "string"
+    },
+    "guests": {
+      "type": "number"
+    },
+    "nights": {
+      "type": "number"
+    },
+    "total": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed",
+        "completed",
+        "cancelled"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "listing_id",
+    "guest_email",
+    "host_email",
+    "check_in",
+    "check_out",
+    "total"
+  ]
+}

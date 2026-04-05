@@ -1,0 +1,93 @@
+{
+  "name": "Listing",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "title_lao": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "description_lao": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "culture",
+        "stay",
+        "food",
+        "experience",
+        "home",
+        "nature"
+      ]
+    },
+    "city": {
+      "type": "string"
+    },
+    "city_lao": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "guests": {
+      "type": "number"
+    },
+    "beds": {
+      "type": "number"
+    },
+    "baths": {
+      "type": "number"
+    },
+    "price": {
+      "type": "number"
+    },
+    "cleaning_fee": {
+      "type": "number",
+      "default": 0
+    },
+    "service_fee": {
+      "type": "number",
+      "default": 0
+    },
+    "rating": {
+      "type": "number",
+      "default": 0
+    },
+    "review_count": {
+      "type": "number",
+      "default": 0
+    },
+    "amenities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "image_url": {
+      "type": "string"
+    },
+    "host_profile_id": {
+      "type": "string"
+    },
+    "host_email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "category",
+    "city",
+    "country",
+    "price",
+    "host_email"
+  ]
+}

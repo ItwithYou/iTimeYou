@@ -6,6 +6,17 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 // Add page imports here
+import Layout from './components/Layout';
+import Home from './pages/Home';
+import Feed from './pages/Feed';
+import Explore from './pages/Explore';
+import ListingDetail from './pages/ListingDetail';
+import Profile from './pages/Profile';
+import Wallet from './pages/Wallet';
+import Bookings from './pages/Bookings';
+import Messages from './pages/Messages';
+import Notifications from './pages/Notifications';
+// Add page imports here
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -33,8 +44,18 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      {/* Add your page Route elements here */}
-      <Route path="*" element={<PageNotFound />} />
+      <Route element={<Layout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/feed" element={<Feed />} />
+        <Route path="/explore" element={<Explore />} />
+        <Route path="/listing/:id" element={<ListingDetail />} />
+        <Route path="/profile/:id" element={<Profile />} />
+        <Route path="/wallet" element={<Wallet />} />
+        <Route path="/bookings" element={<Bookings />} />
+        <Route path="/messages" element={<Messages />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="*" element={<PageNotFound />} />
+      </Route>
     </Routes>
   );
 };

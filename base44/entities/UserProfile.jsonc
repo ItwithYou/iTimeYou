@@ -1,0 +1,92 @@
+{
+  "name": "UserProfile",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the registered user (links to User entity)"
+    },
+    "first_name": {
+      "type": "string"
+    },
+    "last_name": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "avatar_url": {
+      "type": "string"
+    },
+    "photo_url": {
+      "type": "string"
+    },
+    "bio": {
+      "type": "string"
+    },
+    "bio_lao": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "is_host": {
+      "type": "boolean",
+      "default": false
+    },
+    "trust_stars": {
+      "type": "number",
+      "default": 3.0
+    },
+    "total_ratings": {
+      "type": "number",
+      "default": 0
+    },
+    "rating_sum": {
+      "type": "number",
+      "default": 0
+    },
+    "wallet_balance": {
+      "type": "number",
+      "default": 100
+    },
+    "is_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "pending",
+        "verified",
+        "rejected"
+      ],
+      "default": "none"
+    },
+    "verification_name": {
+      "type": "string"
+    },
+    "verification_dob": {
+      "type": "string"
+    },
+    "id_document_url": {
+      "type": "string"
+    },
+    "selfie_url": {
+      "type": "string"
+    },
+    "friends": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "user_email",
+    "first_name",
+    "last_name"
+  ]
+}

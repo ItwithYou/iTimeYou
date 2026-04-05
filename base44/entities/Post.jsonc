@@ -1,0 +1,50 @@
+{
+  "name": "Post",
+  "type": "object",
+  "properties": {
+    "author_email": {
+      "type": "string"
+    },
+    "author_name": {
+      "type": "string"
+    },
+    "author_avatar": {
+      "type": "string"
+    },
+    "text": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "culture",
+        "stay",
+        "food",
+        "experience",
+        "home",
+        "nature"
+      ]
+    },
+    "photo_url": {
+      "type": "string"
+    },
+    "linked_listing_id": {
+      "type": "string"
+    },
+    "likes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "like_count": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "author_email",
+    "text"
+  ]
+}

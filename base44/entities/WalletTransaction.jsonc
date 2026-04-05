@@ -1,0 +1,34 @@
+{
+  "name": "WalletTransaction",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "description_lao": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "topup",
+        "withdraw",
+        "payment",
+        "received",
+        "send"
+      ]
+    }
+  },
+  "required": [
+    "user_email",
+    "amount",
+    "type",
+    "description"
+  ]
+}
