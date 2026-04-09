@@ -21,13 +21,12 @@ export default function Home() {
   };
 
   const categories = [
-    { key: 'culture', emoji: '🏛️', title: lang === 'lo' ? 'ວັດທະນະທຳ' : 'Culture' },
-    { key: 'stay', emoji: '🛏️', title: lang === 'lo' ? 'ທີ່ພັກ' : 'Stays' },
-    { key: 'food', emoji: '🍲', title: lang === 'lo' ? 'ອາຫານທ້ອງຖິ່ນ' : 'Local Food' },
-    { key: 'experience', emoji: '✨', title: lang === 'lo' ? 'ປະສົບການ' : 'Experiences' },
-    { key: 'home', emoji: '🧑‍🍳', title: lang === 'lo' ? 'ບໍລິການໂຮມສະເຕ' : 'Host Services' },
-    { key: 'nature', emoji: '🚶', title: lang === 'lo' ? 'ທ່ຽວທຳມະຊາດ' : 'Nature Trips' },
-  ];
+  { key: 'culture', emoji: '🏛️' },
+  { key: 'stay', emoji: '🏠' },
+  { key: 'food', emoji: '🍜' },
+  { key: 'experience', emoji: '🎭' },
+  { key: 'home', emoji: '🏡' },
+  { key: 'nature', emoji: '🌿' }];
 
 
   return (
@@ -78,25 +77,21 @@ export default function Home() {
 
       {/* Category pills */}
       <section className="py-6 bg-card border-b border-border sticky top-14 z-10">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex justify-center">
-            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 justify-center">
-              {categories.map((cat) =>
-              <Link
-                key={cat.key}
-                to={`/explore?cat=${cat.key}`}
-                className="flex flex-col items-center gap-2 flex-shrink-0 group min-w-[88px]">
-                
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center text-2xl group-hover:from-primary/20 group-hover:to-secondary/20 transition-all border border-border group-hover:border-primary/30 group-hover:shadow-md">
-                    {cat.emoji}
-                  </div>
-                  <span className="text-[11px] font-semibold text-muted-foreground group-hover:text-primary transition-colors text-center leading-tight max-w-[88px]">
-                    {cat.title}
-                  </span>
-                </Link>
-              )}
-            </div>
-          </div>
+        <div className="flex gap-3 overflow-x-auto px-4 max-w-6xl mx-auto scrollbar-hide pb-1">
+          {categories.map((cat, i) =>
+          <Link
+            key={cat.key}
+            to={`/explore?cat=${cat.key}`}
+            className="flex flex-col items-center gap-1.5 flex-shrink-0 group">
+            
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center text-2xl group-hover:from-primary/20 group-hover:to-secondary/20 transition-all border border-border group-hover:border-primary/30 group-hover:shadow-md">
+                {cat.emoji}
+              </div>
+              <span className="text-[10px] font-semibold text-muted-foreground group-hover:text-primary transition-colors text-center leading-tight max-w-[56px]">
+                {t.categories[i]}
+              </span>
+            </Link>
+          )}
         </div>
       </section>
 
