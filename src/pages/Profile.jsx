@@ -263,6 +263,21 @@ export default function Profile() {
         />
       )}
 
+      {currentUser?.role === 'admin' && !isOwn && (
+        <div className="mx-6 mt-8 bg-card border border-border rounded-2xl p-5 shadow-sm">
+          <h3 className="font-bold text-sm mb-2">Admin verification controls</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Review this user's verification details and approve or reject from the admin panel.
+          </p>
+          <button
+            onClick={() => navigate('/admin/verification')}
+            className="w-full sm:w-auto bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
+          >
+            Open verification approvals
+          </button>
+        </div>
+      )}
+
       {/* Delete Account Confirmation Dialog */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm">
