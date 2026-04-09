@@ -40,7 +40,7 @@ export default function Home() {
 
         <div className="relative w-full max-w-3xl mx-auto text-center text-white px-5 py-14">
           <div className="absolute top-4 left-4">
-            <img src="https://media.base44.com/images/public/69d24b2d55b4f5275f81d6df/5910b1767_image.png" alt="iTimeYou" className="h-10 w-auto" />
+            <img src="https://media.base44.com/images/public/69d24b2d55b4f5275f81d6df/5910b1767_image.png" alt="iTimeYou" className="opacity-40 h-10 w-auto" />
           </div>
           
 
