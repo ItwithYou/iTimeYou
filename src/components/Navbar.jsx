@@ -23,9 +23,8 @@ export default function Navbar({ profile, t, lang, setLang }) {
     <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-border shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 font-extrabold text-xl flex-shrink-0">
-          <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-tiffany to-deep-green flex items-center justify-center text-white text-base">⏰</span>
-          <span className="text-primary font-black tracking-tight hidden sm:block">iTimeYou</span>
+        <Link to="/" className="flex items-center flex-shrink-0">
+          <img src="https://media.base44.com/images/public/69d24b2d55b4f5275f81d6df/5910b1767_image.png" alt="iTimeYou" className="h-9 w-auto" />
         </Link>
 
         {/* Desktop search */}

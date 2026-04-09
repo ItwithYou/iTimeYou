@@ -39,6 +39,9 @@ export default function Home() {
           style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, #ffffff33 0%, transparent 50%), radial-gradient(circle at 80% 20%, #ffffff22 0%, transparent 40%)' }} />
 
         <div className="relative w-full max-w-3xl mx-auto text-center text-white px-5 py-14">
+          <div className="absolute top-4 left-4">
+            <img src="https://media.base44.com/images/public/69d24b2d55b4f5275f81d6df/5910b1767_image.png" alt="iTimeYou" className="h-10 w-auto" />
+          </div>
           <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm font-medium mb-6 border border-white/30">
             <Globe size={14} /> {lang === 'lo' ? 'ຍິນດີຕ້ອນຮັບສູ່ iTimeYou' : 'Welcome to iTimeYou'}
           </div>
