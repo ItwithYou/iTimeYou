@@ -38,7 +38,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
     await base44.entities.Comment.create({
       post_id: post.id,
       author_email: currentUserEmail,
-      author_name: '',
+      author_name: profile ? `${profile.first_name} ${profile.last_name}`.trim() : currentUserEmail,
       text: commentText,
     });
     setCommentText('');
@@ -141,7 +141,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
                     className="w-6 h-6 rounded-full flex-shrink-0"
                   />
                   <div className="bg-card rounded-xl px-3 py-1.5 text-xs">
-                    <span className="font-bold">{c.author_name || c.author_email}</span>{' '}
+                    <span className="font-bold">{c.author_name || (c.author_email ? c.author_email.split('@')[0] : 'User')}</span>{' '}
                     <span className="text-muted-foreground">{c.text}</span>
                   </div>
                 </div>
