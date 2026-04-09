@@ -11,6 +11,7 @@ import AdminVerification from './pages/AdminVerification';
 import ListingDetail from './pages/ListingDetail';
 import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
+import Messages from './pages/Messages';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -45,7 +46,7 @@ const AuthenticatedApp = () => {
         <Route path="/explore" element={null} />
         <Route path="/wallet" element={null} />
         <Route path="/bookings" element={null} />
-        <Route path="/messages" element={null} />
+        <Route path="/messages" element={<Messages />} />
         <Route path="/listing/:id" element={<ListingDetail />} />
         <Route path="/profile/:id" element={<Profile />} />
         <Route path="/notifications" element={<Notifications />} />
