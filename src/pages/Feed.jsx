@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 
 export default function Feed() {
   const { profile, currentUser, t, lang } = useAppContext();
+  const { refreshing, pullDistance, threshold } = usePullToRefresh(loadPosts, '/feed');
   const [posts, setPosts] = useState([]);
   const [filterCat, setFilterCat] = useState('all');
 
@@ -20,8 +21,6 @@ export default function Feed() {
     const data = await base44.entities.Post.list('-created_date', 30);
     setPosts(data);
   };
-
-  const { refreshing, pullDistance, threshold } = usePullToRefresh(loadPosts, '/feed');
 
   useEffect(() => { loadPosts(); }, []);
 
