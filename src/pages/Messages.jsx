@@ -61,9 +61,9 @@ export default function Messages() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-64px)]">
+    <div className="flex h-[calc(100vh-64px)] relative">
       {/* Conversation list */}
-      <div className="w-full md:w-80 border-r border-border bg-card overflow-y-auto flex-shrink-0">
+      <div className={`${activeConv ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-border bg-card overflow-y-auto flex-shrink-0`}>
         <div className="p-4 border-b border-border">
           <h2 className="font-bold text-lg">{t.messages}</h2>
         </div>
@@ -98,10 +98,13 @@ export default function Messages() {
       </div>
 
       {/* Chat area */}
-      <div className="flex-1 flex flex-col bg-muted/30 hidden md:flex">
+      <div className={`${activeConv ? 'flex' : 'hidden md:flex'} flex-1 flex-col bg-muted/30`}>
         {activeConv ? (
           <>
             <div className="flex items-center gap-3 px-5 py-3 bg-card border-b border-border">
+              <button onClick={() => setActiveConv(null)} className="md:hidden mr-1 text-muted-foreground">
+                ←
+              </button>
               {(() => {
                 const other = getOtherParticipant(activeConv);
                 return (

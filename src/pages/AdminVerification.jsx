@@ -8,6 +8,7 @@ export default function AdminVerification() {
   const { currentUser, lang } = useOutletContext();
   const [profiles, setProfiles] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [bottomProfile, setBottomProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -109,7 +110,7 @@ export default function AdminVerification() {
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button
-                    onClick={() => setSelected(selected?.id === p.id ? null : p)}
+                    onClick={() => { setSelected(selected?.id === p.id ? null : p); setBottomProfile(selected?.id === p.id ? null : p); }}
                     className="flex items-center gap-1 border border-border px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-muted transition-colors"
                   >
                     <Eye size={13} /> View Docs
@@ -156,6 +157,28 @@ export default function AdminVerification() {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Sticky bottom action bar */}
+      {selected && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border shadow-2xl px-4 py-4 flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-sm truncate">{selected.first_name} {selected.last_name}</p>
+            <p className="text-xs text-muted-foreground truncate">{selected.user_email}</p>
+          </div>
+          <button
+            onClick={() => { approve(selected); setSelected(null); setBottomProfile(null); }}
+            className="flex items-center gap-1.5 bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
+          >
+            <Check size={15} /> Approve
+          </button>
+          <button
+            onClick={() => { reject(selected); setSelected(null); setBottomProfile(null); }}
+            className="flex items-center gap-1.5 bg-destructive text-destructive-foreground px-5 py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
+          >
+            <X size={15} /> Reject
+          </button>
         </div>
       )}
     </div>
