@@ -50,23 +50,29 @@ export default function Navbar({ profile, t, lang, setLang }) {
             </Link>
           ))}
 
-          <Link to={`/profile/${profile?.id || ''}`} className="ml-1">
-            <img
-              src={profile?.photo_url || profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=default`}
-              alt=""
-              className="w-8 h-8 rounded-full border-2 border-border object-cover hover:border-primary transition-colors"
-            />
-          </Link>
-
-          {profile?.role === 'admin' && (
-            <Link to="/admin/verification" className={`flex items-center gap-1 px-2 py-2 rounded-lg text-sm transition-colors ml-1 ${location.pathname === '/admin/verification' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>
-              <ShieldCheck size={18} />
+          <div className="ml-2 flex items-center gap-2 pl-3 border-l border-border">
+            <Link to={`/profile/${profile?.id || ''}`} className="flex items-center gap-2">
+              <img
+                src={profile?.photo_url || profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=default`}
+                alt=""
+                className="w-8 h-8 rounded-full border-2 border-border object-cover hover:border-primary transition-colors"
+              />
+              <span className="hidden xl:block text-sm font-semibold text-foreground max-w-[120px] truncate">
+                {profile?.first_name || 'User'}
+              </span>
             </Link>
-          )}
 
-          <button onClick={handleLogout} className="flex items-center gap-1 px-2 py-2 rounded-lg text-sm text-muted-foreground hover:text-destructive transition-colors ml-1">
-            <LogOut size={16} />
-          </button>
+            {profile?.role === 'admin' && (
+              <Link to="/admin/verification" className={`flex items-center gap-1 px-2 py-2 rounded-lg text-sm transition-colors ${location.pathname === '/admin/verification' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>
+                <ShieldCheck size={18} />
+              </Link>
+            )}
+
+            <button onClick={handleLogout} className="flex items-center gap-1 px-2 py-2 rounded-lg text-sm text-muted-foreground hover:text-destructive transition-colors">
+              <LogOut size={16} />
+              <span className="hidden xl:inline">Logout</span>
+            </button>
+          </div>
 
           <LangToggle lang={lang} setLang={setLang} />
         </div>

@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
-import { Search, Star, MapPin, Shield, Globe, ArrowRight } from 'lucide-react';
+import { Search, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import ListingCard from '../components/ListingCard';
 import { CAT_ICONS, CAT_KEYS } from '../hooks/useLang';
 
 export default function Home() {
-  const { t, lang, profile } = useAppContext();
+  const { t, lang } = useAppContext();
   const [listings, setListings] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
@@ -38,39 +38,85 @@ export default function Home() {
         <div className="absolute inset-0 opacity-20"
         style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, #ffffff33 0%, transparent 50%), radial-gradient(circle at 80% 20%, #ffffff22 0%, transparent 40%)' }} />
 
-        <div className="relative w-full max-w-3xl mx-auto text-center text-white px-5 py-14">
+        <div className="relative w-full max-w-5xl mx-auto text-white px-5 py-14">
           <div className="absolute top-4 left-4">
-            <img src="https://media.base44.com/images/public/69d24b2d55b4f5275f81d6df/5910b1767_image.png" alt="iTimeYou" className="opacity-40 h-10 w-auto" />
+            <img src="https://media.base44.com/images/public/69d24b2d55b4f5275f81d6df/5910b1767_image.png" alt="iTimeYou" className="opacity-90 h-10 w-auto" />
           </div>
-          
-
-          
-          <h1 className="mb-3 text-sm font-black tracking-tight leading-tight opacity-45 sm:text-5xl drop-shadow-sm">
-            {t.heroTitle}
-          </h1>
-          <p className="text-lg sm:text-xl opacity-90 mb-2 font-lao">{t.heroLao}</p>
-          <p className="text-sm sm:text-base opacity-80 mb-8 max-w-xl mx-auto leading-relaxed">{t.heroDesc}</p>
-
-          {/* Search bar */}
-          <div className="flex bg-white rounded-2xl p-1.5 shadow-2xl max-w-md mx-auto">
-            <div className="flex items-center flex-1 px-3">
-              <Search size={16} className="text-muted-foreground flex-shrink-0" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder={t.searchPlaceholder}
-                className="flex-1 bg-transparent px-3 py-1.5 text-foreground outline-none text-sm" />
-              
-            </div>
+          <div className="absolute top-4 right-4 flex gap-3">
             <button
-              onClick={handleSearch}
-              className="bg-gradient-to-r from-tiffany to-deep-green text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity flex items-center gap-2">
-              
-              <Search size={15} />
-              <span className="hidden sm:inline">{t.search}</span>
+              onClick={() => base44.auth.redirectToLogin('/')}
+              className="border border-white/40 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-white/20 transition-colors"
+            >
+              Log in
             </button>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-10 items-center pt-10">
+            <div className="text-left">
+              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-1.5 text-sm font-medium mb-5">
+                <span>Trusted local connections</span>
+              </div>
+              <h1 className="mb-4 text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight drop-shadow-sm">
+                Discover stays, services, and real local experiences in one place.
+              </h1>
+              <p className="text-base sm:text-lg opacity-90 mb-6 max-w-2xl leading-relaxed">
+                iTimeYou helps people connect with trusted hosts, book unique experiences, chat directly, and pay simply inside the app. It’s a faster, more personal way to explore and do business locally.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-3 mb-8">
+                <button
+                  onClick={() => base44.auth.redirectToLogin('/')}
+                  className="bg-white text-primary px-6 py-3 rounded-xl font-bold text-sm hover:opacity-95 transition-opacity shadow-lg"
+                >
+                  Sign up free
+                </button>
+                <button
+                  onClick={handleSearch}
+                  className="border border-white/40 bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-white/20 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Search size={16} />
+                  Explore now
+                </button>
+              </div>
+
+              <div className="grid sm:grid-cols-3 gap-3 text-sm">
+                {[
+                  'Chat directly with hosts and users',
+                  'Book trusted local services faster',
+                  'Pay securely in one simple flow',
+                ].map((item) => (
+                  <div key={item} className="flex items-start gap-2 bg-white/10 border border-white/10 rounded-2xl p-3">
+                    <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white/10 border border-white/15 backdrop-blur-md rounded-3xl p-5 sm:p-6 shadow-2xl">
+              <p className="text-sm font-semibold opacity-90 mb-3">Why people choose iTimeYou</p>
+              <div className="space-y-3">
+                {[
+                  {
+                    title: 'Everything in one app',
+                    text: 'From finding a place to stay to booking food, culture, and local experiences, everything is easy to discover in one trusted platform.',
+                  },
+                  {
+                    title: 'More trust, less friction',
+                    text: 'Profiles, messaging, reviews, and identity verification help people feel confident before they book or connect.',
+                  },
+                  {
+                    title: 'Built for local business growth',
+                    text: 'Hosts and service providers can showcase what makes them special, attract customers, and build repeat relationships.',
+                  },
+                ].map((item) => (
+                  <div key={item.title} className="rounded-2xl bg-white/10 p-4 border border-white/10">
+                    <h3 className="font-bold text-lg mb-1">{item.title}</h3>
+                    <p className="text-sm opacity-85 leading-relaxed">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
