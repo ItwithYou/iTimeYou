@@ -10,16 +10,28 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
   const { profile, currentUser } = useAppContext();
   const [showBookModal, setShowBookModal] = useState(false);
   const [comments, setComments] = useState([]);
+  const [commentProfiles, setCommentProfiles] = useState({});
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [liked, setLiked] = useState(post.likes?.includes(currentUserEmail));
   const [likeCount, setLikeCount] = useState(post.like_count || 0);
   const catIndex = ['culture', 'stay', 'food', 'experience', 'home', 'nature'].indexOf(post.category);
 
-  useEffect(() => {
-    if (showComments) {
-      base44.entities.Comment.filter({ post_id: post.id }).then(setComments);
+  const loadComments = async () => {
+    const data = await base44.entities.Comment.filter({ post_id: post.id });
+    setComments(data);
+    // fetch profiles to resolve real names
+    const emails = [...new Set(data.map(c => c.author_email).filter(Boolean))];
+    if (emails.length > 0) {
+      const profiles = await base44.entities.UserProfile.list('-created_date', 100);
+      const map = {};
+      profiles.forEach(p => { map[p.user_email] = `${p.first_name} ${p.last_name}`.trim(); });
+      setCommentProfiles(map);
     }
+  };
+
+  useEffect(() => {
+    if (showComments) loadComments();
   }, [post.id, showComments]);
 
   const toggleLike = async () => {
@@ -42,8 +54,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
       text: commentText,
     });
     setCommentText('');
-    const updated = await base44.entities.Comment.filter({ post_id: post.id });
-    setComments(updated);
+    await loadComments();
   };
 
   return (
@@ -141,7 +152,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
                     className="w-6 h-6 rounded-full flex-shrink-0"
                   />
                   <div className="bg-card rounded-xl px-3 py-1.5 text-xs">
-                    <span className="font-bold">{c.author_name || (c.author_email ? c.author_email.split('@')[0] : 'User')}</span>{' '}
+                    <span className="font-bold">{commentProfiles[c.author_email] || c.author_name || 'User'}</span>{' '}
                     <span className="text-muted-foreground">{c.text}</span>
                   </div>
                 </div>
