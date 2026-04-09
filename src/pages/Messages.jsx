@@ -17,12 +17,19 @@ export default function Messages() {
     base44.entities.Conversation.list('-updated_date', 30).then(async convs => {
       const myConvs = convs.filter(c => c.participants?.includes(currentUser.email));
       setConversations(myConvs);
-      // Load participant profiles
       const allEmails = [...new Set(myConvs.flatMap(c => c.participants || []))];
       const allProfiles = await base44.entities.UserProfile.list('-created_date', 100);
       const map = {};
       allProfiles.forEach(p => { map[p.user_email] = p; });
       setProfiles(map);
+
+      // Auto-open conversation from URL param
+      const params = new URLSearchParams(window.location.search);
+      const convId = params.get('conv');
+      if (convId) {
+        const target = myConvs.find(c => c.id === convId);
+        if (target) openConversation(target);
+      }
     });
   }, [currentUser]);
 

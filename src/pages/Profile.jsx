@@ -6,7 +6,8 @@ import TrustBadge from '../components/TrustBadge';
 import VerificationBadge from '../components/VerificationBadge';
 import ListingCard from '../components/ListingCard';
 import PostCard from '../components/PostCard';
-import { MapPin, Calendar, Users, Home, Camera, Shield, Trash2 } from 'lucide-react';
+import { MapPin, Calendar, Users, Home, Camera, Shield, Trash2, MessageCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import VerificationModal from '../components/VerificationModal';
 import ReviewSection from '../components/ReviewSection';
@@ -24,6 +25,25 @@ export default function Profile() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const isOwn = viewProfile?.user_email === currentUser?.email;
+  const navigate = useNavigate();
+
+  const startChat = async () => {
+    const existing = await base44.entities.Conversation.list('-updated_date', 50);
+    const found = existing.find(c =>
+      c.participants?.includes(currentUser.email) && c.participants?.includes(viewProfile.user_email)
+    );
+    let convId;
+    if (found) {
+      convId = found.id;
+    } else {
+      const conv = await base44.entities.Conversation.create({
+        participants: [currentUser.email, viewProfile.user_email],
+        last_message: '',
+      });
+      convId = conv.id;
+    }
+    navigate(`/messages?conv=${convId}`);
+  };
 
   useEffect(() => {
     loadProfile();
@@ -172,6 +192,19 @@ export default function Profile() {
         <div className="mx-6 mt-4 bg-amber-50 rounded-xl p-5">
           <h3 className="font-semibold">⏳ {t.verPending}</h3>
           <p className="text-sm text-muted-foreground mt-1">We're reviewing your documents — usually 1-2 business days.</p>
+        </div>
+      )}
+
+      {/* Message button for other users */}
+      {!isOwn && currentUser && (
+        <div className="flex justify-center mt-4 px-6">
+          <button
+            onClick={startChat}
+            className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
+          >
+            <MessageCircle size={15} />
+            {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມ' : 'Send Message'}
+          </button>
         </div>
       )}
 
