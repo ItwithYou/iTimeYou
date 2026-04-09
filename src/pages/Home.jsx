@@ -32,27 +32,7 @@ export default function Home() {
   return (
     <div className="overflow-x-hidden">
       {/* Hero */}
-      <section className="relative min-h-[480px] sm:min-h-[560px] flex items-center overflow-hidden">
-        {/* Gradient background */}
-        
-        
-        
-
-        <div className="relative w-full max-w-5xl mx-auto text-white px-5 py-14">
-          <div className="absolute top-4 left-4">
-            <img src="https://media.base44.com/images/public/69d24b2d55b4f5275f81d6df/5910b1767_image.png" alt="iTimeYou" className="opacity-90 h-10 w-auto" />
-          </div>
-          <div className="absolute top-4 right-4 flex gap-3">
-            <button
-              onClick={() => base44.auth.redirectToLogin('/')}
-              className="border border-white/40 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-white/20 transition-colors">
-              
-              Log in
-            </button>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-10 items-center pt-10">
-            
+      
 
 
 
@@ -91,9 +71,6 @@ export default function Home() {
 
 
 
-            
-
-            
 
 
 
@@ -116,10 +93,33 @@ export default function Home() {
 
 
 
-            
-          </div>
-        </div>
-      </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
 
       {/* Category pills */}
       <section className="py-6 bg-card border-b border-border sticky top-14 z-10">
