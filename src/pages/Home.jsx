@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useOutletContext, Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAppContext } from '../lib/AppContext';
 import { Search, Star, MapPin, Shield, Globe, ArrowRight } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import ListingCard from '../components/ListingCard';
 import { CAT_ICONS, CAT_KEYS } from '../hooks/useLang';
 
 export default function Home() {
-  const { t, lang, profile } = useOutletContext();
+  const { t, lang, profile } = useAppContext();
   const [listings, setListings] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();

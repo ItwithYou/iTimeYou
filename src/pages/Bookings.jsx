@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useOutletContext, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
 import { MapPin, Calendar } from 'lucide-react';
 
 export default function Bookings() {
-  const { currentUser, t, lang } = useOutletContext();
+  const { currentUser, t, lang } = useAppContext();
   const [bookings, setBookings] = useState([]);
   const [listings, setListings] = useState({});
 

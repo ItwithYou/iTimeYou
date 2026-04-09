@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useOutletContext, useParams, Link, useNavigate } from 'react-router-dom';
+import MobileDatePicker from '../components/MobileDatePicker';
 import { base44 } from '@/api/base44Client';
 import { Star, MapPin, Users, Bed, Bath, Check, MessageCircle } from 'lucide-react';
 import StarRating from '../components/StarRating';
@@ -168,11 +169,23 @@ export default function ListingDetail() {
                 <div className="grid grid-cols-2 gap-3 my-4">
                   <div>
                     <label className="text-xs font-semibold text-muted-foreground">Check-in</label>
-                    <input type="date" value={checkIn} onChange={e => setCheckIn(e.target.value)} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+                    <MobileDatePicker
+                      value={checkIn}
+                      onChange={setCheckIn}
+                      placeholder="Select check-in"
+                      label="Check-in Date"
+                      min={new Date().toISOString().split('T')[0]}
+                    />
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-muted-foreground">Check-out</label>
-                    <input type="date" value={checkOut} onChange={e => setCheckOut(e.target.value)} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+                    <MobileDatePicker
+                      value={checkOut}
+                      onChange={setCheckOut}
+                      placeholder="Select check-out"
+                      label="Check-out Date"
+                      min={checkIn || new Date().toISOString().split('T')[0]}
+                    />
                   </div>
                 </div>
                 <div className="mb-4">

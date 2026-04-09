@@ -1,12 +1,20 @@
 import { useState, useEffect } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useAppContext } from '../lib/AppContext';
+import usePullToRefresh from '../hooks/usePullToRefresh';
+import { RefreshCw } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import ListingCard from '../components/ListingCard';
 import { CAT_KEYS, CAT_ICONS } from '../hooks/useLang';
 import { Search } from 'lucide-react';
 
 export default function Explore() {
-  const { t, lang } = useOutletContext();
+  const { t, lang } = useAppContext();
+
+  const loadData = () => base44.entities.Listing.list('-created_date', 50).then(data => {
+    setListings(data);
+    filterData(data, searchQuery, activeCat, sortBy);
+  });
+  const { refreshing, pullDistance, threshold } = usePullToRefresh(loadData, '/explore');
   const [listings, setListings] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -60,6 +68,18 @@ export default function Explore() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
+      {/* Pull-to-refresh indicator */}
+      {(pullDistance > 8 || refreshing) && (
+        <div
+          className="fixed left-1/2 -translate-x-1/2 z-40 bg-card shadow-lg rounded-full p-2.5 border border-border pointer-events-none"
+          style={{ top: `calc(4rem + ${Math.min(pullDistance * 0.6, 48)}px)` }}
+        >
+          {refreshing
+            ? <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            : <RefreshCw size={18} className="text-primary" style={{ transform: `rotate(${pullDistance * 4}deg)`, opacity: Math.min(pullDistance / threshold, 1) }} />
+          }
+        </div>
+      )}
       {/* Search bar */}
       <div className="bg-card rounded-xl p-4 shadow-sm mb-4 flex flex-col md:flex-row gap-3">
         <div className="flex-1 flex items-center border border-border rounded-lg px-3">

@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useOutletContext, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useAppContext } from '../lib/AppContext';
+import usePullToRefresh from '../hooks/usePullToRefresh';
+import { RefreshCw } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import PostCard from '../components/PostCard';
 import StarRating from '../components/StarRating';
@@ -9,7 +12,8 @@ import CreateServicePost from '../components/CreateServicePost';
 import { toast } from 'sonner';
 
 export default function Feed() {
-  const { profile, currentUser, t, lang } = useOutletContext();
+  const { profile, currentUser, t, lang } = useAppContext();
+  const { refreshing, pullDistance, threshold } = usePullToRefresh(loadPosts, '/feed');
   const [posts, setPosts] = useState([]);
   const [filterCat, setFilterCat] = useState('all');
 
@@ -24,6 +28,18 @@ export default function Feed() {
 
   return (
     <div className="max-w-4xl mx-auto px-3 sm:px-4 py-5">
+      {/* Pull-to-refresh indicator */}
+      {(pullDistance > 8 || refreshing) && (
+        <div
+          className="fixed left-1/2 -translate-x-1/2 z-40 bg-card shadow-lg rounded-full p-2.5 border border-border pointer-events-none"
+          style={{ top: `calc(4rem + ${Math.min(pullDistance * 0.6, 48)}px)` }}
+        >
+          {refreshing
+            ? <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            : <RefreshCw size={18} className="text-primary" style={{ transform: `rotate(${pullDistance * 4}deg)`, opacity: Math.min(pullDistance / threshold, 1) }} />
+          }
+        </div>
+      )}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
         {/* Sidebar — desktop only */}
         <div className="hidden lg:block space-y-3">

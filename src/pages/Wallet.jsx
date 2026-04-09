@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useOutletContext, useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
 import { ArrowUp, ArrowDown, Send, ArrowDownLeft, Shield, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
@@ -14,7 +15,7 @@ const typeConfig = {
 };
 
 export default function Wallet() {
-  const { profile, currentUser, t, lang, refreshProfile } = useOutletContext();
+  const { profile, currentUser, t, lang, refreshProfile } = useAppContext();
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
 

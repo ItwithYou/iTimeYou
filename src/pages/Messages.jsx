@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
 import { Send, MessageCircle } from 'lucide-react';
 import moment from 'moment';
 
 export default function Messages() {
-  const { currentUser, t } = useOutletContext();
+  const { currentUser, t } = useAppContext();
   const [conversations, setConversations] = useState([]);
   const [activeConv, setActiveConv] = useState(null);
   const [messages, setMessages] = useState([]);
