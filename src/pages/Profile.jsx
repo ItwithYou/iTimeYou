@@ -6,7 +6,7 @@ import TrustBadge from '../components/TrustBadge';
 import VerificationBadge from '../components/VerificationBadge';
 import ListingCard from '../components/ListingCard';
 import PostCard from '../components/PostCard';
-import { MapPin, Calendar, Users, Home, Camera, Shield } from 'lucide-react';
+import { MapPin, Calendar, Users, Home, Camera, Shield, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import VerificationModal from '../components/VerificationModal';
 import ReviewSection from '../components/ReviewSection';
@@ -21,6 +21,7 @@ export default function Profile() {
   const [editing, setEditing] = useState(false);
   const [editData, setEditData] = useState({});
   const [showVerModal, setShowVerModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const isOwn = viewProfile?.user_email === currentUser?.email;
 
@@ -114,14 +115,17 @@ export default function Profile() {
         </p>
 
         {isOwn && (
-          <div className="flex gap-2 justify-center mt-4">
-            <button onClick={() => setEditing(!editing)} className="border border-border px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-muted transition-colors">
+          <div className="flex gap-2 justify-center mt-4 flex-wrap">
+            <button onClick={() => setEditing(!editing)} className="border border-border px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-muted transition-colors select-none">
               ✏️ {t.editProfile}
             </button>
-            <label className="bg-primary text-primary-foreground px-4 py-1.5 rounded-lg text-sm font-semibold cursor-pointer hover:opacity-90">
+            <label className="bg-primary text-primary-foreground px-4 py-1.5 rounded-lg text-sm font-semibold cursor-pointer hover:opacity-90 select-none">
               <Camera size={14} className="inline mr-1" />
               <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
             </label>
+            <button onClick={() => setShowDeleteConfirm(true)} className="flex items-center gap-1.5 border border-destructive/50 text-destructive px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-destructive/5 transition-colors select-none">
+              <Trash2 size={13} /> {lang === 'lo' ? 'ລຶບບັນຊີ' : 'Delete Account'}
+            </button>
           </div>
         )}
       </div>
@@ -224,6 +228,38 @@ export default function Profile() {
           onClose={() => setShowVerModal(false)}
           onSubmitted={() => { setShowVerModal(false); loadProfile(); refreshProfile(); }}
         />
+      )}
+
+      {/* Delete Account Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-card rounded-t-3xl sm:rounded-2xl w-full sm:max-w-sm p-6 shadow-xl border border-border">
+            <div className="text-center mb-4">
+              <div className="text-3xl mb-2">⚠️</div>
+              <h3 className="font-bold text-base">{lang === 'lo' ? 'ລຶບບັນຊີຂອງທ່ານ?' : 'Delete your account?'}</h3>
+              <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                {lang === 'lo' ? 'ການດຳເນີນການນີ້ບໍ່ສາມາດຍ້ອນຄືນໄດ້. ຂໍ້ມູນທັງໝົດຈະຖືກລຶບ.' : 'This action cannot be undone. All your data will be permanently deleted.'}
+              </p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={async () => {
+                  await base44.entities.UserProfile.delete(viewProfile.id);
+                  base44.auth.logout();
+                }}
+                className="w-full bg-destructive text-destructive-foreground py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity select-none"
+              >
+                {lang === 'lo' ? 'ຢືນຢັນການລຶບ' : 'Yes, Delete My Account'}
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="w-full border border-border py-3 rounded-xl font-semibold text-sm hover:bg-muted transition-colors select-none"
+              >
+                {lang === 'lo' ? 'ຍົກເລີກ' : 'Cancel'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

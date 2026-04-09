@@ -73,16 +73,19 @@ export default function Explore() {
             className="flex-1 bg-transparent px-3 py-2 text-sm outline-none"
           />
         </div>
-        <select
-          value={sortBy}
-          onChange={e => { setSortBy(e.target.value); filterData(listings, searchQuery, activeCat, e.target.value); }}
-          className="border border-border rounded-lg px-3 py-2 text-sm bg-transparent outline-none"
-        >
-          <option value="">Recent</option>
-          <option value="price_low">Price ↑</option>
-          <option value="price_high">Price ↓</option>
-          <option value="rating">Rating</option>
-        </select>
+        <div className="flex gap-1.5 flex-wrap">
+          {[{ v: '', label: '🕐 Recent' }, { v: 'price_low', label: '💲↑ Low' }, { v: 'price_high', label: '💲↓ High' }, { v: 'rating', label: '⭐ Top' }].map(opt => (
+            <button
+              key={opt.v}
+              onClick={() => { setSortBy(opt.v); filterData(listings, searchQuery, activeCat, opt.v); }}
+              className={`px-3 py-2 rounded-lg border text-xs font-semibold transition-all select-none ${
+                sortBy === opt.v ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:border-primary'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
         <button
           onClick={handleFilter}
           className="bg-primary text-primary-foreground px-6 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"

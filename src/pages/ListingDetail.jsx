@@ -177,11 +177,11 @@ export default function ListingDetail() {
                 </div>
                 <div className="mb-4">
                   <label className="text-xs font-semibold text-muted-foreground">{t.guests}</label>
-                  <select value={guestCount} onChange={e => setGuestCount(Number(e.target.value))} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary">
-                    {Array.from({ length: listing.guests || 1 }, (_, i) => (
-                      <option key={i} value={i + 1}>{i + 1}</option>
-                    ))}
-                  </select>
+                  <div className="flex items-center gap-3 mt-1.5">
+                    <button onClick={() => setGuestCount(g => Math.max(1, g - 1))} className="w-9 h-9 rounded-xl border border-border flex items-center justify-center text-lg font-bold hover:bg-muted transition-colors select-none">−</button>
+                    <span className="flex-1 text-center font-bold text-sm border border-border rounded-xl py-2 bg-muted/40">{guestCount} {t.guests}</span>
+                    <button onClick={() => setGuestCount(g => Math.min(listing.guests || 1, g + 1))} className="w-9 h-9 rounded-xl border border-border flex items-center justify-center text-lg font-bold hover:bg-muted transition-colors select-none">+</button>
+                  </div>
                 </div>
                 {nights > 0 && (
                   <div className="border-t border-border pt-3 space-y-2 mb-4">

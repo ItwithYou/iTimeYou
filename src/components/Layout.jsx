@@ -4,6 +4,7 @@ import Footer from './Footer';
 import BottomNav from './BottomNav';
 import useLang from '../hooks/useLang';
 import useProfile from '../hooks/useProfile';
+import MobileHeader from './MobileHeader';
 
 export default function Layout() {
   const { lang, setLang, t } = useLang();
@@ -23,8 +24,11 @@ export default function Layout() {
   return (
     <div className={`min-h-screen bg-background ${lang === 'lo' ? 'font-lao' : 'font-inter'}`}>
       <Navbar profile={profile} t={t} lang={lang} setLang={setLang} />
+      <MobileHeader t={t} />
       <main className="pb-20 md:pb-0">
-        <Outlet context={{ profile, currentUser, t, lang, setLang, refreshProfile }} />
+        <div className="page-transition">
+          <Outlet context={{ profile, currentUser, t, lang, setLang, refreshProfile }} />
+        </div>
       </main>
       <BottomNav t={t} />
       <div className="hidden md:block">
