@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 // Add page imports here
 import Layout from './components/Layout';
+import AdminVerification from './pages/AdminVerification';
 import ListingDetail from './pages/ListingDetail';
 import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
@@ -48,6 +49,7 @@ const AuthenticatedApp = () => {
         <Route path="/listing/:id" element={<ListingDetail />} />
         <Route path="/profile/:id" element={<Profile />} />
         <Route path="/notifications" element={<Notifications />} />
+        <Route path="/admin/verification" element={<AdminVerification />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Home, Compass, Calendar, Wallet, MessageCircle, Bell, LogOut, Menu, X, User } from 'lucide-react';
+import { Search, Home, Compass, Calendar, Wallet, MessageCircle, Bell, LogOut, Menu, X, User, ShieldCheck } from 'lucide-react';
 import LangToggle from './LangToggle';
 import { base44 } from '@/api/base44Client';
 
@@ -58,6 +58,12 @@ export default function Navbar({ profile, t, lang, setLang }) {
               className="w-8 h-8 rounded-full border-2 border-border object-cover hover:border-primary transition-colors"
             />
           </Link>
+
+          {profile?.role === 'admin' && (
+            <Link to="/admin/verification" className={`flex items-center gap-1 px-2 py-2 rounded-lg text-sm transition-colors ml-1 ${location.pathname === '/admin/verification' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>
+              <ShieldCheck size={18} />
+            </Link>
+          )}
 
           <button onClick={handleLogout} className="flex items-center gap-1 px-2 py-2 rounded-lg text-sm text-muted-foreground hover:text-destructive transition-colors ml-1">
             <LogOut size={16} />
