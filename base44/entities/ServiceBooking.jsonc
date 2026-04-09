@@ -1,0 +1,45 @@
+{
+  "name": "ServiceBooking",
+  "type": "object",
+  "properties": {
+    "post_id": {
+      "type": "string"
+    },
+    "poster_email": {
+      "type": "string"
+    },
+    "booker_email": {
+      "type": "string"
+    },
+    "booker_name": {
+      "type": "string"
+    },
+    "service_type": {
+      "type": "string"
+    },
+    "service_when": {
+      "type": "string"
+    },
+    "service_duration": {
+      "type": "number"
+    },
+    "price": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed",
+        "cancelled"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "post_id",
+    "poster_email",
+    "booker_email",
+    "price"
+  ]
+}

@@ -41,6 +41,24 @@
     "like_count": {
       "type": "number",
       "default": 0
+    },
+    "service_type": {
+      "type": "string"
+    },
+    "service_type_emoji": {
+      "type": "string"
+    },
+    "service_price": {
+      "type": "number"
+    },
+    "service_duration": {
+      "type": "number"
+    },
+    "service_duration_unit": {
+      "type": "string"
+    },
+    "service_when": {
+      "type": "string"
     }
   },
   "required": [

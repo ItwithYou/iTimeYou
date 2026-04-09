@@ -135,11 +135,17 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
       author_email: currentUser.email,
       author_name: `${profile.first_name} ${profile.last_name}`,
       author_avatar: profile.photo_url || profile.avatar_url,
-      text: `${text}\n\n${serviceDetails}`,
+      text: `${text}`,
       category: service.key === 'talking' || service.key === 'culture' ? 'culture' : service.key === 'food' ? 'food' : service.key === 'room' ? 'stay' : service.key === 'experience' ? 'experience' : service.key === 'nature' ? 'nature' : 'home',
       photo_url,
       likes: [],
       like_count: 0,
+      service_type: lang === 'lo' ? service.lo : service.en,
+      service_type_emoji: service.emoji,
+      service_price: price ? parseFloat(price) : 0,
+      service_duration: duration,
+      service_duration_unit: service.timeUnit,
+      service_when: when,
     });
     setText('');
     setPhotoFile(null);

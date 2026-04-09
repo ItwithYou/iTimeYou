@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Share2, Send } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Send, CalendarCheck } from 'lucide-react';
+import { useAppContext } from '../lib/AppContext';
+import BookServiceModal from './BookServiceModal';
 import { base44 } from '@/api/base44Client';
 import { CAT_ICONS } from '../hooks/useLang';
 import moment from 'moment';
 
 export default function PostCard({ post, currentUserEmail, t, lang, onRefresh }) {
+  const { profile, currentUser } = useAppContext();
+  const [showBookModal, setShowBookModal] = useState(false);
   const [comments, setComments] = useState([]);
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
@@ -78,6 +82,19 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
         <span>{comments.length || post.comment_count || 0} {t.comments}</span>
       </div>
 
+      {/* Book button for service posts */}
+      {post.service_price > 0 && currentUserEmail !== post.author_email && (
+        <div className="px-4 pb-3">
+          <button
+            onClick={() => setShowBookModal(true)}
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-tiffany to-deep-green text-white py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
+          >
+            <CalendarCheck size={15} />
+            {lang === 'lo' ? 'ຈອງ & ຈ່າຍ' : 'Book & Pay'} — ${post.service_price}
+          </button>
+        </div>
+      )}
+
       {/* Actions */}
       <div className="flex border-t border-border">
         <button
@@ -99,6 +116,17 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
           {t.share}
         </button>
       </div>
+
+      {showBookModal && (
+        <BookServiceModal
+          post={post}
+          profile={profile}
+          currentUser={currentUser}
+          lang={lang}
+          onClose={() => setShowBookModal(false)}
+          onBooked={onRefresh}
+        />
+      )}
 
       {/* Comments section */}
       {showComments && (
