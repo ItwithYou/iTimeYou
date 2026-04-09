@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Heart, MessageCircle, Share2, Send, CalendarCheck } from 'lucide-react';
 import { useAppContext } from '../lib/AppContext';
+import ImageLightbox from './ImageLightbox';
 import BookServiceModal from './BookServiceModal';
 import { base44 } from '@/api/base44Client';
 import { CAT_ICONS } from '../hooks/useLang';
@@ -14,6 +15,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [liked, setLiked] = useState(post.likes?.includes(currentUserEmail));
+  const [lightboxSrc, setLightboxSrc] = useState(null);
   const [likeCount, setLikeCount] = useState(post.like_count || 0);
   const catIndex = ['culture', 'stay', 'food', 'experience', 'home', 'nature'].indexOf(post.category);
 
@@ -82,10 +84,11 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
 
       {/* Photo */}
       {post.photo_url && (
-        <div className="max-h-80 overflow-hidden">
+        <div className="max-h-80 overflow-hidden cursor-zoom-in" onClick={() => setLightboxSrc(post.photo_url)}>
           <img src={post.photo_url} alt="" className="w-full object-cover" />
         </div>
       )}
+      <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
 
       {/* Stats */}
       <div className="flex gap-4 px-4 py-2 text-xs text-muted-foreground border-t border-border/50">

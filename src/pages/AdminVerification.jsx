@@ -3,12 +3,14 @@ import { useOutletContext } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { Check, X, Eye } from 'lucide-react';
+import ImageLightbox from '../components/ImageLightbox';
 
 export default function AdminVerification() {
   const { currentUser, lang } = useOutletContext();
   const [profiles, setProfiles] = useState([]);
   const [selected, setSelected] = useState(null);
   const [bottomProfile, setBottomProfile] = useState(null);
+  const [lightboxSrc, setLightboxSrc] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -136,9 +138,7 @@ export default function AdminVerification() {
                   <div>
                     <p className="text-xs font-semibold text-muted-foreground mb-2">🪪 ID Document</p>
                     {p.id_document_url ? (
-                      <a href={p.id_document_url} target="_blank" rel="noreferrer">
-                        <img src={p.id_document_url} alt="ID" className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity" />
-                      </a>
+                      <img src={p.id_document_url} alt="ID" onClick={() => setLightboxSrc(p.id_document_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
                     ) : (
                       <div className="bg-muted rounded-xl h-32 flex items-center justify-center text-muted-foreground text-sm">No document uploaded</div>
                     )}
@@ -146,9 +146,7 @@ export default function AdminVerification() {
                   <div>
                     <p className="text-xs font-semibold text-muted-foreground mb-2">🤳 Selfie with ID</p>
                     {p.selfie_url ? (
-                      <a href={p.selfie_url} target="_blank" rel="noreferrer">
-                        <img src={p.selfie_url} alt="Selfie" className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity" />
-                      </a>
+                      <img src={p.selfie_url} alt="Selfie" onClick={() => setLightboxSrc(p.selfie_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
                     ) : (
                       <div className="bg-muted rounded-xl h-32 flex items-center justify-center text-muted-foreground text-sm">No selfie uploaded</div>
                     )}
@@ -159,6 +157,8 @@ export default function AdminVerification() {
           ))}
         </div>
       )}
+
+      <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
 
       {/* Sticky bottom action bar */}
       {selected && (
