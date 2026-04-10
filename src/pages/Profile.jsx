@@ -153,7 +153,7 @@ export default function Profile() {
               <p className="mt-1 text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Follower'}</p>
             </div>
             <div className="text-center">
-              <p className="text-3xl font-black tracking-tight text-foreground">{posts.filter((post) => post.service_price > 0).length}</p>
+              <p className="text-3xl font-black tracking-tight text-foreground">{posts.filter((post) => post.author_email === viewProfile.user_email && post.service_price > 0).length}</p>
               <p className="mt-1 text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ໃຫ້ບໍລິການ' : 'Provide Service'}</p>
             </div>
             <div className="text-center">
