@@ -1,15 +1,38 @@
-import { Star, MapPin, Heart } from 'lucide-react';
+import { Star, MapPin, Heart, MoreHorizontal, Pencil, Trash2, Check, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { base44 } from '@/api/base44Client';
 import { CAT_ICONS } from '../hooks/useLang';
 import ImageLightbox from './ImageLightbox';
+import useProfile from '../hooks/useProfile';
 
 export default function ListingCard({ listing, t, lang }) {
+  const { currentUser } = useProfile();
   const [saved, setSaved] = useState(false);
   const [showLightbox, setShowLightbox] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(listing.title || '');
+  const [editImageUrl, setEditImageUrl] = useState(listing.image_url || '');
   const catIndex = ['culture', 'stay', 'food', 'experience', 'home', 'nature'].indexOf(listing.category);
   const catLabel = t.categories[catIndex] || listing.category;
   const icon = CAT_ICONS[listing.category] || '📌';
+  const isAdmin = currentUser?.role === 'admin';
+
+  const handleDelete = async () => {
+    if (!window.confirm(lang === 'lo' ? 'ລຶບລາຍການນີ້?' : 'Delete this listing?')) return;
+    await base44.entities.Listing.delete(listing.id);
+    window.location.reload();
+  };
+
+  const handleEdit = async () => {
+    await base44.entities.Listing.update(listing.id, {
+      title: editTitle,
+      image_url: editImageUrl,
+    });
+    setEditing(false);
+    window.location.reload();
+  };
 
   return (
     <div className="group relative bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-border">
@@ -38,41 +61,86 @@ export default function ListingCard({ listing, t, lang }) {
             ✦ Top
           </span>
         )}
+        {isAdmin && (
+          <div className="absolute top-3 right-14 z-10">
+            <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowMenu(!showMenu); }}
+              className="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md"
+            >
+              <MoreHorizontal size={14} className="text-muted-foreground" />
+            </button>
+            {showMenu && (
+              <div className="absolute right-0 top-10 bg-card border border-border rounded-xl shadow-lg overflow-hidden min-w-[160px]">
+                <button onClick={() => { setEditing(true); setShowMenu(false); }} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm hover:bg-muted transition-colors">
+                  <Pencil size={13} /> {lang === 'lo' ? 'ແກ້ໄຂ' : 'Edit'}
+                </button>
+                <button onClick={handleDelete} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-destructive hover:bg-destructive/5 transition-colors">
+                  <Trash2 size={13} /> {lang === 'lo' ? 'ລຶບ' : 'Delete'}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Content */}
-      <Link to={`/listing/${listing.id}`} className="block p-4">
-        <div className="flex justify-between items-start mb-1.5">
-          <h3 className="font-bold text-sm leading-tight flex-1 mr-2 text-foreground">
-            {lang === 'lo' && listing.title_lao ? listing.title_lao : listing.title}
-          </h3>
-          <div className="flex items-center gap-1 text-amber-500 text-sm whitespace-nowrap flex-shrink-0">
-            <Star size={13} className="fill-amber-400" />
-            <span className="font-semibold text-xs">{(listing.rating || 0).toFixed(1)}</span>
-            {listing.review_count > 0 && <span className="text-muted-foreground text-xs">({listing.review_count} {t.reviews})</span>}
+      {editing ? (
+        <div className="p-4">
+          <input
+            value={editTitle}
+            onChange={e => setEditTitle(e.target.value)}
+            placeholder={lang === 'lo' ? 'ຊື່ລາຍການ' : 'Listing title'}
+            className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary mb-2"
+          />
+          <input
+            value={editImageUrl}
+            onChange={e => setEditImageUrl(e.target.value)}
+            placeholder={lang === 'lo' ? 'ລິ້ງຮູບພາບ' : 'Image URL'}
+            className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary mb-3"
+          />
+          <div className="flex gap-2">
+            <button onClick={handleEdit} className="flex items-center gap-1 bg-primary text-primary-foreground px-4 py-1.5 rounded-lg text-xs font-semibold hover:opacity-90">
+              <Check size={12} /> Save
+            </button>
+            <button onClick={() => { setEditing(false); setEditTitle(listing.title || ''); setEditImageUrl(listing.image_url || ''); }} className="flex items-center gap-1 border border-border px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-muted">
+              <X size={12} /> Cancel
+            </button>
           </div>
         </div>
-        <p className="text-muted-foreground text-xs flex items-center gap-1 mb-2">
-          <MapPin size={11} />
-          {lang === 'lo' && listing.city_lao ? listing.city_lao : listing.city}, {listing.country}
-        </p>
-        {(listing.guests > 0 || listing.beds > 0) && (
-          <p className="text-muted-foreground text-xs mb-3">
-            {listing.guests > 0 && `${listing.guests} ${t.guests}`}
-            {listing.beds > 0 && ` · ${listing.beds} ${t.beds}`}
-            {listing.baths > 0 && ` · ${listing.baths} ${t.bath}`}
+      ) : (
+        <Link to={`/listing/${listing.id}`} className="block p-4">
+          <div className="flex justify-between items-start mb-1.5">
+            <h3 className="font-bold text-sm leading-tight flex-1 mr-2 text-foreground">
+              {lang === 'lo' && listing.title_lao ? listing.title_lao : listing.title}
+            </h3>
+            <div className="flex items-center gap-1 text-amber-500 text-sm whitespace-nowrap flex-shrink-0">
+              <Star size={13} className="fill-amber-400" />
+              <span className="font-semibold text-xs">{(listing.rating || 0).toFixed(1)}</span>
+              {listing.review_count > 0 && <span className="text-muted-foreground text-xs">({listing.review_count} {t.reviews})</span>}
+            </div>
+          </div>
+          <p className="text-muted-foreground text-xs flex items-center gap-1 mb-2">
+            <MapPin size={11} />
+            {lang === 'lo' && listing.city_lao ? listing.city_lao : listing.city}, {listing.country}
           </p>
-        )}
-        <div className="flex items-center justify-between">
-          <p className="text-sm">
-            <span className="text-primary font-black text-lg">${listing.price}</span>
-            <span className="text-muted-foreground text-xs"> {t.perNight}</span>
-          </p>
-          <span className="text-xs bg-primary/8 text-primary px-2.5 py-1 rounded-lg font-semibold border border-primary/20">
-            {lang === 'lo' ? 'ຈອງ' : 'Book'}
-          </span>
-        </div>
-      </Link>
+          {(listing.guests > 0 || listing.beds > 0) && (
+            <p className="text-muted-foreground text-xs mb-3">
+              {listing.guests > 0 && `${listing.guests} ${t.guests}`}
+              {listing.beds > 0 && ` · ${listing.beds} ${t.beds}`}
+              {listing.baths > 0 && ` · ${listing.baths} ${t.bath}`}
+            </p>
+          )}
+          <div className="flex items-center justify-between">
+            <p className="text-sm">
+              <span className="text-primary font-black text-lg">${listing.price}</span>
+              <span className="text-muted-foreground text-xs"> {t.perNight}</span>
+            </p>
+            <span className="text-xs bg-primary/8 text-primary px-2.5 py-1 rounded-lg font-semibold border border-primary/20">
+              {lang === 'lo' ? 'ຈອງ' : 'Book'}
+            </span>
+          </div>
+        </Link>
+      )}
 
       {showLightbox && <ImageLightbox src={listing.image_url} onClose={() => setShowLightbox(false)} />}
     </div>
