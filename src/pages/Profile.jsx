@@ -141,8 +141,8 @@ export default function Profile() {
               <p className="mt-1 text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ໃຫ້ບໍລິການ' : 'Provide Service'}</p>
             </div>
             <div className="text-center">
-              
-              
+              <p className="text-lg font-black tracking-tight text-foreground capitalize">{viewProfile.gender || '-'}</p>
+              <p className="mt-1 text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ເພດ' : 'Gender'}</p>
             </div>
           </div>
         </div>
