@@ -105,7 +105,7 @@ export default function Feed() {
                 <div className="text-muted-foreground">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Followers'}</div>
               </div>
               <div className="text-center">
-                <strong className="text-base font-bold">{posts.filter((post) => post.service_price > 0).length}</strong>
+                <strong className="text-base font-bold">{posts.filter((post) => post.author_email === currentUser?.email && post.service_price > 0).length}</strong>
                 <div className="text-muted-foreground">{lang === 'lo' ? 'ບໍລິການ' : 'Services'}</div>
               </div>
             </div>
