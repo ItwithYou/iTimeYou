@@ -95,11 +95,11 @@ export default function Feed() {
             <div className="flex justify-around mt-3 pt-3 border-t border-border text-xs">
               <div className="text-center">
                 <strong className="text-base font-bold">{(profile?.friends || []).length}</strong>
-                <div className="text-muted-foreground">{t.friends}</div>
+                <div className="text-muted-foreground">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Followers'}</div>
               </div>
               <div className="text-center">
-                
-                
+                <strong className="text-base font-bold">{posts.filter((post) => post.service_price > 0).length}</strong>
+                <div className="text-muted-foreground">{lang === 'lo' ? 'ບໍລິການ' : 'Services'}</div>
               </div>
             </div>
           </div>
