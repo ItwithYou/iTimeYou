@@ -31,12 +31,19 @@ export default function AdminVerification() {
       verification_status: 'verified',
       is_verified: true,
     });
-    await base44.entities.Notification.create({
-      user_email: profile.user_email,
-      type: '✅',
-      text: 'Your identity has been verified! You can now use all features.',
-      text_lao: 'ຕົວຕົນຂອງທ່ານໄດ້ຖືກຢືນຢັນແລ້ວ! ທ່ານສາມາດໃຊ້ທຸກຟັງຊັ່ນໄດ້ແລ້ວ.',
-    });
+    await Promise.all([
+      base44.entities.Notification.create({
+        user_email: profile.user_email,
+        type: '✅',
+        text: 'Your identity has been verified! You can now use all features.',
+        text_lao: 'ຕົວຕົນຂອງທ່ານໄດ້ຖືກຢືນຢັນແລ້ວ! ທ່ານສາມາດໃຊ້ທຸກຟັງຊັ່ນໄດ້ແລ້ວ.',
+      }),
+      base44.functions.invoke('sendVerificationEmail', {
+        email: profile.user_email,
+        status: 'verified',
+        fullName: `${profile.first_name || ''} ${profile.last_name || ''}`.trim(),
+      }),
+    ]);
     toast.success('Profile approved ✅');
     setSelected(null);
     loadProfiles();
@@ -47,12 +54,19 @@ export default function AdminVerification() {
       verification_status: 'rejected',
       is_verified: false,
     });
-    await base44.entities.Notification.create({
-      user_email: profile.user_email,
-      type: '❌',
-      text: 'Your identity verification was rejected. Please resubmit with clearer documents.',
-      text_lao: 'ການຢືນຢັນຕົວຕົນຂອງທ່ານຖືກປະຕິເສດ. ກະລຸນາສົ່ງໃໝ່ດ້ວຍເອກະສານທີ່ຊັດເຈນກວ່າ.',
-    });
+    await Promise.all([
+      base44.entities.Notification.create({
+        user_email: profile.user_email,
+        type: '❌',
+        text: 'Your identity verification was rejected. Please resubmit with clearer documents.',
+        text_lao: 'ການຢືນຢັນຕົວຕົນຂອງທ່ານຖືກປະຕິເສດ. ກະລຸນາສົ່ງໃໝ່ດ້ວຍເອກະສານທີ່ຊັດເຈນກວ່າ.',
+      }),
+      base44.functions.invoke('sendVerificationEmail', {
+        email: profile.user_email,
+        status: 'rejected',
+        fullName: `${profile.first_name || ''} ${profile.last_name || ''}`.trim(),
+      }),
+    ]);
     toast.success('Profile rejected');
     setSelected(null);
     loadProfiles();

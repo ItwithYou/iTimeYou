@@ -107,6 +107,7 @@
   button, a, nav a {
     -webkit-user-select: none;
     user-select: none;
+    touch-action: manipulation;
   }
 }
 
