@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Share2, Send, MoreHorizontal, Pencil, Trash2, X, Check, MapPin } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Send, MoreHorizontal, Pencil, Trash2, X, Check, MapPin, Image as ImageIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import ImageLightbox from './ImageLightbox';
@@ -20,6 +20,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(post.text);
   const [editPhotoUrl, setEditPhotoUrl] = useState(post.photo_url || '');
+  const [editPhotoFile, setEditPhotoFile] = useState(null);
   const [comments, setComments] = useState([]);
   const [commentProfiles, setCommentProfiles] = useState({});
   const [showComments, setShowComments] = useState(false);
@@ -72,7 +73,14 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
   };
 
   const handleEdit = async () => {
-    await base44.entities.Post.update(post.id, { text: editText, photo_url: editPhotoUrl });
+    let nextPhotoUrl = editPhotoUrl;
+    if (editPhotoFile) {
+      const upload = await base44.integrations.Core.UploadFile({ file: editPhotoFile });
+      nextPhotoUrl = upload.file_url;
+    }
+    await base44.entities.Post.update(post.id, { text: editText, photo_url: nextPhotoUrl });
+    setEditPhotoUrl(nextPhotoUrl);
+    setEditPhotoFile(null);
     setEditing(false);
     onRefresh?.();
   };
@@ -115,6 +123,8 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
     await loadComments();
   };
 
+  const displayPhotoUrl = editPhotoFile ? URL.createObjectURL(editPhotoFile) : (editPhotoUrl || post.photo_url || '');
+  const safeDisplayPhotoUrl = displayPhotoUrl?.trim();
   const shareText = `${post.service_type ? `${post.service_type} · ` : ''}${post.text || ''}`.trim();
   const shareUrl = post.service_location_map_url || window.location.href;
 
@@ -217,11 +227,19 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
             placeholder={lang === 'lo' ? 'ລິ້ງຮູບພາບ' : 'Photo URL'}
             className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary mt-2"
           />
+          <label className="mt-2 flex items-center gap-2 w-fit cursor-pointer text-xs font-semibold text-primary">
+            <ImageIcon size={14} />
+            {lang === 'lo' ? 'ເລືອກຮູບຈາກຄອມ' : 'Choose photo from desktop'}
+            <input type="file" accept="image/*" className="hidden" onChange={e => setEditPhotoFile(e.target.files?.[0] || null)} />
+          </label>
+          {safeDisplayPhotoUrl && (
+            <img src={safeDisplayPhotoUrl} alt="" className="mt-2 w-full max-h-52 object-cover rounded-xl border border-border" />
+          )}
           <div className="flex gap-2 mt-2">
             <button onClick={handleEdit} className="flex items-center gap-1 bg-primary text-primary-foreground px-4 py-1.5 rounded-lg text-xs font-semibold hover:opacity-90">
               <Check size={12} /> Save
             </button>
-            <button onClick={() => { setEditing(false); setEditText(post.text); setEditPhotoUrl(post.photo_url || ''); }} className="flex items-center gap-1 border border-border px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-muted">
+            <button onClick={() => { setEditing(false); setEditText(post.text); setEditPhotoUrl(post.photo_url || ''); setEditPhotoFile(null); }} className="flex items-center gap-1 border border-border px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-muted">
               <X size={12} /> Cancel
             </button>
           </div>
@@ -231,9 +249,9 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
       )}
 
       {/* Photo */}
-      {post.photo_url && (
-        <div className="max-h-80 overflow-hidden cursor-zoom-in" onClick={() => setLightboxSrc(post.photo_url)}>
-          <img src={post.photo_url} alt="" className="w-full object-cover" />
+      {safeDisplayPhotoUrl && (
+        <div className="max-h-80 overflow-hidden cursor-zoom-in" onClick={() => setLightboxSrc(safeDisplayPhotoUrl)}>
+          <img src={safeDisplayPhotoUrl} alt="" className="w-full object-cover" />
         </div>
       )}
 

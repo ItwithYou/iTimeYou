@@ -1,4 +1,4 @@
-import { Star, MapPin, Heart, MoreHorizontal, Pencil, Trash2, Check, X } from 'lucide-react';
+import { Star, MapPin, Heart, MoreHorizontal, Pencil, Trash2, Check, X, Image as ImageIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
@@ -15,10 +15,13 @@ export default function ListingCard({ listing, t, lang }) {
   const [editTitle, setEditTitle] = useState(listing.title || '');
   const [editDescription, setEditDescription] = useState(listing.description || '');
   const [editImageUrl, setEditImageUrl] = useState(listing.image_url || '');
+  const [editImageFile, setEditImageFile] = useState(null);
   const catIndex = ['culture', 'stay', 'food', 'experience', 'home', 'nature'].indexOf(listing.category);
   const catLabel = t.categories[catIndex] || listing.category;
   const icon = CAT_ICONS[listing.category] || '📌';
   const isAdmin = currentUser?.role === 'admin';
+  const displayImageUrl = editImageFile ? URL.createObjectURL(editImageFile) : (editImageUrl || listing.image_url || '');
+  const safeDisplayImageUrl = displayImageUrl?.trim();
 
   const handleDelete = async () => {
     if (!window.confirm(lang === 'lo' ? 'ລຶບລາຍການນີ້?' : 'Delete this listing?')) return;
@@ -27,11 +30,18 @@ export default function ListingCard({ listing, t, lang }) {
   };
 
   const handleEdit = async () => {
+    let nextImageUrl = editImageUrl;
+    if (editImageFile) {
+      const upload = await base44.integrations.Core.UploadFile({ file: editImageFile });
+      nextImageUrl = upload.file_url;
+    }
     await base44.entities.Listing.update(listing.id, {
       title: editTitle,
       description: editDescription,
-      image_url: editImageUrl,
+      image_url: nextImageUrl,
     });
+    setEditImageUrl(nextImageUrl);
+    setEditImageFile(null);
     setEditing(false);
     window.location.reload();
   };
@@ -41,7 +51,7 @@ export default function ListingCard({ listing, t, lang }) {
       {/* Image */}
       <div className="h-52 overflow-hidden relative cursor-pointer" onClick={() => setShowLightbox(true)}>
         <img
-          src={listing.image_url}
+          src={safeDisplayImageUrl}
           alt={listing.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
@@ -105,13 +115,21 @@ export default function ListingCard({ listing, t, lang }) {
             value={editImageUrl}
             onChange={e => setEditImageUrl(e.target.value)}
             placeholder={lang === 'lo' ? 'ລິ້ງຮູບພາບ' : 'Image URL'}
-            className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary mb-3"
+            className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary mb-2"
           />
+          <label className="mb-2 flex items-center gap-2 w-fit cursor-pointer text-xs font-semibold text-primary">
+            <ImageIcon size={14} />
+            {lang === 'lo' ? 'ເລືອກຮູບຈາກຄອມ' : 'Choose photo from desktop'}
+            <input type="file" accept="image/*" className="hidden" onChange={e => setEditImageFile(e.target.files?.[0] || null)} />
+          </label>
+          {safeDisplayImageUrl && (
+            <img src={safeDisplayImageUrl} alt="" className="w-full max-h-52 object-cover rounded-xl border border-border mb-3" />
+          )}
           <div className="flex gap-2">
             <button onClick={handleEdit} className="flex items-center gap-1 bg-primary text-primary-foreground px-4 py-1.5 rounded-lg text-xs font-semibold hover:opacity-90">
               <Check size={12} /> Save
             </button>
-            <button onClick={() => { setEditing(false); setEditTitle(listing.title || ''); setEditDescription(listing.description || ''); setEditImageUrl(listing.image_url || ''); }} className="flex items-center gap-1 border border-border px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-muted">
+            <button onClick={() => { setEditing(false); setEditTitle(listing.title || ''); setEditDescription(listing.description || ''); setEditImageUrl(listing.image_url || ''); setEditImageFile(null); }} className="flex items-center gap-1 border border-border px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-muted">
               <X size={12} /> Cancel
             </button>
           </div>
@@ -151,7 +169,7 @@ export default function ListingCard({ listing, t, lang }) {
         </Link>
       )}
 
-      {showLightbox && <ImageLightbox src={listing.image_url} onClose={() => setShowLightbox(false)} />}
+      {showLightbox && safeDisplayImageUrl && <ImageLightbox src={safeDisplayImageUrl} onClose={() => setShowLightbox(false)} />}
     </div>
   );
 }
