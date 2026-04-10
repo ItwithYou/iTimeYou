@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import usePullToRefresh from '../hooks/usePullToRefresh';
 import { RefreshCw } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import ListingCard from '../components/ListingCard';
+import CreateServicePost from '../components/CreateServicePost';
 import { CAT_KEYS, CAT_ICONS } from '../hooks/useLang';
 import { Search } from 'lucide-react';
 
 export default function Explore() {
-  const { t, lang } = useAppContext();
+  const { t, lang, profile, currentUser } = useAppContext();
 
   const loadData = () => base44.entities.Listing.list('-created_date', 50).then(data => {
     setListings(data);
@@ -83,6 +85,26 @@ export default function Explore() {
           }
         </div>
       )}
+      {profile?.is_pro ? (
+        <CreateServicePost
+          profile={{ ...profile, first_name: profile.business_name || profile.first_name, last_name: '' }}
+          currentUser={currentUser}
+          lang={lang}
+          t={t}
+          onPosted={loadData}
+        />
+      ) : (
+        <div className="bg-card rounded-2xl p-4 shadow-sm border border-border mb-5">
+          <h3 className="font-bold text-sm mb-1">{lang === 'lo' ? 'ລົງໂພສທຸລະກິດ' : 'Post business service'}</h3>
+          <p className="text-sm text-muted-foreground mb-3">
+            {lang === 'lo' ? 'ກ່ອນລົງໂພສໃນໜ້າ Business ທ່ານຕ້ອງຜ່ານ Pro ກ່ອນ' : 'Before posting on the Business page, you must pass Pro verification first.'}
+          </p>
+          <Link to={`/profile/${profile?.id || ''}`} className="inline-flex items-center justify-center bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity">
+            {profile?.is_verified ? (lang === 'lo' ? 'ໄປສະໝັກ Pro' : 'Go to apply Pro') : (lang === 'lo' ? 'ໄປຢືນຢັນບັນຊີ' : 'Go to verify profile')}
+          </Link>
+        </div>
+      )}
+
       {/* Search bar */}
       <div className="bg-card rounded-2xl p-4 shadow-sm border border-border mb-5">
         <div className="flex flex-col sm:flex-row gap-3">

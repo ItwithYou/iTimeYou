@@ -182,7 +182,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
     const serviceLocationMapUrl = getGoogleMapsUrl(location);
     await base44.entities.Post.create({
       author_email: currentUser.email,
-      author_name: `${profile.first_name} ${profile.last_name}`,
+      author_name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim(),
       author_avatar: profile.photo_url || profile.avatar_url,
       text: `${text}`,
       category: service.key === 'talking' || service.key === 'culture' ? 'culture' : service.key === 'food' ? 'food' : service.key === 'room' ? 'stay' : service.key === 'experience' ? 'experience' : service.key === 'nature' ? 'nature' : 'home',

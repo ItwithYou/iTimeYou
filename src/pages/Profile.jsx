@@ -11,6 +11,7 @@ import { MapPin, Calendar, Users, Home, Camera, Shield, Trash2, MessageCircle, K
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import VerificationModal from '../components/VerificationModal';
+import ProVerificationModal from '../components/ProVerificationModal';
 import ReviewSection from '../components/ReviewSection';
 import ImageLightbox from '../components/ImageLightbox';
 
@@ -28,8 +29,6 @@ export default function Profile() {
   const [showProModal, setShowProModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [photoLightbox, setPhotoLightbox] = useState(null);
-  const [proForm, setProForm] = useState({ business_name: '', business_tax_id: '', business_license_url: '' });
-  const [proLicenseFile, setProLicenseFile] = useState(null);
   const photoUploadRef = useRef(null);
 
   const isOwn = viewProfile?.user_email === currentUser?.email;
@@ -365,57 +364,16 @@ export default function Profile() {
       }
 
       {showProModal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm" onMouseDown={e => { if (e.target === e.currentTarget) setShowProModal(false); }}>
-          <div className="bg-card rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md p-6 shadow-xl border border-border">
-            <h3 className="font-bold text-base mb-4">{lang === 'lo' ? 'ສະໝັກ Pro' : 'Apply for Pro'}</h3>
-            <div className="space-y-3">
-              <input
-                value={proForm.business_name}
-                onChange={(e) => setProForm({ ...proForm, business_name: e.target.value })}
-                placeholder={lang === 'lo' ? 'ຊື່ທຸລະກິດ' : 'Business name'}
-                className="w-full border border-border rounded-lg px-3 py-2 text-sm"
-              />
-              <input
-                value={proForm.business_tax_id}
-                onChange={(e) => setProForm({ ...proForm, business_tax_id: e.target.value })}
-                placeholder={lang === 'lo' ? 'ເລກ Tax ID' : 'Tax ID number'}
-                className="w-full border border-border rounded-lg px-3 py-2 text-sm"
-              />
-              <label className="block border-2 border-dashed border-border rounded-xl px-3 py-3 text-sm text-muted-foreground cursor-pointer hover:border-primary">
-                {proLicenseFile ? `✅ ${proLicenseFile.name}` : (lang === 'lo' ? 'ອັບໂຫລດໃບອະນຸຍາດທຸລະກິດ' : 'Upload business license')}
-                <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => setProLicenseFile(e.target.files?.[0] || null)} />
-              </label>
-            </div>
-            <div className="flex gap-2 mt-4">
-              <button onClick={() => setShowProModal(false)} className="flex-1 border border-border py-2.5 rounded-xl text-sm font-semibold">{lang === 'lo' ? 'ຍົກເລີກ' : 'Cancel'}</button>
-              <button
-                onClick={async () => {
-                  if (!proForm.business_name || !proForm.business_tax_id || !proLicenseFile) {
-                    toast.error(lang === 'lo' ? 'ກະລຸນາກອກຂໍ້ມູນໃຫ້ຄົບ' : 'Please complete all fields');
-                    return;
-                  }
-                  const upload = await base44.integrations.Core.UploadFile({ file: proLicenseFile });
-                  await base44.entities.UserProfile.update(viewProfile.id, {
-                    business_name: proForm.business_name,
-                    business_tax_id: proForm.business_tax_id,
-                    business_license_url: upload.file_url,
-                    pro_verification_status: 'pending',
-                    pro_reject_reason: '',
-                  });
-                  setShowProModal(false);
-                  setProForm({ business_name: '', business_tax_id: '', business_license_url: '' });
-                  setProLicenseFile(null);
-                  loadProfile();
-                  refreshProfile();
-                  toast.success(lang === 'lo' ? 'ສົ່ງຄຳຂໍ Pro ແລ້ວ' : 'Pro request submitted');
-                }}
-                className="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold"
-              >
-                {lang === 'lo' ? 'ສົ່ງຄຳຂໍ' : 'Submit'}
-              </button>
-            </div>
-          </div>
-        </div>
+        <ProVerificationModal
+          profile={viewProfile}
+          lang={lang}
+          onClose={() => setShowProModal(false)}
+          onSubmitted={() => {
+            setShowProModal(false);
+            loadProfile();
+            refreshProfile();
+          }}
+        />
       )}
 
       {currentUser?.role === 'admin' && !isOwn && viewProfile.verification_status === 'pending' &&
