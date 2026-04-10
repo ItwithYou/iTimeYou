@@ -211,8 +211,8 @@ export default function Wallet() {
           { label: lang === 'lo' ? 'ທຸລະກຳ' : 'Transactions', value: transactions.length, color: 'text-foreground' },
         ].map(stat => (
           <div key={stat.label} className="bg-card rounded-2xl p-3 text-center border border-border shadow-sm">
-            <p className={`font-bold text-base ${stat.color}`}>{stat.value}</p>
-            <p className="text-xs text-muted-foreground mt-0.5 leading-tight">{stat.label}</p>
+            <p className={`font-semibold text-[13px] sm:text-[14px] tracking-[-0.02em] leading-tight break-all ${stat.color}`}>{stat.value}</p>
+            <p className="text-xs text-muted-foreground mt-1 leading-tight">{stat.label}</p>
           </div>
         ))}
       </div>
