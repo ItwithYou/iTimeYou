@@ -41,6 +41,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [liked, setLiked] = useState(post.likes?.includes(currentUserEmail));
+  const [serviceActive, setServiceActive] = useState(post.service_active !== false);
   const editPhotoInputRef = useRef(null);
   const [likeCount, setLikeCount] = useState(post.like_count || 0);
   const isOwn = currentUserEmail === post.author_email;
@@ -192,6 +193,8 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
           </button>
           <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
             <span>{moment(post.created_date).fromNow()}</span>
+            <span>•</span>
+            <span>{moment(post.created_date).format('DD/MM/YYYY HH:mm')}</span>
             {authorProfile && <span>• {(authorProfile.friends || []).length} {lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'followers'}</span>}
           </div>
         </div>
@@ -323,8 +326,32 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
         <span>{comments.length || post.comment_count || 0} {t.comments}</span>
       </div>
 
+      {/* Service status indicator + toggle */}
+      {post.service_price > 0 && (
+        <div className="px-4 pb-2 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className={`w-2.5 h-2.5 rounded-full ${serviceActive ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
+            <span className={`text-xs font-semibold ${serviceActive ? 'text-emerald-600' : 'text-red-500'}`}>
+              {serviceActive ? (lang === 'lo' ? 'ເປີດບໍລິການ' : 'Service ON') : (lang === 'lo' ? 'ປິດບໍລິການ' : 'Service OFF')}
+            </span>
+          </div>
+          {isOwn && (
+            <button
+              onClick={async () => {
+                const next = !serviceActive;
+                setServiceActive(next);
+                await base44.entities.Post.update(post.id, { service_active: next });
+              }}
+              className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-all ${serviceActive ? 'border-red-300 text-red-600 hover:bg-red-50 active:bg-red-100' : 'border-emerald-300 text-emerald-600 hover:bg-emerald-50 active:bg-emerald-100'}`}
+            >
+              {serviceActive ? (lang === 'lo' ? 'ປິດ' : 'Turn OFF') : (lang === 'lo' ? 'ເປີດ' : 'Turn ON')}
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Chat / Book button for service posts */}
-      {post.service_price > 0 && currentUserEmail !== post.author_email && (
+      {post.service_price > 0 && currentUserEmail !== post.author_email && serviceActive && (
         <div className="px-4 pb-3">
           <button
             onClick={handleBookOrChat}
@@ -333,6 +360,13 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
             <MessageCircle size={16} />
             {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມ / ຈອງ' : 'Message & Book'} — {post.service_price} {post.service_currency || 'USD'}
           </button>
+        </div>
+      )}
+      {post.service_price > 0 && currentUserEmail !== post.author_email && !serviceActive && (
+        <div className="px-4 pb-3">
+          <div className="w-full flex items-center justify-center gap-2 bg-muted text-muted-foreground py-3 rounded-xl text-sm font-semibold">
+            {lang === 'lo' ? 'ບໍລິການນີ້ປິດແລ້ວ' : 'This service is currently closed'}
+          </div>
         </div>
       )}
 
