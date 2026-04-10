@@ -18,6 +18,7 @@ const statusConfig = {
 export default function Bookings() {
   const { currentUser, t, lang } = useAppContext();
   const [tab, setTab] = useState('stays');
+  const [serviceTab, setServiceTab] = useState('my_bookings');
   const [bookings, setBookings] = useState([]);
   const [serviceBookings, setServiceBookings] = useState([]);
   const [listings, setListings] = useState({});
@@ -153,6 +154,10 @@ export default function Bookings() {
     toast.success(lang === 'lo' ? 'ສຳເລັດ ແລະ ໂອນເງິນໃຫ້ຜູ້ໃຫ້ບໍລິການແລ້ວ' : 'Completed and paid to provider');
   };
 
+  const myServiceBookings = serviceBookings.filter((b) => currentUser?.role === 'admin' || b.booker_email === currentUser?.email);
+  const incomingServiceBookings = serviceBookings.filter((b) => currentUser?.role === 'admin' || b.poster_email === currentUser?.email);
+  const visibleServiceBookings = serviceTab === 'my_bookings' ? myServiceBookings : incomingServiceBookings;
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
       <h1 className="text-2xl font-bold mb-1">{t.bookingsTitle}</h1>
@@ -244,50 +249,76 @@ export default function Bookings() {
       )}
 
       {tab === 'services' && (
-        serviceBookings.length > 0 ? (
-          <div className="space-y-4">
-            {serviceBookings.map(b => {
-              const st = statusConfig[b.status] || statusConfig.pending;
-              const Icon = st.icon;
-              return (
-                <button
-                  key={b.id}
-                  onClick={() => setSelectedServiceBooking(b)}
-                  className="w-full text-left bg-card rounded-2xl border border-border shadow-sm p-4 hover:shadow-md transition-all hover:border-primary/50 cursor-pointer"
-                >
-                  <div className="flex items-start justify-between gap-2 mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🛎️</div>
-                      <div>
-                        <p className="font-bold text-sm">{b.service_type || 'Service'}</p>
-                        <p className="text-xs text-muted-foreground">{currentUser?.role === 'admin' ? `${lang === 'lo' ? 'ຜູ້ຈອງ' : 'Booked by'} ${b.booker_name || b.booker_email} · ${lang === 'lo' ? 'ຜູ້ໃຫ້ບໍລິການ' : 'Provider'} ${b.poster_name || b.poster_email}` : `${lang === 'lo' ? 'ຈາກ' : 'From'} ${b.poster_name || b.poster_email}`}</p>
+        <div className="space-y-4">
+          <div className="flex gap-1 bg-muted rounded-xl p-1">
+            <button
+              onClick={() => setServiceTab('my_bookings')}
+              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${serviceTab === 'my_bookings' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              {lang === 'lo' ? 'ການຈອງຂອງຂ້ອຍ' : 'My Bookings'}
+              {myServiceBookings.length > 0 && <span className="ml-1 text-xs bg-primary text-white rounded-full px-1.5">{myServiceBookings.length}</span>}
+            </button>
+            <button
+              onClick={() => setServiceTab('incoming_requests')}
+              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${serviceTab === 'incoming_requests' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              {lang === 'lo' ? 'ຄຳຂໍເຂົ້າມາ' : 'Incoming Requests'}
+              {incomingServiceBookings.length > 0 && <span className="ml-1 text-xs bg-primary text-white rounded-full px-1.5">{incomingServiceBookings.length}</span>}
+            </button>
+          </div>
+
+          {visibleServiceBookings.length > 0 ? (
+            <div className="space-y-4">
+              {visibleServiceBookings.map(b => {
+                const st = statusConfig[b.status] || statusConfig.pending;
+                const Icon = st.icon;
+                const isIncoming = serviceTab === 'incoming_requests';
+                return (
+                  <button
+                    key={b.id}
+                    onClick={() => setSelectedServiceBooking(b)}
+                    className="w-full text-left bg-card rounded-2xl border border-border shadow-sm p-4 hover:shadow-md transition-all hover:border-primary/50 cursor-pointer"
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🛎️</div>
+                        <div>
+                          <p className="font-bold text-sm">{b.service_type || 'Service'}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {isIncoming
+                              ? `${lang === 'lo' ? 'ຈາກລູກຄ້າ' : 'From customer'} ${b.booker_name || b.booker_email}`
+                              : `${lang === 'lo' ? 'ຈາກຜູ້ໃຫ້ບໍລິການ' : 'From host'} ${b.poster_name || b.poster_email}`}
+                          </p>
+                        </div>
                       </div>
+                      <span className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border flex-shrink-0 ${st.cls}`}>
+                        <Icon size={11} /> {st.label}
+                      </span>
                     </div>
-                    <span className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border flex-shrink-0 ${st.cls}`}>
-                      <Icon size={11} /> {st.label}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-3">
-                    {b.service_when && <span className="flex items-center gap-1"><Calendar size={11} /> {b.service_when}</span>}
-                    {b.service_duration > 0 && <span className="flex items-center gap-1"><Clock size={11} /> {b.service_duration}h</span>}
-                    {b.service_location && <span className="flex items-center gap-1"><MapPin size={11} /> {b.service_location}</span>}
-                  </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-border">
-                    <span className="font-bold text-primary">${b.price}</span>
-                    <span className="text-xs text-muted-foreground">{moment(b.created_date).fromNow()}</span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="text-center py-16 text-muted-foreground">
-            <p className="text-5xl mb-3">🛎️</p>
-            <h3 className="font-semibold mb-1">{lang === 'lo' ? 'ຍັງບໍ່ມີການຈອງບໍລິການ' : 'No service bookings yet'}</h3>
-            <p className="text-sm mb-5">{lang === 'lo' ? 'ຊອກຫາການນັດໝາຍໃນ Feed' : 'Browse schedules in the Feed'}</p>
-            <Link to="/feed" className="inline-block bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90">{t.feed}</Link>
-          </div>
-        )
+                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-3">
+                      {b.service_when && <span className="flex items-center gap-1"><Calendar size={11} /> {b.service_when}</span>}
+                      {b.service_duration > 0 && <span className="flex items-center gap-1"><Clock size={11} /> {b.service_duration}h</span>}
+                      {b.service_location && <span className="flex items-center gap-1"><MapPin size={11} /> {b.service_location}</span>}
+                    </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-border">
+                      <span className="font-bold text-primary">${b.price}</span>
+                      <span className="text-xs text-muted-foreground">{moment(b.created_date).fromNow()}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-16 text-muted-foreground">
+              <p className="text-5xl mb-3">🛎️</p>
+              <h3 className="font-semibold mb-1">{serviceTab === 'incoming_requests' ? (lang === 'lo' ? 'ຍັງບໍ່ມີຄຳຂໍເຂົ້າມາ' : 'No incoming requests yet') : (lang === 'lo' ? 'ຍັງບໍ່ມີການຈອງຂອງຂ້ອຍ' : 'No my bookings yet')}</h3>
+              <p className="text-sm mb-5">{serviceTab === 'incoming_requests' ? (lang === 'lo' ? 'ລູກຄ້າຈະປາກົດຢູ່ນີ້ເມື່ອມີຄຳຂໍໃໝ່' : 'Customer requests will appear here when they arrive') : (lang === 'lo' ? 'ຊອກຫາການນັດໝາຍໃນ Feed' : 'Browse schedules in the Feed')}</p>
+              {serviceTab === 'my_bookings' && (
+                <Link to="/feed" className="inline-block bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90">{t.feed}</Link>
+              )}
+            </div>
+          )}
+        </div>
       )}
 
       {selectedServiceBooking && (
