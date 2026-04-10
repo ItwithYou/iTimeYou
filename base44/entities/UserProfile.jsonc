@@ -126,6 +126,32 @@
     "face_selfie_url": {
       "type": "string"
     },
+    "pro_verification_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "pending",
+        "verified",
+        "rejected"
+      ],
+      "default": "none"
+    },
+    "is_pro": {
+      "type": "boolean",
+      "default": false
+    },
+    "business_name": {
+      "type": "string"
+    },
+    "business_license_url": {
+      "type": "string"
+    },
+    "business_tax_id": {
+      "type": "string"
+    },
+    "pro_reject_reason": {
+      "type": "string"
+    },
     "friends": {
       "type": "array",
       "items": {

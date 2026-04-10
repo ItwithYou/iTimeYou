@@ -7,7 +7,7 @@ import TrustBadge from '../components/TrustBadge';
 import VerificationBadge from '../components/VerificationBadge';
 import ListingCard from '../components/ListingCard';
 import PostCard from '../components/PostCard';
-import { MapPin, Calendar, Users, Home, Camera, Shield, Trash2, MessageCircle, KeyRound } from 'lucide-react';
+import { MapPin, Calendar, Users, Home, Camera, Shield, Trash2, MessageCircle, KeyRound, BadgeCheck, Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import VerificationModal from '../components/VerificationModal';
@@ -25,8 +25,11 @@ export default function Profile() {
   const [editing, setEditing] = useState(false);
   const [editData, setEditData] = useState({});
   const [showVerModal, setShowVerModal] = useState(false);
+  const [showProModal, setShowProModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [photoLightbox, setPhotoLightbox] = useState(null);
+  const [proForm, setProForm] = useState({ business_name: '', business_tax_id: '', business_license_url: '' });
+  const [proLicenseFile, setProLicenseFile] = useState(null);
   const photoUploadRef = useRef(null);
 
   const isOwn = viewProfile?.user_email === currentUser?.email;
@@ -159,7 +162,16 @@ export default function Profile() {
           <span className="flex items-center gap-1"><Calendar size={14} /> {t.joined} {new Date(viewProfile.created_date).getFullYear()}</span>
         </div>
 
-        <div className="mt-3 flex justify-center">
+        <div className="mt-3 flex justify-center gap-2 flex-wrap">
+          {viewProfile.is_pro ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 text-blue-700 px-3 py-1 text-xs font-bold border border-blue-200">
+              <BadgeCheck size={13} /> Pro
+            </span>
+          ) : viewProfile.is_verified ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-700 px-3 py-1 text-xs font-bold border border-emerald-200">
+              <Shield size={13} /> Verified
+            </span>
+          ) : null}
           <TrustBadge stars={viewProfile.trust_stars || 0} lang={lang} />
         </div>
 
@@ -265,6 +277,25 @@ export default function Profile() {
         </div>
       }
 
+      {isOwn && viewProfile.is_verified && !viewProfile.is_pro && viewProfile.pro_verification_status !== 'pending' && (
+        <div className="mx-6 mt-4 bg-blue-50 rounded-xl p-5 shadow-sm border border-blue-100">
+          <h3 className="font-semibold flex items-center gap-2"><Building2 size={18} /> {lang === 'lo' ? 'ສະໝັກ Pro' : 'Apply for Pro'}</h3>
+          <p className="text-sm text-muted-foreground mt-1 mb-3">
+            {lang === 'lo' ? 'ຜ່ານການຢືນຢັນສ່ວນຕົວກ່ອນ ແລ້ວຈຶ່ງສາມາດສະໝັກ Pro ເພື່ອລົງໂພສທຸລະກິດໄດ້' : 'Pass personal verification first, then apply for Pro to post business listings.'}
+          </p>
+          <button onClick={() => setShowProModal(true)} className="bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-semibold active:opacity-80 min-h-[48px]">
+            {lang === 'lo' ? 'ສະໝັກ Pro' : 'Apply Pro'}
+          </button>
+        </div>
+      )}
+
+      {isOwn && viewProfile.pro_verification_status === 'pending' && (
+        <div className="mx-6 mt-4 bg-blue-50 rounded-xl p-5 border border-blue-100">
+          <h3 className="font-semibold text-blue-700">⏳ {lang === 'lo' ? 'Pro ກຳລັງກວດສອບ' : 'Pro verification pending'}</h3>
+          <p className="text-sm text-muted-foreground mt-1">{lang === 'lo' ? 'ກຳລັງກວດເອກະສານທຸລະກິດຂອງທ່ານ' : 'We are reviewing your business documents.'}</p>
+        </div>
+      )}
+
       {/* Message button for other users */}
       {!isOwn && currentUser &&
       <div className="flex justify-center mt-4 px-6">
@@ -332,6 +363,60 @@ export default function Profile() {
         onSubmitted={() => {setShowVerModal(false);loadProfile();refreshProfile();}} />
 
       }
+
+      {showProModal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm" onMouseDown={e => { if (e.target === e.currentTarget) setShowProModal(false); }}>
+          <div className="bg-card rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md p-6 shadow-xl border border-border">
+            <h3 className="font-bold text-base mb-4">{lang === 'lo' ? 'ສະໝັກ Pro' : 'Apply for Pro'}</h3>
+            <div className="space-y-3">
+              <input
+                value={proForm.business_name}
+                onChange={(e) => setProForm({ ...proForm, business_name: e.target.value })}
+                placeholder={lang === 'lo' ? 'ຊື່ທຸລະກິດ' : 'Business name'}
+                className="w-full border border-border rounded-lg px-3 py-2 text-sm"
+              />
+              <input
+                value={proForm.business_tax_id}
+                onChange={(e) => setProForm({ ...proForm, business_tax_id: e.target.value })}
+                placeholder={lang === 'lo' ? 'ເລກ Tax ID' : 'Tax ID number'}
+                className="w-full border border-border rounded-lg px-3 py-2 text-sm"
+              />
+              <label className="block border-2 border-dashed border-border rounded-xl px-3 py-3 text-sm text-muted-foreground cursor-pointer hover:border-primary">
+                {proLicenseFile ? `✅ ${proLicenseFile.name}` : (lang === 'lo' ? 'ອັບໂຫລດໃບອະນຸຍາດທຸລະກິດ' : 'Upload business license')}
+                <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => setProLicenseFile(e.target.files?.[0] || null)} />
+              </label>
+            </div>
+            <div className="flex gap-2 mt-4">
+              <button onClick={() => setShowProModal(false)} className="flex-1 border border-border py-2.5 rounded-xl text-sm font-semibold">{lang === 'lo' ? 'ຍົກເລີກ' : 'Cancel'}</button>
+              <button
+                onClick={async () => {
+                  if (!proForm.business_name || !proForm.business_tax_id || !proLicenseFile) {
+                    toast.error(lang === 'lo' ? 'ກະລຸນາກອກຂໍ້ມູນໃຫ້ຄົບ' : 'Please complete all fields');
+                    return;
+                  }
+                  const upload = await base44.integrations.Core.UploadFile({ file: proLicenseFile });
+                  await base44.entities.UserProfile.update(viewProfile.id, {
+                    business_name: proForm.business_name,
+                    business_tax_id: proForm.business_tax_id,
+                    business_license_url: upload.file_url,
+                    pro_verification_status: 'pending',
+                    pro_reject_reason: '',
+                  });
+                  setShowProModal(false);
+                  setProForm({ business_name: '', business_tax_id: '', business_license_url: '' });
+                  setProLicenseFile(null);
+                  loadProfile();
+                  refreshProfile();
+                  toast.success(lang === 'lo' ? 'ສົ່ງຄຳຂໍ Pro ແລ້ວ' : 'Pro request submitted');
+                }}
+                className="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold"
+              >
+                {lang === 'lo' ? 'ສົ່ງຄຳຂໍ' : 'Submit'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {currentUser?.role === 'admin' && !isOwn && viewProfile.verification_status === 'pending' &&
       <div className="mx-6 mt-6 bg-amber-50 border border-amber-200 rounded-2xl p-5 shadow-sm">
