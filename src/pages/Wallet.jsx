@@ -73,7 +73,8 @@ export default function Wallet() {
       const html = await response.text();
 
       const findRate = (code) => {
-        const rowMatch = html.match(new RegExp(`<tr[^>]*>[\\s\\S]*?<td[^>]*>\\s*${code}\\s*<\\/td>[\\s\\S]*?<td[^>]*>\\s*([0-9,\\.]+)\\s*<\\/td>[\\s\\S]*?<td[^>]*>\\s*([0-9,\\.]+)\\s*<\\/td>`, 'i'));
+        // Match table row with currency code and extract BUY and SELL rates
+        const rowMatch = html.match(new RegExp(`<tr[^>]*>[\\s\\S]*?<td[^>]*>.*?${code}[\\s\\S]*?<\\/td>[\\s\\S]*?<td[^>]*>\\s*([0-9,\\.]+)\\s*<\\/td>[\\s\\S]*?<td[^>]*>\\s*([0-9,\\.]+)\\s*<\\/td>`, 'i'));
         if (!rowMatch) return null;
         return {
           buy: Number(rowMatch[1].replace(/,/g, '')),
@@ -82,15 +83,18 @@ export default function Wallet() {
       };
 
       const usdRate = findRate('USD');
-      const usdtRate = findRate('USDT') || usdRate;
+      // USDT uses same rate as USD since BCEL doesn't list USDT separately
+      const usdtRate = usdRate;
 
-      setExchangeRates({
-        usdBuy: usdRate?.buy || 22072,
-        usdSell: usdRate?.sell || 22183,
-        usdtBuy: usdtRate?.buy || usdRate?.buy || 22072,
-        usdtSell: usdtRate?.sell || usdRate?.sell || 22183,
-        updatedAt: new Date().toISOString(),
-      });
+      if (usdRate) {
+        setExchangeRates({
+          usdBuy: usdRate.buy,
+          usdSell: usdRate.sell,
+          usdtBuy: usdtRate.buy,
+          usdtSell: usdtRate.sell,
+          updatedAt: new Date().toISOString(),
+        });
+      }
     } catch (error) {
       console.error('Failed to load exchange rates:', error);
     }
