@@ -14,7 +14,8 @@ import ReviewSection from '../components/ReviewSection';
 
 export default function Profile() {
   const { id } = useParams();
-  const { profile: myProfile, currentUser, t, lang, refreshProfile } = useOutletContext();
+  const outletContext = useOutletContext();
+  const { profile: myProfile, currentUser, t, lang, refreshProfile } = outletContext || {};
   const [viewProfile, setViewProfile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [listings, setListings] = useState([]);
@@ -46,10 +47,13 @@ export default function Profile() {
   };
 
   useEffect(() => {
-    loadProfile();
-  }, [id]);
+    if (currentUser) {
+      loadProfile();
+    }
+  }, [id, currentUser]);
 
   const loadProfile = async () => {
+    if (!currentUser) return;
     const data = await base44.entities.UserProfile.filter({ id });
     if (data[0]) {
       setViewProfile(data[0]);
@@ -90,10 +94,20 @@ export default function Profile() {
     toast.success(t.profileSaved);
   };
 
+  if (!currentUser) return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="text-center">
+        <p className="text-muted-foreground mb-2">Please sign in to view profiles</p>
+        <button onClick={() => base44.auth.redirectToLogin()} className="bg-primary text-primary-foreground px-6 py-2 rounded-lg text-sm font-semibold">Sign In</button>
+      </div>
+    </div>
+  );
+
   if (!viewProfile) return (
     <div className="flex items-center justify-center min-h-[60vh]">
       <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-    </div>);
+    </div>
+  );
 
 
   return (
