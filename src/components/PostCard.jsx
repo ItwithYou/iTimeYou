@@ -100,13 +100,29 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
     <div className="bg-card rounded-2xl shadow-sm overflow-hidden border border-border hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="flex items-center gap-3 p-4">
-        <img
-          src={post.author_avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author_email}`}
-          alt=""
-          className="w-10 h-10 rounded-full object-cover border-2 border-primary/20"
-        />
+        <button
+          onClick={async () => {
+            const profiles = await base44.entities.UserProfile.filter({ user_email: post.author_email });
+            if (profiles[0]) navigate(`/profile/${profiles[0].id}`);
+          }}
+          className="flex-shrink-0"
+        >
+          <img
+            src={post.author_avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author_email}`}
+            alt=""
+            className="w-10 h-10 rounded-full object-cover border-2 border-primary/20 hover:opacity-80 transition-opacity"
+          />
+        </button>
         <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-bold truncate">{post.author_name || post.author_email}</h4>
+          <button
+            onClick={async () => {
+              const profiles = await base44.entities.UserProfile.filter({ user_email: post.author_email });
+              if (profiles[0]) navigate(`/profile/${profiles[0].id}`);
+            }}
+            className="text-sm font-bold truncate hover:text-primary transition-colors block"
+          >
+            {post.author_name || post.author_email}
+          </button>
           <span className="text-xs text-muted-foreground">{moment(post.created_date).fromNow()}</span>
         </div>
         {post.category && (
