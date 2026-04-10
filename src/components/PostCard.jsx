@@ -12,6 +12,7 @@ import moment from 'moment';
 export default function PostCard({ post, currentUserEmail, t, lang, onRefresh }) {
   const { profile, currentUser, refreshProfile } = useAppContext();
   const navigate = useNavigate();
+  const isAdmin = currentUser?.role === 'admin';
   const [authorProfile, setAuthorProfile] = useState(null);
   const [followLoading, setFollowLoading] = useState(false);
   const [showBookModal, setShowBookModal] = useState(false);
@@ -26,6 +27,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
   const [lightboxSrc, setLightboxSrc] = useState(null);
   const [likeCount, setLikeCount] = useState(post.like_count || 0);
   const isOwn = currentUserEmail === post.author_email;
+  const canEdit = isOwn || isAdmin;
   const catIndex = ['culture', 'stay', 'food', 'experience', 'home', 'nature'].indexOf(post.category);
 
   const loadComments = async () => {
@@ -177,19 +179,22 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
             </button>
           )}
         </div>
-        {isOwn && (
+        {canEdit && (
           <div className="relative">
             <button onClick={() => setShowMenu(!showMenu)} className="p-1.5 rounded-full hover:bg-muted transition-colors">
               <MoreHorizontal size={16} className="text-muted-foreground" />
             </button>
             {showMenu && (
-              <div className="absolute right-0 top-8 bg-card border border-border rounded-xl shadow-lg z-20 overflow-hidden min-w-[120px]">
+              <div className="absolute right-0 top-8 bg-card border border-border rounded-xl shadow-lg z-20 overflow-hidden min-w-[160px]">
                 <button onClick={() => { setEditing(true); setShowMenu(false); }} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm hover:bg-muted transition-colors">
-                  <Pencil size={13} /> Edit
+                  <Pencil size={13} /> {lang === 'lo' ? 'ແກ້ໄຂ' : 'Edit'}
                 </button>
                 <button onClick={() => { setShowMenu(false); handleDelete(); }} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-destructive hover:bg-destructive/5 transition-colors">
-                  <Trash2 size={13} /> Delete
+                  <Trash2 size={13} /> {lang === 'lo' ? 'ລຶບ' : 'Delete'}
                 </button>
+                {isAdmin && !isOwn && (
+                  <div className="border-t border-border px-3 py-1.5 text-xs text-muted-foreground italic">{lang === 'lo' ? '(Admin)' : '(Admin)'}</div>
+                )}
               </div>
             )}
           </div>
