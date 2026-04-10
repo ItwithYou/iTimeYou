@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../lib/AppContext';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Send, MessageCircle } from 'lucide-react';
 import moment from 'moment';
 
 export default function Messages() {
   const { currentUser, t, lang } = useAppContext();
+  const navigate = useNavigate();
   const [conversations, setConversations] = useState([]);
   const [activeConv, setActiveConv] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -39,6 +41,35 @@ export default function Messages() {
     setMessages(msgs);
   };
 
+  // Real-time message subscription
+  const activeConvRef = useRef(null);
+  activeConvRef.current = activeConv;
+  useEffect(() => {
+    const unsub = base44.entities.Message.subscribe((event) => {
+      if (!activeConvRef.current) return;
+      if (event.data?.conversation_id !== activeConvRef.current.id) return;
+      if (event.type === 'create') {
+        setMessages(prev => [...prev, event.data]);
+      }
+    });
+    return unsub;
+  }, []);
+
+  // Real-time conversation subscription
+  useEffect(() => {
+    const unsub = base44.entities.Conversation.subscribe((event) => {
+      if (event.type === 'update') {
+        setConversations(prev => prev.map(c => c.id === event.id ? { ...c, ...event.data } : c));
+      }
+    });
+    return unsub;
+  }, []);
+
+  const goToProfile = (email) => {
+    const p = profiles[email];
+    if (p?.id) navigate(`/profile/${p.id}`);
+  };
+
   const sendMessage = async () => {
     if (!newMessage.trim() || !activeConv) return;
     await base44.entities.Message.create({
@@ -51,8 +82,6 @@ export default function Messages() {
       last_message_time: new Date().toISOString(),
     });
     setNewMessage('');
-    const msgs = await base44.entities.Message.filter({ conversation_id: activeConv.id }, 'created_date', 50);
-    setMessages(msgs);
   };
 
   const getOtherParticipant = (conv) => {
@@ -82,7 +111,8 @@ export default function Messages() {
                 <img
                   src={other.photo_url || other.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${other.user_email || 'user'}`}
                   alt=""
-                  className="w-10 h-10 rounded-full object-cover"
+                  onClick={(e) => { e.stopPropagation(); goToProfile(other.user_email); }}
+                  className="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
                 />
                 <div className="flex-1 min-w-0">
                   <h4 className="text-sm font-semibold">{other.first_name} {other.last_name}</h4>
@@ -110,8 +140,13 @@ export default function Messages() {
                 const other = getOtherParticipant(activeConv);
                 return (
                   <>
-                    <img src={other.photo_url || other.avatar_url || ''} alt="" className="w-9 h-9 rounded-full" />
-                    <h3 className="font-semibold text-sm">{other.first_name} {other.last_name}</h3>
+                    <img
+                      src={other.photo_url || other.avatar_url || ''}
+                      alt=""
+                      onClick={() => goToProfile(other.user_email)}
+                      className="w-9 h-9 rounded-full cursor-pointer hover:opacity-80 transition-opacity object-cover"
+                    />
+                    <button onClick={() => goToProfile(other.user_email)} className="font-semibold text-sm hover:text-primary transition-colors">{other.first_name} {other.last_name}</button>
                   </>
                 );
               })()}

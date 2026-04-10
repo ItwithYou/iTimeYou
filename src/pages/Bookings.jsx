@@ -41,6 +41,20 @@ export default function Bookings() {
     if (currentUser) loadServiceBookings();
   }, [currentUser]);
 
+  // Real-time subscription for fast updates
+  useEffect(() => {
+    const unsub = base44.entities.ServiceBooking.subscribe((event) => {
+      if (event.type === 'create') {
+        setServiceBookings(prev => [event.data, ...prev]);
+      } else if (event.type === 'update') {
+        setServiceBookings(prev => prev.map(b => b.id === event.id ? { ...b, ...event.data } : b));
+      } else if (event.type === 'delete') {
+        setServiceBookings(prev => prev.filter(b => b.id !== event.id));
+      }
+    });
+    return unsub;
+  }, []);
+
   const requestCancel = async (booking) => {
     await base44.entities.ServiceBooking.update(booking.id, {
       cancel_request_status: 'requested',

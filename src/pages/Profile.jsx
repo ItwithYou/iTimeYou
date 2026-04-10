@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import VerificationModal from '../components/VerificationModal';
 import ReviewSection from '../components/ReviewSection';
+import ImageLightbox from '../components/ImageLightbox';
 
 export default function Profile() {
   const { id } = useParams();
@@ -25,6 +26,7 @@ export default function Profile() {
   const [editData, setEditData] = useState({});
   const [showVerModal, setShowVerModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [photoLightbox, setPhotoLightbox] = useState(null);
   const photoUploadRef = useRef(null);
 
   const isOwn = viewProfile?.user_email === currentUser?.email;
@@ -136,7 +138,8 @@ export default function Profile() {
             <img
               src={viewProfile.photo_url || viewProfile.avatar_url || ''}
               alt=""
-              className="w-24 h-24 rounded-full border-4 border-card shadow-lg object-cover" />
+              onClick={() => setPhotoLightbox(viewProfile.photo_url || viewProfile.avatar_url || '')}
+              className="w-24 h-24 rounded-full border-4 border-card shadow-lg object-cover cursor-pointer hover:opacity-90 transition-opacity" />
             {viewProfile.is_verified &&
             <span className="absolute bottom-1 right-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 border-4 border-card text-white text-sm font-bold">✓</span>
             }
@@ -391,6 +394,8 @@ export default function Profile() {
       }
 
       {/* Delete Account Confirmation Dialog */}
+      <ImageLightbox src={photoLightbox} onClose={() => setPhotoLightbox(null)} />
+
       {showDeleteConfirm &&
       <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm" onMouseDown={e => { if (e.target === e.currentTarget) setShowDeleteConfirm(false); }} onTouchEnd={e => { if (e.target === e.currentTarget) setShowDeleteConfirm(false); }}>
           <div className="bg-card rounded-t-3xl sm:rounded-2xl w-full sm:max-w-sm p-6 shadow-xl border border-border">

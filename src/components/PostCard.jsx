@@ -350,7 +350,13 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
                   <img
                     src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${c.author_email}`}
                     alt=""
-                    className="w-6 h-6 rounded-full flex-shrink-0"
+                    onClick={() => {
+                      // Navigate to commenter's profile
+                      base44.entities.UserProfile.filter({ user_email: c.author_email }).then(profiles => {
+                        if (profiles[0]?.id) navigate(`/profile/${profiles[0].id}`);
+                      });
+                    }}
+                    className="w-6 h-6 rounded-full flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                   />
                   <div className="bg-card rounded-xl px-3 py-1.5 text-xs">
                     <span className="font-bold">{commentProfiles[c.author_email] || c.author_name || 'User'}</span>{' '}

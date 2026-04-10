@@ -39,7 +39,27 @@ export default function Feed() {
 
   const { refreshing, pullDistance, threshold } = usePullToRefresh(loadPosts, '/feed');
 
-  useEffect(() => {loadPosts();}, []);
+  useEffect(() => { loadPosts(); }, []);
+
+  // Real-time post subscription for instant updates
+  useEffect(() => {
+    const unsub = base44.entities.Post.subscribe((event) => {
+      if (event.type === 'create') {
+        setPosts(prev => [event.data, ...prev]);
+        // Fetch author profile if missing
+        if (event.data.author_email && !authorProfiles[event.data.author_email]) {
+          base44.entities.UserProfile.filter({ user_email: event.data.author_email }).then(profiles => {
+            if (profiles[0]) setAuthorProfiles(prev => ({ ...prev, [event.data.author_email]: profiles[0] }));
+          });
+        }
+      } else if (event.type === 'update') {
+        setPosts(prev => prev.map(p => p.id === event.id ? { ...p, ...event.data } : p));
+      } else if (event.type === 'delete') {
+        setPosts(prev => prev.filter(p => p.id !== event.id));
+      }
+    });
+    return unsub;
+  }, []);
 
   const filteredPosts = posts.filter((p) => {
     if (filterCat !== 'all' && p.category !== filterCat) return false;

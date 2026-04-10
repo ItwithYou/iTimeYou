@@ -1,5 +1,7 @@
 import { X, Calendar, Clock, MapPin, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
 import moment from 'moment';
 import ServiceAppealsModal from '../wallet/ServiceAppealsModal';
 
@@ -12,6 +14,15 @@ const statusConfig = {
 
 export default function ServiceBookingDetailModal({ booking, currentUser, lang, onClose, onRequestCancel, onApproveCancel, onDeclineCancel, onMarkCompleted }) {
   const [showAppealModal, setShowAppealModal] = useState(false);
+  const navigate = useNavigate();
+  const [posterProfile, setPosterProfile] = useState(null);
+  const [bookerProfile, setBookerProfile] = useState(null);
+
+  useEffect(() => {
+    if (!booking) return;
+    base44.entities.UserProfile.filter({ user_email: booking.poster_email }).then(p => { if (p[0]) setPosterProfile(p[0]); });
+    base44.entities.UserProfile.filter({ user_email: booking.booker_email }).then(p => { if (p[0]) setBookerProfile(p[0]); });
+  }, [booking?.id]);
 
   if (!booking) return null;
 
@@ -46,25 +57,39 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
                 <p className="text-xs text-muted-foreground">{booking.service_duration} {booking.service_duration_unit || 'hours'}</p>
               </div>
             </div>
-            <div className="flex items-center justify-between">
+            <button
+              onClick={() => { if (posterProfile?.id) { onClose(); navigate(`/profile/${posterProfile.id}`); } }}
+              className="flex items-center justify-between w-full hover:opacity-80 transition-opacity"
+            >
               <span className="text-xs font-semibold text-muted-foreground">
                 {lang === 'lo' ? 'ຜູ້ໃຫ້ບໍລິການ' : 'Service Provider'}
               </span>
-              <span className="text-sm font-bold text-foreground">
-                {booking.poster_name || booking.poster_email}
-              </span>
-            </div>
+              <div className="flex items-center gap-2">
+                {posterProfile?.photo_url && <img src={posterProfile.photo_url} alt="" className="w-7 h-7 rounded-full object-cover" />}
+                <span className="text-sm font-bold text-primary underline underline-offset-2">
+                  {booking.poster_name || booking.poster_email}
+                </span>
+              </div>
+            </button>
           </div>
 
           {/* Booker Info */}
           {booking.booker_name && (
-            <div className="bg-muted/50 rounded-xl p-3 border border-border">
+            <button
+              onClick={() => { if (bookerProfile?.id) { onClose(); navigate(`/profile/${bookerProfile.id}`); } }}
+              className="w-full text-left bg-muted/50 rounded-xl p-3 border border-border hover:border-primary/50 transition-colors"
+            >
               <p className="text-xs font-semibold text-muted-foreground mb-1">
                 {lang === 'lo' ? 'ຈອງໂດຍ' : 'Booked by'}
               </p>
-              <p className="text-sm font-medium">{booking.booker_name}</p>
-              <p className="text-xs text-muted-foreground">{booking.booker_email}</p>
-            </div>
+              <div className="flex items-center gap-2">
+                {bookerProfile?.photo_url && <img src={bookerProfile.photo_url} alt="" className="w-7 h-7 rounded-full object-cover" />}
+                <div>
+                  <p className="text-sm font-medium text-primary">{booking.booker_name}</p>
+                  <p className="text-xs text-muted-foreground">{booking.booker_email}</p>
+                </div>
+              </div>
+            </button>
           )}
 
           {/* Date & Time */}
