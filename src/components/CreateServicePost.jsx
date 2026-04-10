@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Image, Clock, Calendar, DollarSign, Loader2 } from 'lucide-react';
+import { X, Image, Clock, Calendar, DollarSign, Loader2, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 
 const CURRENCIES = ['LAK', 'USD', 'USDT'];
@@ -100,6 +100,12 @@ const SERVICES = [
 
 export default function CreateServicePost({ profile, currentUser, lang, t, onPosted }) {
   const [open, setOpen] = useState(false);
+
+  const getGoogleMapsUrl = (value) => {
+    if (!value?.trim()) return '';
+    if (value.includes('google.com/maps') || value.includes('maps.app.goo.gl')) return value.trim();
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(value.trim())}`;
+  };
   const [text, setText] = useState('');
   const [service, setService] = useState(SERVICES[0]);
   const [duration, setDuration] = useState(1);
@@ -139,6 +145,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
       photo_url = res.file_url;
     }
     const serviceTimeSlot = service.timeUnit === 'hours' && timeFrom && timeTo ? `${timeFrom} - ${timeTo}` : '';
+    const serviceLocationMapUrl = getGoogleMapsUrl(location);
     await base44.entities.Post.create({
       author_email: currentUser.email,
       author_name: `${profile.first_name} ${profile.last_name}`,
@@ -156,6 +163,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
       service_duration_unit: service.timeUnit,
       service_when: serviceTimeSlot ? `${when} · ${serviceTimeSlot}` : when,
       service_location: location,
+      service_location_map_url: serviceLocationMapUrl,
     });
     setText('');
     setPhotoFile(null);
@@ -338,9 +346,13 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
           <input
             value={location}
             onChange={e => setLocation(e.target.value)}
-            placeholder={lang === 'lo' ? 'ໃສ່ສະຖານທີ່' : 'Enter location'}
+            placeholder={lang === 'lo' ? 'ວາງ Google Maps link ຫຼື ໃສ່ຊື່ສະຖານທີ່' : 'Paste Google Maps link or enter place name'}
             className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
           />
+          <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
+            <MapPin size={11} />
+            {lang === 'lo' ? 'ຜູ້ຈອງຈະສາມາດກົດເພື່ອເປີດ Google Maps ໄດ້' : 'Bookers can tap this to open Google Maps directly'}
+          </p>
         </div>
 
         {service.timeUnit === 'hours' && (

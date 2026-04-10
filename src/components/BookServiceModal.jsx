@@ -66,6 +66,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
       service_when: selectedSlot || post.service_when || '',
       service_duration: post.service_duration || 0,
       service_location: post.service_location || '',
+      service_location_map_url: post.service_location_map_url || '',
       poster_name: post.author_name || '',
       price,
       currency,
@@ -161,10 +162,22 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
             </div>
           )}
           {post.service_location && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin size={14} />
-              {post.service_location}
-            </div>
+            post.service_location_map_url ? (
+              <a
+                href={post.service_location_map_url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2 text-sm text-primary underline underline-offset-2"
+              >
+                <MapPin size={14} />
+                {post.service_location}
+              </a>
+            ) : (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MapPin size={14} />
+                {post.service_location}
+              </div>
+            )
           )}
           {isHourlyService && slotOptions.length > 0 && (
             <div className="space-y-2 border-t border-border pt-3">

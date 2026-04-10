@@ -26,7 +26,20 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
           </div>
           {booking.service_when && <p className="flex items-center gap-2 text-muted-foreground"><Calendar size={14} /> {booking.service_when}</p>}
           {booking.service_duration > 0 && <p className="flex items-center gap-2 text-muted-foreground"><Clock size={14} /> {booking.service_duration}</p>}
-          {booking.service_location && <p className="flex items-center gap-2 text-muted-foreground"><MapPin size={14} /> {booking.service_location}</p>}
+          {booking.service_location && (
+            booking.service_location_map_url ? (
+              <a
+                href={booking.service_location_map_url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2 text-primary underline underline-offset-2"
+              >
+                <MapPin size={14} /> {booking.service_location}
+              </a>
+            ) : (
+              <p className="flex items-center gap-2 text-muted-foreground"><MapPin size={14} /> {booking.service_location}</p>
+            )
+          )}
           <p className="font-bold text-primary">{booking.price} {booking.currency || 'USD'}</p>
 
           {booking.cancel_request_status === 'requested' && (
