@@ -57,7 +57,7 @@ export default function Messages() {
 
   const getOtherParticipant = (conv) => {
     const otherEmail = (conv.participants || []).find(e => e !== currentUser?.email);
-    return profiles[otherEmail] || { first_name: otherEmail, last_name: '' };
+    return profiles[otherEmail] || { first_name: 'User', last_name: '' };
   };
 
   return (

@@ -119,7 +119,7 @@ export default function Bookings() {
                       <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🛎️</div>
                       <div>
                         <p className="font-bold text-sm">{b.service_type || 'Service'}</p>
-                        <p className="text-xs text-muted-foreground">{lang === 'lo' ? 'ຈາກ' : 'From'} {b.poster_email}</p>
+                        <p className="text-xs text-muted-foreground">{lang === 'lo' ? 'ຈາກ' : 'From'} {b.booker_name || lang === 'lo' ? 'ຜູ້ໃຫ້ບໍລິການ' : 'Service Provider'}</p>
                       </div>
                     </div>
                     <span className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border flex-shrink-0 ${st.cls}`}>

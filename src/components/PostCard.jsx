@@ -121,7 +121,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
             }}
             className="text-sm font-bold truncate hover:text-primary transition-colors block"
           >
-            {post.author_name || post.author_email}
+            {post.author_name || 'User'}
           </button>
           <span className="text-xs text-muted-foreground">{moment(post.created_date).fromNow()}</span>
         </div>
