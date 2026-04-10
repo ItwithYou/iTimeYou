@@ -117,12 +117,15 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
 
   const handleShare = async () => {
     if (navigator.share) {
-      await navigator.share({
-        title: post.service_type || 'Post',
-        text: shareText,
-        url: shareUrl,
-      });
-      return;
+      try {
+        await navigator.share({
+          title: post.service_type || 'Post',
+          text: shareText,
+          url: shareUrl,
+        });
+        return;
+      } catch {
+      }
     }
 
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank', 'noopener,noreferrer');
