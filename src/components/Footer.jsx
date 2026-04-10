@@ -19,7 +19,7 @@ export default function Footer({ t }) {
           <div>
             <h4 className="font-semibold mb-3">Support</h4>
             <div className="space-y-2">
-              <span className="block text-sm text-card/60">Help Center</span>
+              <Link to="/help" className="block text-sm text-card/60 hover:text-card transition-colors">Help Center</Link>
               <span className="block text-sm text-card/60">Safety</span>
             </div>
           </div>
