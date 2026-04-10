@@ -232,7 +232,11 @@ export default function Bookings() {
               const st = statusConfig[b.status] || statusConfig.pending;
               const Icon = st.icon;
               return (
-                <button key={b.id} onClick={() => setSelectedServiceBooking(b)} className="w-full text-left bg-card rounded-2xl border border-border shadow-sm p-4 hover:shadow-md transition-shadow">
+                <button
+                  key={b.id}
+                  onClick={() => setSelectedServiceBooking(b)}
+                  className="w-full text-left bg-card rounded-2xl border border-border shadow-sm p-4 hover:shadow-md transition-all hover:border-primary/50 cursor-pointer"
+                >
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🛎️</div>
