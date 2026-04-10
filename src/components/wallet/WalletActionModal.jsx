@@ -30,6 +30,17 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
       const settings = await base44.entities.WalletAccountSettings.list('-updated_date', 1);
       const item = settings[0] || null;
       setAccountSettings(item);
+
+      if (type === 'withdraw') {
+        const savedBank = localStorage.getItem(`wallet_withdraw_bank_${currentUser.email}`);
+        const savedAccountName = localStorage.getItem(`wallet_withdraw_name_${currentUser.email}`);
+        const savedAccountNumber = localStorage.getItem(`wallet_withdraw_number_${currentUser.email}`);
+        setBankName(savedBank || 'BCEL');
+        setAccountName(savedAccountName || '');
+        setAccountNumber(savedAccountNumber || '');
+        return;
+      }
+
       if (item) {
         setBankName(item.bank_name || 'BCEL');
         setAccountNumber(item.account_number || '');
@@ -37,7 +48,7 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
     };
 
     loadAccountSettings();
-  }, []);
+  }, [type, currentUser.email]);
 
   const handleSubmit = async () => {
     if (loading) return;
@@ -108,6 +119,12 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
           request_kind: type,
         });
 
+        if (type === 'withdraw') {
+          localStorage.setItem(`wallet_withdraw_bank_${currentUser.email}`, bankName);
+          localStorage.setItem(`wallet_withdraw_name_${currentUser.email}`, accountName);
+          localStorage.setItem(`wallet_withdraw_number_${currentUser.email}`, accountNumber);
+        }
+
         const admins = await base44.entities.User.list('-created_date', 200).then((users) => users.filter((user) => user.role === 'admin'));
         await Promise.all(admins.map((admin) => base44.entities.Notification.create({
           user_email: admin.email,
@@ -157,7 +174,10 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
                 {BANKS.map((item) => <option key={item} value={item}>{item}</option>)}
               </select>
               <input value={accountName} onChange={(e) => setAccountName(e.target.value)} placeholder={lang === 'lo' ? 'ຊື່ບັນຊີ' : 'Account Name'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
-              <input value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} placeholder={lang === 'lo' ? 'ເລກບັນຊີ' : 'Account Number'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
+              <input value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} placeholder={lang === 'lo' ? 'ເລກບັນຊີຂອງທ່ານ' : 'Your Account Number'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
+              <p className="text-xs text-muted-foreground px-1">
+                {lang === 'lo' ? 'ສຳລັບຜູ້ໃຊ້ໃໝ່ ຊ່ອງນີ້ຈະເປັນຄ່າຫວ່າງ ແລະ ລະບົບຈະຈື່ຂໍ້ມູນບັນຊີຂອງທ່ານໄວ້' : 'For new users this stays blank, and your own account details will be remembered after you submit.'}
+              </p>
               <label className="block border-2 border-dashed border-border rounded-xl px-3 py-3 text-sm text-muted-foreground cursor-pointer hover:border-primary">
                 {accountQrFile ? `✅ ${accountQrFile.name}` : (lang === 'lo' ? 'ແນບ QR ຂອງບັນຊີ' : 'Attach your account QR')}
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => setAccountQrFile(e.target.files[0])} />
