@@ -74,6 +74,12 @@
     },
     "related_booking_id": {
       "type": "string"
+    },
+    "account_name": {
+      "type": "string"
+    },
+    "account_qr_url": {
+      "type": "string"
     }
   },
   "required": [

@@ -41,12 +41,17 @@ function RequestCard({ tx, lang, onApprove, onReject }) {
           <p className="text-sm font-semibold break-all">{tx.user_email}</p>
           <p className="text-xs text-muted-foreground">{tx.request_kind} · {Math.abs(tx.amount)} {tx.currency || 'USD'}</p>
           {tx.bank_name && <p className="text-xs text-muted-foreground">{tx.bank_name} · {tx.account_number}</p>}
+          {tx.account_name && <p className="text-xs text-muted-foreground">{tx.account_name}</p>}
           {tx.counterparty_email && <p className="text-xs text-muted-foreground break-all">{lang === 'lo' ? 'ຜູ້ກ່ຽວຂ້ອງ' : 'Counterparty'}: {tx.counterparty_email}</p>}
         </div>
         <StatusBadge status={tx.status} />
       </div>
 
-      {tx.payment_screenshot_url ? (
+      {tx.request_kind === 'withdraw' && tx.account_qr_url ? (
+        <a href={tx.account_qr_url} target="_blank" rel="noreferrer" className="block">
+          <img src={tx.account_qr_url} alt="account qr" className="w-full h-44 rounded-xl object-cover border border-border" />
+        </a>
+      ) : tx.payment_screenshot_url ? (
         <a href={tx.payment_screenshot_url} target="_blank" rel="noreferrer" className="block">
           <img src={tx.payment_screenshot_url} alt="proof" className="w-full h-44 rounded-xl object-cover border border-border" />
         </a>

@@ -15,6 +15,8 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [accountSettings, setAccountSettings] = useState(null);
+  const [accountName, setAccountName] = useState('');
+  const [accountQrFile, setAccountQrFile] = useState(null);
 
   const titleMap = {
     topup: lang === 'lo' ? 'ຄຳຂໍເຕີມເງິນ' : 'Top Up Request',
@@ -43,12 +45,16 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
       toast.error(lang === 'lo' ? 'ກະລຸນາໃສ່ຈຳນວນເງິນ' : 'Please enter amount');
       return;
     }
-    if ((type === 'topup' || type === 'withdraw') && (!accountNumber || !bankName)) {
+    if (type === 'topup' && (!accountNumber || !bankName)) {
       toast.error(lang === 'lo' ? 'ກະລຸນາໃສ່ເລກບັນຊີ ແລະ ທະນາຄານ' : 'Please enter account number and bank');
       return;
     }
-    if ((type === 'topup' || type === 'withdraw') && !file) {
+    if (type === 'topup' && !file) {
       toast.error(lang === 'lo' ? 'ກະລຸນາແນບສະລິບ' : 'Please attach payment screenshot');
+      return;
+    }
+    if (type === 'withdraw' && (!accountNumber || !bankName || !accountName)) {
+      toast.error(lang === 'lo' ? 'ກະລຸນາໃສ່ຂໍ້ມູນບັນຊີໃຫ້ຄົບ' : 'Please enter your account details');
       return;
     }
     if ((type === 'send' || type === 'receive') && !targetEmail) {
@@ -63,6 +69,12 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
       payment_screenshot_url = upload.file_url;
     }
 
+    let account_qr_url = '';
+    if (accountQrFile) {
+      const upload = await base44.integrations.Core.UploadFile({ file: accountQrFile });
+      account_qr_url = upload.file_url;
+    }
+
     await base44.entities.WalletTransaction.create({
       user_email: currentUser.email,
       description: `${type} request`,
@@ -75,6 +87,8 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
       payment_screenshot_url,
       bank_name: bankName,
       account_number: accountNumber,
+      account_name: accountName,
+      account_qr_url,
       request_kind: type,
     });
 
@@ -106,7 +120,7 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
             {CURRENCIES.map((item) => <option key={item} value={item}>{item}</option>)}
           </select>
 
-          {(type === 'topup' || type === 'withdraw') && (
+          {type === 'topup' && (
             <>
               <div className="rounded-2xl border border-border bg-muted/30 p-3 space-y-2 text-sm">
                 <p className="font-semibold">{lang === 'lo' ? 'ບັນຊີສຳລັບໂອນເງິນ' : 'Transfer Account'}</p>
@@ -120,6 +134,21 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
                 {file ? `✅ ${file.name}` : (lang === 'lo' ? 'ແນບສະລິບການຈ່າຍ' : 'Attach payment screenshot')}
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => setFile(e.target.files[0])} />
               </label>
+            </>
+          )}
+
+          {type === 'withdraw' && (
+            <>
+              <select value={bankName} onChange={(e) => setBankName(e.target.value)} className="w-full border border-border rounded-xl px-3 py-2 text-sm bg-card">
+                {BANKS.map((item) => <option key={item} value={item}>{item}</option>)}
+              </select>
+              <input value={accountName} onChange={(e) => setAccountName(e.target.value)} placeholder={lang === 'lo' ? 'ຊື່ບັນຊີ' : 'Account Name'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
+              <input value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} placeholder={lang === 'lo' ? 'ເລກບັນຊີ' : 'Account Number'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
+              <label className="block border-2 border-dashed border-border rounded-xl px-3 py-3 text-sm text-muted-foreground cursor-pointer hover:border-primary">
+                {accountQrFile ? `✅ ${accountQrFile.name}` : (lang === 'lo' ? 'ແນບ QR ຂອງບັນຊີ' : 'Attach your account QR')}
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => setAccountQrFile(e.target.files[0])} />
+              </label>
+              {accountQrFile && <img src={URL.createObjectURL(accountQrFile)} alt="Account QR" className="w-40 h-40 object-cover rounded-xl border border-border" />}
             </>
           )}
 
