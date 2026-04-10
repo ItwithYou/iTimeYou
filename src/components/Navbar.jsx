@@ -11,13 +11,13 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
   const handleLogout = () => base44.auth.logout();
 
   const navItems = [
-    { to: '/feed', icon: Home, label: t.feed },
-    { to: '/explore', icon: Compass, label: t.explore },
-    { to: '/bookings', icon: Calendar, label: t.trips },
-    { to: '/wallet', icon: Wallet, label: t.wallet },
-    { to: '/messages', icon: MessageCircle, label: t.messages },
-    { to: '/notifications', icon: Bell, label: t.notifications },
-  ];
+  { to: '/feed', icon: Home, label: t.feed },
+  { to: '/explore', icon: Compass, label: t.explore },
+  { to: '/bookings', icon: Calendar, label: t.trips },
+  { to: '/wallet', icon: Wallet, label: t.wallet },
+  { to: '/messages', icon: MessageCircle, label: t.messages },
+  { to: '/notifications', icon: Bell, label: t.notifications }];
+
 
   return (
     <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-border shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
@@ -35,43 +35,43 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-0.5">
-          {navItems.map(item => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-all ${
-                location.pathname === item.to
-                  ? 'text-primary bg-primary/8 font-semibold'
-                  : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
-              }`}
-            >
+          {navItems.map((item) =>
+          <Link
+            key={item.to}
+            to={item.to}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-all ${
+            location.pathname === item.to ?
+            'text-primary bg-primary/8 font-semibold' :
+            'text-muted-foreground hover:text-primary hover:bg-primary/5'}`
+            }>
+            
               <item.icon size={18} />
               <span className="hidden lg:inline text-xs">{item.label}</span>
             </Link>
-          ))}
+          )}
 
           <div className="ml-2 flex items-center gap-2 pl-3 border-l border-border">
             <Link to={`/profile/${profile?.id || ''}`} className="flex items-center gap-2">
               <img
                 src={profile?.photo_url || profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=default`}
                 alt=""
-                className="w-8 h-8 rounded-full border-2 border-border object-cover hover:border-primary transition-colors"
-              />
+                className="w-8 h-8 rounded-full border-2 border-border object-cover hover:border-primary transition-colors" />
+              
               <span className="hidden xl:block text-sm font-semibold text-foreground max-w-[120px] truncate">
                 {profile?.first_name || 'User'}
               </span>
             </Link>
 
-            {currentUser?.role === 'admin' && (
-              <Link to="/admin/verification" className={`flex items-center gap-1 px-2 py-2 rounded-lg text-sm transition-colors ${location.pathname === '/admin/verification' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>
+            {currentUser?.role === 'admin' &&
+            <Link to="/admin/verification" className={`flex items-center gap-1 px-2 py-2 rounded-lg text-sm transition-colors ${location.pathname === '/admin/verification' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>
                 <ShieldCheck size={18} />
               </Link>
-            )}
+            }
 
-            <button onClick={handleLogout} className="flex items-center gap-1 px-2 py-2 rounded-lg text-sm text-muted-foreground hover:text-destructive transition-colors">
-              <LogOut size={16} />
-              <span className="hidden xl:inline">Logout</span>
-            </button>
+            
+
+
+            
           </div>
 
           <LangToggle lang={lang} setLang={setLang} />
@@ -87,11 +87,11 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
             <img
               src={profile?.photo_url || profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=default`}
               alt=""
-              className="w-8 h-8 rounded-full border-2 border-border object-cover"
-            />
+              className="w-8 h-8 rounded-full border-2 border-border object-cover" />
+            
           </Link>
         </div>
       </div>
-    </nav>
-  );
+    </nav>);
+
 }
