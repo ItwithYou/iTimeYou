@@ -31,12 +31,7 @@ export default function Layout() {
   const location = useLocation();
   const isTabPath = TAB_PATHS.includes(location.pathname);
 
-  const [visitedPaths, setVisitedPaths] = useState(() => new Set([location.pathname]));
-  useEffect(() => {
-    if (TAB_PATHS.includes(location.pathname)) {
-      setVisitedPaths(prev => new Set([...prev, location.pathname]));
-    }
-  }, [location.pathname]);
+
 
   const contextValue = { profile, currentUser, t, lang, setLang, refreshProfile };
 
@@ -105,10 +100,10 @@ export default function Layout() {
         <Navbar profile={profile} currentUser={currentUser} t={t} lang={lang} setLang={setLang} />
         <MobileHeader t={t} lang={lang} />
         <main className="pb-20 md:pb-0">
-          {/* Persistent tab pages — hidden via CSS, not unmounted */}
+          {/* Active tab page only — render current tab, unmount others */}
           {TAB_PAGES.map(({ path, PageComponent }) =>
-            visitedPaths.has(path) ? (
-              <div key={path} style={{ display: location.pathname === path ? 'block' : 'none' }}>
+            location.pathname === path ? (
+              <div key={path}>
                 <PageComponent />
               </div>
             ) : null
