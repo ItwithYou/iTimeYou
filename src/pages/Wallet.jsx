@@ -144,7 +144,11 @@ export default function Wallet() {
         <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/8" />
         <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-white/6" />
         <p className="text-sm opacity-75 font-medium mb-1">{t.balance}</p>
-        <p className="text-3xl sm:text-4xl font-black tracking-tight mb-1">{totalLak.toLocaleString()} LAK</p>
+        <div className="mb-1 max-w-full overflow-hidden">
+          <p className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight break-words whitespace-normal">
+            {totalLak.toLocaleString()} <span className="text-xl sm:text-2xl font-bold opacity-90">LAK</span>
+          </p>
+        </div>
         <div className="mb-4">
           <p className="text-xs opacity-80 font-semibold">{profile?.first_name} {profile?.last_name}</p>
           <p className="text-xs opacity-60">{currentUser?.email}</p>
