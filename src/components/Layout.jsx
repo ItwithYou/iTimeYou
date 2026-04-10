@@ -53,25 +53,49 @@ export default function Layout() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-[#004D4A] via-[#006864] to-[#00827D] overflow-hidden" style={{ minHeight: '600px' }}>
+      <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-[#004D4A] via-[#0A7A74] to-[#006B63] overflow-hidden">
         <link href="https://fonts.googleapis.com/css2?family=Phetsarath+OT&display=swap" rel="stylesheet" />
         <style>{`
           .lao-text { font-family: 'Phetsarath OT', 'Phetsarath', 'Noto Sans Lao', serif; }
-          .ring { position: absolute; border-radius: 50%; border: 1px solid rgba(10,186,181,0.16); animation: ripple 3.4s ease-out infinite; }
-          .ring:nth-child(1) { width: 160px; height: 160px; animation-delay: 0s; }
-          .ring:nth-child(2) { width: 290px; height: 290px; animation-delay: 0.65s; }
-          .ring:nth-child(3) { width: 420px; height: 420px; animation-delay: 1.3s; }
-          .ring:nth-child(4) { width: 550px; height: 550px; animation-delay: 1.95s; }
-          @keyframes ripple { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(2.5); opacity: 0; } }
+          .loading-dots { display: flex; gap: 6px; justify-content: center; }
+          .loading-dots span { width: 6px; height: 6px; border-radius: 50%; background: rgba(10,186,181,0.6); animation: pulse 1.4s ease-in-out infinite; }
+          .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+          .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+          @keyframes pulse { 0%, 80%, 100% { opacity: 0.4; } 40% { opacity: 1; } }
         `}</style>
-        <div className="ring" />
-        <div className="ring" />
-        <div className="ring" />
-        <div className="ring" />
-        <div className="relative z-10 text-center">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#0ADBB9] to-[#008B7C] flex items-center justify-center text-4xl mx-auto mb-6 shadow-2xl">⏰</div>
-          <div className="w-10 h-10 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto" />
-          <p className="text-white/80 text-sm font-semibold mt-4 lao-text">ກຳລັງໂຫຼດ...</p>
+        <div className="text-center">
+          {/* Logo */}
+          <div className="mb-10">
+            <div className="inline-block relative">
+              <div className="w-24 h-24 border-4 border-[#0ADBB9] rounded-[45%] transform rotate-45 flex items-center justify-center">
+                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center transform -rotate-45">
+                  <div className="text-3xl">⏰</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Text */}
+          <h1 className="text-4xl font-black mb-2 text-white tracking-tight">
+            <span>i</span><span>Time</span><span className="text-[#0ADBB9]">You</span>
+          </h1>
+          
+          <p className="text-white/60 text-xs tracking-widest mb-1 lao-text font-semibold">ສັງຄົມ · ບ້ານ · ຈ່າຍ · ລາວ</p>
+          <p className="text-white/50 text-xs tracking-widest mb-6">SOCIAL · STAY · PAY · LAOS</p>
+          
+          {/* Loading bar */}
+          <div className="w-48 h-px bg-[#0ADBB9]/30 mb-6 mx-auto" />
+          
+          {/* Loading text */}
+          <p className="text-white/70 text-sm mb-2 lao-text font-medium">ກຳລັງໂຫຼດ...</p>
+          <p className="text-white/50 text-xs mb-4">Loading...</p>
+          
+          {/* Dots */}
+          <div className="loading-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
         </div>
       </div>
     );
