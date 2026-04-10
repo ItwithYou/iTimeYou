@@ -85,25 +85,33 @@ export default function Explore() {
           }
         </div>
       )}
-      {profile?.is_pro ? (
-        <CreateServicePost
-          profile={{ ...profile, first_name: profile.business_name || profile.first_name, last_name: '' }}
-          currentUser={currentUser}
-          lang={lang}
-          t={t}
-          onPosted={loadData}
-        />
-      ) : (
-        <div className="bg-card rounded-2xl p-4 shadow-sm border border-border mb-5">
-          <h3 className="font-bold text-sm mb-1">{lang === 'lo' ? 'ລົງໂພສທຸລະກິດ' : 'Post business service'}</h3>
-          <p className="text-sm text-muted-foreground mb-3">
-            {lang === 'lo' ? 'ກ່ອນລົງໂພສໃນໜ້າ Business ທ່ານຕ້ອງຜ່ານ Pro ກ່ອນ' : 'Before posting on the Business page, you must pass Pro verification first.'}
-          </p>
-          <Link to={`/profile/${profile?.id || ''}`} className="inline-flex items-center justify-center bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity">
-            {profile?.is_verified ? (lang === 'lo' ? 'ໄປສະໝັກ Pro' : 'Go to apply Pro') : (lang === 'lo' ? 'ໄປຢືນຢັນບັນຊີ' : 'Go to verify profile')}
-          </Link>
-        </div>
-      )}
+      <div className="mb-5">
+        {profile?.is_pro ? (
+          <CreateServicePost
+            profile={{ ...profile, first_name: profile.business_name || profile.first_name, last_name: '' }}
+            currentUser={currentUser}
+            lang={lang}
+            t={t}
+            onPosted={loadData}
+          />
+        ) : (
+          <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
+            <div className="flex gap-3 items-center">
+              <img
+                src={profile?.photo_url || profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser?.email}`}
+                alt=""
+                className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+              />
+              <div className="flex-1 bg-muted/50 border border-border rounded-2xl px-4 py-2.5 text-sm text-muted-foreground">
+                {lang === 'lo' ? 'ຕ້ອງຜ່ານ Pro ກ່ອນຈຶ່ງຈະລົງໂພສໃນ Business ໄດ້' : 'You need Pro approval before posting on Business'}
+              </div>
+              <Link to={`/profile/${profile?.id || ''}`} className="flex-shrink-0 bg-gradient-to-r from-tiffany to-deep-green text-white px-4 py-2 rounded-xl text-xs font-bold hover:opacity-90 transition-opacity">
+                {profile?.is_verified ? (lang === 'lo' ? 'ສະໝັກ Pro' : 'Apply Pro') : (lang === 'lo' ? 'ຢືນຢັນ' : 'Verify')}
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Search bar */}
       <div className="bg-card rounded-2xl p-4 shadow-sm border border-border mb-5">

@@ -89,6 +89,56 @@ export default function AdminVerification() {
     await approve(profile, '');
   };
 
+  const approvePro = async (profile) => {
+    await base44.entities.UserProfile.update(profile.id, {
+      pro_verification_status: 'verified',
+      is_pro: true,
+      pro_reject_reason: '',
+    });
+    await base44.entities.Notification.create({
+      user_email: profile.user_email,
+      type: '🔵',
+      text: `Your Pro verification has been approved for ${profile.business_name || 'your business'}.`,
+      text_lao: `ການຢືນຢັນ Pro ຂອງທ່ານສຳລັບ ${profile.business_name || 'ທຸລະກິດ'} ໄດ້ຖືກອະນຸມັດແລ້ວ.`,
+    });
+    toast.success('Pro approved ✅');
+    loadProfiles();
+  };
+
+  const rejectPro = async (profile) => {
+    await base44.entities.UserProfile.update(profile.id, {
+      pro_verification_status: 'rejected',
+      is_pro: false,
+      pro_reject_reason: 'Rejected by admin',
+    });
+    await base44.entities.Notification.create({
+      user_email: profile.user_email,
+      type: '🔵',
+      text: 'Your Pro verification was rejected.',
+      text_lao: 'ການຢືນຢັນ Pro ຂອງທ່ານຖືກປະຕິເສດ.',
+    });
+    toast.success('Pro rejected');
+    loadProfiles();
+  };
+
+  const quickApprovePro = async (profile) => {
+    if (!window.confirm(`Quick pass Pro for ${profile.first_name} ${profile.last_name}?`)) return;
+    await base44.entities.UserProfile.update(profile.id, {
+      pro_verification_status: 'verified',
+      is_pro: true,
+      pro_reject_reason: '',
+      business_name: profile.business_name || `${profile.first_name} ${profile.last_name}`.trim(),
+    });
+    await base44.entities.Notification.create({
+      user_email: profile.user_email,
+      type: '🔵',
+      text: 'Admin quick-passed your Pro verification.',
+      text_lao: 'Admin ອະນຸມັດ Pro ໃຫ້ທ່ານແບບດ່ວນແລ້ວ.',
+    });
+    toast.success('Pro quick pass ✅');
+    loadProfiles();
+  };
+
   const resetPassword = async (profile) => {
     if (!window.confirm(`Reset password for ${profile.user_email}?`)) return;
     try {
@@ -119,9 +169,9 @@ export default function AdminVerification() {
     );
   }
 
-  const requestProfiles = profiles.filter(p => p.verification_status === 'pending');
-  const verifiedProfiles = profiles.filter(p => p.is_verified || p.verification_status === 'verified');
-  const notVerifiedProfiles = profiles.filter(p => !p.is_verified && p.verification_status !== 'pending' && p.verification_status !== 'verified');
+  const requestProfiles = profiles.filter(p => p.verification_status === 'pending' || p.pro_verification_status === 'pending');
+  const verifiedProfiles = profiles.filter(p => p.is_verified || p.verification_status === 'verified' || p.is_pro || p.pro_verification_status === 'verified');
+  const notVerifiedProfiles = profiles.filter(p => !p.is_verified && p.verification_status !== 'pending' && p.verification_status !== 'verified' && !p.is_pro && p.pro_verification_status !== 'pending' && p.pro_verification_status !== 'verified');
   const visibleProfiles = activeTab === 'requests' ? requestProfiles : activeTab === 'verified' ? verifiedProfiles : notVerifiedProfiles;
 
   return (
@@ -198,8 +248,8 @@ export default function AdminVerification() {
                   )}
                 </div>
                 <div className="flex flex-col items-end gap-1">
-                  <span className={`text-xs px-2.5 py-1 rounded-full font-semibold flex-shrink-0 border ${p.verification_status === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-300' : p.is_verified || p.verification_status === 'verified' ? 'bg-emerald-100 text-emerald-700 border-emerald-300' : 'bg-slate-100 text-slate-700 border-slate-300'}`}>
-                    {p.verification_status === 'pending' ? '⏳ Pending' : p.is_verified || p.verification_status === 'verified' ? '✅ Verified' : '❌ Not Verified'}
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-semibold flex-shrink-0 border ${p.pro_verification_status === 'pending' || p.verification_status === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-300' : p.is_pro || p.pro_verification_status === 'verified' ? 'bg-blue-100 text-blue-700 border-blue-300' : p.is_verified || p.verification_status === 'verified' ? 'bg-emerald-100 text-emerald-700 border-emerald-300' : 'bg-slate-100 text-slate-700 border-slate-300'}`}>
+                    {p.pro_verification_status === 'pending' ? '🔵 Pro Pending' : p.verification_status === 'pending' ? '⏳ Pending' : p.is_pro || p.pro_verification_status === 'verified' ? '🔵 Pro' : p.is_verified || p.verification_status === 'verified' ? '✅ Verified' : '❌ Not Verified'}
                   </span>
                   {isOnline(p) && (
                     <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold border border-emerald-300">
@@ -212,62 +262,110 @@ export default function AdminVerification() {
               {/* Pending requests — show documents + approve/reject */}
               {activeTab === 'requests' && (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <p className="text-xs font-semibold text-muted-foreground mb-2">🪪 ID Document</p>
-                      {p.id_document_url ? (
-                        <img src={p.id_document_url} alt="ID" onClick={() => setLightboxSrc(p.id_document_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
-                      ) : (
-                        <div className="bg-muted rounded-xl h-32 flex items-center justify-center text-muted-foreground text-sm">No document uploaded</div>
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-muted-foreground mb-2">🤳 Selfie with ID</p>
-                      {p.selfie_url ? (
-                        <img src={p.selfie_url} alt="Selfie" onClick={() => setLightboxSrc(p.selfie_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
-                      ) : (
-                        <div className="bg-muted rounded-xl h-32 flex items-center justify-center text-muted-foreground text-sm">No selfie uploaded</div>
-                      )}
-                    </div>
-                  </div>
+                  {p.pro_verification_status === 'pending' ? (
+                    <>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div className="sm:col-span-2 p-3 bg-blue-50 rounded-xl border border-blue-100">
+                          <p className="text-xs font-semibold text-blue-700 mb-1">Business name</p>
+                          <p className="text-sm font-semibold">{p.business_name || '-'}</p>
+                          <p className="text-xs font-semibold text-blue-700 mt-3 mb-1">Tax ID</p>
+                          <p className="text-sm">{p.business_tax_id || '-'}</p>
+                        </div>
+                        <div className="sm:col-span-2">
+                          <p className="text-xs font-semibold text-muted-foreground mb-2">🏢 Business License</p>
+                          {p.business_license_url ? (
+                            <img src={p.business_license_url} alt="Business License" onClick={() => setLightboxSrc(p.business_license_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
+                          ) : (
+                            <div className="bg-muted rounded-xl h-32 flex items-center justify-center text-muted-foreground text-sm">No business license uploaded</div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => approvePro(p)}
+                          className="flex-1 flex items-center justify-center gap-1.5 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
+                        >
+                          <Check size={15} /> Approve Pro
+                        </button>
+                        <button
+                          onClick={() => rejectPro(p)}
+                          className="flex-1 flex items-center justify-center gap-1.5 bg-destructive text-destructive-foreground py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
+                        >
+                          <X size={15} /> Reject Pro
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <p className="text-xs font-semibold text-muted-foreground mb-2">🪪 ID Document</p>
+                          {p.id_document_url ? (
+                            <img src={p.id_document_url} alt="ID" onClick={() => setLightboxSrc(p.id_document_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
+                          ) : (
+                            <div className="bg-muted rounded-xl h-32 flex items-center justify-center text-muted-foreground text-sm">No document uploaded</div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-muted-foreground mb-2">🤳 Selfie with ID</p>
+                          {p.selfie_url ? (
+                            <img src={p.selfie_url} alt="Selfie" onClick={() => setLightboxSrc(p.selfie_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
+                          ) : (
+                            <div className="bg-muted rounded-xl h-32 flex items-center justify-center text-muted-foreground text-sm">No selfie uploaded</div>
+                          )}
+                        </div>
+                      </div>
 
-                  {p.verification_reject_reason && (
-                    <div className="mb-4 p-3 bg-destructive/10 rounded-xl border border-destructive/20">
-                      <p className="text-xs font-semibold text-destructive mb-1">Previous rejection reason:</p>
-                      <p className="text-sm">{p.verification_reject_reason}</p>
-                    </div>
+                      {p.verification_reject_reason && (
+                        <div className="mb-4 p-3 bg-destructive/10 rounded-xl border border-destructive/20">
+                          <p className="text-xs font-semibold text-destructive mb-1">Previous rejection reason:</p>
+                          <p className="text-sm">{p.verification_reject_reason}</p>
+                        </div>
+                      )}
+
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => { setApprovingProfile(p); setExpiryDate(''); }}
+                          className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
+                        >
+                          <Check size={15} /> Approve
+                        </button>
+                        <button
+                          onClick={() => { setRejectingProfile(p); setRejectReason(''); }}
+                          className="flex-1 flex items-center justify-center gap-1.5 bg-destructive text-destructive-foreground py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
+                        >
+                          <X size={15} /> Reject
+                        </button>
+                      </div>
+                    </>
                   )}
-
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => { setApprovingProfile(p); setExpiryDate(''); }}
-                      className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
-                    >
-                      <Check size={15} /> Approve
-                    </button>
-                    <button
-                      onClick={() => { setRejectingProfile(p); setRejectReason(''); }}
-                      className="flex-1 flex items-center justify-center gap-1.5 bg-destructive text-destructive-foreground py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
-                    >
-                      <X size={15} /> Reject
-                    </button>
-                  </div>
                 </>
               )}
 
               {/* Verified users — show expiry + reset password */}
               {activeTab === 'verified' && (
-                <div className="pt-3 border-t border-border flex items-center justify-between gap-3">
+                <div className="pt-3 border-t border-border flex items-center justify-between gap-3 flex-wrap">
                   <div>
                     <p className="text-sm font-semibold">{p.first_name} {p.last_name}</p>
                     <p className="text-xs text-muted-foreground">{p.user_email}</p>
+                    {p.is_pro && <p className="text-xs text-blue-700 font-semibold mt-1">Business: {p.business_name || '-'}</p>}
                   </div>
-                  <button
-                    onClick={() => resetPassword(p)}
-                    className="flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity"
-                  >
-                    <KeyRound size={14} /> Reset Password
-                  </button>
+                  <div className="flex gap-2 flex-wrap">
+                    {!p.is_pro && (
+                      <button
+                        onClick={() => quickApprovePro(p)}
+                        className="flex items-center gap-1.5 bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity"
+                      >
+                        <Check size={14} /> Quick Pass Pro
+                      </button>
+                    )}
+                    <button
+                      onClick={() => resetPassword(p)}
+                      className="flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity"
+                    >
+                      <KeyRound size={14} /> Reset Password
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -280,17 +378,23 @@ export default function AdminVerification() {
                       <p className="text-sm">{p.verification_reject_reason}</p>
                     </div>
                   )}
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
                     <div>
                       <p className="text-sm font-semibold">{p.first_name} {p.last_name}</p>
                       <p className="text-xs text-muted-foreground">{p.user_email}</p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                       <button
                         onClick={() => quickApprove(p)}
                         className="flex items-center gap-1.5 bg-emerald-500 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity"
                       >
                         <Check size={14} /> Quick Approve
+                      </button>
+                      <button
+                        onClick={() => quickApprovePro(p)}
+                        className="flex items-center gap-1.5 bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity"
+                      >
+                        <Check size={14} /> Quick Pass Pro
                       </button>
                       <button
                         onClick={() => resetPassword(p)}
