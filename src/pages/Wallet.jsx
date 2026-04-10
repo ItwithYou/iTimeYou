@@ -16,6 +16,13 @@ const typeConfig = {
   send:     { icon: '📤', color: 'text-destructive', sign: '' },
 };
 
+const statusLabelMap = {
+  pending: 'Pending',
+  approved: 'Approved',
+  completed: 'Done',
+  rejected: 'Rejected',
+};
+
 export default function Wallet() {
   const { profile, currentUser, t, lang, refreshProfile } = useAppContext();
   const navigate = useNavigate();
@@ -227,6 +234,12 @@ export default function Wallet() {
                       {lang === 'lo' && tx.description_lao ? tx.description_lao : tx.description}
                     </p>
                     <p className="text-xs text-muted-foreground">{moment(tx.created_date).fromNow()}</p>
+                    <p className="text-xs mt-1 text-muted-foreground">
+                      Status: <span className={tx.status === 'rejected' ? 'text-destructive font-semibold' : tx.status === 'approved' || tx.status === 'completed' ? 'text-success font-semibold' : 'text-amber-600 font-semibold'}>{statusLabelMap[tx.status] || tx.status}</span>
+                    </p>
+                    {tx.reject_reason && (
+                      <p className="text-xs text-destructive mt-1">Reason: {tx.reject_reason}</p>
+                    )}
                   </div>
                   <span className={`font-bold text-sm flex-shrink-0 ${cfg.color}`}>
                     {tx.amount > 0 ? '+' : ''}{Math.abs(tx.amount)} {tx.currency || 'USD'}

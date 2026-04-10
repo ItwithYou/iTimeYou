@@ -87,6 +87,8 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
   const [accountForm, setAccountForm] = useState({ bank_name: 'BCEL', account_name: '', account_number: '', qr_code_url: '', notes: '' });
   const [qrFile, setQrFile] = useState(null);
   const [savingAccount, setSavingAccount] = useState(false);
+  const [rejectingTx, setRejectingTx] = useState(null);
+  const [rejectReason, setRejectReason] = useState('');
 
   const pendingTopups = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'topup');
   const pendingWithdraws = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'withdraw');
@@ -188,13 +190,13 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
     onUpdated?.();
   };
 
-  const rejectTransaction = async (tx) => {
-    await base44.entities.WalletTransaction.update(tx.id, { status: 'rejected' });
+  const rejectTransaction = async (tx, reason) => {
+    await base44.entities.WalletTransaction.update(tx.id, { status: 'rejected', reject_reason: reason || '' });
     await base44.entities.Notification.create({
       user_email: tx.user_email,
       type: '❌',
-      text: `Your ${tx.request_kind} request was rejected`,
-      text_lao: `ຄຳຂໍ ${tx.request_kind} ຂອງທ່ານຖືກປະຕິເສດ`,
+      text: `Your ${tx.request_kind} request was rejected${reason ? `: ${reason}` : ''}`,
+      text_lao: `ຄຳຂໍ ${tx.request_kind} ຂອງທ່ານຖືກປະຕິເສດ${reason ? `: ${reason}` : ''}`,
     });
     onUpdated?.();
   };
@@ -288,7 +290,7 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {currentList.map((tx) => (
-              <RequestCard key={tx.id} tx={tx} lang={lang} onApprove={approveTransaction} onReject={rejectTransaction} />
+              <RequestCard key={tx.id} tx={tx} lang={lang} onApprove={approveTransaction} onReject={(item) => { setRejectingTx(item); setRejectReason(item.reject_reason || ''); }} />
             ))}
           </div>
         )
@@ -310,6 +312,25 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
           ) : (
             filteredTransactions.map((tx) => <TransactionRow key={tx.id} tx={tx} lang={lang} />)
           )}
+        </div>
+      )}
+
+      {rejectingTx && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center" onClick={() => setRejectingTx(null)}>
+          <div className="bg-card w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 border border-border shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="font-bold text-base mb-3">Reject Reason</h3>
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Write reason here"
+              rows={4}
+              className="w-full border border-border rounded-xl px-3 py-2 text-sm"
+            />
+            <div className="flex gap-2 mt-4">
+              <button onClick={() => setRejectingTx(null)} className="flex-1 border border-border py-2.5 rounded-xl text-sm font-semibold">Cancel</button>
+              <button onClick={async () => { await rejectTransaction(rejectingTx, rejectReason); setRejectingTx(null); setRejectReason(''); }} className="flex-1 bg-destructive text-destructive-foreground py-2.5 rounded-xl text-sm font-semibold">Send Reject</button>
+            </div>
+          </div>
         </div>
       )}
     </div>
