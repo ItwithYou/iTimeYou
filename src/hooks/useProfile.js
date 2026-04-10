@@ -15,11 +15,17 @@ export default function useProfile() {
       setProfile(profiles[0]);
     } else {
       // Auto-create profile for new user
+      const emailValue = (user.email || '').toLowerCase();
+      const inferredGender = emailValue.includes('female') || emailValue.includes('girl') || emailValue.includes('woman') ? 'female' : emailValue.includes('male') || emailValue.includes('boy') || emailValue.includes('man') ? 'male' : 'other';
+      const displayNameStyle = inferredGender === 'female' ? 'ms' : inferredGender === 'male' ? 'mr' : 'mx';
+      const avatarSeed = `${inferredGender}-${encodeURIComponent(user.email)}`;
       const newProfile = await base44.entities.UserProfile.create({
         user_email: user.email,
         first_name: user.full_name?.split(' ')[0] || 'User',
         last_name: user.full_name?.split(' ').slice(1).join(' ') || '',
-        avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.email)}`,
+        gender: inferredGender,
+        display_name_style: displayNameStyle,
+        avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`,
         trust_stars: 3.0,
         wallet_balance: 0,
         is_verified: false,

@@ -12,6 +12,24 @@
     "last_name": {
       "type": "string"
     },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female",
+        "other"
+      ]
+    },
+    "display_name_style": {
+      "type": "string",
+      "enum": [
+        "mr",
+        "ms",
+        "mx",
+        "plain"
+      ],
+      "default": "plain"
+    },
     "phone": {
       "type": "string"
     },

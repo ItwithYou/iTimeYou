@@ -112,7 +112,7 @@ export default function Profile() {
             )}
           </div>
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">{viewProfile.first_name} {viewProfile.last_name}</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{viewProfile.display_name_style === 'mr' ? 'Mr. ' : viewProfile.display_name_style === 'ms' ? 'Ms. ' : viewProfile.display_name_style === 'mx' ? 'Mx. ' : ''}{viewProfile.first_name} {viewProfile.last_name}</h1>
         <div className="flex items-center justify-center gap-2 mt-2">
           <StarRating rating={viewProfile.trust_stars || 0} size={18} />
         </div>
