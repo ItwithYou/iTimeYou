@@ -143,6 +143,9 @@ export default function Profile() {
               <Camera size={14} className="inline mr-1" />
               <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
             </label>
+            <button onClick={() => base44.auth.logout()} className="flex items-center gap-1.5 border border-border px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-muted transition-colors select-none">
+              🚪 {lang === 'lo' ? 'ອອກຈາກລະບົບ' : 'Logout'}
+            </button>
             <button onClick={() => setShowDeleteConfirm(true)} className="flex items-center gap-1.5 border border-destructive/50 text-destructive px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-destructive/5 transition-colors select-none">
               <Trash2 size={13} /> {lang === 'lo' ? 'ລຶບບັນຊີ' : 'Delete Account'}
             </button>
