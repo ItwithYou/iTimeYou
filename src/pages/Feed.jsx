@@ -9,15 +9,11 @@ import StarRating from '../components/StarRating';
 import TrustBadge from '../components/TrustBadge';
 import { CAT_KEYS, CAT_ICONS } from '../hooks/useLang';
 import CreateServicePost from '../components/CreateServicePost';
-import { toast } from 'sonner';
 
 export default function Feed() {
   const { profile, currentUser, t, lang } = useAppContext();
   const [posts, setPosts] = useState([]);
   const [filterCat, setFilterCat] = useState('all');
-  const [activeTab, setActiveTab] = useState('feed');
-  const [scheduleBookings, setScheduleBookings] = useState([]);
-  const [scheduleProfiles, setScheduleProfiles] = useState({});
 
   const loadPosts = async () => {
     const data = await base44.entities.Post.list('-created_date', 30);
@@ -28,33 +24,7 @@ export default function Feed() {
 
   useEffect(() => {loadPosts();}, []);
 
-  const loadSchedule = async () => {
-    if (!currentUser) return;
-    const [asBooker, asPoster] = await Promise.all([
-    base44.entities.ServiceBooking.filter({ booker_email: currentUser.email }, '-created_date', 30),
-    base44.entities.ServiceBooking.filter({ poster_email: currentUser.email }, '-created_date', 30)]
-    );
-    const all = [...asBooker, ...asPoster].filter((b, i, arr) => arr.findIndex((x) => x.id === b.id) === i);
-    all.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
-    setScheduleBookings(all);
-    const emails = [...new Set(all.flatMap((b) => [b.booker_email, b.poster_email]).filter(Boolean))];
-    if (emails.length) {
-      const profiles = await base44.entities.UserProfile.list('-created_date', 100);
-      const map = {};
-      profiles.forEach((p) => {map[p.user_email] = `${p.first_name} ${p.last_name}`.trim();});
-      setScheduleProfiles(map);
-    }
-  };
-
-  useEffect(() => {if (activeTab === 'schedule') loadSchedule();}, [activeTab, currentUser]);
-
   const filteredPosts = filterCat === 'all' ? posts : posts.filter((p) => p.category === filterCat);
-
-  const statusConfig = {
-    pending: { cls: 'bg-amber-100 text-amber-700 border-amber-200', label: lang === 'lo' ? 'ລໍຖ້າ' : 'Pending' },
-    confirmed: { cls: 'bg-emerald-100 text-emerald-700 border-emerald-200', label: lang === 'lo' ? 'ຢືນຢັນ' : 'Confirmed' },
-    cancelled: { cls: 'bg-red-100 text-red-700 border-red-200', label: lang === 'lo' ? 'ຍົກເລີກ' : 'Cancelled' }
-  };
 
   return (
     <div className="max-w-4xl mx-auto px-3 sm:px-4 py-5">
@@ -119,70 +89,6 @@ export default function Feed() {
 
         {/* Main feed */}
         <div className="lg:col-span-3 space-y-4">
-          {/* Tab switcher */}
-          <div className="flex gap-1 bg-muted rounded-xl p-1">
-            <button
-              onClick={() => setActiveTab('feed')}
-              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'feed' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-              
-              📝 {lang === 'lo' ? 'ຟີດ' : 'Feed'}
-            </button>
-            
-
-
-
-
-            
-          </div>
-
-          {activeTab === 'schedule' &&
-          <div className="space-y-3">
-              <p className="text-xs text-muted-foreground">{lang === 'lo' ? 'ການຈອງບໍລິການທັງໝົດຂອງທ່ານ' : 'All your service bookings'}</p>
-              {scheduleBookings.length === 0 ?
-            <div className="text-center py-14 text-muted-foreground">
-                  <p className="text-4xl mb-2">📅</p>
-                  <p className="font-semibold">{lang === 'lo' ? 'ຍັງບໍ່ມີການຈອງ' : 'No bookings yet'}</p>
-                </div> :
-
-            scheduleBookings.map((b) => {
-              const isBooker = b.booker_email === currentUser?.email;
-              const st = statusConfig[b.status] || statusConfig.pending;
-              return null;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            })
-            }
-            </div>
-          }
-
-          {activeTab === 'feed' && <>
           <CreateServicePost
               profile={profile}
               currentUser={currentUser}
@@ -190,7 +96,6 @@ export default function Feed() {
               t={t}
               onPosted={loadPosts} />
             
-
           {/* Filter tabs */}
           <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
             <button
@@ -229,7 +134,6 @@ export default function Feed() {
               </div>
               }
           </div>
-          </>}
         </div>
       </div>
     </div>);
