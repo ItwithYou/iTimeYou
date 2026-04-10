@@ -76,24 +76,49 @@ export default function AdminExchangeRates({ currentUser, lang }) {
   };
 
   const handleSave = async () => {
-    if (!form.usd_buy || !form.usd_sell) {
+    setSaving(true);
+
+    // Always fetch latest BCEL rates first
+    let latestForm = { ...form };
+    try {
+      const response = await base44.functions.invoke('fetchBcelRates', {});
+      const data = response.data;
+      if (data?.success && data.rates) {
+        latestForm = {
+          ...latestForm,
+          usd_buy: data.rates.usdBuy,
+          usd_sell: data.rates.usdSell,
+          usdt_buy: data.rates.usdtBuy,
+          usdt_sell: data.rates.usdtSell,
+        };
+        setForm(latestForm);
+        toast.success(lang === 'lo' ? 'ດຶງອັດຕາ BCEL ລ່າສຸດແລ້ວ' : 'Fetched latest BCEL rates');
+      } else {
+        toast.error(lang === 'lo' ? 'ບໍ່ສາມາດດຶງອັດຕາ BCEL ໄດ້ — ໃຊ້ອັດຕາເກົ່າ' : 'Could not fetch BCEL — saving with current values');
+      }
+    } catch {
+      toast.error(lang === 'lo' ? 'ບໍ່ສາມາດດຶງອັດຕາ BCEL ໄດ້ — ໃຊ້ອັດຕາເກົ່າ' : 'Could not fetch BCEL — saving with current values');
+    }
+
+    if (!latestForm.usd_buy || !latestForm.usd_sell) {
       toast.error('USD buy and sell rates are required');
+      setSaving(false);
       return;
     }
-    setSaving(true);
+
     const payload = {
-      usd_buy: Number(form.usd_buy) || 0,
-      usd_sell: Number(form.usd_sell) || 0,
-      usdt_buy: Number(form.usdt_buy) || 0,
-      usdt_sell: Number(form.usdt_sell) || 0,
-      thb_buy: Number(form.thb_buy) || 0,
-      thb_sell: Number(form.thb_sell) || 0,
-      cny_buy: Number(form.cny_buy) || 0,
-      cny_sell: Number(form.cny_sell) || 0,
-      vnd_buy: Number(form.vnd_buy) || 0,
-      vnd_sell: Number(form.vnd_sell) || 0,
+      usd_buy: Number(latestForm.usd_buy) || 0,
+      usd_sell: Number(latestForm.usd_sell) || 0,
+      usdt_buy: Number(latestForm.usdt_buy) || 0,
+      usdt_sell: Number(latestForm.usdt_sell) || 0,
+      thb_buy: Number(latestForm.thb_buy) || 0,
+      thb_sell: Number(latestForm.thb_sell) || 0,
+      cny_buy: Number(latestForm.cny_buy) || 0,
+      cny_sell: Number(latestForm.cny_sell) || 0,
+      vnd_buy: Number(latestForm.vnd_buy) || 0,
+      vnd_sell: Number(latestForm.vnd_sell) || 0,
       updated_by: currentUser?.email || '',
-      notes: form.notes || '',
+      notes: latestForm.notes || '',
     };
 
     if (settings?.id) {
