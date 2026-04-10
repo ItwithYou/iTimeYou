@@ -194,6 +194,7 @@ export default function Feed() {
                 currentUserEmail={currentUser?.email}
                 t={t}
                 lang={lang}
+                authorProfile={authorProfiles[post.author_email] || null}
                 onRefresh={loadPosts} />
 
               )}

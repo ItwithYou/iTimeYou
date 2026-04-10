@@ -9,11 +9,11 @@ import { base44 } from '@/api/base44Client';
 import { CAT_ICONS } from '../hooks/useLang';
 import moment from 'moment';
 
-export default function PostCard({ post, currentUserEmail, t, lang, onRefresh }) {
+export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, authorProfile: initialAuthorProfile }) {
   const { profile, currentUser, refreshProfile } = useAppContext();
   const navigate = useNavigate();
   const isAdmin = currentUser?.role === 'admin';
-  const [authorProfile, setAuthorProfile] = useState(null);
+  const [authorProfile, setAuthorProfile] = useState(initialAuthorProfile || null);
   const [followLoading, setFollowLoading] = useState(false);
   const [showBookModal, setShowBookModal] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -57,14 +57,8 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
   }, [post.id, showComments]);
 
   useEffect(() => {
-    let mounted = true;
-    base44.entities.UserProfile.filter({ user_email: post.author_email }).then((profiles) => {
-      if (mounted) setAuthorProfile(profiles[0] || null);
-    });
-    return () => {
-      mounted = false;
-    };
-  }, [post.author_email]);
+    setAuthorProfile(initialAuthorProfile || null);
+  }, [initialAuthorProfile]);
 
   const toggleLike = async () => {
     const currentLikes = post.likes || [];
