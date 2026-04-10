@@ -57,7 +57,8 @@ export default function Profile() {
         first_name: data[0].first_name,
         last_name: data[0].last_name,
         bio: lang === 'lo' ? data[0].bio_lao || data[0].bio : data[0].bio,
-        location: data[0].location || ''
+        location: data[0].location || '',
+        gender: data[0].gender || ''
       });
       base44.entities.Post.filter({ author_email: data[0].user_email }, '-created_date', 20).then(setPosts);
       base44.entities.Listing.filter({ host_email: data[0].user_email }).then(setListings);
@@ -80,7 +81,8 @@ export default function Profile() {
       last_name: editData.last_name,
       bio: editData.bio,
       bio_lao: editData.bio,
-      location: editData.location
+      location: editData.location,
+      gender: editData.gender
     });
     setEditing(false);
     loadProfile();
@@ -189,6 +191,15 @@ export default function Profile() {
           <div>
             <label className="text-xs font-semibold">{lang === 'lo' ? 'ສະຖານທີ່' : 'Location'}</label>
             <input value={editData.location} onChange={(e) => setEditData({ ...editData, location: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+          </div>
+          <div>
+            <label className="text-xs font-semibold">{lang === 'lo' ? 'ເພດ' : 'Gender'}</label>
+            <select value={editData.gender || ''} onChange={(e) => setEditData({ ...editData, gender: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-card">
+              <option value="">{lang === 'lo' ? 'ເລືອກເພດ' : 'Select gender'}</option>
+              <option value="male">{lang === 'lo' ? 'ຊາຍ' : 'Male'}</option>
+              <option value="female">{lang === 'lo' ? 'ຍິງ' : 'Female'}</option>
+              <option value="other">{lang === 'lo' ? 'ອື່ນໆ' : 'Other'}</option>
+            </select>
           </div>
           <button onClick={saveEdit} className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg text-sm font-semibold hover:opacity-90">
             💾 {t.saveChanges}
