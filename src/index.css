@@ -124,17 +124,24 @@
 /* Safe area for iOS/Android bottom nav */
 .safe-area-pb { padding-bottom: env(safe-area-inset-bottom, 0px); }
 
-/* Android touch fixes */
-input[type="file"] { font-size: 16px; } /* prevent zoom on Android */
+/* Mobile touch fixes */
+input[type="file"] { font-size: 16px; }
 input[type="date"], input[type="datetime-local"], input[type="time"] {
   min-height: 44px;
-  font-size: 16px; /* prevent auto-zoom on mobile */
+  font-size: 16px;
+  -webkit-appearance: none;
+  appearance: none;
 }
 select { min-height: 44px; font-size: 16px; }
-/* Ensure labels and buttons have minimum touch targets */
-label, button { min-height: 32px; }
+input[type="text"], input[type="email"], input[type="number"], input[type="tel"], input[type="url"], input[type="search"], textarea {
+  font-size: 16px; /* prevent iOS/Android auto-zoom */
+}
 /* Fix checkbox/radio touch area */
-input[type="checkbox"], input[type="radio"] { min-width: 20px; min-height: 20px; }
+input[type="checkbox"], input[type="radio"] { min-width: 22px; min-height: 22px; }
+/* Modal scroll containment */
+.overscroll-contain { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+/* Prevent 300ms tap delay */
+* { touch-action: manipulation; }
 
 /* Page transition */
 @keyframes page-in {

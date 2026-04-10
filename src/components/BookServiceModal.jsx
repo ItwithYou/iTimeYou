@@ -133,10 +133,11 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center" onClick={onClose} onTouchMove={e => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onTouchEnd={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div
-        className="bg-card rounded-t-3xl sm:rounded-2xl w-full sm:max-w-sm p-6 shadow-xl border border-border"
-        onClick={e => e.stopPropagation()}
+        className="bg-card rounded-t-3xl sm:rounded-2xl w-full sm:max-w-sm p-6 shadow-xl border border-border overscroll-contain"
+        onMouseDown={e => e.stopPropagation()}
+        onTouchEnd={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-bold text-base">{lang === 'lo' ? 'ຈອງບໍລິການ' : 'Book Service'}</h2>

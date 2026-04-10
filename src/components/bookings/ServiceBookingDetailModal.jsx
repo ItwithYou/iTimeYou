@@ -27,8 +27,8 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
   const canAppeal = booking.status === 'completed' && isBooker;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center" onClick={onClose}>
-      <div className="bg-card w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl p-5 border border-border shadow-xl" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onTouchEnd={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="bg-card w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl p-5 border border-border shadow-xl max-h-[90vh] overflow-y-auto overscroll-contain" onMouseDown={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-base">{lang === 'lo' ? 'ລາຍລະອຽດການຈອງ' : 'Booking Details'}</h3>
           <button onClick={onClose} className="p-1 rounded-full hover:bg-muted"><X size={18} /></button>

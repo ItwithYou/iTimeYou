@@ -71,11 +71,12 @@ export default function Messages() {
           conversations.map(conv => {
             const other = getOtherParticipant(conv);
             return (
-              <div
+              <button
                 key={conv.id}
+                type="button"
                 onClick={() => openConversation(conv)}
-                className={`flex items-center gap-3 px-4 py-3 cursor-pointer border-b border-border/50 transition-colors ${
-                  activeConv?.id === conv.id ? 'bg-muted' : 'hover:bg-muted/50'
+                className={`flex items-center gap-3 px-4 py-3.5 w-full text-left border-b border-border/50 transition-colors ${
+                  activeConv?.id === conv.id ? 'bg-muted' : 'active:bg-muted/50'
                 }`}
               >
                 <img
@@ -87,7 +88,7 @@ export default function Messages() {
                   <h4 className="text-sm font-semibold">{other.first_name} {other.last_name}</h4>
                   <p className="text-xs text-muted-foreground truncate">{conv.last_message || '...'}</p>
                 </div>
-              </div>
+              </button>
             );
           })
         ) : (
@@ -102,7 +103,7 @@ export default function Messages() {
         {activeConv ? (
           <>
             <div className="flex items-center gap-3 px-5 py-3 bg-card border-b border-border">
-              <button onClick={() => setActiveConv(null)} className="md:hidden mr-1 text-muted-foreground">
+              <button onClick={() => setActiveConv(null)} className="md:hidden mr-1 text-muted-foreground min-w-[44px] min-h-[44px] flex items-center justify-center">
                 ←
               </button>
               {(() => {
@@ -135,11 +136,12 @@ export default function Messages() {
                 onChange={e => setNewMessage(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && sendMessage()}
                 placeholder={t.typeMessage}
-                className="flex-1 border border-border rounded-full px-4 py-2 text-sm outline-none focus:border-primary"
+                className="flex-1 border border-border rounded-full px-4 py-2.5 text-base outline-none focus:border-primary"
+                style={{ fontSize: '16px' }}
               />
               <button
                 onClick={sendMessage}
-                className="w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center hover:opacity-90"
+                className="w-11 h-11 bg-primary text-primary-foreground rounded-full flex items-center justify-center active:opacity-80 flex-shrink-0"
               >
                 <Send size={16} />
               </button>

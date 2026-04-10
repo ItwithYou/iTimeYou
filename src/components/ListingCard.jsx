@@ -59,8 +59,8 @@ export default function ListingCard({ listing, t, lang }) {
         />
         {/* Save button */}
         <button
-          onClick={(e) => { e.preventDefault(); setSaved(!saved); }}
-          className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+          onClick={(e) => { e.stopPropagation(); setSaved(!saved); }}
+          className="absolute top-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform z-10"
         >
           <Heart size={14} className={saved ? 'fill-red-500 text-red-500' : 'text-muted-foreground'} />
         </button>

@@ -317,21 +317,21 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
       <div className="flex border-t border-border">
         <button
           onClick={toggleLike}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-sm transition-colors hover:bg-muted ${liked ? 'text-red-500 font-semibold' : 'text-muted-foreground'}`}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-3.5 text-sm transition-colors active:bg-muted ${liked ? 'text-red-500 font-semibold' : 'text-muted-foreground'}`}
         >
           <Heart size={17} className={liked ? 'fill-red-500' : ''} />
           {t.like}
         </button>
         <button
           onClick={() => setShowComments(!showComments)}
-          className="flex-1 flex items-center justify-center gap-1.5 py-3 text-sm text-muted-foreground hover:bg-muted transition-colors"
+          className="flex-1 flex items-center justify-center gap-1.5 py-3.5 text-sm text-muted-foreground active:bg-muted transition-colors"
         >
           <MessageCircle size={17} />
           {t.comment}
         </button>
         <button
           onClick={handleShare}
-          className="flex-1 flex items-center justify-center gap-1.5 py-3 text-sm text-muted-foreground hover:bg-muted transition-colors"
+          className="flex-1 flex items-center justify-center gap-1.5 py-3.5 text-sm text-muted-foreground active:bg-muted transition-colors"
         >
           <Share2 size={17} />
           {t.share}
@@ -368,7 +368,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
               placeholder={t.writeComment}
               className="flex-1 bg-card border border-border rounded-full px-4 py-2 text-sm outline-none focus:border-primary"
             />
-            <button onClick={addComment} className="w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center hover:opacity-90 flex-shrink-0">
+            <button onClick={addComment} className="w-11 h-11 bg-primary text-white rounded-full flex items-center justify-center active:opacity-80 flex-shrink-0">
               <Send size={14} />
             </button>
           </div>

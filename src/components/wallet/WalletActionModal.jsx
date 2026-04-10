@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRightLeft, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
@@ -6,6 +6,22 @@ import { DEFAULT_EXCHANGE_RATES, convertFromLak, convertToLak, exchangeWalletBal
 
 const BANKS = ['BCEL', 'LDB'];
 const CURRENCIES = ['LAK', 'USD', 'USDT'];
+
+function FileUploadButton({ label, accept, onChange }) {
+  const ref = useRef(null);
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => ref.current?.click()}
+        className="block w-full border-2 border-dashed border-border rounded-xl px-3 py-4 text-sm text-muted-foreground active:border-primary text-left min-h-[48px]"
+      >
+        {label}
+      </button>
+      <input ref={ref} type="file" accept={accept} className="hidden" onChange={onChange} />
+    </>
+  );
+}
 
 export default function WalletActionModal({ type, currentUser, profile, lang, onClose, onSubmitted }) {
   const [amount, setAmount] = useState('');
@@ -207,8 +223,8 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center" onClick={onClose}>
-      <div className="bg-card w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 border border-border shadow-xl" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onTouchEnd={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="bg-card w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 border border-border shadow-xl max-h-[90vh] overflow-y-auto overscroll-contain" onMouseDown={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-base">{titleMap[type]}</h3>
           <button onClick={onClose} className="p-1 rounded-full hover:bg-muted"><X size={18} /></button>
@@ -256,10 +272,11 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
                 {accountSettings?.notes && <p className="text-muted-foreground text-xs">{accountSettings.notes}</p>}
                 {accountSettings?.qr_code_url && <img src={accountSettings.qr_code_url} alt="QR code" className="w-40 h-40 object-cover rounded-xl border border-border" />}
               </div>
-              <label className="block border-2 border-dashed border-border rounded-xl px-3 py-3 text-sm text-muted-foreground cursor-pointer hover:border-primary">
-                {file ? `✅ ${file.name}` : (lang === 'lo' ? 'ແນບສະລິບການຈ່າຍ' : 'Attach payment screenshot')}
-                <input type="file" accept="image/*" className="hidden" onChange={(e) => setFile(e.target.files[0])} />
-              </label>
+              <FileUploadButton
+                label={file ? `✅ ${file.name}` : (lang === 'lo' ? 'ແນບສະລິບການຈ່າຍ' : 'Attach payment screenshot')}
+                accept="image/*"
+                onChange={(e) => { if (e.target.files[0]) setFile(e.target.files[0]); }}
+              />
             </>
           )}
 
@@ -273,10 +290,11 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
               <p className="text-xs text-muted-foreground px-1">
                 {lang === 'lo' ? 'ສຳລັບຜູ້ໃຊ້ໃໝ່ ຊ່ອງນີ້ຈະເປັນຄ່າຫວ່າງ ແລະ ລະບົບຈະຈື່ຂໍ້ມູນບັນຊີຂອງທ່ານໄວ້' : 'For new users this stays blank, and your own account details will be remembered after you submit.'}
               </p>
-              <label className="block border-2 border-dashed border-border rounded-xl px-3 py-3 text-sm text-muted-foreground cursor-pointer hover:border-primary">
-                {accountQrFile ? `✅ ${accountQrFile.name}` : (lang === 'lo' ? 'ແນບ QR ຂອງບັນຊີ' : 'Attach your account QR')}
-                <input type="file" accept="image/*" className="hidden" onChange={(e) => setAccountQrFile(e.target.files[0])} />
-              </label>
+              <FileUploadButton
+                label={accountQrFile ? `✅ ${accountQrFile.name}` : (lang === 'lo' ? 'ແນບ QR ຂອງບັນຊີ' : 'Attach your account QR')}
+                accept="image/*"
+                onChange={(e) => { if (e.target.files[0]) setAccountQrFile(e.target.files[0]); }}
+              />
               {accountQrFile && <img src={URL.createObjectURL(accountQrFile)} alt="Account QR" className="w-40 h-40 object-cover rounded-xl border border-border" />}
             </>
           )}

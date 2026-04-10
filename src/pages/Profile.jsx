@@ -230,7 +230,7 @@ export default function Profile() {
       <div className="mx-6 mt-4 bg-card rounded-xl p-5 shadow-sm">
           <h3 className="font-semibold flex items-center gap-2"><Shield size={18} /> {lang === 'lo' ? 'ການຢືນຢັນບັນຊີ' : 'Account Verification'}</h3>
           <p className="text-sm text-muted-foreground mt-1 mb-3">{t.verFeats}</p>
-          <button onClick={() => setShowVerModal(true)} className="bg-primary text-primary-foreground px-6 py-2 rounded-lg text-sm font-semibold hover:opacity-90">
+          <button onClick={() => setShowVerModal(true)} className="bg-primary text-primary-foreground px-6 py-3 rounded-lg text-sm font-semibold active:opacity-80 min-h-[48px]">
             {t.verifyNow}
           </button>
         </div>
@@ -373,7 +373,7 @@ export default function Profile() {
 
       {/* Delete Account Confirmation Dialog */}
       {showDeleteConfirm &&
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm" onMouseDown={e => { if (e.target === e.currentTarget) setShowDeleteConfirm(false); }} onTouchEnd={e => { if (e.target === e.currentTarget) setShowDeleteConfirm(false); }}>
           <div className="bg-card rounded-t-3xl sm:rounded-2xl w-full sm:max-w-sm p-6 shadow-xl border border-border">
             <div className="text-center mb-4">
               <div className="text-3xl mb-2">⚠️</div>
