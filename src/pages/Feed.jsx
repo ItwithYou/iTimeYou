@@ -155,8 +155,8 @@ export default function Feed() {
               <input
                 type="text"
                 value={filterLocation}
-                onChange={(e) => setFilterLocation(e.target.value)}
-                placeholder={lang === 'lo' ? 'ຕຳແໜ່ງ...' : 'Location...'}
+                onChange={(e) => { setFilterLocation(e.target.value); }}
+                placeholder={lang === 'lo' ? 'ຊອກຫາບໍລິການ...' : 'Search services...'}
                 className="flex-1 min-w-[120px] bg-card border border-border rounded-full px-3 py-1.5 text-xs outline-none focus:border-primary"
               />
               <select

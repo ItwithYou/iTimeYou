@@ -91,8 +91,7 @@ export default function Explore() {
             <input
               type="text"
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleFilter()}
+              onChange={e => { setSearchQuery(e.target.value); filterData(listings, e.target.value, activeCat, sortBy); }}
               placeholder={t.searchPlaceholder}
               className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
