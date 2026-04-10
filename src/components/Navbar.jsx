@@ -32,10 +32,10 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
         </Link>
 
         {/* Desktop search */}
-        <Link to="/explore" className="bg-[hsl(var(--chart-4))] text-[hsl(var(--popover))] mx-6 px-4 py-2 rounded-full hidden md:flex items-center flex-1 max-w-xs border border-border hover:border-primary transition-colors">
-          
-          <span className="ml-2 text-sm text-muted-foreground">{t.searchPlaceholder}</span>
-        </Link>
+        
+
+
+        
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-0.5">
