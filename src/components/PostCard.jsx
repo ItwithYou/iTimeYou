@@ -1,15 +1,20 @@
 import { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Share2, Send, CalendarCheck } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Send, CalendarCheck, MoreHorizontal, Pencil, Trash2, X, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import ImageLightbox from './ImageLightbox';
-import BookServiceModal from './BookServiceModal';
+
 import { base44 } from '@/api/base44Client';
 import { CAT_ICONS } from '../hooks/useLang';
 import moment from 'moment';
 
 export default function PostCard({ post, currentUserEmail, t, lang, onRefresh }) {
   const { profile, currentUser } = useAppContext();
+  const navigate = useNavigate();
   const [showBookModal, setShowBookModal] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editText, setEditText] = useState(post.text);
   const [comments, setComments] = useState([]);
   const [commentProfiles, setCommentProfiles] = useState({});
   const [showComments, setShowComments] = useState(false);
@@ -17,6 +22,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
   const [liked, setLiked] = useState(post.likes?.includes(currentUserEmail));
   const [lightboxSrc, setLightboxSrc] = useState(null);
   const [likeCount, setLikeCount] = useState(post.like_count || 0);
+  const isOwn = currentUserEmail === post.author_email;
   const catIndex = ['culture', 'stay', 'food', 'experience', 'home', 'nature'].indexOf(post.category);
 
   const loadComments = async () => {
@@ -45,6 +51,37 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
     setLikeCount(newLikes.length);
     await base44.entities.Post.update(post.id, { likes: newLikes, like_count: newLikes.length });
     onRefresh?.();
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Delete this post?')) return;
+    await base44.entities.Post.delete(post.id);
+    onRefresh?.();
+  };
+
+  const handleEdit = async () => {
+    await base44.entities.Post.update(post.id, { text: editText });
+    setEditing(false);
+    onRefresh?.();
+  };
+
+  const handleBookOrChat = async () => {
+    if (!currentUser) return;
+    const convs = await base44.entities.Conversation.list('-updated_date', 50);
+    const existing = convs.find(c =>
+      c.participants?.includes(currentUser.email) && c.participants?.includes(post.author_email)
+    );
+    let convId;
+    if (existing) {
+      convId = existing.id;
+    } else {
+      const conv = await base44.entities.Conversation.create({
+        participants: [currentUser.email, post.author_email],
+        last_message: '',
+      });
+      convId = conv.id;
+    }
+    navigate(`/messages?conv=${convId}`);
   };
 
   const addComment = async () => {
@@ -77,10 +114,46 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
             {CAT_ICONS[post.category]} {t.categories[catIndex] || ''}
           </span>
         )}
+        {isOwn && (
+          <div className="relative">
+            <button onClick={() => setShowMenu(!showMenu)} className="p-1.5 rounded-full hover:bg-muted transition-colors">
+              <MoreHorizontal size={16} className="text-muted-foreground" />
+            </button>
+            {showMenu && (
+              <div className="absolute right-0 top-8 bg-card border border-border rounded-xl shadow-lg z-20 overflow-hidden min-w-[120px]">
+                <button onClick={() => { setEditing(true); setShowMenu(false); }} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm hover:bg-muted transition-colors">
+                  <Pencil size={13} /> Edit
+                </button>
+                <button onClick={() => { setShowMenu(false); handleDelete(); }} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-destructive hover:bg-destructive/5 transition-colors">
+                  <Trash2 size={13} /> Delete
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Text */}
-      <div className="px-4 pb-3 text-sm leading-relaxed text-foreground">{post.text}</div>
+      {/* Text / Edit */}
+      {editing ? (
+        <div className="px-4 pb-3">
+          <textarea
+            value={editText}
+            onChange={e => setEditText(e.target.value)}
+            rows={3}
+            className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary resize-none"
+          />
+          <div className="flex gap-2 mt-2">
+            <button onClick={handleEdit} className="flex items-center gap-1 bg-primary text-primary-foreground px-4 py-1.5 rounded-lg text-xs font-semibold hover:opacity-90">
+              <Check size={12} /> Save
+            </button>
+            <button onClick={() => { setEditing(false); setEditText(post.text); }} className="flex items-center gap-1 border border-border px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-muted">
+              <X size={12} /> Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="px-4 pb-3 text-sm leading-relaxed text-foreground">{post.text}</div>
+      )}
 
       {/* Photo */}
       {post.photo_url && (
@@ -96,15 +169,15 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
         <span>{comments.length || post.comment_count || 0} {t.comments}</span>
       </div>
 
-      {/* Book button for service posts */}
+      {/* Chat / Book button for service posts */}
       {post.service_price > 0 && currentUserEmail !== post.author_email && (
         <div className="px-4 pb-3">
           <button
-            onClick={() => setShowBookModal(true)}
+            onClick={handleBookOrChat}
             className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-tiffany to-deep-green text-white py-3 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity shadow-sm"
           >
-            <CalendarCheck size={16} />
-            {lang === 'lo' ? 'ຈອງ & ຈ່າຍ' : 'Book & Pay'} — ${post.service_price}
+            <MessageCircle size={16} />
+            {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມ / ຈອງ' : 'Message & Book'} — ${post.service_price}
           </button>
         </div>
       )}
@@ -131,16 +204,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
         </button>
       </div>
 
-      {showBookModal && (
-        <BookServiceModal
-          post={post}
-          profile={profile}
-          currentUser={currentUser}
-          lang={lang}
-          onClose={() => setShowBookModal(false)}
-          onBooked={onRefresh}
-        />
-      )}
+
 
       {/* Comments section */}
       {showComments && (
