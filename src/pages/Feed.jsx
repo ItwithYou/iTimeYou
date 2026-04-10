@@ -103,7 +103,8 @@ export default function Feed() {
             { to: '/explore', icon: '🏛️', label: t.explore },
             { to: '/wallet', icon: '💰', label: t.wallet },
             { to: '/messages', icon: '💬', label: t.messages },
-            { to: '/bookings', icon: '📅', label: t.trips }].
+            { to: '/bookings', icon: '📅', label: t.trips },
+            { to: '/help', icon: '❓', label: lang === 'lo' ? 'ສູນຊ່ວຍເຫຼືອ' : 'Help Center' }].
             map((item) =>
             <Link key={item.to} to={item.to} className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm hover:bg-muted transition-colors font-medium">
                 <span>{item.icon}</span> {item.label}

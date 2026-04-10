@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Home, Compass, Calendar, Wallet, MessageCircle, Bell, LogOut, Menu, X, User, ShieldCheck } from 'lucide-react';
+import { Search, Home, Compass, Calendar, Wallet, MessageCircle, Bell, LogOut, Menu, X, User, ShieldCheck, HelpCircle } from 'lucide-react';
 import LangToggle from './LangToggle';
 import { base44 } from '@/api/base44Client';
 
@@ -17,6 +17,10 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
   { to: '/wallet', icon: Wallet, label: t.wallet },
   { to: '/messages', icon: MessageCircle, label: t.messages },
   { to: '/notifications', icon: Bell, label: t.notifications }];
+
+  const secondaryNavItems = [
+  { to: '/help', icon: HelpCircle, label: lang === 'lo' ? 'ສູນຊ່ວຍເຫຼືອ' : 'Help Center' },
+];
 
 
   return (
@@ -51,6 +55,17 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
           )}
 
           <div className="ml-2 flex items-center gap-2 pl-3 border-l border-border">
+            {secondaryNavItems.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`flex items-center gap-1 px-2 py-2 rounded-lg text-sm transition-colors ${location.pathname === item.to ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
+              >
+                <item.icon size={18} />
+                <span className="hidden lg:inline text-xs">{item.label}</span>
+              </Link>
+            ))}
+
             <Link to={`/profile/${profile?.id || ''}`} className="flex items-center gap-2">
               <img
                 src={profile?.photo_url || profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=default`}
@@ -80,6 +95,9 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
         {/* Mobile right side */}
         <div className="flex items-center gap-2 md:hidden">
           <LangToggle lang={lang} setLang={setLang} />
+          <Link to="/help" className="p-2">
+            <HelpCircle size={20} className={location.pathname === '/help' ? 'text-primary' : 'text-muted-foreground'} />
+          </Link>
           <Link to="/notifications" className="relative p-2">
             <Bell size={20} className={location.pathname === '/notifications' ? 'text-primary' : 'text-muted-foreground'} />
           </Link>

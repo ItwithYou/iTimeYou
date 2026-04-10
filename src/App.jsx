@@ -15,6 +15,7 @@ import Notifications from './pages/Notifications';
 import Messages from './pages/Messages';
 import PasswordSettings from './pages/PasswordSettings';
 import ResetPassword from './pages/ResetPassword';
+import HelpCenter from './pages/HelpCenter';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -56,6 +57,7 @@ const AuthenticatedApp = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/admin/verification" element={<AdminVerification />} />
+        <Route path="/help" element={<HelpCenter />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
