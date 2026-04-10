@@ -263,8 +263,47 @@ export default function Profile() {
         />
       )}
 
+      {currentUser?.role === 'admin' && !isOwn && viewProfile.verification_status === 'pending' && (
+        <div className="mx-6 mt-6 bg-amber-50 border border-amber-200 rounded-2xl p-5 shadow-sm">
+          <h3 className="font-bold text-sm mb-1 flex items-center gap-2">⏳ Pending Verification</h3>
+          <p className="text-xs text-muted-foreground mb-3">{viewProfile.verification_name && `ID Name: ${viewProfile.verification_name}`} {viewProfile.verification_dob && `· DOB: ${viewProfile.verification_dob}`}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+            {viewProfile.id_document_url && (
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground mb-1">🪪 ID Document</p>
+                <img src={viewProfile.id_document_url} alt="ID" className="w-full rounded-xl border border-border object-cover max-h-40 cursor-zoom-in" onClick={() => window.open(viewProfile.id_document_url, '_blank')} />
+              </div>
+            )}
+            {viewProfile.selfie_url && (
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground mb-1">🤳 Selfie with ID</p>
+                <img src={viewProfile.selfie_url} alt="Selfie" className="w-full rounded-xl border border-border object-cover max-h-40 cursor-zoom-in" onClick={() => window.open(viewProfile.selfie_url, '_blank')} />
+              </div>
+            )}
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={async () => {
+                await base44.entities.UserProfile.update(viewProfile.id, { verification_status: 'verified', is_verified: true });
+                await base44.entities.Notification.create({ user_email: viewProfile.user_email, type: '✅', text: 'Your identity has been verified! You can now use all features.', text_lao: 'ຕົວຕົນຂອງທ່ານໄດ້ຖືກຢືນຢັນແລ້ວ!' });
+                toast.success('Approved ✅'); loadProfile();
+              }}
+              className="flex-1 bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
+            >✅ Approve</button>
+            <button
+              onClick={async () => {
+                await base44.entities.UserProfile.update(viewProfile.id, { verification_status: 'rejected', is_verified: false });
+                await base44.entities.Notification.create({ user_email: viewProfile.user_email, type: '❌', text: 'Your identity verification was rejected. Please resubmit with clearer documents.', text_lao: 'ການຢືນຢັນຕົວຕົນຂອງທ່ານຖືກປະຕິເສດ.' });
+                toast.success('Rejected'); loadProfile();
+              }}
+              className="flex-1 bg-destructive text-destructive-foreground py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
+            >❌ Reject</button>
+          </div>
+        </div>
+      )}
+
       {currentUser?.role === 'admin' && !isOwn && (
-        <div className="mx-6 mt-8 bg-card border border-border rounded-2xl p-5 shadow-sm">
+        <div className="mx-6 mt-4 bg-card border border-border rounded-2xl p-5 shadow-sm">
           <h3 className="font-bold text-sm mb-2">Admin verification controls</h3>
           <p className="text-sm text-muted-foreground mb-4">
             Review this user's verification details and approve or reject from the admin panel.
