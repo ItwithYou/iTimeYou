@@ -2,6 +2,12 @@ import { useMemo, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
+const getCurrencyBalanceField = (currency) => {
+  if (currency === 'LAK') return 'wallet_balance_lak';
+  if (currency === 'USDT') return 'wallet_balance_usdt';
+  return 'wallet_balance_usd';
+};
+
 const adminTabs = [
   { key: 'topup', label: 'Popup' },
   { key: 'withdraw', label: 'Withdraw' },
@@ -95,45 +101,50 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
     const targetProfile = targetProfiles[0];
     if (!targetProfile) return;
 
+    const currency = tx.currency || 'USD';
+    const balanceField = getCurrencyBalanceField(currency);
+    const targetBalance = targetProfile[balanceField] || 0;
+
     if (tx.request_kind === 'topup' || tx.request_kind === 'receive') {
       await base44.entities.UserProfile.update(targetProfile.id, {
-        wallet_balance: (targetProfile.wallet_balance || 0) + Math.abs(tx.amount),
-        wallet_currency: tx.currency || targetProfile.wallet_currency || 'USD',
+        [balanceField]: targetBalance + Math.abs(tx.amount),
+        wallet_currency: currency,
       });
     }
 
     if (tx.request_kind === 'withdraw') {
-      if ((targetProfile.wallet_balance || 0) < Math.abs(tx.amount)) {
+      if (targetBalance < Math.abs(tx.amount)) {
         toast.error(lang === 'lo' ? 'ຍອດເງິນບໍ່ພໍ' : 'Insufficient balance');
         return;
       }
       await base44.entities.UserProfile.update(targetProfile.id, {
-        wallet_balance: (targetProfile.wallet_balance || 0) - Math.abs(tx.amount),
+        [balanceField]: targetBalance - Math.abs(tx.amount),
       });
     }
 
     if (tx.request_kind === 'send') {
-      if ((targetProfile.wallet_balance || 0) < Math.abs(tx.amount)) {
+      if (targetBalance < Math.abs(tx.amount)) {
         toast.error(lang === 'lo' ? 'ຍອດເງິນບໍ່ພໍ' : 'Insufficient balance');
         return;
       }
       await base44.entities.UserProfile.update(targetProfile.id, {
-        wallet_balance: (targetProfile.wallet_balance || 0) - Math.abs(tx.amount),
+        [balanceField]: targetBalance - Math.abs(tx.amount),
       });
       if (tx.counterparty_email) {
         const receiverProfiles = await base44.entities.UserProfile.filter({ user_email: tx.counterparty_email });
         const receiver = receiverProfiles[0];
         if (receiver) {
+          const receiverBalanceField = getCurrencyBalanceField(currency);
           await base44.entities.UserProfile.update(receiver.id, {
-            wallet_balance: (receiver.wallet_balance || 0) + Math.abs(tx.amount),
-            wallet_currency: tx.currency || receiver.wallet_currency || 'USD',
+            [receiverBalanceField]: (receiver[receiverBalanceField] || 0) + Math.abs(tx.amount),
+            wallet_currency: currency,
           });
           await base44.entities.WalletTransaction.create({
             user_email: receiver.user_email,
             description: `Received from ${tx.user_email}`,
             description_lao: `ຮັບຈາກ ${tx.user_email}`,
             amount: Math.abs(tx.amount),
-            currency: tx.currency || 'USD',
+            currency,
             type: 'received',
             status: 'completed',
             request_kind: 'receive',

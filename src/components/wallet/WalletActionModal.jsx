@@ -52,7 +52,7 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
       user_email: currentUser.email,
       description: `${type} request`,
       description_lao: `ຄຳຂໍ ${type}`,
-      amount: type === 'withdraw' || type === 'send' ? -numericAmount : numericAmount,
+      amount: numericAmount,
       currency,
       type: type === 'receive' ? 'received' : type,
       status: 'pending',

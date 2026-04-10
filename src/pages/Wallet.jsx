@@ -100,7 +100,10 @@ export default function Wallet() {
         <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-white/6" />
         <p className="text-sm opacity-75 font-medium mb-1">{t.balance}</p>
         <p className="text-3xl sm:text-4xl font-black tracking-tight mb-1">{totalLak.toLocaleString()} LAK</p>
-        <p className="text-xs opacity-60 mb-4">{currentUser?.email}</p>
+        <div className="mb-4">
+          <p className="text-xs opacity-80 font-semibold">{profile?.first_name} {profile?.last_name}</p>
+          <p className="text-xs opacity-60">{currentUser?.email}</p>
+        </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
           <div className="rounded-2xl bg-white/10 border border-white/15 px-3 py-2">
