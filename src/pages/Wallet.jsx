@@ -69,31 +69,10 @@ export default function Wallet() {
 
   const loadExchangeRates = async () => {
     try {
-      const response = await fetch('https://www.bcel.com.la:8083/exchange.php?langid');
-      const html = await response.text();
-
-      const findRate = (code) => {
-        // Match table row with currency code and extract BUY and SELL rates
-        const rowMatch = html.match(new RegExp(`<tr[^>]*>[\\s\\S]*?<td[^>]*>.*?${code}[\\s\\S]*?<\\/td>[\\s\\S]*?<td[^>]*>\\s*([0-9,\\.]+)\\s*<\\/td>[\\s\\S]*?<td[^>]*>\\s*([0-9,\\.]+)\\s*<\\/td>`, 'i'));
-        if (!rowMatch) return null;
-        return {
-          buy: Number(rowMatch[1].replace(/,/g, '')),
-          sell: Number(rowMatch[2].replace(/,/g, '')),
-        };
-      };
-
-      const usdRate = findRate('USD');
-      // USDT uses same rate as USD since BCEL doesn't list USDT separately
-      const usdtRate = usdRate;
-
-      if (usdRate) {
-        setExchangeRates({
-          usdBuy: usdRate.buy,
-          usdSell: usdRate.sell,
-          usdtBuy: usdtRate.buy,
-          usdtSell: usdtRate.sell,
-          updatedAt: new Date().toISOString(),
-        });
+      const response = await base44.functions.invoke('fetchBcelRates', {});
+      const data = response.data;
+      if (data?.success && data.rates) {
+        setExchangeRates(data.rates);
       }
     } catch (error) {
       console.error('Failed to load exchange rates:', error);
