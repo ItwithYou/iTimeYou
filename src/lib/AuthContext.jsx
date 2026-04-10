@@ -18,6 +18,13 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAppState = async () => {
+    // Add a safety timeout to ensure loading states are always cleared
+    const safetyTimeout = setTimeout(() => {
+      console.warn('Auth check safety timeout triggered - clearing loading states');
+      setIsLoadingPublicSettings(false);
+      setIsLoadingAuth(false);
+    }, 10000); // 10 second safety timeout
+
     try {
       setIsLoadingPublicSettings(true);
       setAuthError(null);
@@ -84,10 +91,23 @@ export const AuthProvider = ({ children }) => {
       });
       setIsLoadingPublicSettings(false);
       setIsLoadingAuth(false);
+    } finally {
+      clearTimeout(safetyTimeout);
     }
   };
 
   const checkUserAuth = async () => {
+    // Add a timeout to prevent hanging
+    const authTimeout = setTimeout(() => {
+      console.warn('Auth check timeout - forcing loading state clear');
+      setIsLoadingAuth(false);
+      setIsAuthenticated(false);
+      setAuthError({
+        type: 'auth_required',
+        message: 'Authentication timeout - please try again'
+      });
+    }, 8000); // 8 second timeout
+
     try {
       // Now check if the user is authenticated
       setIsLoadingAuth(true);
@@ -95,8 +115,10 @@ export const AuthProvider = ({ children }) => {
       setUser(currentUser);
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
+      clearTimeout(authTimeout);
     } catch (error) {
       console.error('User auth check failed:', error);
+      clearTimeout(authTimeout);
       setIsLoadingAuth(false);
       setIsAuthenticated(false);
       
