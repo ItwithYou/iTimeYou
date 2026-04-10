@@ -67,8 +67,8 @@ export default function Wallet() {
 
   useEffect(() => { loadTx(); }, [currentUser]);
 
-  useEffect(() => {
-    const loadExchangeRates = async () => {
+  const loadExchangeRates = async () => {
+    try {
       const response = await fetch('https://www.bcel.com.la:8083/exchange.php?langid');
       const html = await response.text();
 
@@ -91,8 +91,12 @@ export default function Wallet() {
         usdtSell: usdtRate?.sell || usdRate?.sell || 22183,
         updatedAt: new Date().toISOString(),
       });
-    };
+    } catch (error) {
+      console.error('Failed to load exchange rates:', error);
+    }
+  };
 
+  useEffect(() => {
     loadExchangeRates();
     const interval = setInterval(loadExchangeRates, 300000);
     return () => clearInterval(interval);
@@ -174,9 +178,18 @@ export default function Wallet() {
               <p className="mt-0.5 text-white/75">USD Buy {exchangeRates.usdBuy.toLocaleString()} · Sell {exchangeRates.usdSell.toLocaleString()}</p>
               <p className="text-white/75">USDT Buy {exchangeRates.usdtBuy.toLocaleString()} · Sell {exchangeRates.usdtSell.toLocaleString()}</p>
             </div>
-            <a href="https://www.bcel.com.la/bcel/exchange-rate.html?lang=en" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 self-start pt-1 font-bold text-white underline underline-offset-2">
-              BCEL <ExternalLink size={13} />
-            </a>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => { loadExchangeRates(); refreshProfile(); }}
+                className="inline-flex items-center gap-1 self-start pt-1 font-bold text-white hover:opacity-80 transition-opacity"
+                title="Refresh rates"
+              >
+                <RefreshCw size={13} />
+              </button>
+              <a href="https://www.bcel.com.la/bcel/exchange-rate.html?lang=en" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 self-start pt-1 font-bold text-white underline underline-offset-2">
+                BCEL <ExternalLink size={13} />
+              </a>
+            </div>
           </div>
 
           <div className="grid grid-cols-5 gap-3">
