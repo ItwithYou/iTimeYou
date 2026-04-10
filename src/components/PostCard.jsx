@@ -193,7 +193,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
             {post.author_name || 'User'}
           </button>
           <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
-            <span>{moment(post.created_date).fromNow()}</span>
+            <span>{moment(new Date(post.created_date)).fromNow()}</span>
             <span>•</span>
             <span>{formatTimestampDMY(post.created_date)}</span>
             {authorProfile && <span>• {(authorProfile.friends || []).length} {lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'followers'}</span>}
