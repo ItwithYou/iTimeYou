@@ -49,7 +49,7 @@ export default function Bookings() {
           onClick={() => setTab('services')}
           className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${tab === 'services' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          🛎️ {lang === 'lo' ? 'ບໍລິການ' : 'Services'}
+          🛎️ {lang === 'lo' ? 'ການນັດໝາຍ' : 'My Schedule'}
           {serviceBookings.length > 0 && <span className="ml-1 text-xs bg-primary text-white rounded-full px-1.5">{serviceBookings.length}</span>}
         </button>
       </div>
@@ -142,7 +142,7 @@ export default function Bookings() {
           <div className="text-center py-16 text-muted-foreground">
             <p className="text-5xl mb-3">🛎️</p>
             <h3 className="font-semibold mb-1">{lang === 'lo' ? 'ຍັງບໍ່ມີການຈອງບໍລິການ' : 'No service bookings yet'}</h3>
-            <p className="text-sm mb-5">{lang === 'lo' ? 'ຊອກຫາບໍລິການໃນ Feed' : 'Browse services in the Feed'}</p>
+            <p className="text-sm mb-5">{lang === 'lo' ? 'ຊອກຫາການນັດໝາຍໃນ Feed' : 'Browse schedules in the Feed'}</p>
             <Link to="/feed" className="inline-block bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90">{t.feed}</Link>
           </div>
         )

@@ -3,6 +3,7 @@ import { Heart, MessageCircle, Share2, Send, CalendarCheck, MoreHorizontal, Penc
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import ImageLightbox from './ImageLightbox';
+import BookServiceModal from './BookServiceModal';
 
 import { base44 } from '@/api/base44Client';
 import { CAT_ICONS } from '../hooks/useLang';
@@ -67,21 +68,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
 
   const handleBookOrChat = async () => {
     if (!currentUser) return;
-    const convs = await base44.entities.Conversation.list('-updated_date', 50);
-    const existing = convs.find(c =>
-      c.participants?.includes(currentUser.email) && c.participants?.includes(post.author_email)
-    );
-    let convId;
-    if (existing) {
-      convId = existing.id;
-    } else {
-      const conv = await base44.entities.Conversation.create({
-        participants: [currentUser.email, post.author_email],
-        last_message: '',
-      });
-      convId = conv.id;
-    }
-    navigate(`/messages?conv=${convId}`);
+    setShowBookModal(true);
   };
 
   const addComment = async () => {
@@ -178,6 +165,16 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
         </div>
       )}
       <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
+      {showBookModal && (
+        <BookServiceModal
+          post={post}
+          profile={profile}
+          currentUser={currentUser}
+          lang={lang}
+          onClose={() => setShowBookModal(false)}
+          onBooked={onRefresh}
+        />
+      )}
 
       {/* Stats */}
       <div className="flex gap-4 px-4 py-2 text-xs text-muted-foreground border-t border-border/60 bg-muted/20">
