@@ -10,7 +10,7 @@ import { AppContext } from '../lib/AppContext';
 import Home from '../pages/Home';
 import Feed from '../pages/Feed';
 import Explore from '../pages/Explore';
-import Bookings from '../pages/Bookings';
+import Bookings from '../pages/Bookings.jsx';
 import Wallet from '../pages/Wallet';
 import Messages from '../pages/Messages';
 
