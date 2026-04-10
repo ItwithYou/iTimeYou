@@ -141,7 +141,7 @@ export default function Profile() {
               <p className="mt-1 text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ໃຫ້ບໍລິການ' : 'Provide Service'}</p>
             </div>
             <div className="text-center">
-              <p className="text-3xl font-black tracking-tight text-emerald-600">${viewProfile.wallet_balance || 0}</p>
+              <p className="text-3xl font-black tracking-tight text-emerald-600">{isOwn ? `$${viewProfile.wallet_balance || 0}` : '•••'}</p>
               <p className="mt-1 text-xs font-medium text-muted-foreground">Wallet</p>
             </div>
           </div>
