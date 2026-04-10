@@ -13,6 +13,7 @@ export default function ListingCard({ listing, t, lang }) {
   const [showMenu, setShowMenu] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(listing.title || '');
+  const [editDescription, setEditDescription] = useState(listing.description || '');
   const [editImageUrl, setEditImageUrl] = useState(listing.image_url || '');
   const catIndex = ['culture', 'stay', 'food', 'experience', 'home', 'nature'].indexOf(listing.category);
   const catLabel = t.categories[catIndex] || listing.category;
@@ -28,6 +29,7 @@ export default function ListingCard({ listing, t, lang }) {
   const handleEdit = async () => {
     await base44.entities.Listing.update(listing.id, {
       title: editTitle,
+      description: editDescription,
       image_url: editImageUrl,
     });
     setEditing(false);
@@ -92,6 +94,13 @@ export default function ListingCard({ listing, t, lang }) {
             placeholder={lang === 'lo' ? 'ຊື່ລາຍການ' : 'Listing title'}
             className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary mb-2"
           />
+          <textarea
+            value={editDescription}
+            onChange={e => setEditDescription(e.target.value)}
+            placeholder={lang === 'lo' ? 'ລາຍລະອຽດ' : 'Description'}
+            rows={3}
+            className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary resize-none mb-2"
+          />
           <input
             value={editImageUrl}
             onChange={e => setEditImageUrl(e.target.value)}
@@ -102,7 +111,7 @@ export default function ListingCard({ listing, t, lang }) {
             <button onClick={handleEdit} className="flex items-center gap-1 bg-primary text-primary-foreground px-4 py-1.5 rounded-lg text-xs font-semibold hover:opacity-90">
               <Check size={12} /> Save
             </button>
-            <button onClick={() => { setEditing(false); setEditTitle(listing.title || ''); setEditImageUrl(listing.image_url || ''); }} className="flex items-center gap-1 border border-border px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-muted">
+            <button onClick={() => { setEditing(false); setEditTitle(listing.title || ''); setEditDescription(listing.description || ''); setEditImageUrl(listing.image_url || ''); }} className="flex items-center gap-1 border border-border px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-muted">
               <X size={12} /> Cancel
             </button>
           </div>
