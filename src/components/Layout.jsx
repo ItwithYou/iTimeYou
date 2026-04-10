@@ -85,7 +85,7 @@ export default function Layout() {
         </main>
         <BottomNav t={t} lang={lang} />
         <div className="hidden md:block">
-          <Footer t={t} />
+          <Footer t={t} lang={lang} />
         </div>
       </div>
     </AppContext.Provider>
