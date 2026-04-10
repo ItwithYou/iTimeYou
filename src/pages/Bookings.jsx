@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
-import { MapPin, Calendar, Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { MapPin, Calendar, Clock, CheckCircle2, XCircle, AlertCircle, Star } from 'lucide-react';
 import moment from 'moment';
 import ServiceBookingDetailModal from '../components/bookings/ServiceBookingDetailModal';
+import ReviewBookingModal from '../components/bookings/ReviewBookingModal';
 import { toast } from 'sonner';
 
 const statusConfig = {
@@ -21,6 +22,7 @@ export default function Bookings() {
   const [serviceBookings, setServiceBookings] = useState([]);
   const [listings, setListings] = useState({});
   const [selectedServiceBooking, setSelectedServiceBooking] = useState(null);
+  const [selectedBookingForReview, setSelectedBookingForReview] = useState(null);
 
   const loadServiceBookings = async () => {
     if (!currentUser) return;
@@ -180,6 +182,7 @@ export default function Bookings() {
               const listing = listings[b.listing_id];
               const st = statusConfig[b.status] || statusConfig.pending;
               const Icon = st.icon;
+              const canReview = b.guest_email === currentUser?.email && b.status === 'completed' && !b.review_submitted;
               return (
                 <div key={b.id} className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden hover:shadow-md transition-shadow">
                   <div className="flex">
@@ -209,6 +212,21 @@ export default function Bookings() {
                         <span className="font-bold text-primary">${b.total}</span>
                         <span className="text-xs text-muted-foreground">{moment(b.created_date).fromNow()}</span>
                       </div>
+                      {canReview && (
+                        <button
+                          onClick={() => setSelectedBookingForReview(b)}
+                          className="mt-3 flex items-center gap-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white px-4 py-2 rounded-xl text-xs font-bold hover:opacity-90 transition-opacity"
+                        >
+                          <Star size={14} className="fill-white" />
+                          {lang === 'lo' ? 'ໃຫ້ຄຳຕິຊົມ' : 'Leave a Review'}
+                        </button>
+                      )}
+                      {b.review_submitted && (
+                        <div className="mt-3 flex items-center gap-2 text-xs text-emerald-600 font-semibold">
+                          <CheckCircle2 size={14} />
+                          {lang === 'lo' ? 'ໃຫ້ຄຳຕິຊົມແລ້ວ' : 'Review Submitted'}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -282,6 +300,25 @@ export default function Bookings() {
           onApproveCancel={approveCancel}
           onDeclineCancel={declineCancel}
           onMarkCompleted={markServiceCompleted}
+        />
+      )}
+
+      {selectedBookingForReview && (
+        <ReviewBookingModal
+          booking={selectedBookingForReview}
+          currentUser={currentUser}
+          lang={lang}
+          onClose={() => setSelectedBookingForReview(null)}
+          onReviewSubmitted={() => {
+            // Reload bookings to update review status
+            const loadData = async () => {
+              const data = currentUser.role === 'admin'
+                ? await base44.entities.Booking.list('-created_date', 100)
+                : await base44.entities.Booking.filter({ guest_email: currentUser.email }, '-created_date', 30);
+              setBookings(data);
+            };
+            loadData();
+          }}
         />
       )}
     </div>

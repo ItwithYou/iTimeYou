@@ -47,7 +47,7 @@ export default function ListingCard({ listing, t, lang }) {
           <div className="flex items-center gap-1 text-amber-500 text-sm whitespace-nowrap flex-shrink-0">
             <Star size={13} className="fill-amber-400" />
             <span className="font-semibold text-xs">{(listing.rating || 0).toFixed(1)}</span>
-            {listing.review_count > 0 && <span className="text-muted-foreground text-xs">({listing.review_count})</span>}
+            {listing.review_count > 0 && <span className="text-muted-foreground text-xs">({listing.review_count} {t.reviews})</span>}
           </div>
         </div>
         <p className="text-muted-foreground text-xs flex items-center gap-1 mb-2">

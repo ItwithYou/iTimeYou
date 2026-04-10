@@ -52,6 +52,16 @@
         "cancelled"
       ],
       "default": "pending"
+    },
+    "review_submitted": {
+      "type": "boolean",
+      "default": false
+    },
+    "guest_review": {
+      "type": "number"
+    },
+    "guest_review_text": {
+      "type": "string"
     }
   },
   "required": [

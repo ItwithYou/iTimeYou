@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { useOutletContext, useParams, Link, useNavigate } from 'react-router-dom';
 import MobileDatePicker from '../components/MobileDatePicker';
 import { base44 } from '@/api/base44Client';
-import { Star, MapPin, Users, Bed, Bath, Check, MessageCircle } from 'lucide-react';
+import { Star, MapPin, Users, Bed, Bath, Check, MessageCircle, User } from 'lucide-react';
 import StarRating from '../components/StarRating';
 import TrustBadge from '../components/TrustBadge';
 import { CAT_ICONS } from '../hooks/useLang';
 import { toast } from 'sonner';
 import { DEFAULT_EXCHANGE_RATES, deductCrossCurrencyBalance } from '../utils/wallet';
+import moment from 'moment';
 
 export default function ListingDetail() {
   const { id } = useParams();
@@ -19,6 +20,7 @@ export default function ListingDetail() {
   const [checkOut, setCheckOut] = useState('');
   const [guestCount, setGuestCount] = useState(1);
   const [booked, setBooked] = useState(false);
+  const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
     base44.entities.Listing.filter({ id }).then(data => {
@@ -28,6 +30,10 @@ export default function ListingDetail() {
           if (h[0]) setHost(h[0]);
         });
       }
+    });
+    // Load reviews for this listing
+    base44.entities.Review.filter({ listing_id: id }).then(data => {
+      setReviews(data.sort((a, b) => new Date(b.created_date) - new Date(a.created_date)).slice(0, 10));
     });
   }, [id]);
 
@@ -168,6 +174,40 @@ export default function ListingDetail() {
               ))}
             </div>
           </div>
+
+          {/* Reviews section */}
+          {reviews.length > 0 && (
+            <div className="pt-6 border-t border-border">
+              <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                <Star size={20} className="fill-amber-400 text-amber-400" />
+                {t.reviews} ({reviews.length})
+              </h2>
+              <div className="space-y-4">
+                {reviews.map((review) => (
+                  <div key={review.id} className="bg-card rounded-xl p-4 border border-border">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
+                          <User size={20} className="text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm">{review.reviewer_name || 'Guest'}</p>
+                          <p className="text-xs text-muted-foreground">{moment(review.created_date).fromNow()}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 text-amber-500">
+                        <Star size={14} className="fill-amber-400" />
+                        <span className="text-sm font-bold">{review.stars}</span>
+                      </div>
+                    </div>
+                    {review.text && (
+                      <p className="text-sm text-muted-foreground leading-relaxed">{review.text}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Booking panel */}
