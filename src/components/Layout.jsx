@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import Navbar from './Navbar';
 import Footer from './Footer';
@@ -38,7 +38,20 @@ export default function Layout() {
     }
   }, [location.pathname]);
 
-  const contextValue = { profile, currentUser, t, lang, setLang, refreshProfile };
+  // Global refresh key — increments on any user interaction to trigger data reload
+  const [refreshKey, setRefreshKey] = useState(0);
+  const lastRefresh = useRef(Date.now());
+  const handleGlobalTap = useCallback(() => {
+    const now = Date.now();
+    // Throttle: only refresh if at least 3 seconds since last refresh
+    if (now - lastRefresh.current > 3000) {
+      lastRefresh.current = now;
+      setRefreshKey(k => k + 1);
+      refreshProfile();
+    }
+  }, [refreshProfile]);
+
+  const contextValue = { profile, currentUser, t, lang, setLang, refreshProfile, refreshKey };
 
   // Update activity timestamp every 30 seconds only on visible tabs
   useEffect(() => {
@@ -101,14 +114,14 @@ export default function Layout() {
 
   return (
     <AppContext.Provider value={contextValue}>
-      <div className={`min-h-screen bg-background ${lang === 'lo' ? 'font-lao' : 'font-inter'}`}>
+      <div className={`min-h-screen bg-background ${lang === 'lo' ? 'font-lao' : 'font-inter'}`} onClick={handleGlobalTap}>
         <Navbar profile={profile} currentUser={currentUser} t={t} lang={lang} setLang={setLang} />
         <MobileHeader t={t} lang={lang} />
         <main className="pb-20 md:pb-0">
           {/* Persistent tab pages — hidden via CSS, not unmounted */}
           {TAB_PAGES.map(({ path, PageComponent }) =>
             visitedPaths.has(path) ? (
-              <div key={path} style={{ display: location.pathname === path ? 'block' : 'none' }}>
+              <div key={`${path}-${refreshKey}`} style={{ display: location.pathname === path ? 'block' : 'none' }}>
                 <PageComponent />
               </div>
             ) : null
