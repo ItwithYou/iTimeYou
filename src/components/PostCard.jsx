@@ -19,6 +19,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
   const [showMenu, setShowMenu] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(post.text);
+  const [editPhotoUrl, setEditPhotoUrl] = useState(post.photo_url || '');
   const [comments, setComments] = useState([]);
   const [commentProfiles, setCommentProfiles] = useState({});
   const [showComments, setShowComments] = useState(false);
@@ -71,7 +72,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
   };
 
   const handleEdit = async () => {
-    await base44.entities.Post.update(post.id, { text: editText });
+    await base44.entities.Post.update(post.id, { text: editText, photo_url: editPhotoUrl });
     setEditing(false);
     onRefresh?.();
   };
@@ -210,11 +211,17 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
             rows={3}
             className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary resize-none"
           />
+          <input
+            value={editPhotoUrl}
+            onChange={e => setEditPhotoUrl(e.target.value)}
+            placeholder={lang === 'lo' ? 'ລິ້ງຮູບພາບ' : 'Photo URL'}
+            className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary mt-2"
+          />
           <div className="flex gap-2 mt-2">
             <button onClick={handleEdit} className="flex items-center gap-1 bg-primary text-primary-foreground px-4 py-1.5 rounded-lg text-xs font-semibold hover:opacity-90">
               <Check size={12} /> Save
             </button>
-            <button onClick={() => { setEditing(false); setEditText(post.text); }} className="flex items-center gap-1 border border-border px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-muted">
+            <button onClick={() => { setEditing(false); setEditText(post.text); setEditPhotoUrl(post.photo_url || ''); }} className="flex items-center gap-1 border border-border px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-muted">
               <X size={12} /> Cancel
             </button>
           </div>
