@@ -6,7 +6,7 @@ import TrustBadge from '../components/TrustBadge';
 import VerificationBadge from '../components/VerificationBadge';
 import ListingCard from '../components/ListingCard';
 import PostCard from '../components/PostCard';
-import { MapPin, Calendar, Users, Home, Camera, Shield, Trash2, MessageCircle } from 'lucide-react';
+import { MapPin, Calendar, Users, Home, Camera, Shield, Trash2, MessageCircle, KeyRound } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import VerificationModal from '../components/VerificationModal';
@@ -161,6 +161,9 @@ export default function Profile() {
               <Camera size={14} className="inline mr-1" />
               <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
             </label>
+            <button onClick={() => navigate(`/profile/${viewProfile.id}/password`)} className="flex items-center gap-1.5 border border-border px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-muted transition-colors select-none">
+              <KeyRound size={14} /> {lang === 'lo' ? 'ລະຫັດຜ່ານ' : 'Password'}
+            </button>
             <button onClick={() => base44.auth.logout()} className="px-4 py-1.5 text-sm font-semibold rounded-2xl flex items-center gap-1.5 border border-border hover:bg-muted transition-colors select-none">
               🚪 {lang === 'lo' ? 'ອອກຈາກລະບົບ' : 'Logout'}
             </button>

@@ -13,6 +13,7 @@ import ListingDetail from './pages/ListingDetail';
 import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
 import Messages from './pages/Messages';
+import PasswordSettings from './pages/PasswordSettings';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -50,6 +51,7 @@ const AuthenticatedApp = () => {
         <Route path="/messages" element={<Messages />} />
         <Route path="/listing/:id" element={<ListingDetail />} />
         <Route path="/profile/:id" element={<Profile />} />
+        <Route path="/profile/:id/password" element={<PasswordSettings />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/admin/verification" element={<AdminVerification />} />
         <Route path="*" element={<PageNotFound />} />
