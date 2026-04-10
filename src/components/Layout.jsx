@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import BottomNav from './BottomNav';
@@ -38,6 +39,17 @@ export default function Layout() {
   }, [location.pathname]);
 
   const contextValue = { profile, currentUser, t, lang, setLang, refreshProfile };
+
+  // Update activity timestamp every 30 seconds
+  useEffect(() => {
+    if (currentUser) {
+      base44.functions.invoke('updateUserActivity', {});
+      const interval = setInterval(() => {
+        base44.functions.invoke('updateUserActivity', {});
+      }, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [currentUser]);
 
   if (loading) {
     return (

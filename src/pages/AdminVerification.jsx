@@ -101,6 +101,15 @@ export default function AdminVerification() {
   const notVerifiedProfiles = profiles.filter(p => !p.is_verified && p.verification_status !== 'pending' && p.verification_status !== 'verified');
   const visibleProfiles = activeTab === 'requests' ? requestProfiles : activeTab === 'verified' ? verifiedProfiles : notVerifiedProfiles;
 
+  // Check if user is online (active within last 5 minutes)
+  const isOnline = (profile) => {
+    if (!profile.last_active) return false;
+    const lastActive = new Date(profile.last_active);
+    const now = new Date();
+    const diffMinutes = (now - lastActive) / (1000 * 60);
+    return diffMinutes < 5;
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       <div className="flex items-center justify-between mb-6">
@@ -152,20 +161,37 @@ export default function AdminVerification() {
             <div key={p.id} className="bg-card rounded-2xl border border-border p-5 shadow-sm">
               {/* Header */}
               <div className="flex items-center gap-4 mb-4">
-                <img
-                  src={p.photo_url || p.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${p.user_email}`}
-                  alt=""
-                  className="w-14 h-14 rounded-full object-cover flex-shrink-0 border-2 border-border"
-                />
+                <div className="relative flex-shrink-0">
+                  <img
+                    src={p.photo_url || p.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${p.user_email}`}
+                    alt=""
+                    className="w-14 h-14 rounded-full object-cover border-2 border-border"
+                  />
+                  {isOnline(p) && (
+                    <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" title="Online now"></span>
+                  )}
+                </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold">{p.first_name} {p.last_name}</h3>
                   <p className="text-xs text-muted-foreground">{p.user_email}</p>
                   {p.verification_name && <p className="text-xs text-muted-foreground">ID Name: <span className="font-semibold text-foreground">{p.verification_name}</span></p>}
                   {p.verification_dob && <p className="text-xs text-muted-foreground">Date of Birth: <span className="font-semibold text-foreground">{p.verification_dob}</span></p>}
+                  {p.last_active && (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Last active: {isOnline(p) ? '<span class="text-emerald-600 font-semibold">Online now</span>' : new Date(p.last_active).toLocaleString()}
+                    </p>
+                  )}
                 </div>
-                <span className={`text-xs px-2.5 py-1 rounded-full font-semibold flex-shrink-0 border ${p.verification_status === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-300' : p.is_verified || p.verification_status === 'verified' ? 'bg-emerald-100 text-emerald-700 border-emerald-300' : 'bg-slate-100 text-slate-700 border-slate-300'}`}>
-                  {p.verification_status === 'pending' ? '⏳ Pending' : p.is_verified || p.verification_status === 'verified' ? '✅ Verified' : '❌ Not Verified'}
-                </span>
+                <div className="flex flex-col items-end gap-1">
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-semibold flex-shrink-0 border ${p.verification_status === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-300' : p.is_verified || p.verification_status === 'verified' ? 'bg-emerald-100 text-emerald-700 border-emerald-300' : 'bg-slate-100 text-slate-700 border-slate-300'}`}>
+                    {p.verification_status === 'pending' ? '⏳ Pending' : p.is_verified || p.verification_status === 'verified' ? '✅ Verified' : '❌ Not Verified'}
+                  </span>
+                  {isOnline(p) && (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold border border-emerald-300">
+                      🟢 Online
+                    </span>
+                  )}
+                </div>
               </div>
 
               {activeTab === 'requests' && (

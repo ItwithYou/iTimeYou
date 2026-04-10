@@ -54,7 +54,7 @@
     },
     "trust_stars": {
       "type": "number",
-      "default": 3.0
+      "default": 3
     },
     "total_ratings": {
       "type": "number",
@@ -124,6 +124,10 @@
         "type": "string"
       },
       "default": []
+    },
+    "last_active": {
+      "type": "string",
+      "description": "Last activity timestamp for online status"
     }
   },
   "required": [
