@@ -32,6 +32,53 @@ export function formatDateTimeDMY(datetimeLocal) {
   return timePart ? `${formatted} ${timePart}` : formatted;
 }
 
+/**
+ * Smart format for service_when strings.
+ * Handles: "2025-04-15", "2025-04-15T10:00", "2025-04-15 · 09:00 - 10:00", or already formatted.
+ * Always converts the date portion to dd-mm-yyyy.
+ */
+export function formatServiceWhen(serviceWhen) {
+  if (!serviceWhen) return '';
+  const str = serviceWhen.trim();
+
+  // Already in dd-mm-yyyy format? Return as-is.
+  if (/^\d{2}-\d{2}-\d{4}/.test(str)) return str;
+
+  // Has separator like "2025-04-15 · 09:00 - 10:00"
+  const separatorMatch = str.match(/^(\d{4}-\d{2}-\d{2})\s*·\s*(.+)$/);
+  if (separatorMatch) {
+    return `${formatDateDMY(separatorMatch[1])} · ${separatorMatch[2]}`;
+  }
+
+  // ISO datetime "2025-04-15T10:00"
+  if (str.includes('T')) {
+    return formatDateTimeDMY(str);
+  }
+
+  // Plain date "2025-04-15"
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+    return formatDateDMY(str);
+  }
+
+  // Fallback: return original
+  return str;
+}
+
+/**
+ * Format an ISO timestamp to dd-mm-yyyy HH:mm
+ */
+export function formatTimestampDMY(isoTimestamp) {
+  if (!isoTimestamp) return '';
+  const d = new Date(isoTimestamp);
+  if (isNaN(d.getTime())) return isoTimestamp;
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  const hours = String(d.getHours()).padStart(2, '0');
+  const mins = String(d.getMinutes()).padStart(2, '0');
+  return `${day}-${month}-${year} ${hours}:${mins}`;
+}
+
 /** Check if a date string (YYYY-MM-DD) is in the past */
 export function isDateInPast(isoDate) {
   if (!isoDate) return false;

@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { X, Clock, Calendar, DollarSign, Wallet, MapPin } from 'lucide-react';
 import { DEFAULT_EXCHANGE_RATES, deductCrossCurrencyBalance, getTotalLakBalance } from '../utils/wallet';
+import { formatServiceWhen } from '../utils/dateUtils';
 
 export default function BookServiceModal({ post, profile, currentUser, lang, onClose, onBooked }) {
   const [loading, setLoading] = useState(false);
@@ -161,7 +162,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
           {post.service_when && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar size={14} />
-              {post.service_when}
+              {formatServiceWhen(post.service_when)}
             </div>
           )}
           {post.service_location && (

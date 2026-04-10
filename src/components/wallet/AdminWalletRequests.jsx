@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
-import moment from 'moment';
 import AdminExchangeRates from './AdminExchangeRates';
 import MobileSelect from '../MobileSelect';
+import { formatTimestampDMY } from '../../utils/dateUtils';
 
 const getCurrencyBalanceField = (currency) => {
   if (currency === 'LAK') return 'wallet_balance_lak';
@@ -85,7 +85,7 @@ function TransactionRow({ tx, lang }) {
         <p className="text-xs text-muted-foreground">{tx.request_kind || tx.type} · {Math.abs(tx.amount)} {tx.currency || 'USD'}</p>
         {tx.approved_by_name && <p className="text-xs text-muted-foreground">Approved by: {tx.approved_by_name}</p>}
         {tx.approved_by_email && !tx.approved_by_name && <p className="text-xs text-muted-foreground">Approved by: {tx.approved_by_email}</p>}
-        {tx.approved_at && <p className="text-xs text-muted-foreground">Approved time: {new Date(tx.approved_at).toLocaleString()}</p>}
+        {tx.approved_at && <p className="text-xs text-muted-foreground">Approved time: {formatTimestampDMY(tx.approved_at)}</p>}
       </div>
       <div className="flex items-center gap-3 sm:flex-col sm:items-end">
         <StatusBadge status={tx.status} />
@@ -357,7 +357,7 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
                         <p className="text-xs text-muted-foreground">{booking.poster_email}</p>
                         <p className="text-sm font-bold text-primary">{booking.price} {booking.currency || 'USD'}</p>
                         {completedAt && (
-                          <p className="text-xs text-muted-foreground">Completed: {moment(completedAt).format('MMM D, YYYY')}</p>
+                          <p className="text-xs text-muted-foreground">Completed: {formatTimestampDMY(booking.completed_at)}</p>
                         )}
                         {daysSince !== null && (
                           <p className={`text-xs ${daysSince <= 3 ? 'text-emerald-600 font-semibold' : 'text-destructive font-semibold'}`}>
@@ -379,7 +379,7 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
                         <p className="text-xs font-semibold text-muted-foreground mb-1">Appeal reason:</p>
                         <p className="text-sm">{booking.appeal_reason}</p>
                         {booking.appeal_submitted_at && (
-                          <p className="text-xs text-muted-foreground mt-2">{moment(booking.appeal_submitted_at).fromNow()}</p>
+                          <p className="text-xs text-muted-foreground mt-2">{formatTimestampDMY(booking.appeal_submitted_at)}</p>
                         )}
                       </div>
                     )}

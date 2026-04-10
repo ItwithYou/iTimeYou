@@ -3,7 +3,7 @@ import { useAppContext } from '../lib/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Send, MessageCircle } from 'lucide-react';
-import moment from 'moment';
+import { formatTimestampDMY } from '../utils/dateUtils';
 
 export default function Messages() {
   const { currentUser, t, lang } = useAppContext();
@@ -160,7 +160,7 @@ export default function Messages() {
                       : 'bg-card rounded-bl-sm'
                   }`}>
                     <p>{msg.text}</p>
-                    <span className="text-xs opacity-60 mt-1 block">{moment(msg.created_date).format('h:mm A')}</span>
+                    <span className="text-xs opacity-60 mt-1 block">{formatTimestampDMY(msg.created_date)}</span>
                   </div>
                 </div>
               ))}

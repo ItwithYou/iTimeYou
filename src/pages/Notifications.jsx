@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import moment from 'moment';
+import { formatTimestampDMY } from '../utils/dateUtils';
 
 export default function Notifications() {
   const { currentUser, t, lang } = useOutletContext();
@@ -44,7 +44,7 @@ export default function Notifications() {
             </div>
             <div className="flex-1">
               <p className="text-sm">{lang === 'lo' && n.text_lao ? n.text_lao : n.text}</p>
-              <span className="text-xs text-muted-foreground">{moment(n.created_date).fromNow()}</span>
+              <span className="text-xs text-muted-foreground">{formatTimestampDMY(n.created_date)}</span>
             </div>
           </div>
         ))}

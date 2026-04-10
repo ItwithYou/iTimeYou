@@ -4,10 +4,10 @@ import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
 import { ArrowUp, ArrowDown, Send, ArrowDownLeft, Shield, ChevronRight, ExternalLink, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
-import moment from 'moment';
 import WalletActionModal from '../components/wallet/WalletActionModal';
 import AdminWalletRequests from '../components/wallet/AdminWalletRequests';
 import { getTotalLakBalance } from '../utils/wallet';
+import { formatTimestampDMY } from '../utils/dateUtils';
 
 const typeConfig = {
   topup:    { icon: '⬆️', color: 'text-success', sign: '+' },
@@ -245,7 +245,7 @@ export default function Wallet() {
                     <p className="font-semibold text-sm truncate">
                       {lang === 'lo' && tx.description_lao ? tx.description_lao : tx.description}
                     </p>
-                    <p className="text-xs text-muted-foreground">{moment(tx.created_date).fromNow()}</p>
+                    <p className="text-xs text-muted-foreground">{formatTimestampDMY(tx.created_date)}</p>
                     <p className="text-xs mt-1 text-muted-foreground">
                       Status: <span className={tx.status === 'rejected' ? 'text-destructive font-semibold' : tx.status === 'approved' || tx.status === 'completed' ? 'text-success font-semibold' : 'text-amber-600 font-semibold'}>{statusLabelMap[tx.status] || tx.status}</span>
                     </p>

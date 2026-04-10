@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import moment from 'moment';
 import ServiceAppealsModal from '../wallet/ServiceAppealsModal';
+import { formatServiceWhen, formatTimestampDMY } from '../../utils/dateUtils';
 
 const statusConfig = {
   pending:   { label: 'Pending',   cls: 'bg-amber-100 text-amber-700 border-amber-200',      icon: AlertCircle },
@@ -100,7 +101,7 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
                 <p className="text-xs font-semibold text-muted-foreground">
                   {lang === 'lo' ? 'ວັນ ແລະ ເວລາ' : 'Date & Time'}
                 </p>
-                <p className="text-sm font-medium">{booking.service_when}</p>
+                <p className="text-sm font-medium">{formatServiceWhen(booking.service_when)}</p>
               </div>
             </div>
           )}
@@ -164,7 +165,7 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
           {/* Booking Metadata */}
           <div className="border-t border-border pt-3 space-y-2">
             <p className="text-xs text-muted-foreground">
-              {lang === 'lo' ? 'ສ້າງເມື່ອ' : 'Created'}: {new Date(booking.created_date).toLocaleString()}
+              {lang === 'lo' ? 'ສ້າງເມື່ອ' : 'Created'}: {formatTimestampDMY(booking.created_date)}
             </p>
             {booking.wallet_transaction_id && (
               <p className="text-xs text-muted-foreground">
@@ -183,7 +184,7 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
               <div className="text-xs text-amber-700 space-y-1">
                 <p><span className="font-semibold">{lang === 'lo' ? 'ຂໍໂດຍ:' : 'Requested by:'}</span> {booking.cancel_requested_by}</p>
                 {booking.cancel_requested_at && (
-                  <p><span className="font-semibold">{lang === 'lo' ? 'ເວລາ:' : 'Time:'}</span> {new Date(booking.cancel_requested_at).toLocaleString()}</p>
+                  <p><span className="font-semibold">{lang === 'lo' ? 'ເວລາ:' : 'Time:'}</span> {formatTimestampDMY(booking.cancel_requested_at)}</p>
                 )}
                 {booking.cancel_note && (
                   <div className="mt-2 p-2 bg-amber-100/50 rounded-lg">

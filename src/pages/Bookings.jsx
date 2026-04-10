@@ -6,7 +6,7 @@ import { MapPin, Calendar, Clock, CheckCircle2, XCircle, AlertCircle } from 'luc
 import moment from 'moment';
 import ServiceBookingDetailModal from '../components/bookings/ServiceBookingDetailModal';
 import { toast } from 'sonner';
-import { formatDateDMY, formatDateTimeDMY } from '../utils/dateUtils';
+import { formatServiceWhen, formatTimestampDMY } from '../utils/dateUtils';
 
 const statusConfig = {
   pending: { label: 'Pending', cls: 'bg-amber-100 text-amber-700 border-amber-200', icon: AlertCircle },
@@ -234,13 +234,13 @@ export default function Bookings() {
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-3">
-                  {b.service_when && <span className="flex items-center gap-1"><Calendar size={11} /> {b.service_when.includes('T') ? formatDateTimeDMY(b.service_when) : b.service_when}</span>}
+                  {b.service_when && <span className="flex items-center gap-1"><Calendar size={11} /> {formatServiceWhen(b.service_when)}</span>}
                   {b.service_duration > 0 && <span className="flex items-center gap-1"><Clock size={11} /> {b.service_duration}h</span>}
                   {b.service_location && <span className="flex items-center gap-1"><MapPin size={11} /> {b.service_location}</span>}
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t border-border">
                   <span className="font-bold text-primary">{b.price} {b.currency || 'USD'}</span>
-                  <span className="text-xs text-muted-foreground">{moment(b.created_date).fromNow()}</span>
+                  <span className="text-xs text-muted-foreground">{formatTimestampDMY(b.created_date)}</span>
                 </div>
               </button>);
 

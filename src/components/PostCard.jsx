@@ -8,12 +8,22 @@ import BookServiceModal from './BookServiceModal';
 import { base44 } from '@/api/base44Client';
 import { CAT_ICONS } from '../hooks/useLang';
 import moment from 'moment';
+import { formatServiceWhen } from '../utils/dateUtils';
 
 export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, authorProfile: initialAuthorProfile }) {
   const { profile, currentUser, refreshProfile } = useAppContext();
   const navigate = useNavigate();
   const isAdmin = currentUser?.role === 'admin';
   const [authorProfile, setAuthorProfile] = useState(initialAuthorProfile || null);
+
+  // If no initialAuthorProfile, fetch it
+  useEffect(() => {
+    if (!initialAuthorProfile && post.author_email) {
+      base44.entities.UserProfile.filter({ user_email: post.author_email }).then(profiles => {
+        if (profiles[0]) setAuthorProfile(profiles[0]);
+      });
+    }
+  }, [post.author_email, initialAuthorProfile]);
   const [followLoading, setFollowLoading] = useState(false);
   const [showBookModal, setShowBookModal] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
