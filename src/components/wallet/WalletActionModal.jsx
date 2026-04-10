@@ -40,6 +40,8 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
   }, []);
 
   const handleSubmit = async () => {
+    if (loading) return;
+
     const numericAmount = Number(amount);
     if (!numericAmount || numericAmount <= 0) {
       toast.error(lang === 'lo' ? 'ກະລຸນາໃສ່ຈຳນວນເງິນ' : 'Please enter amount');
@@ -63,47 +65,59 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
     }
 
     setLoading(true);
-    let payment_screenshot_url = '';
-    if (file) {
-      const upload = await base44.integrations.Core.UploadFile({ file });
-      payment_screenshot_url = upload.file_url;
-    }
 
-    let account_qr_url = '';
-    if (accountQrFile) {
-      const upload = await base44.integrations.Core.UploadFile({ file: accountQrFile });
-      account_qr_url = upload.file_url;
-    }
+    const finishSuccess = () => {
+      toast.success(lang === 'lo' ? 'ສົ່ງຄຳຂໍແລ້ວ' : 'Request sent for admin approval');
+      onSubmitted?.();
+      onClose();
+      setLoading(false);
+    };
 
-    await base44.entities.WalletTransaction.create({
-      user_email: currentUser.email,
-      description: `${type} request`,
-      description_lao: `ຄຳຂໍ ${type}`,
-      amount: numericAmount,
-      currency,
-      type: type === 'receive' ? 'received' : type,
-      status: 'pending',
-      counterparty_email: targetEmail || '',
-      payment_screenshot_url,
-      bank_name: bankName,
-      account_number: accountNumber,
-      account_name: accountName,
-      account_qr_url,
-      request_kind: type,
-    });
+    const finishError = () => {
+      setLoading(false);
+    };
 
-    const admins = await base44.entities.User.list('-created_date', 200).then((users) => users.filter((user) => user.role === 'admin'));
-    await Promise.all(admins.map((admin) => base44.entities.Notification.create({
-      user_email: admin.email,
-      type: '💰',
-      text: `${currentUser.email} submitted a ${type} request for ${numericAmount} ${currency}`,
-      text_lao: `${currentUser.email} ສົ່ງຄຳຂໍ ${type} ຈຳນວນ ${numericAmount} ${currency}`,
-    })));
+    Promise.resolve()
+      .then(async () => {
+        let payment_screenshot_url = '';
+        if (file) {
+          const upload = await base44.integrations.Core.UploadFile({ file });
+          payment_screenshot_url = upload.file_url;
+        }
 
-    setLoading(false);
-    toast.success(lang === 'lo' ? 'ສົ່ງຄຳຂໍແລ້ວ' : 'Request sent for admin approval');
-    onSubmitted?.();
-    onClose();
+        let account_qr_url = '';
+        if (accountQrFile) {
+          const upload = await base44.integrations.Core.UploadFile({ file: accountQrFile });
+          account_qr_url = upload.file_url;
+        }
+
+        await base44.entities.WalletTransaction.create({
+          user_email: currentUser.email,
+          description: `${type} request`,
+          description_lao: `ຄຳຂໍ ${type}`,
+          amount: numericAmount,
+          currency,
+          type: type === 'receive' ? 'received' : type,
+          status: 'pending',
+          counterparty_email: targetEmail || '',
+          payment_screenshot_url,
+          bank_name: bankName,
+          account_number: accountNumber,
+          account_name: accountName,
+          account_qr_url,
+          request_kind: type,
+        });
+
+        const admins = await base44.entities.User.list('-created_date', 200).then((users) => users.filter((user) => user.role === 'admin'));
+        await Promise.all(admins.map((admin) => base44.entities.Notification.create({
+          user_email: admin.email,
+          type: '💰',
+          text: `${currentUser.email} submitted a ${type} request for ${numericAmount} ${currency}`,
+          text_lao: `${currentUser.email} ສົ່ງຄຳຂໍ ${type} ຈຳນວນ ${numericAmount} ${currency}`,
+        })));
+      })
+      .then(finishSuccess)
+      .catch(finishError);
   };
 
   return (
