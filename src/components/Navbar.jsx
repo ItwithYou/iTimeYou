@@ -51,7 +51,7 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
             }>
             
               <item.icon size={18} />
-              <span className="hidden lg:inline text-xs">Business</span>
+              <span className="hidden lg:inline text-xs">{item.label}</span>
             </Link>
           )}
 
