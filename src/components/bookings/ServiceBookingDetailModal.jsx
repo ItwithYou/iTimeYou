@@ -16,7 +16,8 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
   const isBooker = booking.booker_email === currentUser?.email;
   const isPoster = booking.poster_email === currentUser?.email;
   const serviceStart = booking.service_when ? moment(booking.service_when.split('·')[0].trim()) : null;
-  const canRequestCancel = isBooker && booking.status !== 'cancelled' && booking.cancel_request_status !== 'requested' && serviceStart && serviceStart.diff(moment(), 'hours', true) <= 3 && serviceStart.diff(moment(), 'minutes') > 0;
+  // Allow cancel if: user is booker, not already cancelled, no pending request, and service hasn't started yet
+  const canRequestCancel = isBooker && booking.status !== 'cancelled' && booking.status !== 'completed' && booking.cancel_request_status !== 'requested' && (!serviceStart || serviceStart.isAfter(moment()));
   const canResolve = (isBooker || isPoster || currentUser?.role === 'admin') && booking.cancel_request_status === 'requested' && booking.cancel_requested_by !== currentUser?.email;
   const canMarkCompleted = currentUser?.role === 'admin' && booking.status !== 'completed' && booking.status !== 'cancelled';
 
