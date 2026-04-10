@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getTodayISO, formatDateDMY } from '../utils/dateUtils';
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'];
 const DAY_NAMES = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
 function CalendarGrid({ value, onChange, min, max }) {
+  const effectiveMin = min || getTodayISO();
   const [viewDate, setViewDate] = useState(() => {
     const base = value ? new Date(value + 'T00:00:00') : new Date();
     return new Date(base.getFullYear(), base.getMonth(), 1);
@@ -38,7 +40,13 @@ function CalendarGrid({ value, onChange, min, max }) {
       {/* Month navigation */}
       <div className="flex items-center justify-between mb-4 px-2">
         <button
-          onClick={() => setViewDate(new Date(year, month - 1, 1))}
+          onClick={() => {
+            const prevMonth = new Date(year, month - 1, 1);
+            const minDate = effectiveMin ? new Date(effectiveMin + 'T00:00:00') : null;
+            if (!minDate || prevMonth >= new Date(minDate.getFullYear(), minDate.getMonth(), 1)) {
+              setViewDate(prevMonth);
+            }
+          }}
           className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-muted transition-colors"
         >
           <ChevronLeft size={18} />
@@ -65,7 +73,7 @@ function CalendarGrid({ value, onChange, min, max }) {
           if (!day) return <div key={`empty-${i}`} />;
           const iso = toISO(day);
           const isSelected = value === iso;
-          const isDisabled = (min && iso < min) || (max && iso > max);
+          const isDisabled = (effectiveMin && iso < effectiveMin) || (max && iso > max);
           const isToday = iso === new Date().toISOString().split('T')[0];
 
           return (
@@ -95,11 +103,7 @@ function CalendarGrid({ value, onChange, min, max }) {
 export default function MobileDatePicker({ value, onChange, placeholder = 'Select date', label, min, max }) {
   const [open, setOpen] = useState(false);
 
-  const displayValue = value
-    ? new Date(value + 'T00:00:00').toLocaleDateString('en-US', {
-        month: 'short', day: 'numeric', year: 'numeric',
-      })
-    : '';
+  const displayValue = value ? formatDateDMY(value) : '';
 
   return (
     <>

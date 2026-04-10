@@ -9,6 +9,7 @@ import { CAT_ICONS } from '../hooks/useLang';
 import { toast } from 'sonner';
 import { DEFAULT_EXCHANGE_RATES, deductCrossCurrencyBalance } from '../utils/wallet';
 import moment from 'moment';
+import { getTodayISO } from '../utils/dateUtils';
 
 export default function ListingDetail() {
   const { id } = useParams();
@@ -51,6 +52,14 @@ export default function ListingDetail() {
   const handleBooking = async () => {
     if (!checkIn || !checkOut) { toast.error(t.selectDates); return; }
     if (nights <= 0) { toast.error(t.selectDates); return; }
+    if (checkIn < getTodayISO()) {
+      toast.error(lang === 'lo' ? 'ບໍ່ສາມາດເລືອກວັນເຊັກອິນທີ່ຜ່ານມາແລ້ວ' : 'Check-in date cannot be in the past');
+      return;
+    }
+    if (checkOut <= checkIn) {
+      toast.error(lang === 'lo' ? 'ວັນເຊັກເອົ້າຕ້ອງຫຼັງວັນເຊັກອິນ' : 'Check-out must be after check-in');
+      return;
+    }
     if (!profile?.is_verified) {
       toast.error(t.needsVerify);
       navigate(`/profile/${profile?.id}`);
@@ -223,10 +232,13 @@ export default function ListingDetail() {
                     <label className="text-xs font-semibold text-muted-foreground">Check-in</label>
                     <MobileDatePicker
                       value={checkIn}
-                      onChange={setCheckIn}
+                      onChange={(d) => {
+                        setCheckIn(d);
+                        if (checkOut && d >= checkOut) setCheckOut('');
+                      }}
                       placeholder="Select check-in"
                       label="Check-in Date"
-                      min={new Date().toISOString().split('T')[0]}
+                      min={getTodayISO()}
                     />
                   </div>
                   <div>
@@ -236,7 +248,7 @@ export default function ListingDetail() {
                       onChange={setCheckOut}
                       placeholder="Select check-out"
                       label="Check-out Date"
-                      min={checkIn || new Date().toISOString().split('T')[0]}
+                      min={checkIn || getTodayISO()}
                     />
                   </div>
                 </div>

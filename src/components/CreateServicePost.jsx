@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { X, Image, Clock, Calendar, DollarSign, Loader2, MapPin } from 'lucide-react';
 import MobileSelect from './MobileSelect';
 import { toast } from 'sonner';
+import { getTodayISO, getNowDatetimeLocal, isDateInPast, isDateTimeInPast, formatDateDMY, formatDateTimeDMY } from '../utils/dateUtils';
 
 const CURRENCIES = ['LAK', 'USD', 'USDT'];
 
@@ -141,6 +142,22 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
 
   const handlePost = async () => {
     if (!text.trim() && !photoFile) return;
+    // Validate date is not in the past
+    if (when) {
+      if (service.whenType === 'date' && isDateInPast(when)) {
+        toast.error(lang === 'lo' ? 'ບໍ່ສາມາດເລືອກວັນທີ່ຜ່ານມາແລ້ວ' : 'Cannot select a past date');
+        return;
+      }
+      if (service.whenType === 'datetime-local' && isDateTimeInPast(when)) {
+        toast.error(lang === 'lo' ? 'ບໍ່ສາມາດເລືອກວັນເວລາທີ່ຜ່ານມາແລ້ວ' : 'Cannot select a past date/time');
+        return;
+      }
+    }
+    // Validate end time is after start time
+    if (service.timeUnit === 'hours' && timeFrom && timeTo && timeTo <= timeFrom) {
+      toast.error(lang === 'lo' ? 'ເວລາສິ້ນສຸດຕ້ອງຫຼັງເວລາເລີ່ມ' : 'End time must be after start time');
+      return;
+    }
     setPosting(true);
     let photo_url = '';
     if (photoFile) {
@@ -305,6 +322,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
               type={service.whenType}
               value={when}
               onChange={e => setWhen(e.target.value)}
+              min={service.whenType === 'date' ? getTodayISO() : getNowDatetimeLocal()}
               className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
             />
           </div>
@@ -398,9 +416,14 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
                 <Clock size={10} /> {duration} {service.timeUnit}
               </span>
             )}
+            {when && (
+              <span className="inline-flex items-center gap-1 bg-muted border border-border px-3 py-1 rounded-full text-xs font-semibold">
+                <Calendar size={10} /> {service.whenType === 'date' ? formatDateDMY(when) : formatDateTimeDMY(when)}
+              </span>
+            )}
             {service.timeUnit === 'hours' && timeFrom && timeTo && (
               <span className="inline-flex items-center gap-1 bg-muted border border-border px-3 py-1 rounded-full text-xs font-semibold">
-                <Calendar size={10} /> {timeFrom} - {timeTo}
+                <Clock size={10} /> {timeFrom} - {timeTo}
               </span>
             )}
             {location && (
