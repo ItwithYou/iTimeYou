@@ -7,6 +7,7 @@ import StarRating from '../components/StarRating';
 import TrustBadge from '../components/TrustBadge';
 import { CAT_ICONS } from '../hooks/useLang';
 import { toast } from 'sonner';
+import { DEFAULT_EXCHANGE_RATES, deductCrossCurrencyBalance } from '../utils/wallet';
 
 export default function ListingDetail() {
   const { id } = useParams();
@@ -39,6 +40,7 @@ export default function ListingDetail() {
   const nights = checkIn && checkOut ? Math.ceil((new Date(checkOut) - new Date(checkIn)) / 86400000) : 0;
   const subtotal = listing.price * nights;
   const total = subtotal + (listing.cleaning_fee || 0) + (listing.service_fee || 0);
+  const bookingCurrency = 'USD';
 
   const handleBooking = async () => {
     if (!checkIn || !checkOut) { toast.error(t.selectDates); return; }
@@ -48,7 +50,8 @@ export default function ListingDetail() {
       navigate(`/profile/${profile?.id}`);
       return;
     }
-    if (profile.wallet_balance < total) {
+    const balanceUpdate = deductCrossCurrencyBalance(profile, total, bookingCurrency, DEFAULT_EXCHANGE_RATES);
+    if (!balanceUpdate) {
       toast.error(t.insufficientBalance);
       return;
     }
@@ -61,20 +64,22 @@ export default function ListingDetail() {
       guests: guestCount,
       nights,
       total,
-      currency: profile.wallet_currency || 'USD',
+      currency: bookingCurrency,
       guest_confirmed_completed: false,
       admin_payout_approved: false,
       status: 'confirmed',
     });
     await base44.entities.UserProfile.update(profile.id, {
-      wallet_balance: profile.wallet_balance - total,
+      wallet_balance_lak: balanceUpdate.wallet_balance_lak,
+      wallet_balance_usd: balanceUpdate.wallet_balance_usd,
+      wallet_balance_usdt: balanceUpdate.wallet_balance_usdt,
     });
     await base44.entities.WalletTransaction.create({
       user_email: currentUser.email,
       description: listing.title,
       description_lao: listing.title_lao || listing.title,
       amount: -total,
-      currency: profile.wallet_currency || 'USD',
+      currency: bookingCurrency,
       type: 'payment',
       status: 'completed',
       request_kind: 'booking_release',

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { X, Clock, Calendar, DollarSign, Wallet, MapPin } from 'lucide-react';
+import { DEFAULT_EXCHANGE_RATES, deductCrossCurrencyBalance, getTotalLakBalance } from '../utils/wallet';
 
 export default function BookServiceModal({ post, profile, currentUser, lang, onClose, onBooked }) {
   const [loading, setLoading] = useState(false);
@@ -10,8 +11,9 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
 
   const price = post.service_price || 0;
   const currency = post.service_currency || profile?.wallet_currency || 'USD';
-  const balance = currency === 'LAK' ? (profile?.wallet_balance_lak || 0) : currency === 'USDT' ? (profile?.wallet_balance_usdt || 0) : (profile?.wallet_balance_usd || 0);
-  const canAfford = balance >= price;
+  const totalLakBalance = getTotalLakBalance(profile, DEFAULT_EXCHANGE_RATES);
+  const requiredLak = currency === 'LAK' ? price : price * (currency === 'USDT' ? DEFAULT_EXCHANGE_RATES.usdtBuy : DEFAULT_EXCHANGE_RATES.usdBuy);
+  const canAfford = totalLakBalance >= requiredLak;
   const isHourlyService = post.service_duration_unit === 'hours';
   const slotOptions = useMemo(() => {
     if (!isHourlyService) return [];
@@ -41,6 +43,12 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
       toast.error(lang === 'lo' ? 'ຍອດເງິນບໍ່ພໍ' : 'Insufficient wallet balance');
       return;
     }
+
+    const balanceUpdate = deductCrossCurrencyBalance(profile, price, currency, DEFAULT_EXCHANGE_RATES);
+    if (!balanceUpdate) {
+      toast.error(lang === 'lo' ? 'ຍອດເງິນບໍ່ພໍ' : 'Insufficient wallet balance');
+      return;
+    }
     if (isHourlyService && !selectedSlot) {
       toast.error(lang === 'lo' ? 'ກະລຸນາເລືອກຊ່ວງເວລາ' : 'Please select a time slot');
       return;
@@ -66,7 +74,9 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
 
     // Deduct from booker wallet
     await base44.entities.UserProfile.update(profile.id, {
-      [currency === 'LAK' ? 'wallet_balance_lak' : currency === 'USDT' ? 'wallet_balance_usdt' : 'wallet_balance_usd']: balance - price,
+      wallet_balance_lak: balanceUpdate.wallet_balance_lak,
+      wallet_balance_usd: balanceUpdate.wallet_balance_usd,
+      wallet_balance_usdt: balanceUpdate.wallet_balance_usdt,
       wallet_currency: currency,
     });
     const walletTx = await base44.entities.WalletTransaction.create({
@@ -188,7 +198,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
             <span className="font-medium">{lang === 'lo' ? 'ຍອດເງິນ' : 'Wallet Balance'}</span>
           </div>
           <span className={`font-bold text-sm ${canAfford ? 'text-success' : 'text-destructive'}`}>
-            {balance} {currency}
+            {Math.round(totalLakBalance).toLocaleString()} LAK
           </span>
         </div>
 

@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import moment from 'moment';
 import WalletActionModal from '../components/wallet/WalletActionModal';
 import AdminWalletRequests from '../components/wallet/AdminWalletRequests';
+import { getTotalLakBalance } from '../utils/wallet';
 
 const typeConfig = {
   topup:    { icon: '⬆️', color: 'text-success', sign: '+' },
@@ -43,7 +44,7 @@ export default function Wallet() {
   const usdtBalance = profile?.wallet_balance_usdt || 0;
   const usdReferenceRate = exchangeRates.usdBuy || 22072;
   const usdtReferenceRate = exchangeRates.usdtBuy || usdReferenceRate;
-  const totalLak = lakBalance + (usdBalance * usdReferenceRate) + (usdtBalance * usdtReferenceRate);
+  const totalLak = getTotalLakBalance(profile, exchangeRates);
 
   const loadTx = async () => {
     if (currentUser) {
