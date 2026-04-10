@@ -12,7 +12,7 @@ import AdminVerification from './pages/AdminVerification';
 import ListingDetail from './pages/ListingDetail';
 import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
-import Messages from './pages/Messages.jsx';
+import Messages from './pages/Messages';
 import PasswordSettings from './pages/PasswordSettings';
 import ResetPassword from './pages/ResetPassword';
 import HelpCenter from './pages/HelpCenter';
