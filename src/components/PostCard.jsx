@@ -60,7 +60,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
   };
 
   return (
-    <div className="bg-card rounded-2xl shadow-sm overflow-hidden border border-border">
+    <div className="bg-card rounded-2xl shadow-sm overflow-hidden border border-border hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="flex items-center gap-3 p-4">
         <img
@@ -91,7 +91,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
       <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
 
       {/* Stats */}
-      <div className="flex gap-4 px-4 py-2 text-xs text-muted-foreground border-t border-border/50">
+      <div className="flex gap-4 px-4 py-2 text-xs text-muted-foreground border-t border-border/60 bg-muted/20">
         <span>{likeCount} {t.likes}</span>
         <span>{comments.length || post.comment_count || 0} {t.comments}</span>
       </div>
@@ -101,9 +101,9 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
         <div className="px-4 pb-3">
           <button
             onClick={() => setShowBookModal(true)}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-tiffany to-deep-green text-white py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-tiffany to-deep-green text-white py-3 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity shadow-sm"
           >
-            <CalendarCheck size={15} />
+            <CalendarCheck size={16} />
             {lang === 'lo' ? 'ຈອງ & ຈ່າຍ' : 'Book & Pay'} — ${post.service_price}
           </button>
         </div>

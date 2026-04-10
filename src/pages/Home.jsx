@@ -32,94 +32,48 @@ export default function Home() {
   return (
     <div className="overflow-x-hidden">
       {/* Hero */}
-      
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
+      <section className="relative bg-gradient-to-br from-[#0d3d2e] via-[#1a6b62] to-[#134f44] text-white overflow-hidden">
+        <div className="absolute inset-0">
+          <img src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1400&q=80" alt="" className="w-full h-full object-cover opacity-20" />
+        </div>
+        <div className="relative max-w-4xl mx-auto px-5 py-16 sm:py-24 text-center">
+          <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-xs font-semibold mb-6">
+            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+            {lang === 'lo' ? 'ເວທີໄວ້ວາງໃຈ' : 'Trusted Community Platform'}
+          </div>
+          <h1 className="text-3xl sm:text-5xl font-black leading-tight mb-4">
+            {lang === 'lo' ? 'ຄົ້ນພົບ ແລະ ແລກປ່ຽນ' : 'Discover, Share &'}<br/>
+            <span className="text-emerald-300">{lang === 'lo' ? 'ບໍລິການທີ່ໜ້າເຊື່ອຖື' : 'Book Trusted Services'}</span>
+          </h1>
+          <p className="text-white/75 text-sm sm:text-base mb-8 max-w-xl mx-auto">
+            {lang === 'lo' ? 'ຊຸມຊົນທີ່ຢືນຢັນຕົວຕົນ · ກະເປົາເງິນດິຈິທັລ · ທົ່ວໂລກ' : 'Verified identities · Digital wallet · Bilingual EN & Lao'}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-xs mx-auto sm:max-w-none">
+            <div
+              className="flex items-center gap-2 bg-white rounded-2xl px-4 py-3 flex-1 max-w-md mx-auto sm:mx-0 shadow-lg cursor-pointer"
+              onClick={handleSearch}
+            >
+              <Search size={18} className="text-muted-foreground flex-shrink-0" />
+              <input
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                placeholder={lang === 'lo' ? 'ຄົ້ນຫາລາຍຊື່...' : 'Search listings, services...'}
+                className="flex-1 bg-transparent text-foreground text-sm outline-none placeholder:text-muted-foreground"
+              />
+            </div>
+            <button onClick={handleSearch} className="bg-emerald-400 hover:bg-emerald-300 text-[#0d3d2e] px-8 py-3 rounded-2xl font-bold text-sm transition-colors shadow-lg">
+              {lang === 'lo' ? 'ຄົ້ນຫາ' : 'Search'}
+            </button>
+          </div>
+          <div className="flex flex-wrap justify-center gap-6 mt-10 text-xs text-white/60">
+            <span>🔐 {lang === 'lo' ? 'ຢືນຢັນຕົວຕົນ' : 'ID Verified Users'}</span>
+            <span>⭐ {lang === 'lo' ? 'ຄະແນນຄວາມໜ້າເຊື່ອຖື' : 'Trust Ratings'}</span>
+            <span>💰 {lang === 'lo' ? 'ກະເປົາເງິນປອດໄພ' : 'Secure eWallet'}</span>
+            <span>🌏 EN & Lao</span>
+          </div>
+        </div>
+      </section>
 
       {/* Category pills */}
       <section className="py-6 bg-card border-b border-border sticky top-14 z-10">

@@ -81,37 +81,39 @@ export default function Explore() {
         </div>
       )}
       {/* Search bar */}
-      <div className="bg-card rounded-xl p-4 shadow-sm mb-4 flex flex-col md:flex-row gap-3">
-        <div className="flex-1 flex items-center border border-border rounded-lg px-3">
-          <Search size={16} className="text-muted-foreground" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleFilter()}
-            placeholder={t.searchPlaceholder}
-            className="flex-1 bg-transparent px-3 py-2 text-sm outline-none"
-          />
+      <div className="bg-card rounded-2xl p-4 shadow-sm border border-border mb-5">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1 flex items-center gap-2 bg-muted rounded-xl px-4 py-2.5 border border-border focus-within:border-primary transition-colors">
+            <Search size={16} className="text-muted-foreground flex-shrink-0" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleFilter()}
+              placeholder={t.searchPlaceholder}
+              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            />
+          </div>
+          <button
+            onClick={handleFilter}
+            className="bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
+          >
+            {t.search}
+          </button>
         </div>
-        <div className="flex gap-1.5 flex-wrap">
-          {[{ v: '', label: '🕐 Recent' }, { v: 'price_low', label: '💲↑ Low' }, { v: 'price_high', label: '💲↓ High' }, { v: 'rating', label: '⭐ Top' }].map(opt => (
+        <div className="flex gap-2 flex-wrap mt-3">
+          {[{ v: '', label: '🕐 Recent' }, { v: 'price_low', label: '💲 Low Price' }, { v: 'price_high', label: '💲 High Price' }, { v: 'rating', label: '⭐ Top Rated' }].map(opt => (
             <button
               key={opt.v}
               onClick={() => { setSortBy(opt.v); filterData(listings, searchQuery, activeCat, opt.v); }}
-              className={`px-3 py-2 rounded-lg border text-xs font-semibold transition-all select-none ${
-                sortBy === opt.v ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:border-primary'
+              className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-all select-none ${
+                sortBy === opt.v ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:border-primary/60'
               }`}
             >
               {opt.label}
             </button>
           ))}
         </div>
-        <button
-          onClick={handleFilter}
-          className="bg-primary text-primary-foreground px-6 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
-        >
-          {t.search}
-        </button>
       </div>
 
       {/* Category filters */}
