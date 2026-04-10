@@ -4,7 +4,7 @@ import { Search, Home, Compass, Calendar, Wallet, MessageCircle, Bell, LogOut, M
 import LangToggle from './LangToggle';
 import { base44 } from '@/api/base44Client';
 
-export default function Navbar({ profile, t, lang, setLang }) {
+export default function Navbar({ profile, currentUser, t, lang, setLang }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
 
@@ -62,7 +62,7 @@ export default function Navbar({ profile, t, lang, setLang }) {
               </span>
             </Link>
 
-            {profile?.role === 'admin' && (
+            {currentUser?.role === 'admin' && (
               <Link to="/admin/verification" className={`flex items-center gap-1 px-2 py-2 rounded-lg text-sm transition-colors ${location.pathname === '/admin/verification' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>
                 <ShieldCheck size={18} />
               </Link>

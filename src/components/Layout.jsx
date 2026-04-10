@@ -53,7 +53,7 @@ export default function Layout() {
   return (
     <AppContext.Provider value={contextValue}>
       <div className={`min-h-screen bg-background ${lang === 'lo' ? 'font-lao' : 'font-inter'}`}>
-        <Navbar profile={profile} t={t} lang={lang} setLang={setLang} />
+        <Navbar profile={profile} currentUser={currentUser} t={t} lang={lang} setLang={setLang} />
         <MobileHeader t={t} />
         <main className="pb-20 md:pb-0">
           {/* Persistent tab pages — hidden via CSS, not unmounted */}
