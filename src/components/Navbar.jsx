@@ -33,10 +33,10 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
         </Link>
 
         {/* Desktop search */}
-        <Link to="/explore" className="hidden md:flex items-center bg-muted rounded-full px-4 py-2 flex-1 max-w-xs mx-6 border border-border hover:border-primary transition-colors">
-          <Search size={15} className="text-muted-foreground" />
-          <span className="ml-2 text-sm text-muted-foreground">{t.searchPlaceholder}</span>
-        </Link>
+        
+
+
+        
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-0.5">
@@ -51,7 +51,7 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
             }>
             
               <item.icon size={18} />
-              <span className="hidden lg:inline text-xs">{item.label}</span>
+              <span className="hidden lg:inline text-xs">Business</span>
             </Link>
           )}
 
