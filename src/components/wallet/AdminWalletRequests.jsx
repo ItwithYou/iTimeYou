@@ -77,6 +77,8 @@ function TransactionRow({ tx, lang }) {
         <p className="text-sm font-semibold break-all">{lang === 'lo' && tx.description_lao ? tx.description_lao : tx.description}</p>
         <p className="text-xs text-muted-foreground break-all">{tx.user_email}</p>
         <p className="text-xs text-muted-foreground">{tx.request_kind || tx.type} · {Math.abs(tx.amount)} {tx.currency || 'USD'}</p>
+        {tx.approved_by_name && <p className="text-xs text-muted-foreground">Approved by: {tx.approved_by_name}</p>}
+        {tx.approved_at && <p className="text-xs text-muted-foreground">Approved time: {new Date(tx.approved_at).toLocaleString()}</p>}
       </div>
       <div className="flex items-center gap-3 sm:flex-col sm:items-end">
         <StatusBadge status={tx.status} />
@@ -185,7 +187,12 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
       }
     }
 
-    await base44.entities.WalletTransaction.update(tx.id, { status: 'approved' });
+    await base44.entities.WalletTransaction.update(tx.id, {
+      status: 'approved',
+      approved_by_name: currentUser.full_name || currentUser.email,
+      approved_by_email: currentUser.email,
+      approved_at: new Date().toISOString(),
+    });
     await base44.entities.Notification.create({
       user_email: tx.user_email,
       type: '✅',
@@ -196,7 +203,13 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
   };
 
   const rejectTransaction = async (tx, reason) => {
-    await base44.entities.WalletTransaction.update(tx.id, { status: 'rejected', reject_reason: reason || '' });
+    await base44.entities.WalletTransaction.update(tx.id, {
+      status: 'rejected',
+      reject_reason: reason || '',
+      approved_by_name: currentUser.full_name || currentUser.email,
+      approved_by_email: currentUser.email,
+      approved_at: new Date().toISOString(),
+    });
     await base44.entities.Notification.create({
       user_email: tx.user_email,
       type: '❌',

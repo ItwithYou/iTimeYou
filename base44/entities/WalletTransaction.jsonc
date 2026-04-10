@@ -80,6 +80,15 @@
     },
     "account_qr_url": {
       "type": "string"
+    },
+    "approved_by_name": {
+      "type": "string"
+    },
+    "approved_by_email": {
+      "type": "string"
+    },
+    "approved_at": {
+      "type": "string"
     }
   },
   "required": [
