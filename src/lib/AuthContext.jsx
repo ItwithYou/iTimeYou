@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setAuthError(null);
       
-      // Check if user is authenticated
+      // Fetch current user from Base44 auth
       const currentUser = await base44.auth.me();
       setUser(currentUser);
       setIsAuthenticated(true);
