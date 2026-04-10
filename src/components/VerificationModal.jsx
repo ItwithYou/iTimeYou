@@ -1,37 +1,28 @@
 import { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { X, Camera } from 'lucide-react';
+import { X } from 'lucide-react';
 
 export default function VerificationModal({ profile, t, lang, onClose, onSubmitted }) {
   const [name, setName] = useState(`${profile.first_name} ${profile.last_name}`);
   const [dob, setDob] = useState('');
   const [idFile, setIdFile] = useState(null);
   const [selfieFile, setSelfieFile] = useState(null);
-  const [faceSelfieFile, setFaceSelfieFile] = useState(null);
-  const [ageChecked, setAgeChecked] = useState(false);
   const [termsChecked, setTermsChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const idInputRef = useRef(null);
   const selfieInputRef = useRef(null);
-  const faceInputRef = useRef(null);
 
   const handleSubmit = async () => {
     if (!name || !dob) { toast.error(lang === 'lo' ? 'ກະລຸນາຕື່ມຂໍ້ມູນ' : 'Please fill all fields'); return; }
-    
-    const bd = new Date(dob);
-    const now = new Date();
-    const age = now.getFullYear() - bd.getFullYear() - ((now.getMonth() < bd.getMonth() || (now.getMonth() === bd.getMonth() && now.getDate() < bd.getDate())) ? 1 : 0);
-    if (age < 18) { toast.error(lang === 'lo' ? 'ຕ້ອງມີອາຍຸ 18 ປີຂຶ້ນໄປ' : 'You must be 18 or older'); return; }
-    if (!ageChecked) { toast.error(lang === 'lo' ? 'ຕ້ອງມີອາຍຸ 18 ປີຂຶ້ນໄປ' : 'You must be 18 or older'); return; }
-    if (!idFile || !selfieFile || !faceSelfieFile) {
-      toast.error(lang === 'lo' ? 'ກະລຸນາອັບໂຫລດເອກະສານ ແລະ ຮູບໃບໜ້າໃຫ້ຄົບ' : 'Please upload your ID, ID selfie, and face check selfie');
+    if (!idFile || !selfieFile) {
+      toast.error(lang === 'lo' ? 'ກະລຸນາອັບໂຫລດເອກະສານໃຫ້ຄົບ' : 'Please upload your ID and ID selfie');
       return;
     }
     if (!termsChecked) { toast.error(t.termsAgree); return; }
 
     setSubmitting(true);
-    let id_url = '', selfie_url = '', face_selfie_url = '';
+    let id_url = '', selfie_url = '';
     if (idFile) {
       const res = await base44.integrations.Core.UploadFile({ file: idFile });
       id_url = res.file_url;
@@ -40,10 +31,6 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
       const res = await base44.integrations.Core.UploadFile({ file: selfieFile });
       selfie_url = res.file_url;
     }
-    if (faceSelfieFile) {
-      const res = await base44.integrations.Core.UploadFile({ file: faceSelfieFile });
-      face_selfie_url = res.file_url;
-    }
 
     await base44.entities.UserProfile.update(profile.id, {
       verification_status: 'pending',
@@ -51,7 +38,6 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
       verification_dob: dob,
       id_document_url: id_url,
       selfie_url: selfie_url,
-      face_selfie_url: face_selfie_url,
     });
 
     await base44.entities.Notification.create({
@@ -121,21 +107,6 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
               </button>
               <input ref={selfieInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => { if (e.target.files[0]) setSelfieFile(e.target.files[0]); }} />
             </div>
-            <div>
-              <label className="text-xs font-semibold">{lang === 'lo' ? 'ຮູບເຊວຟີໃບໜ້າ' : 'Face Check Selfie'}</label>
-              <button
-                type="button"
-                onClick={() => faceInputRef.current?.click()}
-                className="flex items-center gap-2 border-2 border-dashed border-border rounded-lg px-4 py-4 text-sm text-muted-foreground active:border-primary transition-colors w-full text-left min-h-[48px]"
-              >
-                <Camera size={16} />
-                {faceSelfieFile ? `✅ ${faceSelfieFile.name}` : (lang === 'lo' ? 'ຖ່າຍ/ອັບໂຫລດຮູບໃບໜ້າຂອງທ່ານ' : 'Tap to upload a clear selfie of your face')}
-              </button>
-              <input ref={faceInputRef} type="file" accept="image/*" capture="user" className="hidden" onChange={e => { if (e.target.files[0]) setFaceSelfieFile(e.target.files[0]); }} />
-              <p className="text-xs text-muted-foreground mt-1">
-                {lang === 'lo' ? 'ໃບໜ້າຕ້ອງເຫັນຊັດ ບໍ່ໃສ່ໜ້າກາກ ແລະ ບໍ່ໃສ່ແວ່ນກັນແດດ' : 'Make sure your face is clearly visible, with no mask and no sunglasses.'}
-              </p>
-            </div>
           </div>
         </div>
 
@@ -143,22 +114,7 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
         <div className="flex gap-3 mb-6">
           <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center flex-shrink-0">3</div>
           <div className="flex-1 space-y-2">
-            <div className="font-semibold text-sm">Face Check</div>
-            <div className="text-sm text-muted-foreground rounded-lg bg-muted/50 p-3">
-              {lang === 'lo' ? 'ລະບົບຈະຂໍຮູບເຊວຟີໃບໜ້າຂອງທ່ານເພື່ອໃຫ້ແອັດມິນກວດສອບຄວາມກົງກັນກັບເອກະສານ' : 'Your face selfie will be included so admin can compare it with your ID documents.'}
-            </div>
-          </div>
-        </div>
-
-        {/* Step 4 */}
-        <div className="flex gap-3 mb-6">
-          <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center flex-shrink-0">4</div>
-          <div className="flex-1 space-y-2">
             <div className="font-semibold text-sm">Agreement</div>
-            <button type="button" onClick={() => setAgeChecked(!ageChecked)} className="flex items-start gap-3 text-sm text-left py-1 min-h-[44px]">
-              <input type="checkbox" checked={ageChecked} readOnly className="mt-0.5 accent-primary w-5 h-5 flex-shrink-0 pointer-events-none" />
-              <span>{t.ageConfirm}</span>
-            </button>
             <button type="button" onClick={() => setTermsChecked(!termsChecked)} className="flex items-start gap-3 text-sm text-left py-1 min-h-[44px]">
               <input type="checkbox" checked={termsChecked} readOnly className="mt-0.5 accent-primary w-5 h-5 flex-shrink-0 pointer-events-none" />
               <span>{t.termsAgree}</span>
