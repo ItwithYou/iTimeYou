@@ -2,9 +2,11 @@ import { Star, MapPin, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { CAT_ICONS } from '../hooks/useLang';
+import ImageLightbox from './ImageLightbox';
 
 export default function ListingCard({ listing, t, lang }) {
   const [saved, setSaved] = useState(false);
+  const [showLightbox, setShowLightbox] = useState(false);
   const catIndex = ['culture', 'stay', 'food', 'experience', 'home', 'nature'].indexOf(listing.category);
   const catLabel = t.categories[catIndex] || listing.category;
   const icon = CAT_ICONS[listing.category] || '📌';
@@ -12,7 +14,7 @@ export default function ListingCard({ listing, t, lang }) {
   return (
     <div className="group relative bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-border">
       {/* Image */}
-      <div className="h-52 overflow-hidden relative">
+      <div className="h-52 overflow-hidden relative cursor-pointer" onClick={() => setShowLightbox(true)}>
         <img
           src={listing.image_url}
           alt={listing.title}
@@ -71,6 +73,8 @@ export default function ListingCard({ listing, t, lang }) {
           </span>
         </div>
       </Link>
+
+      {showLightbox && <ImageLightbox src={listing.image_url} onClose={() => setShowLightbox(false)} />}
     </div>
   );
 }
