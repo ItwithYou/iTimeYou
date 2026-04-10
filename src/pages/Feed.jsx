@@ -21,14 +21,19 @@ export default function Feed() {
   const loadPosts = async () => {
     const data = await base44.entities.Post.list('-created_date', 30);
     setPosts(data);
-    // Fetch author profiles for location and gender
+
     const emails = [...new Set(data.map(p => p.author_email).filter(Boolean))];
-    if (emails.length > 0) {
-      const profiles = await base44.entities.UserProfile.list('-created_date', 100);
-      const map = {};
-      profiles.forEach(p => { map[p.user_email] = p; });
-      setAuthorProfiles(map);
+    if (emails.length === 0) {
+      setAuthorProfiles({});
+      return;
     }
+
+    const profiles = await base44.entities.UserProfile.list('-created_date', 100);
+    const map = {};
+    profiles.forEach(p => {
+      if (emails.includes(p.user_email)) map[p.user_email] = p;
+    });
+    setAuthorProfiles(map);
   };
 
   const { refreshing, pullDistance, threshold } = usePullToRefresh(loadPosts, '/feed');

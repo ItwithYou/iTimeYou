@@ -16,12 +16,12 @@ import Wallet from '../pages/Wallet';
 import Messages from '../pages/Messages';
 
 const TAB_PAGES = [
-  { path: '/', Component: Home },
-  { path: '/feed', Component: Feed },
-  { path: '/explore', Component: Explore },
-  { path: '/bookings', Component: Bookings },
-  { path: '/wallet', Component: Wallet },
-  { path: '/messages', Component: Messages },
+  { path: '/', PageComponent: Home },
+  { path: '/feed', PageComponent: Feed },
+  { path: '/explore', PageComponent: Explore },
+  { path: '/bookings', PageComponent: Bookings },
+  { path: '/wallet', PageComponent: Wallet },
+  { path: '/messages', PageComponent: Messages },
 ];
 const TAB_PATHS = TAB_PAGES.map(t => t.path);
 
@@ -40,15 +40,24 @@ export default function Layout() {
 
   const contextValue = { profile, currentUser, t, lang, setLang, refreshProfile };
 
-  // Update activity timestamp every 30 seconds
+  // Update activity timestamp every 30 seconds only on visible tabs
   useEffect(() => {
-    if (currentUser) {
-      base44.functions.invoke('updateUserActivity', {});
-      const interval = setInterval(() => {
+    if (!currentUser) return;
+
+    const sendActivity = () => {
+      if (document.visibilityState === 'visible') {
         base44.functions.invoke('updateUserActivity', {});
-      }, 30000);
-      return () => clearInterval(interval);
-    }
+      }
+    };
+
+    sendActivity();
+    const interval = setInterval(sendActivity, 30000);
+    document.addEventListener('visibilitychange', sendActivity);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', sendActivity);
+    };
   }, [currentUser]);
 
   if (loading) {
@@ -108,10 +117,10 @@ export default function Layout() {
         <MobileHeader t={t} />
         <main className="pb-20 md:pb-0">
           {/* Persistent tab pages — hidden via CSS, not unmounted */}
-          {TAB_PAGES.map(({ path, Component }) =>
+          {TAB_PAGES.map(({ path, PageComponent }) =>
             visitedPaths.has(path) ? (
               <div key={path} style={{ display: location.pathname === path ? 'block' : 'none' }}>
-                <Component />
+                <PageComponent />
               </div>
             ) : null
           )}

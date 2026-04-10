@@ -101,9 +101,22 @@ export default function Wallet() {
   };
 
   useEffect(() => {
-    loadExchangeRates();
-    const interval = setInterval(loadExchangeRates, 300000);
-    return () => clearInterval(interval);
+    let active = true;
+
+    const loadWhenVisible = async () => {
+      if (document.visibilityState !== 'visible' || !active) return;
+      await loadExchangeRates();
+    };
+
+    loadWhenVisible();
+    const interval = setInterval(loadWhenVisible, 300000);
+    document.addEventListener('visibilitychange', loadWhenVisible);
+
+    return () => {
+      active = false;
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', loadWhenVisible);
+    };
   }, []);
 
   const requireVerified = () => {

@@ -35,14 +35,21 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
   const loadComments = async () => {
     const data = await base44.entities.Comment.filter({ post_id: post.id });
     setComments(data);
-    // fetch profiles to resolve real names
+
     const emails = [...new Set(data.map(c => c.author_email).filter(Boolean))];
-    if (emails.length > 0) {
-      const profiles = await base44.entities.UserProfile.list('-created_date', 100);
-      const map = {};
-      profiles.forEach(p => { map[p.user_email] = `${p.first_name} ${p.last_name}`.trim(); });
-      setCommentProfiles(map);
+    if (emails.length === 0) {
+      setCommentProfiles({});
+      return;
     }
+
+    const profiles = await base44.entities.UserProfile.list('-created_date', 100);
+    const map = {};
+    profiles.forEach(p => {
+      if (emails.includes(p.user_email)) {
+        map[p.user_email] = `${p.first_name} ${p.last_name}`.trim();
+      }
+    });
+    setCommentProfiles(map);
   };
 
   useEffect(() => {
@@ -50,20 +57,25 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
   }, [post.id, showComments]);
 
   useEffect(() => {
+    let mounted = true;
     base44.entities.UserProfile.filter({ user_email: post.author_email }).then((profiles) => {
-      setAuthorProfile(profiles[0] || null);
+      if (mounted) setAuthorProfile(profiles[0] || null);
     });
+    return () => {
+      mounted = false;
+    };
   }, [post.author_email]);
 
   const toggleLike = async () => {
-    const newLiked = !liked;
-    const newLikes = newLiked
-      ? [...(post.likes || []), currentUserEmail]
-      : (post.likes || []).filter(e => e !== currentUserEmail);
-    setLiked(newLiked);
+    const currentLikes = post.likes || [];
+    const alreadyLiked = currentLikes.includes(currentUserEmail);
+    const newLikes = alreadyLiked
+      ? currentLikes.filter(e => e !== currentUserEmail)
+      : [...currentLikes, currentUserEmail];
+
+    setLiked(!alreadyLiked);
     setLikeCount(newLikes.length);
     await base44.entities.Post.update(post.id, { likes: newLikes, like_count: newLikes.length });
-    onRefresh?.();
   };
 
   const handleDelete = async () => {
