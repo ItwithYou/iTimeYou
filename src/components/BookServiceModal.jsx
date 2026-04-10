@@ -49,7 +49,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
       toast.error(lang === 'lo' ? 'ຍອດເງິນບໍ່ພໍ' : 'Insufficient wallet balance');
       return;
     }
-    if (isHourlyService && !selectedSlot) {
+    if (isHourlyService && slotOptions.length > 0 && !selectedSlot) {
       toast.error(lang === 'lo' ? 'ກະລຸນາເລືອກຊ່ວງເວລາ' : 'Please select a time slot');
       return;
     }
