@@ -56,6 +56,22 @@ export default function Wallet() {
   };
 
 
+  if (currentUser?.role === 'admin') {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-5">
+        <h1 className="text-xl font-bold mb-4">{t.walletTitle}</h1>
+        <AdminWalletRequests
+          currentUser={currentUser}
+          transactions={allTransactions}
+          bookings={bookings}
+          profilesByEmail={profilesByEmail}
+          lang={lang}
+          onUpdated={() => { refreshProfile(); loadTx(); }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-md mx-auto px-4 py-5">
       <h1 className="text-xl font-bold mb-4">{t.walletTitle}</h1>
@@ -160,15 +176,6 @@ export default function Wallet() {
           onSubmitted={() => { refreshProfile(); loadTx(); }}
         />
       )}
-
-      <AdminWalletRequests
-        currentUser={currentUser}
-        transactions={allTransactions}
-        bookings={bookings}
-        profilesByEmail={profilesByEmail}
-        lang={lang}
-        onUpdated={() => { refreshProfile(); loadTx(); }}
-      />
     </div>
   );
 }
