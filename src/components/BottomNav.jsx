@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Compass, Calendar, Wallet, MessageCircle } from 'lucide-react';
 
-export default function BottomNav({ t }) {
+export default function BottomNav({ t, lang }) {
   const location = useLocation();
 
   const items = [
@@ -9,7 +9,7 @@ export default function BottomNav({ t }) {
     { to: '/explore', icon: Compass, label: t.explore },
     { to: '/bookings', icon: Calendar, label: t.trips },
     { to: '/wallet', icon: Wallet, label: t.wallet },
-    { to: '/messages', icon: MessageCircle, label: t.messages },
+    { to: '/messages', icon: MessageCircle, label: lang === 'lo' ? 'ແຊັດ' : 'Chat' },
   ];
 
   return (

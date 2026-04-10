@@ -83,7 +83,7 @@ export default function Layout() {
             </div>
           )}
         </main>
-        <BottomNav t={t} />
+        <BottomNav t={t} lang={lang} />
         <div className="hidden md:block">
           <Footer t={t} />
         </div>

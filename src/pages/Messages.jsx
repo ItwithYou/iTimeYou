@@ -5,7 +5,7 @@ import { Send, MessageCircle } from 'lucide-react';
 import moment from 'moment';
 
 export default function Messages() {
-  const { currentUser, t } = useAppContext();
+  const { currentUser, t, lang } = useAppContext();
   const [conversations, setConversations] = useState([]);
   const [activeConv, setActiveConv] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -146,9 +146,10 @@ export default function Messages() {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
+          <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-4">
             <MessageCircle size={40} className="mb-3 opacity-30" />
-            <h3 className="font-semibold">{t.selectConversation}</h3>
+            <h3 className="font-semibold mb-2">{lang === 'lo' ? 'ເລືອກການສົນທະນາ' : 'Select a conversation'}</h3>
+            <p className="text-sm text-center mb-4">{lang === 'lo' ? 'ເລືອກຈາກລາຍການດ້ານຊ້າຍ ຫຼື ສົ່ງຂໍ້ຄວາມຫາ admin' : 'Choose from the list on the left or message an admin'}</p>
           </div>
         )}
       </div>
