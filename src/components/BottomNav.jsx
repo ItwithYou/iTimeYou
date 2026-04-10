@@ -13,7 +13,7 @@ export default function BottomNav({ t, lang }) {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border safe-area-pb" style={{ WebkitTapHighlightColor: 'transparent' }} role="navigation" aria-label="Main navigation">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border safe-area-pb" style={{ WebkitTapHighlightColor: 'transparent' }} role="navigation" aria-label="Main navigation">
       <div className="flex items-center justify-around h-16 px-2" role="tablist">
         {items.map(item => {
           const active = location.pathname === item.to;

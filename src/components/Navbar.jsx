@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Search, Home, Compass, Calendar, Wallet, MessageCircle, Bell, LogOut, Menu, X, User, ShieldCheck, HelpCircle } from 'lucide-react';
 import LangToggle from './LangToggle';
+import ThemeToggle from './ThemeToggle';
 import { base44 } from '@/api/base44Client';
 
 export default function Navbar({ profile, currentUser, t, lang, setLang }) {
@@ -24,7 +25,7 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
 
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-border shadow-sm" role="navigation" aria-label="Top navigation" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+    <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border shadow-sm" role="navigation" aria-label="Top navigation" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
         {/* Logo */}
         <Link to="/" className="flex items-center flex-shrink-0" aria-label="iTimeYou Home">
@@ -89,11 +90,13 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
             
           </div>
 
+          <ThemeToggle />
           <LangToggle lang={lang} setLang={setLang} />
         </div>
 
         {/* Mobile right side */}
         <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
           <LangToggle lang={lang} setLang={setLang} />
           <Link to="/help" className="p-2" aria-label="Help Center">
             <HelpCircle size={20} className={location.pathname === '/help' ? 'text-primary' : 'text-muted-foreground'} aria-hidden="true" />
