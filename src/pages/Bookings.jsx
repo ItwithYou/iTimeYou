@@ -4,7 +4,6 @@ import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
 import { MapPin, Calendar, Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import moment from 'moment';
-import BookingCompletionCard from '../components/bookings/BookingCompletionCard';
 import ServiceBookingDetailModal from '../components/bookings/ServiceBookingDetailModal';
 import { toast } from 'sonner';
 
@@ -25,6 +24,11 @@ export default function Bookings() {
 
   const loadServiceBookings = async () => {
     if (!currentUser) return;
+    if (currentUser.role === 'admin') {
+      const all = await base44.entities.ServiceBooking.list('-created_date', 100);
+      setServiceBookings(all);
+      return;
+    }
     const [asBooker, asPoster] = await Promise.all([
       base44.entities.ServiceBooking.filter({ booker_email: currentUser.email }, '-created_date', 30),
       base44.entities.ServiceBooking.filter({ poster_email: currentUser.email }, '-created_date', 30),
@@ -35,13 +39,17 @@ export default function Bookings() {
 
   useEffect(() => {
     if (!currentUser) return;
-    base44.entities.Booking.filter({ guest_email: currentUser.email }, '-created_date', 30).then(async data => {
+    const loadStayBookings = async () => {
+      const data = currentUser.role === 'admin'
+        ? await base44.entities.Booking.list('-created_date', 100)
+        : await base44.entities.Booking.filter({ guest_email: currentUser.email }, '-created_date', 30);
       setBookings(data);
       const allListings = await base44.entities.Listing.list('-created_date', 100);
       const map = {};
       allListings.forEach(l => { map[l.id] = l; });
       setListings(map);
-    });
+    };
+    loadStayBookings();
     loadServiceBookings();
   }, [currentUser]);
 
@@ -102,10 +110,51 @@ export default function Bookings() {
     toast.success(lang === 'lo' ? 'ບໍ່ອະນຸມັດຄຳຂໍຍົກເລີກ' : 'Cancel request declined');
   };
 
+  const markServiceCompleted = async (booking) => {
+    if (booking.status === 'completed') return;
+
+    await base44.entities.ServiceBooking.update(booking.id, {
+      status: 'completed',
+    });
+
+    const providerProfiles = await base44.entities.UserProfile.filter({ user_email: booking.poster_email });
+    const providerProfile = providerProfiles[0];
+    if (providerProfile) {
+      const balanceField = booking.currency === 'LAK' ? 'wallet_balance_lak' : booking.currency === 'USDT' ? 'wallet_balance_usdt' : 'wallet_balance_usd';
+      await base44.entities.UserProfile.update(providerProfile.id, {
+        [balanceField]: (providerProfile[balanceField] || 0) + Math.abs(booking.price || 0),
+        wallet_currency: booking.currency || 'USD',
+      });
+
+      await base44.entities.WalletTransaction.create({
+        user_email: booking.poster_email,
+        description: `Service payout for ${booking.service_type}`,
+        description_lao: `ຮັບເງິນຄ່າບໍລິການ ${booking.service_type}`,
+        amount: Math.abs(booking.price || 0),
+        currency: booking.currency || 'USD',
+        type: 'received',
+        status: 'completed',
+        request_kind: 'booking_release',
+        counterparty_email: booking.booker_email,
+      });
+    }
+
+    await base44.entities.Notification.create({
+      user_email: booking.poster_email,
+      type: '💸',
+      text: `Payment for ${booking.service_type} has been released to your wallet`,
+      text_lao: `ເງິນຄ່າ ${booking.service_type} ໄດ້ເຂົ້າກະເປົາແລ້ວ`,
+    });
+
+    await loadServiceBookings();
+    setSelectedServiceBooking(null);
+    toast.success(lang === 'lo' ? 'ສຳເລັດ ແລະ ໂອນເງິນໃຫ້ຜູ້ໃຫ້ບໍລິການແລ້ວ' : 'Completed and paid to provider');
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
       <h1 className="text-2xl font-bold mb-1">{t.bookingsTitle}</h1>
-      <p className="text-muted-foreground text-sm mb-5">{lang === 'lo' ? 'ລາຍການຈອງທັງໝົດຂອງທ່ານ' : 'All your reservations in one place'}</p>
+      <p className="text-muted-foreground text-sm mb-5">{currentUser?.role === 'admin' ? (lang === 'lo' ? 'ລາຍການຈອງຂອງຜູ້ໃຊ້ທັງໝົດ' : 'All user bookings in one place') : (lang === 'lo' ? 'ລາຍການຈອງທັງໝົດຂອງທ່ານ' : 'All your reservations in one place')}</p>
 
       <div className="flex gap-1 bg-muted rounded-xl p-1 mb-6">
         <button
@@ -119,7 +168,7 @@ export default function Bookings() {
           onClick={() => setTab('services')}
           className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${tab === 'services' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          🛎️ {lang === 'lo' ? 'ການນັດໝາຍ' : 'My Schedule'}
+          🛎️ {lang === 'lo' ? 'ການນັດໝາຍ' : 'Schedules'}
           {serviceBookings.length > 0 && <span className="ml-1 text-xs bg-primary text-white rounded-full px-1.5">{serviceBookings.length}</span>}
         </button>
       </div>
@@ -189,7 +238,7 @@ export default function Bookings() {
                       <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🛎️</div>
                       <div>
                         <p className="font-bold text-sm">{b.service_type || 'Service'}</p>
-                        <p className="text-xs text-muted-foreground">{lang === 'lo' ? 'ຈາກ' : 'From'} {b.poster_name || b.poster_email}</p>
+                        <p className="text-xs text-muted-foreground">{currentUser?.role === 'admin' ? `${lang === 'lo' ? 'ຜູ້ຈອງ' : 'Booked by'} ${b.booker_name || b.booker_email} · ${lang === 'lo' ? 'ຜູ້ໃຫ້ບໍລິການ' : 'Provider'} ${b.poster_name || b.poster_email}` : `${lang === 'lo' ? 'ຈາກ' : 'From'} ${b.poster_name || b.poster_email}`}</p>
                       </div>
                     </div>
                     <span className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border flex-shrink-0 ${st.cls}`}>
@@ -228,6 +277,7 @@ export default function Bookings() {
           onRequestCancel={requestCancel}
           onApproveCancel={approveCancel}
           onDeclineCancel={declineCancel}
+          onMarkCompleted={markServiceCompleted}
         />
       )}
     </div>

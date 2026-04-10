@@ -1,14 +1,15 @@
 import { X, Calendar, Clock, MapPin, AlertCircle } from 'lucide-react';
 import moment from 'moment';
 
-export default function ServiceBookingDetailModal({ booking, currentUser, lang, onClose, onRequestCancel, onApproveCancel, onDeclineCancel }) {
+export default function ServiceBookingDetailModal({ booking, currentUser, lang, onClose, onRequestCancel, onApproveCancel, onDeclineCancel, onMarkCompleted }) {
   if (!booking) return null;
 
   const isBooker = booking.booker_email === currentUser?.email;
   const isPoster = booking.poster_email === currentUser?.email;
   const serviceStart = booking.service_when ? moment(booking.service_when.split('·')[0].trim()) : null;
   const canRequestCancel = isBooker && booking.status !== 'cancelled' && booking.cancel_request_status !== 'requested' && serviceStart && serviceStart.diff(moment(), 'hours', true) <= 3 && serviceStart.diff(moment(), 'minutes') > 0;
-  const canResolve = (isBooker || isPoster) && booking.cancel_request_status === 'requested' && booking.cancel_requested_by !== currentUser?.email;
+  const canResolve = (isBooker || isPoster || currentUser?.role === 'admin') && booking.cancel_request_status === 'requested' && booking.cancel_requested_by !== currentUser?.email;
+  const canMarkCompleted = currentUser?.role === 'admin' && booking.status !== 'completed' && booking.status !== 'cancelled';
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center" onClick={onClose}>
@@ -58,6 +59,11 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
                 {lang === 'lo' ? 'ບໍ່ອະນຸມັດ' : 'Decline'}
               </button>
             </div>
+          )}
+          {canMarkCompleted && (
+            <button onClick={() => onMarkCompleted(booking)} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm">
+              {lang === 'lo' ? 'ໝາຍເປັນສຳເລັດ ແລະ ໂອນເງິນ' : 'Mark completed and release payment'}
+            </button>
           )}
           <button onClick={onClose} className="w-full border border-border py-3 rounded-xl font-semibold text-sm">
             {lang === 'lo' ? 'ປິດ' : 'Close'}
