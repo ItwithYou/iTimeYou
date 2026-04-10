@@ -15,12 +15,12 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
   { to: '/explore', icon: Compass, label: t.explore },
   { to: '/bookings', icon: Calendar, label: t.trips },
   { to: '/wallet', icon: Wallet, label: t.wallet },
-  { to: '/messages', icon: MessageCircle, label: lang === 'lo' ? 'ແຊັດ' : 'Chat' },
+  { to: '/messages', icon: MessageCircle, label: t.messages },
   { to: '/notifications', icon: Bell, label: t.notifications }];
 
   const secondaryNavItems = [
-  { to: '/help', icon: HelpCircle, label: lang === 'lo' ? 'ສູນຊ່ວຍເຫຼືອ' : 'Help Center' },
-];
+  { to: '/help', icon: HelpCircle, label: lang === 'lo' ? 'ສູນຊ່ວຍເຫຼືອ' : 'Help Center' }];
+
 
 
   return (
@@ -55,16 +55,16 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
           )}
 
           <div className="ml-2 flex items-center gap-2 pl-3 border-l border-border">
-            {secondaryNavItems.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={`flex items-center gap-1 px-2 py-2 rounded-lg text-sm transition-colors ${location.pathname === item.to ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
-              >
-                <item.icon size={18} />
-                <span className="hidden lg:inline text-xs">{item.label}</span>
-              </Link>
-            ))}
+            {secondaryNavItems.map((item) => null
+
+
+
+
+
+
+
+
+            )}
 
             <Link to={`/profile/${profile?.id || ''}`} className="flex items-center gap-2">
               <img
