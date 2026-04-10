@@ -26,6 +26,52 @@
     "price": {
       "type": "number"
     },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "LAK",
+        "USD",
+        "USDT"
+      ]
+    },
+    "service_location": {
+      "type": "string"
+    },
+    "poster_name": {
+      "type": "string"
+    },
+    "cancel_request_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "requested",
+        "approved",
+        "declined"
+      ],
+      "default": "none"
+    },
+    "cancel_requested_by": {
+      "type": "string"
+    },
+    "cancel_requested_at": {
+      "type": "string"
+    },
+    "cancel_note": {
+      "type": "string"
+    },
+    "cancel_resolved_by": {
+      "type": "string"
+    },
+    "cancel_resolved_at": {
+      "type": "string"
+    },
+    "refund_done": {
+      "type": "boolean",
+      "default": false
+    },
+    "wallet_transaction_id": {
+      "type": "string"
+    },
     "status": {
       "type": "string",
       "enum": [

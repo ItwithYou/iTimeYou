@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { X, Clock, Calendar, DollarSign, Wallet } from 'lucide-react';
+import { X, Clock, Calendar, DollarSign, Wallet, MapPin } from 'lucide-react';
 
 export default function BookServiceModal({ post, profile, currentUser, lang, onClose, onBooked }) {
   const [loading, setLoading] = useState(false);
@@ -49,7 +49,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
     setLoading(true);
 
     // Create booking
-    await base44.entities.ServiceBooking.create({
+    const booking = await base44.entities.ServiceBooking.create({
       post_id: post.id,
       poster_email: post.author_email,
       booker_email: currentUser.email,
@@ -57,7 +57,10 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
       service_type: post.service_type || '',
       service_when: selectedSlot || post.service_when || '',
       service_duration: post.service_duration || 0,
+      service_location: post.service_location || '',
+      poster_name: post.author_name || '',
       price,
+      currency,
       status: 'pending',
     });
 
@@ -66,12 +69,16 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
       [currency === 'LAK' ? 'wallet_balance_lak' : currency === 'USDT' ? 'wallet_balance_usdt' : 'wallet_balance_usd']: balance - price,
       wallet_currency: currency,
     });
-    await base44.entities.WalletTransaction.create({
+    const walletTx = await base44.entities.WalletTransaction.create({
       user_email: currentUser.email,
       description: `Booked: ${post.service_type || 'Service'} from ${post.author_name}`,
       amount: -price,
       currency,
       type: 'payment',
+    });
+
+    await base44.entities.ServiceBooking.update(booking.id, {
+      wallet_transaction_id: walletTx.id,
     });
 
     // Notify poster
@@ -141,6 +148,12 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar size={14} />
               {post.service_when}
+            </div>
+          )}
+          {post.service_location && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPin size={14} />
+              {post.service_location}
             </div>
           )}
           {isHourlyService && slotOptions.length > 0 && (

@@ -51,6 +51,14 @@
     "service_price": {
       "type": "number"
     },
+    "service_currency": {
+      "type": "string",
+      "enum": [
+        "LAK",
+        "USD",
+        "USDT"
+      ]
+    },
     "service_duration": {
       "type": "number"
     },
@@ -58,6 +66,9 @@
       "type": "string"
     },
     "service_when": {
+      "type": "string"
+    },
+    "service_location": {
       "type": "string"
     }
   },

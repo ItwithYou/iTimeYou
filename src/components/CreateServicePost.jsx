@@ -108,6 +108,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
   const [timeTo, setTimeTo] = useState('');
   const [price, setPrice] = useState('');
   const [currency, setCurrency] = useState(profile?.wallet_currency || 'USD');
+  const [location, setLocation] = useState(profile?.location || '');
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [posting, setPosting] = useState(false);
@@ -154,6 +155,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
       service_duration: duration,
       service_duration_unit: service.timeUnit,
       service_when: serviceTimeSlot ? `${when} · ${serviceTimeSlot}` : when,
+      service_location: location,
     });
     setText('');
     setPhotoFile(null);
@@ -329,6 +331,18 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
           </div>
         </div>
 
+        <div>
+          <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+            {lang === 'lo' ? 'ສະຖານທີ່ບໍລິການ' : 'Service Location'}
+          </label>
+          <input
+            value={location}
+            onChange={e => setLocation(e.target.value)}
+            placeholder={lang === 'lo' ? 'ໃສ່ສະຖານທີ່' : 'Enter location'}
+            className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
+          />
+        </div>
+
         {service.timeUnit === 'hours' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -372,6 +386,11 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
             {service.timeUnit === 'hours' && timeFrom && timeTo && (
               <span className="inline-flex items-center gap-1 bg-muted border border-border px-3 py-1 rounded-full text-xs font-semibold">
                 <Calendar size={10} /> {timeFrom} - {timeTo}
+              </span>
+            )}
+            {location && (
+              <span className="inline-flex items-center gap-1 bg-muted border border-border px-3 py-1 rounded-full text-xs font-semibold">
+                {location}
               </span>
             )}
             {price && (
