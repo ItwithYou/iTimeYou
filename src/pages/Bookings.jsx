@@ -4,6 +4,7 @@ import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
 import { MapPin, Calendar, Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import moment from 'moment';
+import BookingCompletionCard from '../components/bookings/BookingCompletionCard';
 
 const statusConfig = {
   pending:   { label: 'Pending',   cls: 'bg-amber-100 text-amber-700 border-amber-200',      icon: AlertCircle },

@@ -61,7 +61,10 @@ export default function ListingDetail() {
       guests: guestCount,
       nights,
       total,
-      status: 'pending',
+      currency: profile.wallet_currency || 'USD',
+      guest_confirmed_completed: false,
+      admin_payout_approved: false,
+      status: 'confirmed',
     });
     await base44.entities.UserProfile.update(profile.id, {
       wallet_balance: profile.wallet_balance - total,
@@ -71,7 +74,11 @@ export default function ListingDetail() {
       description: listing.title,
       description_lao: listing.title_lao || listing.title,
       amount: -total,
+      currency: profile.wallet_currency || 'USD',
       type: 'payment',
+      status: 'completed',
+      request_kind: 'booking_release',
+      counterparty_email: listing.host_email,
     });
     setBooked(true);
     toast.success(t.bookingRequested);

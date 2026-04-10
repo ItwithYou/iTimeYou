@@ -5,6 +5,8 @@ import { base44 } from '@/api/base44Client';
 import { ArrowUp, ArrowDown, Send, ArrowDownLeft, Shield, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import moment from 'moment';
+import WalletActionModal from '../components/wallet/WalletActionModal';
+import AdminWalletRequests from '../components/wallet/AdminWalletRequests';
 
 const typeConfig = {
   topup:    { icon: '⬆️', color: 'text-success', sign: '+' },
@@ -18,10 +20,27 @@ export default function Wallet() {
   const { profile, currentUser, t, lang, refreshProfile } = useAppContext();
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
+  const [allTransactions, setAllTransactions] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [profilesByEmail, setProfilesByEmail] = useState({});
+  const [actionType, setActionType] = useState('');
 
-  const loadTx = () => {
+  const loadTx = async () => {
     if (currentUser) {
-      base44.entities.WalletTransaction.filter({ user_email: currentUser.email }, '-created_date', 30).then(setTransactions);
+      const mine = await base44.entities.WalletTransaction.filter({ user_email: currentUser.email }, '-created_date', 30);
+      setTransactions(mine);
+      if (currentUser.role === 'admin') {
+        const [allTx, allBookings, allProfiles] = await Promise.all([
+          base44.entities.WalletTransaction.list('-created_date', 100),
+          base44.entities.Booking.list('-created_date', 100),
+          base44.entities.UserProfile.list('-created_date', 200),
+        ]);
+        setAllTransactions(allTx);
+        setBookings(allBookings);
+        const map = {};
+        allProfiles.forEach((item) => { map[item.user_email] = `${item.first_name} ${item.last_name}`.trim(); });
+        setProfilesByEmail(map);
+      }
     }
   };
 
@@ -36,22 +55,6 @@ export default function Wallet() {
     return true;
   };
 
-  const handleTopUp = async () => {
-    if (!requireVerified()) return;
-    await base44.entities.UserProfile.update(profile.id, { wallet_balance: (profile.wallet_balance || 0) + 500 });
-    await base44.entities.WalletTransaction.create({ user_email: currentUser.email, description: 'Top up $500', description_lao: 'ເຕີມເງິນ $500', amount: 500, type: 'topup' });
-    refreshProfile(); loadTx();
-    toast.success(t.topupSuccess + ' +$500');
-  };
-
-  const handleWithdraw = async () => {
-    if (!requireVerified()) return;
-    if ((profile?.wallet_balance || 0) < 100) { toast.error(t.insufficientBalance); return; }
-    await base44.entities.UserProfile.update(profile.id, { wallet_balance: (profile.wallet_balance || 0) - 100 });
-    await base44.entities.WalletTransaction.create({ user_email: currentUser.email, description: 'Withdrawal $100', description_lao: 'ຖອນເງິນ $100', amount: -100, type: 'withdraw' });
-    refreshProfile(); loadTx();
-    toast.success(t.withdrawSuccess + ' -$100');
-  };
 
   return (
     <div className="max-w-md mx-auto px-4 py-5">
@@ -74,15 +77,15 @@ export default function Wallet() {
         <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/8" />
         <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-white/6" />
         <p className="text-sm opacity-75 font-medium mb-1">{t.balance}</p>
-        <p className="text-5xl font-black tracking-tight mb-1">${(profile?.wallet_balance || 0).toLocaleString()}</p>
+        <p className="text-5xl font-black tracking-tight mb-1">{(profile?.wallet_balance || 0).toLocaleString()} {profile?.wallet_currency || 'USD'}</p>
         <p className="text-xs opacity-60 mb-6">{currentUser?.email}</p>
 
         <div className="grid grid-cols-4 gap-2">
           {[
-            { icon: ArrowUp, label: t.topUp, action: handleTopUp },
-            { icon: ArrowDown, label: t.withdraw, action: handleWithdraw },
-            { icon: Send, label: t.send, action: () => { if (requireVerified()) toast.info(lang === 'lo' ? 'ເລືອກຜູ້ຮັບ' : 'Select recipient'); } },
-            { icon: ArrowDownLeft, label: t.receive, action: () => { if (requireVerified()) toast.info(lang === 'lo' ? 'ແບ່ງປັນ QR' : 'Share QR'); } },
+            { icon: ArrowUp, label: t.topUp, action: () => { if (requireVerified()) setActionType('topup'); } },
+            { icon: ArrowDown, label: t.withdraw, action: () => { if (requireVerified()) setActionType('withdraw'); } },
+            { icon: Send, label: t.send, action: () => { if (requireVerified()) setActionType('send'); } },
+            { icon: ArrowDownLeft, label: t.receive, action: () => { if (requireVerified()) setActionType('receive'); } },
           ].map(btn => (
             <button
               key={btn.label}
@@ -133,7 +136,7 @@ export default function Wallet() {
                     <p className="text-xs text-muted-foreground">{moment(tx.created_date).fromNow()}</p>
                   </div>
                   <span className={`font-bold text-sm flex-shrink-0 ${cfg.color}`}>
-                    {tx.amount > 0 ? '+' : ''}${Math.abs(tx.amount)}
+                    {tx.amount > 0 ? '+' : ''}{Math.abs(tx.amount)} {tx.currency || 'USD'}
                   </span>
                 </div>
               );
@@ -146,6 +149,26 @@ export default function Wallet() {
           </div>
         )}
       </div>
+
+      {actionType && (
+        <WalletActionModal
+          type={actionType}
+          currentUser={currentUser}
+          profile={profile}
+          lang={lang}
+          onClose={() => setActionType('')}
+          onSubmitted={() => { refreshProfile(); loadTx(); }}
+        />
+      )}
+
+      <AdminWalletRequests
+        currentUser={currentUser}
+        transactions={allTransactions}
+        bookings={bookings}
+        profilesByEmail={profilesByEmail}
+        lang={lang}
+        onUpdated={() => { refreshProfile(); loadTx(); }}
+      />
     </div>
   );
 }

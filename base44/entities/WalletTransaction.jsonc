@@ -14,6 +14,15 @@
     "amount": {
       "type": "number"
     },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "LAK",
+        "USD",
+        "USDT"
+      ],
+      "default": "USD"
+    },
     "type": {
       "type": "string",
       "enum": [
@@ -23,6 +32,45 @@
         "received",
         "send"
       ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected",
+        "completed"
+      ],
+      "default": "pending"
+    },
+    "counterparty_email": {
+      "type": "string"
+    },
+    "payment_screenshot_url": {
+      "type": "string"
+    },
+    "bank_name": {
+      "type": "string",
+      "enum": [
+        "BCEL",
+        "LDB"
+      ]
+    },
+    "account_number": {
+      "type": "string"
+    },
+    "request_kind": {
+      "type": "string",
+      "enum": [
+        "topup",
+        "withdraw",
+        "send",
+        "receive",
+        "booking_release"
+      ]
+    },
+    "related_booking_id": {
+      "type": "string"
     }
   },
   "required": [

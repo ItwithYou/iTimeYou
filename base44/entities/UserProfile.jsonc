@@ -50,6 +50,15 @@
       "type": "number",
       "default": 100
     },
+    "wallet_currency": {
+      "type": "string",
+      "enum": [
+        "LAK",
+        "USD",
+        "USDT"
+      ],
+      "default": "USD"
+    },
     "is_verified": {
       "type": "boolean",
       "default": false
@@ -74,6 +83,9 @@
       "type": "string"
     },
     "selfie_url": {
+      "type": "string"
+    },
+    "face_selfie_url": {
       "type": "string"
     },
     "friends": {

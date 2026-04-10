@@ -26,6 +26,23 @@
     "total": {
       "type": "number"
     },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "LAK",
+        "USD",
+        "USDT"
+      ],
+      "default": "USD"
+    },
+    "guest_confirmed_completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "admin_payout_approved": {
+      "type": "boolean",
+      "default": false
+    },
     "status": {
       "type": "string",
       "enum": [
