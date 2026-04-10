@@ -85,6 +85,7 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
   const [transactionFilter, setTransactionFilter] = useState('all');
   const [accountSettings, setAccountSettings] = useState(null);
   const [accountForm, setAccountForm] = useState({ bank_name: 'BCEL', account_name: '', account_number: '', qr_code_url: '', notes: '' });
+  const [qrFile, setQrFile] = useState(null);
   const [savingAccount, setSavingAccount] = useState(false);
 
   const pendingTopups = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'topup');
@@ -213,14 +214,29 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
     }
 
     setSavingAccount(true);
+    let nextQrUrl = accountForm.qr_code_url;
+    if (qrFile) {
+      const upload = await base44.integrations.Core.UploadFile({ file: qrFile });
+      nextQrUrl = upload.file_url;
+    }
+
+    const payload = { ...accountForm, qr_code_url: nextQrUrl };
     if (accountSettings?.id) {
-      await base44.entities.WalletAccountSettings.update(accountSettings.id, accountForm);
+      await base44.entities.WalletAccountSettings.update(accountSettings.id, payload);
     } else {
-      const created = await base44.entities.WalletAccountSettings.create(accountForm);
+      const created = await base44.entities.WalletAccountSettings.create(payload);
       setAccountSettings(created);
     }
     const latest = await base44.entities.WalletAccountSettings.list('-updated_date', 1);
     setAccountSettings(latest[0] || null);
+    setAccountForm({
+      bank_name: latest[0]?.bank_name || 'BCEL',
+      account_name: latest[0]?.account_name || '',
+      account_number: latest[0]?.account_number || '',
+      qr_code_url: latest[0]?.qr_code_url || '',
+      notes: latest[0]?.notes || '',
+    });
+    setQrFile(null);
     setSavingAccount(false);
     toast.success(lang === 'lo' ? 'ບັນທຶກຂໍ້ມູນບັນຊີແລ້ວ' : 'Account details saved');
   };
@@ -252,11 +268,14 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
           </select>
           <input value={accountForm.account_name} onChange={(e) => setAccountForm({ ...accountForm, account_name: e.target.value })} placeholder="Account Name" className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
           <input value={accountForm.account_number} onChange={(e) => setAccountForm({ ...accountForm, account_number: e.target.value })} placeholder="Account Number" className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
-          <input value={accountForm.qr_code_url} onChange={(e) => setAccountForm({ ...accountForm, qr_code_url: e.target.value })} placeholder="QR Code Image URL" className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
+          <label className="block border-2 border-dashed border-border rounded-xl px-3 py-3 text-sm text-muted-foreground cursor-pointer hover:border-primary">
+            {qrFile ? `✅ ${qrFile.name}` : (lang === 'lo' ? 'ອັບໂຫລດຮູບ QR' : 'Upload QR Photo')}
+            <input type="file" accept="image/*" className="hidden" onChange={(e) => setQrFile(e.target.files[0])} />
+          </label>
           <textarea value={accountForm.notes} onChange={(e) => setAccountForm({ ...accountForm, notes: e.target.value })} placeholder="Notes" rows={3} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
 
-          {accountForm.qr_code_url && (
-            <img src={accountForm.qr_code_url} alt="QR code" className="w-48 h-48 object-cover rounded-2xl border border-border" />
+          {(qrFile || accountForm.qr_code_url) && (
+            <img src={qrFile ? URL.createObjectURL(qrFile) : accountForm.qr_code_url} alt="QR code" className="w-48 h-48 object-cover rounded-2xl border border-border" />
           )}
 
           <button onClick={saveAccountSettings} disabled={savingAccount} className="bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-50">
