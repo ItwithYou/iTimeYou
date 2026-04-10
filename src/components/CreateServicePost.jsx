@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { X, Image, Clock, Calendar, DollarSign, Loader2, MapPin } from 'lucide-react';
+import MobileSelect from './MobileSelect';
 import { toast } from 'sonner';
 
 const CURRENCIES = ['LAK', 'USD', 'USDT'];
@@ -331,13 +332,13 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
             <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
               {lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}
             </label>
-            <select
+            <MobileSelect
               value={currency}
-              onChange={e => setCurrency(e.target.value)}
-              className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
-            >
-              {CURRENCIES.map(item => <option key={item} value={item}>{item}</option>)}
-            </select>
+              onChange={setCurrency}
+              options={CURRENCIES}
+              placeholder={lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}
+              label={lang === 'lo' ? 'ເລືອກສະກຸນເງິນ' : 'Select Currency'}
+            />
           </div>
         </div>
 

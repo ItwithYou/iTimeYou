@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import moment from 'moment';
 import AdminExchangeRates from './AdminExchangeRates';
+import MobileSelect from '../MobileSelect';
 
 const getCurrencyBalanceField = (currency) => {
   if (currency === 'LAK') return 'wallet_balance_lak';
@@ -325,12 +326,19 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
       ) : activeTab === 'appeals' ? (
         <div className="space-y-4">
           <div className="flex gap-2 flex-wrap items-center">
-            <select value={appealFilter} onChange={(e) => setAppealFilter(e.target.value)} className="border border-border rounded-xl px-3 py-2 text-sm bg-card">
-              <option value="all">All appeals</option>
-              <option value="submitted">Submitted</option>
-              <option value="under_review">Under Review</option>
-              <option value="resolved">Resolved</option>
-            </select>
+            <MobileSelect
+              value={appealFilter}
+              onChange={setAppealFilter}
+              options={[
+                { value: 'all', label: 'All appeals' },
+                { value: 'submitted', label: 'Submitted' },
+                { value: 'under_review', label: 'Under Review' },
+                { value: 'resolved', label: 'Resolved' },
+              ]}
+              placeholder="Filter"
+              label="Filter Appeals"
+              className="!w-auto !min-w-[120px]"
+            />
           </div>
 
           {serviceAppeals.length === 0 ? (
@@ -409,10 +417,13 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
             <p className="text-sm text-muted-foreground">Users will see this account number and QR code for top up and withdraw.</p>
           </div>
 
-          <select value={accountForm.bank_name} onChange={(e) => setAccountForm({ ...accountForm, bank_name: e.target.value })} className="w-full border border-border rounded-xl px-3 py-2 text-sm bg-card">
-            <option value="BCEL">BCEL</option>
-            <option value="LDB">LDB</option>
-          </select>
+          <MobileSelect
+            value={accountForm.bank_name}
+            onChange={(v) => setAccountForm({ ...accountForm, bank_name: v })}
+            options={['BCEL', 'LDB']}
+            placeholder="Bank"
+            label="Select Bank"
+          />
           <input value={accountForm.account_name} onChange={(e) => setAccountForm({ ...accountForm, account_name: e.target.value })} placeholder="Account Name" className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
           <input value={accountForm.account_number} onChange={(e) => setAccountForm({ ...accountForm, account_number: e.target.value })} placeholder="Account Number" className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
           <label className="block border-2 border-dashed border-border rounded-xl px-3 py-3 text-sm text-muted-foreground cursor-pointer hover:border-primary">
@@ -443,14 +454,21 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
         <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
           <div className="p-4 border-b border-border flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
             <h3 className="font-bold text-sm">All Transactions</h3>
-            <select value={transactionFilter} onChange={(e) => setTransactionFilter(e.target.value)} className="border border-border rounded-xl px-3 py-2 text-sm bg-card">
-              <option value="all">All types</option>
-              <option value="topup">Popup</option>
-              <option value="withdraw">Withdraw</option>
-              <option value="send">Send</option>
-              <option value="receive">Recieve</option>
-              <option value="booking_release">Booking</option>
-            </select>
+            <MobileSelect
+              value={transactionFilter}
+              onChange={setTransactionFilter}
+              options={[
+                { value: 'all', label: 'All types' },
+                { value: 'topup', label: 'Popup' },
+                { value: 'withdraw', label: 'Withdraw' },
+                { value: 'send', label: 'Send' },
+                { value: 'receive', label: 'Recieve' },
+                { value: 'booking_release', label: 'Booking' },
+              ]}
+              placeholder="Filter"
+              label="Filter Transactions"
+              className="!w-auto !min-w-[120px]"
+            />
           </div>
           {filteredTransactions.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground">No transactions found</div>

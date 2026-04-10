@@ -32,14 +32,15 @@ export default function MobileHeader({ t, lang }) {
   const title = titleEntry ? titleEntry[1][lang || 'en'] : '';
 
   return (
-    <div className="md:hidden sticky top-0 z-30 bg-card border-b border-border px-2 py-2 flex items-center gap-1">
-      <button
-        onClick={() => navigate(-1)}
-        className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full active:bg-muted transition-colors"
-      >
-        <ChevronLeft size={22} />
-      </button>
-      {title && <span className="font-semibold text-sm">{title}</span>}
-    </div>
+    <div className="md:hidden sticky top-0 z-30 bg-card border-b border-border px-2 py-2 flex items-center gap-1" role="banner">
+    <button
+      onClick={() => navigate(-1)}
+      aria-label="Go back"
+      className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full active:bg-muted transition-colors"
+    >
+      <ChevronLeft size={22} aria-hidden="true" />
+    </button>
+    {title && <h1 className="font-semibold text-sm">{title}</h1>}
+  </div>
   );
 }

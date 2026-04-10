@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
+import MobileSelect from '../components/MobileSelect';
 import usePullToRefresh from '../hooks/usePullToRefresh';
 import { RefreshCw } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -164,16 +165,19 @@ export default function Feed() {
                 placeholder={lang === 'lo' ? 'ຊອກຫາບໍລິການ...' : 'Search services...'}
                 className="flex-1 min-w-[120px] bg-card border border-border rounded-full px-3 py-1.5 text-xs outline-none focus:border-primary"
               />
-              <select
+              <MobileSelect
                 value={filterGender}
-                onChange={(e) => setFilterGender(e.target.value)}
-                className="bg-card border border-border rounded-full px-3 py-1.5 text-xs outline-none focus:border-primary"
-              >
-                <option value="">{lang === 'lo' ? 'ເພດ...' : 'Gender...'}</option>
-                <option value="male">{lang === 'lo' ? 'ຊາຍ' : 'Male'}</option>
-                <option value="female">{lang === 'lo' ? 'ຍິງ' : 'Female'}</option>
-                <option value="other">{lang === 'lo' ? 'ອື່ນໆ' : 'Other'}</option>
-              </select>
+                onChange={setFilterGender}
+                options={[
+                  { value: '', label: lang === 'lo' ? 'ເພດ...' : 'Gender...' },
+                  { value: 'male', label: lang === 'lo' ? 'ຊາຍ' : 'Male' },
+                  { value: 'female', label: lang === 'lo' ? 'ຍິງ' : 'Female' },
+                  { value: 'other', label: lang === 'lo' ? 'ອື່ນໆ' : 'Other' },
+                ]}
+                placeholder={lang === 'lo' ? 'ເພດ...' : 'Gender...'}
+                label={lang === 'lo' ? 'ເລືອກເພດ' : 'Filter by Gender'}
+                className="!w-auto !min-w-[100px] !rounded-full !py-1.5 !text-xs"
+              />
               {(filterLocation || filterGender) && (
                 <button
                   onClick={() => { setFilterLocation(''); setFilterGender(''); }}

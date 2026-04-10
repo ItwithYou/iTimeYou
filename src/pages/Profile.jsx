@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import MobileSelect from '../components/MobileSelect';
 import StarRating from '../components/StarRating';
 import TrustBadge from '../components/TrustBadge';
 import VerificationBadge from '../components/VerificationBadge';
@@ -224,12 +225,18 @@ export default function Profile() {
           </div>
           <div>
             <label className="text-xs font-semibold">{lang === 'lo' ? 'ເພດ' : 'Gender'}</label>
-            <select value={editData.gender || ''} onChange={(e) => setEditData({ ...editData, gender: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-card">
-              <option value="">{lang === 'lo' ? 'ເລືອກເພດ' : 'Select gender'}</option>
-              <option value="male">{lang === 'lo' ? 'ຊາຍ' : 'Male'}</option>
-              <option value="female">{lang === 'lo' ? 'ຍິງ' : 'Female'}</option>
-              <option value="other">{lang === 'lo' ? 'ອື່ນໆ' : 'Other'}</option>
-            </select>
+            <MobileSelect
+              value={editData.gender || ''}
+              onChange={(v) => setEditData({ ...editData, gender: v })}
+              options={[
+                { value: '', label: lang === 'lo' ? 'ເລືອກເພດ' : 'Select gender' },
+                { value: 'male', label: lang === 'lo' ? 'ຊາຍ' : 'Male' },
+                { value: 'female', label: lang === 'lo' ? 'ຍິງ' : 'Female' },
+                { value: 'other', label: lang === 'lo' ? 'ອື່ນໆ' : 'Other' },
+              ]}
+              placeholder={lang === 'lo' ? 'ເລືອກເພດ' : 'Select gender'}
+              label={lang === 'lo' ? 'ເພດ' : 'Gender'}
+            />
           </div>
           <button onClick={saveEdit} className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg text-sm font-semibold hover:opacity-90">
             💾 {t.saveChanges}

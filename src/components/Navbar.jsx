@@ -24,10 +24,10 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
 
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-border shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-border shadow-sm" role="navigation" aria-label="Top navigation" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
         {/* Logo */}
-        <Link to="/" className="flex items-center flex-shrink-0">
+        <Link to="/" className="flex items-center flex-shrink-0" aria-label="iTimeYou Home">
           <img src="https://media.base44.com/images/public/69d24b2d55b4f5275f81d6df/5910b1767_image.png" alt="iTimeYou" className="h-9 w-auto" />
         </Link>
 
@@ -95,16 +95,16 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
         {/* Mobile right side */}
         <div className="flex items-center gap-2 md:hidden">
           <LangToggle lang={lang} setLang={setLang} />
-          <Link to="/help" className="p-2">
-            <HelpCircle size={20} className={location.pathname === '/help' ? 'text-primary' : 'text-muted-foreground'} />
+          <Link to="/help" className="p-2" aria-label="Help Center">
+            <HelpCircle size={20} className={location.pathname === '/help' ? 'text-primary' : 'text-muted-foreground'} aria-hidden="true" />
           </Link>
-          <Link to="/notifications" className="relative p-2">
-            <Bell size={20} className={location.pathname === '/notifications' ? 'text-primary' : 'text-muted-foreground'} />
+          <Link to="/notifications" className="relative p-2" aria-label="Notifications">
+            <Bell size={20} className={location.pathname === '/notifications' ? 'text-primary' : 'text-muted-foreground'} aria-hidden="true" />
           </Link>
-          <Link to={`/profile/${profile?.id || ''}`}>
+          <Link to={`/profile/${profile?.id || ''}`} aria-label="Your profile">
             <img
               src={profile?.photo_url || profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=default`}
-              alt=""
+              alt="Profile photo"
               className="w-8 h-8 rounded-full border-2 border-border object-cover" />
             
           </Link>

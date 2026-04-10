@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRightLeft, X } from 'lucide-react';
+import MobileSelect from '../MobileSelect';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { DEFAULT_EXCHANGE_RATES, convertFromLak, convertToLak, exchangeWalletBalance } from '../../utils/wallet';
@@ -232,9 +233,13 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
 
         <div className="space-y-3">
           <input value={amount} onChange={(e) => setAmount(e.target.value)} type="number" min="0" placeholder={lang === 'lo' ? 'ຈຳນວນເງິນ' : 'Amount'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
-          <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full border border-border rounded-xl px-3 py-2 text-sm bg-card">
-            {CURRENCIES.map((item) => <option key={item} value={item}>{item}</option>)}
-          </select>
+          <MobileSelect
+            value={currency}
+            onChange={setCurrency}
+            options={CURRENCIES}
+            placeholder={lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}
+            label={lang === 'lo' ? 'ເລືອກສະກຸນເງິນ' : 'Select Currency'}
+          />
 
           {type === 'exchange' && (
             <div className="rounded-2xl border border-border bg-muted/30 p-4 space-y-3">
@@ -248,9 +253,13 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
                   <p className="text-xs text-muted-foreground mb-1">{lang === 'lo' ? 'ສະກຸນຕົ້ນທາງ' : 'Source currency'}</p>
                   <p className="font-semibold text-sm">{currency}</p>
                 </div>
-                <select value={exchangeToCurrency} onChange={(e) => setExchangeToCurrency(e.target.value)} className="w-full border border-border rounded-xl px-3 py-2 text-sm bg-card">
-                  {CURRENCIES.filter((item) => item !== currency).map((item) => <option key={item} value={item}>{item}</option>)}
-                </select>
+                <MobileSelect
+                  value={exchangeToCurrency}
+                  onChange={setExchangeToCurrency}
+                  options={CURRENCIES.filter((item) => item !== currency)}
+                  placeholder={lang === 'lo' ? 'ປາຍທາງ' : 'Target'}
+                  label={lang === 'lo' ? 'ສະກຸນເງິນປາຍທາງ' : 'Target Currency'}
+                />
               </div>
               {exchangePreview && (
                 <div className="rounded-xl bg-card border border-border px-3 py-3 space-y-1">
@@ -282,9 +291,13 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
 
           {type === 'withdraw' && (
             <>
-              <select value={bankName} onChange={(e) => setBankName(e.target.value)} className="w-full border border-border rounded-xl px-3 py-2 text-sm bg-card">
-                {BANKS.map((item) => <option key={item} value={item}>{item}</option>)}
-              </select>
+              <MobileSelect
+                value={bankName}
+                onChange={setBankName}
+                options={BANKS}
+                placeholder={lang === 'lo' ? 'ທະນາຄານ' : 'Bank'}
+                label={lang === 'lo' ? 'ເລືອກທະນາຄານ' : 'Select Bank'}
+              />
               <input value={accountName} onChange={(e) => setAccountName(e.target.value)} placeholder={lang === 'lo' ? 'ຊື່ບັນຊີ' : 'Account Name'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
               <input value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} placeholder={lang === 'lo' ? 'ເລກບັນຊີຂອງທ່ານ' : 'Your Account Number'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
               <p className="text-xs text-muted-foreground px-1">
