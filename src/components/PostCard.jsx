@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Share2, Send, MoreHorizontal, Pencil, Trash2, X, Check } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Send, MoreHorizontal, Pencil, Trash2, X, Check, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import ImageLightbox from './ImageLightbox';
@@ -112,6 +112,22 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
     await loadComments();
   };
 
+  const shareText = `${post.service_type ? `${post.service_type} · ` : ''}${post.text || ''}`.trim();
+  const shareUrl = post.service_location_map_url || window.location.href;
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      await navigator.share({
+        title: post.service_type || 'Post',
+        text: shareText,
+        url: shareUrl,
+      });
+      return;
+    }
+
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <div className="bg-card rounded-2xl shadow-sm overflow-hidden border border-border hover:shadow-md transition-shadow">
       {/* Header */}
@@ -205,6 +221,27 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
           <img src={post.photo_url} alt="" className="w-full object-cover" />
         </div>
       )}
+
+      {post.service_location && (
+        <div className="px-4 pb-3">
+          {post.service_location_map_url ? (
+            <a
+              href={post.service_location_map_url}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-primary underline underline-offset-2"
+            >
+              <MapPin size={14} />
+              {post.service_location}
+            </a>
+          ) : (
+            <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPin size={14} />
+              {post.service_location}
+            </div>
+          )}
+        </div>
+      )}
       <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
       {showBookModal && (
         <BookServiceModal
@@ -252,7 +289,10 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
           <MessageCircle size={17} />
           {t.comment}
         </button>
-        <button className="flex-1 flex items-center justify-center gap-1.5 py-3 text-sm text-muted-foreground hover:bg-muted transition-colors">
+        <button
+          onClick={handleShare}
+          className="flex-1 flex items-center justify-center gap-1.5 py-3 text-sm text-muted-foreground hover:bg-muted transition-colors"
+        >
           <Share2 size={17} />
           {t.share}
         </button>

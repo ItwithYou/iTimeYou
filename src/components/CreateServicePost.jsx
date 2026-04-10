@@ -102,9 +102,10 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
   const [open, setOpen] = useState(false);
 
   const getGoogleMapsUrl = (value) => {
-    if (!value?.trim()) return '';
-    if (value.includes('google.com/maps') || value.includes('maps.app.goo.gl')) return value.trim();
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(value.trim())}`;
+    const input = value?.trim();
+    if (!input) return '';
+    if (input.startsWith('http://') || input.startsWith('https://')) return input;
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(input)}`;
   };
   const [text, setText] = useState('');
   const [service, setService] = useState(SERVICES[0]);
