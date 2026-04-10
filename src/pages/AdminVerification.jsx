@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { Check, X } from 'lucide-react';
+import { Check, X, KeyRound } from 'lucide-react';
 import ImageLightbox from '../components/ImageLightbox';
 
 export default function AdminVerification() {
@@ -70,6 +70,18 @@ export default function AdminVerification() {
     toast.success('Profile rejected');
     setSelected(null);
     loadProfiles();
+  };
+
+  const resetPassword = async (profile) => {
+    if (!window.confirm(`Reset password for ${profile.user_email}?`)) return;
+    try {
+      const res = await base44.functions.invoke('resetUserPassword', { email: profile.user_email });
+      if (res.data.success) {
+        toast.success('Password reset email sent ✅');
+      }
+    } catch (error) {
+      toast.error('Failed to reset password');
+    }
   };
 
   if (currentUser?.role !== 'admin') {
@@ -198,8 +210,18 @@ export default function AdminVerification() {
 
               {activeTab !== 'requests' && (
                 <div className="pt-3 border-t border-border">
-                  <p className="text-sm font-semibold">{p.first_name} {p.last_name}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{p.user_email}</p>
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold">{p.first_name} {p.last_name}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{p.user_email}</p>
+                    </div>
+                    <button
+                      onClick={() => resetPassword(p)}
+                      className="flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity"
+                    >
+                      <KeyRound size={14} /> Reset Password
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
