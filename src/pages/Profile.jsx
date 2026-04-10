@@ -283,6 +283,12 @@ export default function Profile() {
                 <img src={viewProfile.selfie_url} alt="Selfie" className="w-full rounded-xl border border-border object-cover max-h-40 cursor-zoom-in" onClick={() => window.open(viewProfile.selfie_url, '_blank')} />
               </div>
           }
+            {viewProfile.face_selfie_url &&
+          <div>
+                <p className="text-xs font-semibold text-muted-foreground mb-1">📸 Face Check Selfie</p>
+                <img src={viewProfile.face_selfie_url} alt="Face selfie" className="w-full rounded-xl border border-border object-cover max-h-40 cursor-zoom-in" onClick={() => window.open(viewProfile.face_selfie_url, '_blank')} />
+              </div>
+          }
           </div>
           <div className="flex gap-3">
             <button

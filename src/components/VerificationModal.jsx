@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { X } from 'lucide-react';
+import { X, Camera } from 'lucide-react';
 
 export default function VerificationModal({ profile, t, lang, onClose, onSubmitted }) {
   const [name, setName] = useState(`${profile.first_name} ${profile.last_name}`);
   const [dob, setDob] = useState('');
   const [idFile, setIdFile] = useState(null);
   const [selfieFile, setSelfieFile] = useState(null);
+  const [faceSelfieFile, setFaceSelfieFile] = useState(null);
   const [ageChecked, setAgeChecked] = useState(false);
   const [termsChecked, setTermsChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -20,10 +21,14 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
     const age = now.getFullYear() - bd.getFullYear() - ((now.getMonth() < bd.getMonth() || (now.getMonth() === bd.getMonth() && now.getDate() < bd.getDate())) ? 1 : 0);
     if (age < 18) { toast.error(lang === 'lo' ? 'ຕ້ອງມີອາຍຸ 18 ປີຂຶ້ນໄປ' : 'You must be 18 or older'); return; }
     if (!ageChecked) { toast.error(lang === 'lo' ? 'ຕ້ອງມີອາຍຸ 18 ປີຂຶ້ນໄປ' : 'You must be 18 or older'); return; }
+    if (!idFile || !selfieFile || !faceSelfieFile) {
+      toast.error(lang === 'lo' ? 'ກະລຸນາອັບໂຫລດເອກະສານ ແລະ ຮູບໃບໜ້າໃຫ້ຄົບ' : 'Please upload your ID, ID selfie, and face check selfie');
+      return;
+    }
     if (!termsChecked) { toast.error(t.termsAgree); return; }
 
     setSubmitting(true);
-    let id_url = '', selfie_url = '';
+    let id_url = '', selfie_url = '', face_selfie_url = '';
     if (idFile) {
       const res = await base44.integrations.Core.UploadFile({ file: idFile });
       id_url = res.file_url;
@@ -32,6 +37,10 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
       const res = await base44.integrations.Core.UploadFile({ file: selfieFile });
       selfie_url = res.file_url;
     }
+    if (faceSelfieFile) {
+      const res = await base44.integrations.Core.UploadFile({ file: faceSelfieFile });
+      face_selfie_url = res.file_url;
+    }
 
     await base44.entities.UserProfile.update(profile.id, {
       verification_status: 'pending',
@@ -39,6 +48,7 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
       verification_dob: dob,
       id_document_url: id_url,
       selfie_url: selfie_url,
+      face_selfie_url: face_selfie_url,
     });
 
     await base44.entities.Notification.create({
@@ -100,12 +110,34 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
                 <input type="file" accept="image/*" className="hidden" onChange={e => setSelfieFile(e.target.files[0])} />
               </label>
             </div>
+            <div>
+              <label className="text-xs font-semibold">{lang === 'lo' ? 'ຮູບເຊວຟີໃບໜ້າ' : 'Face Check Selfie'}</label>
+              <label className="flex items-center gap-2 border-2 border-dashed border-border rounded-lg px-4 py-3 cursor-pointer text-sm text-muted-foreground hover:border-primary transition-colors">
+                <Camera size={16} />
+                {faceSelfieFile ? `✅ ${faceSelfieFile.name}` : (lang === 'lo' ? 'ຖ່າຍ/ອັບໂຫລດຮູບໃບໜ້າຂອງທ່ານ' : 'Tap to upload a clear selfie of your face')}
+                <input type="file" accept="image/*" capture="user" className="hidden" onChange={e => setFaceSelfieFile(e.target.files[0])} />
+              </label>
+              <p className="text-xs text-muted-foreground mt-1">
+                {lang === 'lo' ? 'ໃບໜ້າຕ້ອງເຫັນຊັດ ບໍ່ໃສ່ໜ້າກາກ ແລະ ບໍ່ໃສ່ແວ່ນກັນແດດ' : 'Make sure your face is clearly visible, with no mask and no sunglasses.'}
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Step 3 */}
         <div className="flex gap-3 mb-6">
           <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center flex-shrink-0">3</div>
+          <div className="flex-1 space-y-2">
+            <div className="font-semibold text-sm">Face Check</div>
+            <div className="text-sm text-muted-foreground rounded-lg bg-muted/50 p-3">
+              {lang === 'lo' ? 'ລະບົບຈະຂໍຮູບເຊວຟີໃບໜ້າຂອງທ່ານເພື່ອໃຫ້ແອັດມິນກວດສອບຄວາມກົງກັນກັບເອກະສານ' : 'Your face selfie will be included so admin can compare it with your ID documents.'}
+            </div>
+          </div>
+        </div>
+
+        {/* Step 4 */}
+        <div className="flex gap-3 mb-6">
+          <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center flex-shrink-0">4</div>
           <div className="flex-1 space-y-2">
             <div className="font-semibold text-sm">Agreement</div>
             <label className="flex items-start gap-2 text-sm cursor-pointer">
