@@ -107,9 +107,9 @@ export default function Profile() {
               src={viewProfile.photo_url || viewProfile.avatar_url || ''}
               alt=""
               className="w-24 h-24 rounded-full border-4 border-card shadow-lg object-cover" />
-            {viewProfile.is_verified && (
-              <span className="absolute bottom-1 right-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 border-4 border-card text-white text-sm font-bold">✓</span>
-            )}
+            {viewProfile.is_verified &&
+            <span className="absolute bottom-1 right-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 border-4 border-card text-white text-sm font-bold">✓</span>
+            }
           </div>
         </div>
         <h1 className="text-2xl font-bold tracking-tight">{viewProfile.display_name_style === 'mr' ? 'Mr. ' : viewProfile.display_name_style === 'ms' ? 'Ms. ' : viewProfile.display_name_style === 'mx' ? 'Mx. ' : ''}{viewProfile.first_name} {viewProfile.last_name}</h1>
@@ -141,8 +141,8 @@ export default function Profile() {
               <p className="mt-1 text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ໃຫ້ບໍລິການ' : 'Provide Service'}</p>
             </div>
             <div className="text-center">
-              <p className="text-3xl font-black tracking-tight text-emerald-600">{isOwn ? `$${viewProfile.wallet_balance || 0}` : '•••'}</p>
-              <p className="mt-1 text-xs font-medium text-muted-foreground">Wallet</p>
+              
+              
             </div>
           </div>
         </div>
