@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Heart, MessageCircle, Share2, Send, MoreHorizontal, Pencil, Trash2, X, Check, MapPin, Image as ImageIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
@@ -27,6 +27,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
   const [commentText, setCommentText] = useState('');
   const [liked, setLiked] = useState(post.likes?.includes(currentUserEmail));
   const [lightboxSrc, setLightboxSrc] = useState(null);
+  const editPhotoInputRef = useRef(null);
   const [likeCount, setLikeCount] = useState(post.like_count || 0);
   const isOwn = currentUserEmail === post.author_email;
   const canEdit = isOwn || isAdmin;
@@ -233,11 +234,11 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
             placeholder={lang === 'lo' ? 'ລິ້ງຮູບພາບ' : 'Photo URL'}
             className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary mt-2"
           />
-          <label className="mt-2 flex items-center gap-2 w-fit cursor-pointer text-xs font-semibold text-primary">
+          <button type="button" onClick={() => editPhotoInputRef.current?.click()} className="mt-2 flex items-center gap-2 w-fit text-xs font-semibold text-primary min-h-[44px] px-2">
             <ImageIcon size={14} />
             {lang === 'lo' ? 'ເລືອກຮູບຈາກຄອມ' : 'Choose photo from desktop'}
-            <input type="file" accept="image/*" className="hidden" onChange={e => setEditPhotoFile(e.target.files?.[0] || null)} />
-          </label>
+          </button>
+          <input ref={editPhotoInputRef} type="file" accept="image/*" className="hidden" onChange={e => setEditPhotoFile(e.target.files?.[0] || null)} />
           {safeDisplayPhotoUrl && (
             <img src={safeDisplayPhotoUrl} alt="" className="mt-2 w-full max-h-52 object-cover rounded-xl border border-border" />
           )}

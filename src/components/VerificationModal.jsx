@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { X, Camera } from 'lucide-react';
@@ -12,6 +12,9 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
   const [ageChecked, setAgeChecked] = useState(false);
   const [termsChecked, setTermsChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const idInputRef = useRef(null);
+  const selfieInputRef = useRef(null);
+  const faceInputRef = useRef(null);
 
   const handleSubmit = async () => {
     if (!name || !dob) { toast.error(lang === 'lo' ? 'ກະລຸນາຕື່ມຂໍ້ມູນ' : 'Please fill all fields'); return; }
@@ -64,7 +67,7 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose} onTouchMove={e => e.stopPropagation()}>
       <div className="bg-card rounded-2xl p-6 max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-xl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold">{t.verifyTitle}</h2>
@@ -98,25 +101,37 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
             <div className="font-semibold text-sm">Identity Documents</div>
             <div>
               <label className="text-xs font-semibold">{t.idDoc}</label>
-              <label className="flex items-center gap-2 border-2 border-dashed border-border rounded-lg px-4 py-3 cursor-pointer text-sm text-muted-foreground hover:border-primary transition-colors">
+              <button
+                type="button"
+                onClick={() => idInputRef.current?.click()}
+                className="flex items-center gap-2 border-2 border-dashed border-border rounded-lg px-4 py-4 text-sm text-muted-foreground active:border-primary transition-colors w-full text-left min-h-[48px]"
+              >
                 {idFile ? `✅ ${idFile.name}` : '📄 Tap to upload (Passport / National ID)'}
-                <input type="file" accept="image/*,.pdf" className="hidden" onChange={e => setIdFile(e.target.files[0])} />
-              </label>
+              </button>
+              <input ref={idInputRef} type="file" accept="image/*,.pdf" className="hidden" onChange={e => { if (e.target.files[0]) setIdFile(e.target.files[0]); }} />
             </div>
             <div>
               <label className="text-xs font-semibold">{t.selfieId}</label>
-              <label className="flex items-center gap-2 border-2 border-dashed border-border rounded-lg px-4 py-3 cursor-pointer text-sm text-muted-foreground hover:border-primary transition-colors">
+              <button
+                type="button"
+                onClick={() => selfieInputRef.current?.click()}
+                className="flex items-center gap-2 border-2 border-dashed border-border rounded-lg px-4 py-4 text-sm text-muted-foreground active:border-primary transition-colors w-full text-left min-h-[48px]"
+              >
                 {selfieFile ? `✅ ${selfieFile.name}` : '🤳 Tap to upload selfie holding your ID'}
-                <input type="file" accept="image/*" className="hidden" onChange={e => setSelfieFile(e.target.files[0])} />
-              </label>
+              </button>
+              <input ref={selfieInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => { if (e.target.files[0]) setSelfieFile(e.target.files[0]); }} />
             </div>
             <div>
               <label className="text-xs font-semibold">{lang === 'lo' ? 'ຮູບເຊວຟີໃບໜ້າ' : 'Face Check Selfie'}</label>
-              <label className="flex items-center gap-2 border-2 border-dashed border-border rounded-lg px-4 py-3 cursor-pointer text-sm text-muted-foreground hover:border-primary transition-colors">
+              <button
+                type="button"
+                onClick={() => faceInputRef.current?.click()}
+                className="flex items-center gap-2 border-2 border-dashed border-border rounded-lg px-4 py-4 text-sm text-muted-foreground active:border-primary transition-colors w-full text-left min-h-[48px]"
+              >
                 <Camera size={16} />
                 {faceSelfieFile ? `✅ ${faceSelfieFile.name}` : (lang === 'lo' ? 'ຖ່າຍ/ອັບໂຫລດຮູບໃບໜ້າຂອງທ່ານ' : 'Tap to upload a clear selfie of your face')}
-                <input type="file" accept="image/*" capture="user" className="hidden" onChange={e => setFaceSelfieFile(e.target.files[0])} />
-              </label>
+              </button>
+              <input ref={faceInputRef} type="file" accept="image/*" capture="user" className="hidden" onChange={e => { if (e.target.files[0]) setFaceSelfieFile(e.target.files[0]); }} />
               <p className="text-xs text-muted-foreground mt-1">
                 {lang === 'lo' ? 'ໃບໜ້າຕ້ອງເຫັນຊັດ ບໍ່ໃສ່ໜ້າກາກ ແລະ ບໍ່ໃສ່ແວ່ນກັນແດດ' : 'Make sure your face is clearly visible, with no mask and no sunglasses.'}
               </p>
@@ -140,14 +155,14 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
           <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center flex-shrink-0">4</div>
           <div className="flex-1 space-y-2">
             <div className="font-semibold text-sm">Agreement</div>
-            <label className="flex items-start gap-2 text-sm cursor-pointer">
-              <input type="checkbox" checked={ageChecked} onChange={e => setAgeChecked(e.target.checked)} className="mt-0.5 accent-primary" />
-              {t.ageConfirm}
-            </label>
-            <label className="flex items-start gap-2 text-sm cursor-pointer">
-              <input type="checkbox" checked={termsChecked} onChange={e => setTermsChecked(e.target.checked)} className="mt-0.5 accent-primary" />
-              {t.termsAgree}
-            </label>
+            <button type="button" onClick={() => setAgeChecked(!ageChecked)} className="flex items-start gap-3 text-sm text-left py-1 min-h-[44px]">
+              <input type="checkbox" checked={ageChecked} readOnly className="mt-0.5 accent-primary w-5 h-5 flex-shrink-0 pointer-events-none" />
+              <span>{t.ageConfirm}</span>
+            </button>
+            <button type="button" onClick={() => setTermsChecked(!termsChecked)} className="flex items-start gap-3 text-sm text-left py-1 min-h-[44px]">
+              <input type="checkbox" checked={termsChecked} readOnly className="mt-0.5 accent-primary w-5 h-5 flex-shrink-0 pointer-events-none" />
+              <span>{t.termsAgree}</span>
+            </button>
           </div>
         </div>
 

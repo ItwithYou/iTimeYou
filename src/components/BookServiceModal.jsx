@@ -133,7 +133,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center" onClick={onClose} onTouchMove={e => e.stopPropagation()}>
       <div
         className="bg-card rounded-t-3xl sm:rounded-2xl w-full sm:max-w-sm p-6 shadow-xl border border-border"
         onClick={e => e.stopPropagation()}

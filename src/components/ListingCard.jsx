@@ -1,6 +1,6 @@
+import { useState, useRef } from 'react';
 import { Star, MapPin, Heart, MoreHorizontal, Pencil, Trash2, Check, X, Image as ImageIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { CAT_ICONS } from '../hooks/useLang';
 import ImageLightbox from './ImageLightbox';
@@ -16,6 +16,7 @@ export default function ListingCard({ listing, t, lang }) {
   const [editDescription, setEditDescription] = useState(listing.description || '');
   const [editImageUrl, setEditImageUrl] = useState(listing.image_url || '');
   const [editImageFile, setEditImageFile] = useState(null);
+  const editImageInputRef = useRef(null);
   const catIndex = ['culture', 'stay', 'food', 'experience', 'home', 'nature'].indexOf(listing.category);
   const catLabel = t.categories[catIndex] || listing.category;
   const icon = CAT_ICONS[listing.category] || '📌';
@@ -117,11 +118,11 @@ export default function ListingCard({ listing, t, lang }) {
             placeholder={lang === 'lo' ? 'ລິ້ງຮູບພາບ' : 'Image URL'}
             className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary mb-2"
           />
-          <label className="mb-2 flex items-center gap-2 w-fit cursor-pointer text-xs font-semibold text-primary">
+          <button type="button" onClick={() => editImageInputRef.current?.click()} className="mb-2 flex items-center gap-2 w-fit text-xs font-semibold text-primary min-h-[44px] px-2">
             <ImageIcon size={14} />
             {lang === 'lo' ? 'ເລືອກຮູບຈາກຄອມ' : 'Choose photo from desktop'}
-            <input type="file" accept="image/*" className="hidden" onChange={e => setEditImageFile(e.target.files?.[0] || null)} />
-          </label>
+          </button>
+          <input ref={editImageInputRef} type="file" accept="image/*" className="hidden" onChange={e => setEditImageFile(e.target.files?.[0] || null)} />
           {safeDisplayImageUrl && (
             <img src={safeDisplayImageUrl} alt="" className="w-full max-h-52 object-cover rounded-xl border border-border mb-3" />
           )}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { X, Image, Clock, Calendar, DollarSign, Loader2, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
@@ -119,6 +119,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [posting, setPosting] = useState(false);
+  const photoInputRef = useRef(null);
 
   const handlePhoto = (e) => {
     const file = e.target.files[0];
@@ -416,11 +417,11 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
 
         {/* Actions */}
         <div className="flex items-center justify-between pt-1 border-t border-border">
-          <label className="cursor-pointer flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
+          <button type="button" onClick={() => photoInputRef.current?.click()} className="flex items-center gap-2 text-muted-foreground active:text-primary transition-colors text-sm font-medium min-h-[44px] px-2">
             <Image size={18} />
             <span className="text-xs">{lang === 'lo' ? 'ເພີ່ມຮູບ' : 'Add Photo'}</span>
-            <input type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
-          </label>
+          </button>
+          <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
           <button
             onClick={handlePost}
             disabled={posting || (!text.trim() && !photoFile)}

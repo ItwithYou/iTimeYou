@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import StarRating from '../components/StarRating';
@@ -24,6 +24,7 @@ export default function Profile() {
   const [editData, setEditData] = useState({});
   const [showVerModal, setShowVerModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const photoUploadRef = useRef(null);
 
   const isOwn = viewProfile?.user_email === currentUser?.email;
   const navigate = useNavigate();
@@ -171,10 +172,10 @@ export default function Profile() {
             <button onClick={() => setEditing(!editing)} className="border border-border px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-muted transition-colors select-none">
               ✏️ {t.editProfile}
             </button>
-            <label className="bg-primary text-primary-foreground px-4 py-1.5 rounded-lg text-sm font-semibold cursor-pointer hover:opacity-90 select-none">
-              <Camera size={14} className="inline mr-1" />
-              <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
-            </label>
+            <button type="button" onClick={() => photoUploadRef.current?.click()} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold active:opacity-90 select-none min-h-[44px]">
+              <Camera size={14} className="inline mr-1" /> {lang === 'lo' ? 'ຮູບ' : 'Photo'}
+            </button>
+            <input ref={photoUploadRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
             <button onClick={() => navigate(`/profile/${viewProfile.id}/password`)} className="flex items-center gap-1.5 border border-border px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-muted transition-colors select-none">
               <KeyRound size={14} /> {lang === 'lo' ? 'ລະຫັດຜ່ານ' : 'Password'}
             </button>
