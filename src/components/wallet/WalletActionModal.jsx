@@ -79,9 +79,9 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
 
     const finishSuccess = () => {
       toast.success(lang === 'lo' ? 'ສົ່ງຄຳຂໍແລ້ວ' : 'Request sent for admin approval');
+      setLoading(false);
       onSubmitted?.();
       onClose();
-      setLoading(false);
     };
 
     const finishError = () => {
