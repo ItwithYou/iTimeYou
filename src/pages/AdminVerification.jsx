@@ -178,7 +178,7 @@ export default function AdminVerification() {
                   {p.verification_dob && <p className="text-xs text-muted-foreground">Date of Birth: <span className="font-semibold text-foreground">{p.verification_dob}</span></p>}
                   {p.last_active && (
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Last active: {isOnline(p) ? '<span class="text-emerald-600 font-semibold">Online now</span>' : new Date(p.last_active).toLocaleString()}
+                      Last active: {isOnline(p) ? <span className="text-emerald-600 font-semibold">Online now</span> : new Date(p.last_active).toLocaleString()}
                     </p>
                   )}
                 </div>
