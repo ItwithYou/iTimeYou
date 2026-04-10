@@ -42,9 +42,12 @@ export default function Explore() {
       result = result.filter(l =>
         l.title?.toLowerCase().includes(q) ||
         l.title_lao?.includes(q) ||
+        l.description?.toLowerCase().includes(q) ||
+        l.description_lao?.includes(q) ||
         l.city?.toLowerCase().includes(q) ||
         l.city_lao?.includes(q) ||
-        l.country?.toLowerCase().includes(q)
+        l.country?.toLowerCase().includes(q) ||
+        l.amenities?.some(a => a.toLowerCase().includes(q))
       );
     }
     if (cat) {
