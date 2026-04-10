@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Image, ChevronDown, Clock, Calendar, DollarSign, Loader2 } from 'lucide-react';
+import { X, Image, Clock, Calendar, DollarSign, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+
+const CURRENCIES = ['LAK', 'USD', 'USDT'];
 
 const SERVICES = [
   {
@@ -105,6 +107,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
   const [timeFrom, setTimeFrom] = useState('');
   const [timeTo, setTimeTo] = useState('');
   const [price, setPrice] = useState('');
+  const [currency, setCurrency] = useState(profile?.wallet_currency || 'USD');
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [posting, setPosting] = useState(false);
@@ -147,6 +150,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
       service_type: lang === 'lo' ? service.lo : service.en,
       service_type_emoji: service.emoji,
       service_price: price ? parseFloat(price) : 0,
+      service_currency: currency,
       service_duration: duration,
       service_duration_unit: service.timeUnit,
       service_when: serviceTimeSlot ? `${when} · ${serviceTimeSlot}` : when,
@@ -159,6 +163,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
     setTimeFrom('');
     setTimeTo('');
     setPrice('');
+    setCurrency(profile?.wallet_currency || 'USD');
     setOpen(false);
     setPosting(false);
     toast.success(lang === 'lo' ? 'ໂພສສຳເລັດ ✅' : 'Service posted! ✅');
@@ -255,7 +260,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
         </div>
 
         {/* Time + When + Price */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
           {/* Duration */}
           <div>
             <label className="block text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
@@ -295,10 +300,10 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
           <div>
             <label className="block text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
               <DollarSign size={11} />
-              {lang === 'lo' ? 'ລາຄາ (USD)' : 'Price (USD)'}
+              {lang === 'lo' ? 'ລາຄາ' : 'Price'}
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">{currency === 'LAK' ? '₭' : '$'}</span>
               <input
                 type="number"
                 min="0"
@@ -308,6 +313,19 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
                 className="w-full border border-border rounded-xl pl-7 pr-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+              {lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}
+            </label>
+            <select
+              value={currency}
+              onChange={e => setCurrency(e.target.value)}
+              className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
+            >
+              {CURRENCIES.map(item => <option key={item} value={item}>{item}</option>)}
+            </select>
           </div>
         </div>
 
@@ -358,7 +376,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
             )}
             {price && (
               <span className="inline-flex items-center gap-1 bg-success/10 text-success border border-success/20 px-3 py-1 rounded-full text-xs font-semibold">
-                <DollarSign size={10} /> ${price}
+                <DollarSign size={10} /> {price} {currency}
               </span>
             )}
           </div>

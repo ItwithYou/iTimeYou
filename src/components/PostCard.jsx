@@ -190,7 +190,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
             className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-tiffany to-deep-green text-white py-3 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity shadow-sm"
           >
             <MessageCircle size={16} />
-            {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມ / ຈອງ' : 'Message & Book'} — ${post.service_price}
+            {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມ / ຈອງ' : 'Message & Book'} — {post.service_price} {post.service_currency || 'USD'}
           </button>
         </div>
       )}

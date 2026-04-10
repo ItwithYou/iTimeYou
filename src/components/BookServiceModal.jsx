@@ -9,7 +9,8 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
   const navigate = useNavigate();
 
   const price = post.service_price || 0;
-  const balance = profile?.wallet_balance || 0;
+  const currency = post.service_currency || profile?.wallet_currency || 'USD';
+  const balance = currency === 'LAK' ? (profile?.wallet_balance_lak || 0) : currency === 'USDT' ? (profile?.wallet_balance_usdt || 0) : (profile?.wallet_balance_usd || 0);
   const canAfford = balance >= price;
   const isHourlyService = post.service_duration_unit === 'hours';
   const slotOptions = useMemo(() => {
@@ -62,12 +63,14 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
 
     // Deduct from booker wallet
     await base44.entities.UserProfile.update(profile.id, {
-      wallet_balance: balance - price,
+      [currency === 'LAK' ? 'wallet_balance_lak' : currency === 'USDT' ? 'wallet_balance_usdt' : 'wallet_balance_usd']: balance - price,
+      wallet_currency: currency,
     });
     await base44.entities.WalletTransaction.create({
       user_email: currentUser.email,
       description: `Booked: ${post.service_type || 'Service'} from ${post.author_name}`,
       amount: -price,
+      currency,
       type: 'payment',
     });
 
@@ -75,7 +78,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
     await base44.entities.Notification.create({
       user_email: post.author_email,
       type: '📅',
-      text: `${currentUser.full_name || currentUser.email} booked your service "${post.service_type}" for $${price}`,
+      text: `${currentUser.full_name || currentUser.email} booked your service "${post.service_type}" for ${price} ${currency}`,
     });
 
     // Open or create conversation with the poster
@@ -97,7 +100,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
     await base44.entities.Message.create({
       conversation_id: convId,
       sender_email: currentUser.email,
-      text: `Hi! I just booked your service "${post.service_type || 'Service'}" for $${price}. Looking forward to it! 🎉`,
+      text: `Hi! I just booked your service "${post.service_type || 'Service'}" for ${price} ${currency}. Looking forward to it! 🎉`,
     });
     await base44.entities.Conversation.update(convId, {
       last_message: `Booking confirmed for "${post.service_type || 'Service'}"`,
@@ -161,7 +164,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
           )}
           <div className="flex items-center gap-2 text-sm font-bold text-primary pt-1 border-t border-border">
             <DollarSign size={14} />
-            ${price}
+            {price} {currency}
           </div>
         </div>
 
@@ -172,7 +175,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
             <span className="font-medium">{lang === 'lo' ? 'ຍອດເງິນ' : 'Wallet Balance'}</span>
           </div>
           <span className={`font-bold text-sm ${canAfford ? 'text-success' : 'text-destructive'}`}>
-            ${balance}
+            {balance} {currency}
           </span>
         </div>
 
@@ -187,7 +190,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
           disabled={loading || !canAfford}
           className="w-full bg-gradient-to-r from-tiffany to-deep-green text-white py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-40"
         >
-          {loading ? '...' : `${lang === 'lo' ? 'ຈ່າຍ & ຈອງ' : 'Pay & Book'} — $${price}`}
+          {loading ? '...' : `${lang === 'lo' ? 'ຈ່າຍ & ຈອງ' : 'Pay & Book'} — ${price} ${currency}`}
         </button>
         <button onClick={onClose} className="w-full border border-border py-2.5 rounded-xl text-sm font-semibold mt-2 hover:bg-muted transition-colors">
           {lang === 'lo' ? 'ຍົກເລີກ' : 'Cancel'}
