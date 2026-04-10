@@ -4,15 +4,22 @@ import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { Check, X, KeyRound } from 'lucide-react';
 import ImageLightbox from '../components/ImageLightbox';
+import { formatDateDMY } from '../utils/dateUtils';
 
 export default function AdminVerification() {
   const { currentUser, lang } = useOutletContext();
   const [profiles, setProfiles] = useState([]);
   const [activeTab, setActiveTab] = useState('requests');
-  const [selected, setSelected] = useState(null);
-  const [bottomProfile, setBottomProfile] = useState(null);
   const [lightboxSrc, setLightboxSrc] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Approve modal state
+  const [approvingProfile, setApprovingProfile] = useState(null);
+  const [expiryDate, setExpiryDate] = useState('');
+
+  // Reject modal state
+  const [rejectingProfile, setRejectingProfile] = useState(null);
+  const [rejectReason, setRejectReason] = useState('');
 
   useEffect(() => {
     if (currentUser?.role !== 'admin') return;
@@ -26,17 +33,19 @@ export default function AdminVerification() {
     setLoading(false);
   };
 
-  const approve = async (profile) => {
+  const approve = async (profile, expiry) => {
     await base44.entities.UserProfile.update(profile.id, {
       verification_status: 'verified',
       is_verified: true,
+      verification_expiry_date: expiry || '',
+      verification_reject_reason: '',
     });
     await Promise.all([
       base44.entities.Notification.create({
         user_email: profile.user_email,
         type: '✅',
-        text: 'Your identity has been verified! You can now use all features.',
-        text_lao: 'ຕົວຕົນຂອງທ່ານໄດ້ຖືກຢືນຢັນແລ້ວ! ທ່ານສາມາດໃຊ້ທຸກຟັງຊັ່ນໄດ້ແລ້ວ.',
+        text: `Your identity has been verified!${expiry ? ` Document expires: ${formatDateDMY(expiry)}` : ''} You can now use all features.`,
+        text_lao: `ຕົວຕົນຂອງທ່ານໄດ້ຖືກຢືນຢັນແລ້ວ!${expiry ? ` ເອກະສານໝົດອາຍຸ: ${formatDateDMY(expiry)}` : ''} ທ່ານສາມາດໃຊ້ທຸກຟັງຊັ່ນໄດ້ແລ້ວ.`,
       }),
       base44.functions.invoke('sendVerificationEmail', {
         email: profile.user_email,
@@ -45,21 +54,23 @@ export default function AdminVerification() {
       }),
     ]);
     toast.success('Profile approved ✅');
-    setSelected(null);
+    setApprovingProfile(null);
+    setExpiryDate('');
     loadProfiles();
   };
 
-  const reject = async (profile) => {
+  const reject = async (profile, reason) => {
     await base44.entities.UserProfile.update(profile.id, {
       verification_status: 'rejected',
       is_verified: false,
+      verification_reject_reason: reason || '',
     });
     await Promise.all([
       base44.entities.Notification.create({
         user_email: profile.user_email,
         type: '❌',
-        text: 'Your identity verification was rejected. Please resubmit with clearer documents.',
-        text_lao: 'ການຢືນຢັນຕົວຕົນຂອງທ່ານຖືກປະຕິເສດ. ກະລຸນາສົ່ງໃໝ່ດ້ວຍເອກະສານທີ່ຊັດເຈນກວ່າ.',
+        text: `Your identity verification was rejected.${reason ? ` Reason: ${reason}` : ''} Please resubmit with clearer documents.`,
+        text_lao: `ການຢືນຢັນຕົວຕົນຂອງທ່ານຖືກປະຕິເສດ.${reason ? ` ເຫດຜົນ: ${reason}` : ''} ກະລຸນາສົ່ງໃໝ່ດ້ວຍເອກະສານທີ່ຊັດເຈນກວ່າ.`,
       }),
       base44.functions.invoke('sendVerificationEmail', {
         email: profile.user_email,
@@ -68,8 +79,14 @@ export default function AdminVerification() {
       }),
     ]);
     toast.success('Profile rejected');
-    setSelected(null);
+    setRejectingProfile(null);
+    setRejectReason('');
     loadProfiles();
+  };
+
+  const quickApprove = async (profile) => {
+    if (!window.confirm(`Quick approve ${profile.first_name} ${profile.last_name}?`)) return;
+    await approve(profile, '');
   };
 
   const resetPassword = async (profile) => {
@@ -79,9 +96,15 @@ export default function AdminVerification() {
       if (res.data.success) {
         toast.success('Password reset email sent ✅');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to reset password');
     }
+  };
+
+  const isOnline = (profile) => {
+    if (!profile.last_active) return false;
+    const diffMinutes = (new Date() - new Date(profile.last_active)) / (1000 * 60);
+    return diffMinutes < 5;
   };
 
   if (currentUser?.role !== 'admin') {
@@ -101,15 +124,6 @@ export default function AdminVerification() {
   const notVerifiedProfiles = profiles.filter(p => !p.is_verified && p.verification_status !== 'pending' && p.verification_status !== 'verified');
   const visibleProfiles = activeTab === 'requests' ? requestProfiles : activeTab === 'verified' ? verifiedProfiles : notVerifiedProfiles;
 
-  // Check if user is online (active within last 5 minutes)
-  const isOnline = (profile) => {
-    if (!profile.last_active) return false;
-    const lastActive = new Date(profile.last_active);
-    const now = new Date();
-    const diffMinutes = (now - lastActive) / (1000 * 60);
-    return diffMinutes < 5;
-  };
-
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       <div className="flex items-center justify-between mb-6">
@@ -127,7 +141,7 @@ export default function AdminVerification() {
           onClick={() => setActiveTab('verified')}
           className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'verified' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          ✅ Verify User
+          ✅ Verified
           {verifiedProfiles.length > 0 && <span className="ml-1 text-xs bg-primary text-white rounded-full px-1.5">{verifiedProfiles.length}</span>}
         </button>
         <button
@@ -135,14 +149,14 @@ export default function AdminVerification() {
           className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'requests' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >
           ⏳ Requests
-          {requestProfiles.length > 0 && <span className="ml-1 text-xs bg-primary text-white rounded-full px-1.5">{requestProfiles.length}</span>}
+          {requestProfiles.length > 0 && <span className="ml-1 text-xs bg-amber-500 text-white rounded-full px-1.5">{requestProfiles.length}</span>}
         </button>
         <button
           onClick={() => setActiveTab('not_verified')}
           className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'not_verified' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          ❌ Not Verify
-          {notVerifiedProfiles.length > 0 && <span className="ml-1 text-xs bg-primary text-white rounded-full px-1.5">{notVerifiedProfiles.length}</span>}
+          ❌ Not Verified
+          {notVerifiedProfiles.length > 0 && <span className="ml-1 text-xs bg-destructive text-white rounded-full px-1.5">{notVerifiedProfiles.length}</span>}
         </button>
       </div>
 
@@ -168,14 +182,15 @@ export default function AdminVerification() {
                     className="w-14 h-14 rounded-full object-cover border-2 border-border"
                   />
                   {isOnline(p) && (
-                    <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" title="Online now"></span>
+                    <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" title="Online now" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold">{p.first_name} {p.last_name}</h3>
                   <p className="text-xs text-muted-foreground">{p.user_email}</p>
                   {p.verification_name && <p className="text-xs text-muted-foreground">ID Name: <span className="font-semibold text-foreground">{p.verification_name}</span></p>}
-                  {p.verification_dob && <p className="text-xs text-muted-foreground">Date of Birth: <span className="font-semibold text-foreground">{p.verification_dob}</span></p>}
+                  {p.verification_dob && <p className="text-xs text-muted-foreground">DOB: <span className="font-semibold text-foreground">{formatDateDMY(p.verification_dob)}</span></p>}
+                  {p.verification_expiry_date && <p className="text-xs text-muted-foreground">Doc Expires: <span className="font-semibold text-foreground">{formatDateDMY(p.verification_expiry_date)}</span></p>}
                   {p.last_active && (
                     <p className="text-xs text-muted-foreground mt-0.5">
                       Last active: {isOnline(p) ? <span className="text-emerald-600 font-semibold">Online now</span> : new Date(p.last_active).toLocaleString()}
@@ -194,59 +209,96 @@ export default function AdminVerification() {
                 </div>
               </div>
 
+              {/* Pending requests — show documents + approve/reject */}
               {activeTab === 'requests' && (
-              <>
-              {/* Documents */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-2">🪪 ID Document</p>
-                  {p.id_document_url ? (
-                    <img src={p.id_document_url} alt="ID" onClick={() => setLightboxSrc(p.id_document_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
-                  ) : (
-                    <div className="bg-muted rounded-xl h-32 flex items-center justify-center text-muted-foreground text-sm">No document uploaded</div>
-                  )}
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-2">🤳 Selfie with ID</p>
-                  {p.selfie_url ? (
-                    <img src={p.selfie_url} alt="Selfie" onClick={() => setLightboxSrc(p.selfie_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
-                  ) : (
-                    <div className="bg-muted rounded-xl h-32 flex items-center justify-center text-muted-foreground text-sm">No selfie uploaded</div>
-                  )}
-                </div>
-              </div>
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground mb-2">🪪 ID Document</p>
+                      {p.id_document_url ? (
+                        <img src={p.id_document_url} alt="ID" onClick={() => setLightboxSrc(p.id_document_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
+                      ) : (
+                        <div className="bg-muted rounded-xl h-32 flex items-center justify-center text-muted-foreground text-sm">No document uploaded</div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground mb-2">🤳 Selfie with ID</p>
+                      {p.selfie_url ? (
+                        <img src={p.selfie_url} alt="Selfie" onClick={() => setLightboxSrc(p.selfie_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
+                      ) : (
+                        <div className="bg-muted rounded-xl h-32 flex items-center justify-center text-muted-foreground text-sm">No selfie uploaded</div>
+                      )}
+                    </div>
+                  </div>
 
-              {/* Actions */}
-              <div className="flex gap-3">
-                <button
-                  onClick={() => approve(p)}
-                  className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
-                >
-                  <Check size={15} /> Approve
-                </button>
-                <button
-                  onClick={() => reject(p)}
-                  className="flex-1 flex items-center justify-center gap-1.5 bg-destructive text-destructive-foreground py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
-                >
-                  <X size={15} /> Reject
-                </button>
-              </div>
-              </>
+                  {p.verification_reject_reason && (
+                    <div className="mb-4 p-3 bg-destructive/10 rounded-xl border border-destructive/20">
+                      <p className="text-xs font-semibold text-destructive mb-1">Previous rejection reason:</p>
+                      <p className="text-sm">{p.verification_reject_reason}</p>
+                    </div>
+                  )}
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => { setApprovingProfile(p); setExpiryDate(''); }}
+                      className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
+                    >
+                      <Check size={15} /> Approve
+                    </button>
+                    <button
+                      onClick={() => { setRejectingProfile(p); setRejectReason(''); }}
+                      className="flex-1 flex items-center justify-center gap-1.5 bg-destructive text-destructive-foreground py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
+                    >
+                      <X size={15} /> Reject
+                    </button>
+                  </div>
+                </>
               )}
 
-              {activeTab !== 'requests' && (
+              {/* Verified users — show expiry + reset password */}
+              {activeTab === 'verified' && (
+                <div className="pt-3 border-t border-border flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold">{p.first_name} {p.last_name}</p>
+                    <p className="text-xs text-muted-foreground">{p.user_email}</p>
+                  </div>
+                  <button
+                    onClick={() => resetPassword(p)}
+                    className="flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity"
+                  >
+                    <KeyRound size={14} /> Reset Password
+                  </button>
+                </div>
+              )}
+
+              {/* Not verified users — quick approve + reset password */}
+              {activeTab === 'not_verified' && (
                 <div className="pt-3 border-t border-border">
+                  {p.verification_reject_reason && (
+                    <div className="mb-3 p-3 bg-muted rounded-xl">
+                      <p className="text-xs font-semibold text-muted-foreground mb-1">Last rejection reason:</p>
+                      <p className="text-sm">{p.verification_reject_reason}</p>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="text-sm font-semibold">{p.first_name} {p.last_name}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{p.user_email}</p>
+                      <p className="text-xs text-muted-foreground">{p.user_email}</p>
                     </div>
-                    <button
-                      onClick={() => resetPassword(p)}
-                      className="flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity"
-                    >
-                      <KeyRound size={14} /> Reset Password
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => quickApprove(p)}
+                        className="flex items-center gap-1.5 bg-emerald-500 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity"
+                      >
+                        <Check size={14} /> Quick Approve
+                      </button>
+                      <button
+                        onClick={() => resetPassword(p)}
+                        className="flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity"
+                      >
+                        <KeyRound size={14} /> Reset PW
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -257,25 +309,67 @@ export default function AdminVerification() {
 
       <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
 
-      {/* Sticky bottom action bar */}
-      {selected && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border shadow-2xl px-4 py-4 flex items-center gap-3">
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-sm truncate">{selected.first_name} {selected.last_name}</p>
-            <p className="text-xs text-muted-foreground truncate">{selected.user_email}</p>
+      {/* Approve modal with expiry date */}
+      {approvingProfile && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center" onClick={() => setApprovingProfile(null)}>
+          <div className="bg-card w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 border border-border shadow-xl" onClick={e => e.stopPropagation()}>
+            <h3 className="font-bold text-base mb-1">Approve Verification</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              {approvingProfile.first_name} {approvingProfile.last_name} — {approvingProfile.user_email}
+            </p>
+            <label className="block text-sm font-semibold mb-2">Document Expiry Date</label>
+            <input
+              type="date"
+              value={expiryDate}
+              onChange={e => setExpiryDate(e.target.value)}
+              className="w-full border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-primary mb-4"
+            />
+            <p className="text-xs text-muted-foreground mb-4">Set the expiry date from the user's ID document. Leave empty if not applicable.</p>
+            <div className="flex gap-2">
+              <button onClick={() => setApprovingProfile(null)} className="flex-1 border border-border py-2.5 rounded-xl text-sm font-semibold hover:bg-muted">Cancel</button>
+              <button
+                onClick={() => approve(approvingProfile, expiryDate)}
+                className="flex-1 bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-bold hover:opacity-90"
+              >
+                ✅ Approve
+              </button>
+            </div>
           </div>
-          <button
-            onClick={() => { approve(selected); setSelected(null); setBottomProfile(null); }}
-            className="flex items-center gap-1.5 bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
-          >
-            <Check size={15} /> Approve
-          </button>
-          <button
-            onClick={() => { reject(selected); setSelected(null); setBottomProfile(null); }}
-            className="flex items-center gap-1.5 bg-destructive text-destructive-foreground px-5 py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
-          >
-            <X size={15} /> Reject
-          </button>
+        </div>
+      )}
+
+      {/* Reject modal with reason */}
+      {rejectingProfile && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center" onClick={() => setRejectingProfile(null)}>
+          <div className="bg-card w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 border border-border shadow-xl" onClick={e => e.stopPropagation()}>
+            <h3 className="font-bold text-base mb-1">Reject Verification</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              {rejectingProfile.first_name} {rejectingProfile.last_name} — {rejectingProfile.user_email}
+            </p>
+            <label className="block text-sm font-semibold mb-2">Rejection Reason</label>
+            <textarea
+              value={rejectReason}
+              onChange={e => setRejectReason(e.target.value)}
+              placeholder="Explain why the documents were rejected so the user can fix and resubmit..."
+              rows={4}
+              className="w-full border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-primary resize-none mb-4"
+            />
+            <div className="flex gap-2">
+              <button onClick={() => setRejectingProfile(null)} className="flex-1 border border-border py-2.5 rounded-xl text-sm font-semibold hover:bg-muted">Cancel</button>
+              <button
+                onClick={() => {
+                  if (!rejectReason.trim()) {
+                    toast.error('Please provide a rejection reason');
+                    return;
+                  }
+                  reject(rejectingProfile, rejectReason);
+                }}
+                className="flex-1 bg-destructive text-destructive-foreground py-2.5 rounded-xl text-sm font-bold hover:opacity-90"
+              >
+                ❌ Reject
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -109,6 +109,14 @@
     "verification_dob": {
       "type": "string"
     },
+    "verification_expiry_date": {
+      "type": "string",
+      "description": "Document expiry date set by admin on approval"
+    },
+    "verification_reject_reason": {
+      "type": "string",
+      "description": "Reason for rejection set by admin"
+    },
     "id_document_url": {
       "type": "string"
     },
