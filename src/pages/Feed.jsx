@@ -13,18 +13,43 @@ import CreateServicePost from '../components/CreateServicePost';
 export default function Feed() {
   const { profile, currentUser, t, lang } = useAppContext();
   const [posts, setPosts] = useState([]);
+  const [authorProfiles, setAuthorProfiles] = useState({});
   const [filterCat, setFilterCat] = useState('all');
+  const [filterLocation, setFilterLocation] = useState('');
+  const [filterGender, setFilterGender] = useState('');
 
   const loadPosts = async () => {
     const data = await base44.entities.Post.list('-created_date', 30);
     setPosts(data);
+    // Fetch author profiles for location and gender
+    const emails = [...new Set(data.map(p => p.author_email).filter(Boolean))];
+    if (emails.length > 0) {
+      const profiles = await base44.entities.UserProfile.list('-created_date', 100);
+      const map = {};
+      profiles.forEach(p => { map[p.user_email] = p; });
+      setAuthorProfiles(map);
+    }
   };
 
   const { refreshing, pullDistance, threshold } = usePullToRefresh(loadPosts, '/feed');
 
   useEffect(() => {loadPosts();}, []);
 
-  const filteredPosts = filterCat === 'all' ? posts : posts.filter((p) => p.category === filterCat);
+  const filteredPosts = posts.filter((p) => {
+    if (filterCat !== 'all' && p.category !== filterCat) return false;
+    if (filterLocation) {
+      const authorProfile = authorProfiles[p.author_email];
+      if (!authorProfile?.location || !authorProfile.location.toLowerCase().includes(filterLocation.toLowerCase())) return false;
+    }
+    if (filterGender) {
+      const authorProfile = authorProfiles[p.author_email];
+      if (!authorProfile?.gender || authorProfile.gender !== filterGender) return false;
+    }
+    return true;
+  });
+
+  // Get unique locations from all posts
+  const uniqueLocations = [...new Set(Object.values(authorProfiles).map(p => p.location).filter(Boolean))];
 
   return (
     <div className="max-w-4xl mx-auto px-3 sm:px-4 py-5">
@@ -97,22 +122,54 @@ export default function Feed() {
               onPosted={loadPosts} />
             
           {/* Filter tabs */}
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-            <button
-                onClick={() => setFilterCat('all')}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${filterCat === 'all' ? 'bg-primary text-white border-primary' : 'border-border text-muted-foreground hover:border-primary/50'}`}>
-                
-              🌐 {lang === 'lo' ? 'ທັງໝົດ' : 'All'}
-            </button>
-            {CAT_KEYS.map((cat, i) =>
+          <div className="space-y-3 mb-4">
+            {/* Category filters */}
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
               <button
-                key={cat}
-                onClick={() => setFilterCat(cat)}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${filterCat === cat ? 'bg-primary text-white border-primary' : 'border-border text-muted-foreground hover:border-primary/50'}`}>
-                
-                {CAT_ICONS[cat]} {t.categories[i]}
+                  onClick={() => setFilterCat('all')}
+                  className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${filterCat === 'all' ? 'bg-primary text-white border-primary' : 'border-border text-muted-foreground hover:border-primary/50'}`}>
+                  
+                🌐 {lang === 'lo' ? 'ທັງໝົດ' : 'All'}
               </button>
+              {CAT_KEYS.map((cat, i) =>
+                <button
+                  key={cat}
+                  onClick={() => setFilterCat(cat)}
+                  className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${filterCat === cat ? 'bg-primary text-white border-primary' : 'border-border text-muted-foreground hover:border-primary/50'}`}>
+                  
+                  {CAT_ICONS[cat]} {t.categories[i]}
+                </button>
+                )}
+            </div>
+
+            {/* Location and Gender filters */}
+            <div className="flex gap-2 flex-wrap items-center">
+              <input
+                type="text"
+                value={filterLocation}
+                onChange={(e) => setFilterLocation(e.target.value)}
+                placeholder={lang === 'lo' ? 'ຕຳແໜ່ງ...' : 'Location...'}
+                className="flex-1 min-w-[120px] bg-card border border-border rounded-full px-3 py-1.5 text-xs outline-none focus:border-primary"
+              />
+              <select
+                value={filterGender}
+                onChange={(e) => setFilterGender(e.target.value)}
+                className="bg-card border border-border rounded-full px-3 py-1.5 text-xs outline-none focus:border-primary"
+              >
+                <option value="">{lang === 'lo' ? 'ເພດ...' : 'Gender...'}</option>
+                <option value="male">{lang === 'lo' ? 'ຊາຍ' : 'Male'}</option>
+                <option value="female">{lang === 'lo' ? 'ຍິງ' : 'Female'}</option>
+                <option value="other">{lang === 'lo' ? 'ອື່ນໆ' : 'Other'}</option>
+              </select>
+              {(filterLocation || filterGender) && (
+                <button
+                  onClick={() => { setFilterLocation(''); setFilterGender(''); }}
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold bg-muted border border-border hover:bg-destructive/10 hover:border-destructive/50 transition-colors"
+                >
+                  ✕
+                </button>
               )}
+            </div>
           </div>
 
           {/* Posts */}
