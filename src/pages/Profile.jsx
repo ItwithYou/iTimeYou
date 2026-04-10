@@ -97,18 +97,21 @@ export default function Profile() {
   return (
     <div className="max-w-3xl mx-auto pb-8">
       {/* Cover */}
-      <div className="h-44 bg-gradient-to-r from-primary to-secondary relative rounded-b-3xl">
-        <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
-          <img
-            src={viewProfile.photo_url || viewProfile.avatar_url || ''}
-            alt=""
-            className="w-24 h-24 rounded-full border-4 border-card shadow-lg object-cover" />
-          
-        </div>
-      </div>
+      <div className="h-16" />
 
       {/* Info */}
-      <div className="pt-16 pb-4 px-6 bg-card text-center">
+      <div className="mx-auto max-w-sm rounded-[28px] border border-border bg-card px-6 pt-10 pb-6 text-center shadow-sm">
+        <div className="-mt-20 mb-3 flex justify-center">
+          <div className="relative">
+            <img
+              src={viewProfile.photo_url || viewProfile.avatar_url || ''}
+              alt=""
+              className="w-24 h-24 rounded-full border-4 border-card shadow-lg object-cover" />
+            {viewProfile.is_verified && (
+              <span className="absolute bottom-1 right-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 border-4 border-card text-white text-sm font-bold">✓</span>
+            )}
+          </div>
+        </div>
         <h1 className="text-2xl font-bold tracking-tight">{viewProfile.first_name} {viewProfile.last_name}</h1>
         <div className="flex items-center justify-center gap-2 mt-2">
           <StarRating rating={viewProfile.trust_stars || 0} size={18} />
@@ -116,28 +119,31 @@ export default function Profile() {
         <div className="mt-1">
           <TrustBadge stars={viewProfile.trust_stars || 0} lang={lang} />
         </div>
-        <div className="mt-2">
-          <VerificationBadge status={viewProfile.is_verified ? 'verified' : viewProfile.verification_status} t={t} />
-        </div>
-        <div className="flex flex-wrap items-center justify-center gap-4 mt-3 text-sm text-muted-foreground">
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
           {viewProfile.location &&
           <span className="flex items-center gap-1"><MapPin size={14} /> {viewProfile.location}</span>
           }
           <span className="flex items-center gap-1"><Calendar size={14} /> {t.joined} {new Date(viewProfile.created_date).getFullYear()}</span>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mt-5 max-w-md mx-auto">
-          <div className="rounded-2xl border border-border bg-muted/30 px-4 py-3 text-center">
-            <p className="text-2xl font-black tracking-tight text-foreground">{(viewProfile.friends || []).length}</p>
-            <p className="text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Followers'}</p>
-          </div>
-          <div className="rounded-2xl border border-border bg-muted/30 px-4 py-3 text-center">
-            <p className="text-2xl font-black tracking-tight text-primary">{posts.length}</p>
-            <p className="text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ໃຫ້ບໍລິການ' : 'Provide Service'}</p>
-          </div>
-          <div className="rounded-2xl border border-border bg-muted/30 px-4 py-3 text-center">
-            <p className="text-2xl font-black tracking-tight text-primary">{viewProfile.wallet_balance || 0}</p>
-            <p className="text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ໃຊ້ບໍລິການ' : 'Use Service'}</p>
+        <div className="mt-3 flex justify-center">
+          <TrustBadge stars={viewProfile.trust_stars || 0} lang={lang} />
+        </div>
+
+        <div className="mt-5 border-t border-border pt-5">
+          <div className="grid grid-cols-3 gap-3 max-w-md mx-auto">
+            <div className="text-center">
+              <p className="text-3xl font-black tracking-tight text-foreground">{(viewProfile.friends || []).length}</p>
+              <p className="mt-1 text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Follower'}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-3xl font-black tracking-tight text-foreground">{posts.filter((post) => post.service_price > 0).length}</p>
+              <p className="mt-1 text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ໃຫ້ບໍລິການ' : 'Provide Service'}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-3xl font-black tracking-tight text-emerald-600">${viewProfile.wallet_balance || 0}</p>
+              <p className="mt-1 text-xs font-medium text-muted-foreground">Wallet</p>
+            </div>
           </div>
         </div>
         <p className="text-sm text-muted-foreground mt-3 font-medium tracking-wide">
