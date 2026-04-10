@@ -127,12 +127,12 @@ export default function Feed() {
               
               📝 {lang === 'lo' ? 'ຟີດ' : 'Feed'}
             </button>
-            <button
-              onClick={() => setActiveTab('schedule')}
-              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'schedule' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-              
-              📅 {lang === 'lo' ? 'ຕາຕະລາງ' : 'Schedule'}
-            </button>
+            
+
+
+
+
+            
           </div>
 
           {activeTab === 'schedule' &&
@@ -147,35 +147,35 @@ export default function Feed() {
             scheduleBookings.map((b) => {
               const isBooker = b.booker_email === currentUser?.email;
               const st = statusConfig[b.status] || statusConfig.pending;
-              return (
-                <div key={b.id} className="bg-card rounded-2xl border border-border shadow-sm p-4">
-                      <div className="flex items-start justify-between gap-2 mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🛎️</div>
-                          <div>
-                            <p className="font-bold text-sm">{b.service_type || 'Service'}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {isBooker ?
-                          `${lang === 'lo' ? 'ຜູ້ໃຫ້ບໍລິການ' : 'Provider'}: ${scheduleProfiles[b.poster_email] || 'User'}` :
-                          `${lang === 'lo' ? 'ຜູ້ຈອງ' : 'Booked by'}: ${scheduleProfiles[b.booker_email] || b.booker_name || 'User'}`
-                          }
-                            </p>
-                          </div>
-                        </div>
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border flex-shrink-0 ${st.cls}`}>{st.label}</span>
-                      </div>
-                      <div className="bg-muted/40 rounded-xl p-3 flex flex-wrap gap-3 text-xs text-muted-foreground mb-3">
-                        <span className="flex items-center gap-1">👤 {isBooker ? `${lang === 'lo' ? 'ທ່ານ' : 'You'} → ${scheduleProfiles[b.poster_email] || 'Provider'}` : `${scheduleProfiles[b.booker_email] || b.booker_name || 'User'} → ${lang === 'lo' ? 'ທ່ານ' : 'You'}`}</span>
-                        {b.service_when && <span>📆 {b.service_when}</span>}
-                        {b.service_duration > 0 && <span>⏱ {b.service_duration}h</span>}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-primary">${b.price}</span>
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${isBooker ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'}`}>
-                          {isBooker ? lang === 'lo' ? 'ທ່ານຈອງ' : 'You booked' : lang === 'lo' ? 'ທ່ານໃຫ້ບໍລິການ' : 'You provide'}
-                        </span>
-                      </div>
-                    </div>);
+              return null;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             })
             }
