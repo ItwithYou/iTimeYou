@@ -91,68 +91,60 @@ export default function AdminVerification() {
           <p className="font-semibold">No pending verifications</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-6">
           {profiles.map(p => (
-            <div key={p.id} className="bg-card rounded-2xl border border-border p-4 shadow-sm">
-              <div className="flex items-center gap-4">
+            <div key={p.id} className="bg-card rounded-2xl border border-border p-5 shadow-sm">
+              {/* Header */}
+              <div className="flex items-center gap-4 mb-4">
                 <img
                   src={p.photo_url || p.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${p.user_email}`}
                   alt=""
-                  className="w-12 h-12 rounded-full object-cover flex-shrink-0 border-2 border-border"
+                  className="w-14 h-14 rounded-full object-cover flex-shrink-0 border-2 border-border"
                 />
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-sm">{p.first_name} {p.last_name}</h3>
+                  <h3 className="font-bold">{p.first_name} {p.last_name}</h3>
                   <p className="text-xs text-muted-foreground">{p.user_email}</p>
-                  {p.verification_name && (
-                    <p className="text-xs text-muted-foreground">ID Name: {p.verification_name}</p>
-                  )}
-                  {p.verification_dob && (
-                    <p className="text-xs text-muted-foreground">DOB: {p.verification_dob}</p>
+                  {p.verification_name && <p className="text-xs text-muted-foreground">ID Name: <span className="font-semibold text-foreground">{p.verification_name}</span></p>}
+                  {p.verification_dob && <p className="text-xs text-muted-foreground">Date of Birth: <span className="font-semibold text-foreground">{p.verification_dob}</span></p>}
+                </div>
+                <span className="text-xs bg-amber-100 text-amber-700 border border-amber-300 px-2.5 py-1 rounded-full font-semibold flex-shrink-0">⏳ Pending</span>
+              </div>
+
+              {/* Documents */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground mb-2">🪪 ID Document</p>
+                  {p.id_document_url ? (
+                    <img src={p.id_document_url} alt="ID" onClick={() => setLightboxSrc(p.id_document_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
+                  ) : (
+                    <div className="bg-muted rounded-xl h-32 flex items-center justify-center text-muted-foreground text-sm">No document uploaded</div>
                   )}
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <button
-                    onClick={() => { setSelected(selected?.id === p.id ? null : p); setBottomProfile(selected?.id === p.id ? null : p); }}
-                    className="flex items-center gap-1 border border-border px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-muted transition-colors"
-                  >
-                    <Eye size={13} /> View Docs
-                  </button>
-                  <button
-                    onClick={() => approve(p)}
-                    className="flex items-center gap-1 bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:opacity-90 transition-opacity"
-                  >
-                    <Check size={13} /> Approve
-                  </button>
-                  <button
-                    onClick={() => reject(p)}
-                    className="flex items-center gap-1 bg-destructive text-destructive-foreground px-3 py-1.5 rounded-lg text-xs font-bold hover:opacity-90 transition-opacity"
-                  >
-                    <X size={13} /> Reject
-                  </button>
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground mb-2">🤳 Selfie with ID</p>
+                  {p.selfie_url ? (
+                    <img src={p.selfie_url} alt="Selfie" onClick={() => setLightboxSrc(p.selfie_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
+                  ) : (
+                    <div className="bg-muted rounded-xl h-32 flex items-center justify-center text-muted-foreground text-sm">No selfie uploaded</div>
+                  )}
                 </div>
               </div>
 
-              {/* Documents panel */}
-              {selected?.id === p.id && (
-                <div className="mt-4 pt-4 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-2">🪪 ID Document</p>
-                    {p.id_document_url ? (
-                      <img src={p.id_document_url} alt="ID" onClick={() => setLightboxSrc(p.id_document_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
-                    ) : (
-                      <div className="bg-muted rounded-xl h-32 flex items-center justify-center text-muted-foreground text-sm">No document uploaded</div>
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-2">🤳 Selfie with ID</p>
-                    {p.selfie_url ? (
-                      <img src={p.selfie_url} alt="Selfie" onClick={() => setLightboxSrc(p.selfie_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
-                    ) : (
-                      <div className="bg-muted rounded-xl h-32 flex items-center justify-center text-muted-foreground text-sm">No selfie uploaded</div>
-                    )}
-                  </div>
-                </div>
-              )}
+              {/* Actions */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => approve(p)}
+                  className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
+                >
+                  <Check size={15} /> Approve
+                </button>
+                <button
+                  onClick={() => reject(p)}
+                  className="flex-1 flex items-center justify-center gap-1.5 bg-destructive text-destructive-foreground py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
+                >
+                  <X size={15} /> Reject
+                </button>
+              </div>
             </div>
           ))}
         </div>
