@@ -81,18 +81,30 @@ export default function Profile() {
   };
 
   const saveEdit = async () => {
+    // Optimistic: update local state immediately
+    const optimisticProfile = {
+      ...viewProfile,
+      first_name: editData.first_name,
+      last_name: editData.last_name,
+      bio: editData.bio,
+      bio_lao: editData.bio,
+      location: editData.location,
+      gender: editData.gender,
+    };
+    setViewProfile(optimisticProfile);
+    setEditing(false);
+    toast.success(t.profileSaved);
+
+    // Persist in background
     await base44.entities.UserProfile.update(viewProfile.id, {
       first_name: editData.first_name,
       last_name: editData.last_name,
       bio: editData.bio,
       bio_lao: editData.bio,
       location: editData.location,
-      gender: editData.gender
+      gender: editData.gender,
     });
-    setEditing(false);
-    loadProfile();
     refreshProfile();
-    toast.success(t.profileSaved);
   };
 
   if (!currentUser) return (

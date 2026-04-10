@@ -2,21 +2,29 @@ import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React, { Suspense } from 'react';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-// Add page imports here
 import Layout from './components/Layout';
-import Bookings from './pages/Bookings';
-import AdminVerification from './pages/AdminVerification';
-import ListingDetail from './pages/ListingDetail';
-import Profile from './pages/Profile';
-import Notifications from './pages/Notifications';
-import Messages from './pages/Messages';
-import PasswordSettings from './pages/PasswordSettings';
-import ResetPassword from './pages/ResetPassword';
-import HelpCenter from './pages/HelpCenter';
+
+// Lazy-loaded page components
+const Bookings = React.lazy(() => import('./pages/Bookings'));
+const AdminVerification = React.lazy(() => import('./pages/AdminVerification'));
+const ListingDetail = React.lazy(() => import('./pages/ListingDetail'));
+const Profile = React.lazy(() => import('./pages/Profile'));
+const Notifications = React.lazy(() => import('./pages/Notifications'));
+const Messages = React.lazy(() => import('./pages/Messages'));
+const PasswordSettings = React.lazy(() => import('./pages/PasswordSettings'));
+const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
+const HelpCenter = React.lazy(() => import('./pages/HelpCenter'));
 // Add page imports here
+
+const LazyFallback = () => (
+  <div className="flex items-center justify-center min-h-[40vh]">
+    <div className="w-7 h-7 border-3 border-primary/20 border-t-primary rounded-full animate-spin" />
+  </div>
+);
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, authError, navigateToLogin } = useAuth();
@@ -35,7 +43,6 @@ const AuthenticatedApp = () => {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
-      // Auto-redirect to Base44 login
       navigateToLogin();
       return null;
     }
@@ -43,24 +50,26 @@ const AuthenticatedApp = () => {
 
   // Render the main app
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={null} />
-        <Route path="/feed" element={null} />
-        <Route path="/explore" element={null} />
-        <Route path="/wallet" element={null} />
-        <Route path="/bookings" element={<Bookings />} />
-        <Route path="/messages" element={<Messages />} />
-        <Route path="/listing/:id" element={<ListingDetail />} />
-        <Route path="/profile/:id" element={<Profile />} />
-        <Route path="/profile/:id/password" element={<PasswordSettings />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/notifications" element={<Notifications />} />
-        <Route path="/admin/verification" element={<AdminVerification />} />
-        <Route path="/help" element={<HelpCenter />} />
-        <Route path="*" element={<PageNotFound />} />
-      </Route>
-    </Routes>
+    <Suspense fallback={<LazyFallback />}>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={null} />
+          <Route path="/feed" element={null} />
+          <Route path="/explore" element={null} />
+          <Route path="/wallet" element={null} />
+          <Route path="/bookings" element={<Bookings />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/listing/:id" element={<ListingDetail />} />
+          <Route path="/profile/:id" element={<Profile />} />
+          <Route path="/profile/:id/password" element={<PasswordSettings />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/admin/verification" element={<AdminVerification />} />
+          <Route path="/help" element={<HelpCenter />} />
+          <Route path="*" element={<PageNotFound />} />
+        </Route>
+      </Routes>
+    </Suspense>
   );
 };
 

@@ -56,80 +56,82 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
 
     setLoading(true);
 
-    // Create booking
-    const booking = await base44.entities.ServiceBooking.create({
-      post_id: post.id,
-      poster_email: post.author_email,
-      booker_email: currentUser.email,
-      booker_name: currentUser.full_name || currentUser.email,
-      service_type: post.service_type || '',
-      service_when: selectedSlot || post.service_when || '',
-      service_duration: post.service_duration || 0,
-      service_location: post.service_location || '',
-      service_location_map_url: post.service_location_map_url || '',
-      poster_name: post.author_name || '',
-      price,
-      currency,
-      status: 'pending',
-    });
-
-    // Deduct from booker wallet
-    await base44.entities.UserProfile.update(profile.id, {
-      wallet_balance_lak: balanceUpdate.wallet_balance_lak,
-      wallet_balance_usd: balanceUpdate.wallet_balance_usd,
-      wallet_balance_usdt: balanceUpdate.wallet_balance_usdt,
-      wallet_currency: currency,
-    });
-    const walletTx = await base44.entities.WalletTransaction.create({
-      user_email: currentUser.email,
-      description: `Booked: ${post.service_type || 'Service'} from ${post.author_name}`,
-      amount: -price,
-      currency,
-      type: 'payment',
-    });
-
-    await base44.entities.ServiceBooking.update(booking.id, {
-      wallet_transaction_id: walletTx.id,
-    });
-
-    // Notify poster
-    await base44.entities.Notification.create({
-      user_email: post.author_email,
-      type: '📅',
-      text: `${currentUser.full_name || currentUser.email} booked your service "${post.service_type}" for ${price} ${currency}`,
-    });
-
-    // Open or create conversation with the poster
-    const convs = await base44.entities.Conversation.list('-updated_date', 50);
-    const existing = convs.find(c =>
-      c.participants?.includes(currentUser.email) && c.participants?.includes(post.author_email)
-    );
-    let convId;
-    if (existing) {
-      convId = existing.id;
-    } else {
-      const conv = await base44.entities.Conversation.create({
-        participants: [currentUser.email, post.author_email],
-        last_message: '',
-      });
-      convId = conv.id;
-    }
-    // Send an auto message
-    await base44.entities.Message.create({
-      conversation_id: convId,
-      sender_email: currentUser.email,
-      text: `Hi! I just booked your service "${post.service_type || 'Service'}" for ${price} ${currency}. Looking forward to it! 🎉`,
-    });
-    await base44.entities.Conversation.update(convId, {
-      last_message: `Booking confirmed for "${post.service_type || 'Service'}"`,
-      last_message_time: new Date().toISOString(),
-    });
-
-    setLoading(false);
-    toast.success(lang === 'lo' ? 'ຈອງສຳເລັດ! ✅' : 'Booking confirmed! ✅');
-    onBooked?.();
+    // Optimistic: close modal and show success immediately
+    toast.success(lang === 'lo' ? 'ກຳລັງຈອງ... ✅' : 'Booking in progress... ✅');
     onClose();
-    navigate(`/messages?conv=${convId}`);
+
+    // Run all API calls in background
+    try {
+      const booking = await base44.entities.ServiceBooking.create({
+        post_id: post.id,
+        poster_email: post.author_email,
+        booker_email: currentUser.email,
+        booker_name: currentUser.full_name || currentUser.email,
+        service_type: post.service_type || '',
+        service_when: selectedSlot || post.service_when || '',
+        service_duration: post.service_duration || 0,
+        service_location: post.service_location || '',
+        service_location_map_url: post.service_location_map_url || '',
+        poster_name: post.author_name || '',
+        price,
+        currency,
+        status: 'pending',
+      });
+
+      await base44.entities.UserProfile.update(profile.id, {
+        wallet_balance_lak: balanceUpdate.wallet_balance_lak,
+        wallet_balance_usd: balanceUpdate.wallet_balance_usd,
+        wallet_balance_usdt: balanceUpdate.wallet_balance_usdt,
+        wallet_currency: currency,
+      });
+      const walletTx = await base44.entities.WalletTransaction.create({
+        user_email: currentUser.email,
+        description: `Booked: ${post.service_type || 'Service'} from ${post.author_name}`,
+        amount: -price,
+        currency,
+        type: 'payment',
+      });
+
+      await base44.entities.ServiceBooking.update(booking.id, {
+        wallet_transaction_id: walletTx.id,
+      });
+
+      await base44.entities.Notification.create({
+        user_email: post.author_email,
+        type: '📅',
+        text: `${currentUser.full_name || currentUser.email} booked your service "${post.service_type}" for ${price} ${currency}`,
+      });
+
+      const convs = await base44.entities.Conversation.list('-updated_date', 50);
+      const existing = convs.find(c =>
+        c.participants?.includes(currentUser.email) && c.participants?.includes(post.author_email)
+      );
+      let convId;
+      if (existing) {
+        convId = existing.id;
+      } else {
+        const conv = await base44.entities.Conversation.create({
+          participants: [currentUser.email, post.author_email],
+          last_message: '',
+        });
+        convId = conv.id;
+      }
+      await base44.entities.Message.create({
+        conversation_id: convId,
+        sender_email: currentUser.email,
+        text: `Hi! I just booked your service "${post.service_type || 'Service'}" for ${price} ${currency}. Looking forward to it! 🎉`,
+      });
+      await base44.entities.Conversation.update(convId, {
+        last_message: `Booking confirmed for "${post.service_type || 'Service'}"`,
+        last_message_time: new Date().toISOString(),
+      });
+
+      toast.success(lang === 'lo' ? 'ຈອງສຳເລັດ! ✅' : 'Booking confirmed! ✅');
+      onBooked?.();
+      navigate(`/messages?conv=${convId}`);
+    } catch (err) {
+      toast.error(lang === 'lo' ? 'ເກີດຂໍ້ຜິດພາດ' : 'Booking failed, please try again');
+    }
   };
 
   return (
