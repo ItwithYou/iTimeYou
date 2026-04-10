@@ -141,68 +141,69 @@ export default function Wallet() {
       )}
 
       {/* Balance card */}
-      <div className="relative bg-gradient-to-br from-[#1a6b62] via-[#134f44] to-[#0d3d2e] rounded-3xl p-6 text-white overflow-hidden mb-5 shadow-xl">
-        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/8" />
-        <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-white/6" />
-        <p className="text-sm opacity-75 font-medium mb-1">{t.balance}</p>
-        <div className="mb-1 max-w-full overflow-hidden">
-          <p className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight break-words whitespace-normal">
-            {totalLak.toLocaleString()} <span className="text-xl sm:text-2xl font-bold opacity-90">LAK</span>
-          </p>
-        </div>
-        <div className="mb-4">
-          <p className="text-xs opacity-80 font-semibold">{profile?.first_name} {profile?.last_name}</p>
-          <p className="text-xs opacity-60">{currentUser?.email}</p>
-        </div>
+      <div className="relative mb-5 overflow-hidden rounded-[28px] bg-gradient-to-br from-[#0c6b5f] via-[#09594f] to-[#06483f] p-7 text-white shadow-[0_20px_50px_rgba(4,51,44,0.22)]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.10),transparent_32%)]" />
+        <div className="relative">
+          <p className="mb-2 text-[15px] font-semibold text-white/80">{t.balance}</p>
+          <div className="mb-3 flex flex-wrap items-end gap-2">
+            <p className="text-4xl font-extrabold leading-none tracking-tight sm:text-[44px]">{totalLak.toLocaleString()}</p>
+            <span className="pb-1 text-2xl font-bold text-white/90">LAK</span>
+          </div>
+          <div className="mb-6">
+            <p className="text-base font-bold leading-tight">{profile?.first_name} {profile?.last_name}</p>
+            <p className="text-sm text-white/65">{currentUser?.email}</p>
+          </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-          <div className="rounded-2xl bg-white/10 border border-white/15 px-3 py-2">
-            <p className="text-[10px] opacity-70">LAK</p>
-            <p className="text-sm font-bold">{lakBalance.toLocaleString()}</p>
+          <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="rounded-3xl border border-white/15 bg-white/10 px-4 py-3 shadow-inner shadow-black/5 backdrop-blur-sm">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">LAK</p>
+              <p className="mt-1 text-[28px] font-bold leading-tight sm:text-[30px]">{lakBalance.toLocaleString()}</p>
+            </div>
+            <div className="rounded-3xl border border-white/15 bg-white/10 px-4 py-3 shadow-inner shadow-black/5 backdrop-blur-sm">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">USD</p>
+              <p className="mt-1 text-[28px] font-bold leading-tight sm:text-[30px]">{usdBalance.toLocaleString()}</p>
+            </div>
+            <div className="rounded-3xl border border-white/15 bg-white/10 px-4 py-3 shadow-inner shadow-black/5 backdrop-blur-sm">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">USDT</p>
+              <p className="mt-1 text-[28px] font-bold leading-tight sm:text-[30px]">{usdtBalance.toLocaleString()}</p>
+            </div>
+            <div className="rounded-3xl border border-white/15 bg-white/10 px-4 py-3 shadow-inner shadow-black/5 backdrop-blur-sm">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">Total</p>
+              <p className="mt-1 text-[28px] font-bold leading-tight sm:text-[30px]">{totalLak.toLocaleString()}</p>
+              <p className="text-sm font-semibold text-white/80">LAK</p>
+            </div>
           </div>
-          <div className="rounded-2xl bg-white/10 border border-white/15 px-3 py-2">
-            <p className="text-[10px] opacity-70">USD</p>
-            <p className="text-sm font-bold">{usdBalance.toLocaleString()}</p>
-          </div>
-          <div className="rounded-2xl bg-white/10 border border-white/15 px-3 py-2">
-            <p className="text-[10px] opacity-70">USDT</p>
-            <p className="text-sm font-bold">{usdtBalance.toLocaleString()}</p>
-          </div>
-          <div className="rounded-2xl bg-white/10 border border-white/15 px-3 py-2">
-            <p className="text-[10px] opacity-70">Total</p>
-            <p className="text-sm font-bold">{totalLak.toLocaleString()} LAK</p>
-          </div>
-        </div>
 
-        <div className="flex items-center justify-between gap-3 mb-6 rounded-2xl bg-white/10 border border-white/15 px-3 py-2 text-xs">
-          <div>
-            <p className="font-semibold">BCEL live rates</p>
-            <p className="opacity-75">USD Buy {exchangeRates.usdBuy.toLocaleString()} · Sell {exchangeRates.usdSell.toLocaleString()}</p>
-            <p className="opacity-75">USDT Buy {exchangeRates.usdtBuy.toLocaleString()} · Sell {exchangeRates.usdtSell.toLocaleString()}</p>
+          <div className="mb-7 flex items-center justify-between gap-4 rounded-3xl border border-white/15 bg-white/10 px-4 py-3 text-sm backdrop-blur-sm">
+            <div>
+              <p className="font-bold text-white">BCEL live rates</p>
+              <p className="mt-0.5 text-white/75">USD Buy {exchangeRates.usdBuy.toLocaleString()} · Sell {exchangeRates.usdSell.toLocaleString()}</p>
+              <p className="text-white/75">USDT Buy {exchangeRates.usdtBuy.toLocaleString()} · Sell {exchangeRates.usdtSell.toLocaleString()}</p>
+            </div>
+            <a href="https://www.bcel.com.la/bcel/exchange-rate.html?lang=en" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 self-start pt-1 font-bold text-white underline underline-offset-2">
+              BCEL <ExternalLink size={13} />
+            </a>
           </div>
-          <a href="https://www.bcel.com.la/bcel/exchange-rate.html?lang=en" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold underline underline-offset-2">
-            BCEL <ExternalLink size={12} />
-          </a>
-        </div>
 
-        <div className="grid grid-cols-4 gap-2">
-          {[
-            { icon: ArrowUp, label: t.topUp, action: () => { if (requireVerified()) setActionType('topup'); } },
-            { icon: ArrowDown, label: t.withdraw, action: () => { if (requireVerified()) setActionType('withdraw'); } },
-            { icon: Send, label: t.send, action: () => { if (requireVerified()) setActionType('send'); } },
-            { icon: ArrowDownLeft, label: t.receive, action: () => { if (requireVerified()) setActionType('receive'); } },
-          ].map(btn => (
-            <button
-              key={btn.label}
-              onClick={btn.action}
-              className="flex flex-col items-center gap-2 group"
-            >
-              <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center group-hover:bg-white/30 transition-colors backdrop-blur-sm border border-white/20">
-                <btn.icon size={20} />
-              </div>
-              <span className="text-[10px] font-semibold opacity-85 text-center leading-tight">{btn.label}</span>
-            </button>
-          ))}
+          <div className="grid grid-cols-4 gap-4">
+            {[
+              { icon: ArrowUp, label: t.topUp, action: () => { if (requireVerified()) setActionType('topup'); } },
+              { icon: ArrowDown, label: t.withdraw, action: () => { if (requireVerified()) setActionType('withdraw'); } },
+              { icon: Send, label: t.send, action: () => { if (requireVerified()) setActionType('send'); } },
+              { icon: ArrowDownLeft, label: t.receive, action: () => { if (requireVerified()) setActionType('receive'); } },
+            ].map(btn => (
+              <button
+                key={btn.label}
+                onClick={btn.action}
+                className="flex flex-col items-center gap-2.5 text-center"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/20 bg-white/14 backdrop-blur-sm transition-colors hover:bg-white/22">
+                  <btn.icon size={22} />
+                </div>
+                <span className="text-xs font-semibold text-white/90">{btn.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
