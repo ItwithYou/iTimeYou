@@ -42,13 +42,33 @@ function Lightbox({ photos, startIndex, onClose }) {
       />
 
       {total > 1 && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5">
-          {photos.map((_, i) => (
-            <span
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5">
+          {total <= 12 ? photos.map((_, i) => (
+            <button
               key={i}
+              onClick={(e) => { e.stopPropagation(); setIdx(i); }}
               className={`w-2 h-2 rounded-full transition-all ${i === idx ? 'bg-white scale-125' : 'bg-white/40'}`}
             />
-          ))}
+          )) : (
+            <span className="text-white text-xs font-semibold">{idx + 1} / {total}</span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Tile({ src, onClick, className = '', overlay }) {
+  return (
+    <div className={`relative overflow-hidden cursor-zoom-in ${className}`} onClick={onClick}>
+      <img
+        src={src}
+        alt=""
+        className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-300"
+      />
+      {overlay && (
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+          <span className="text-white text-2xl font-bold">+{overlay}</span>
         </div>
       )}
     </div>
@@ -61,81 +81,69 @@ export default function PhotoGrid({ photos }) {
   if (!photos || photos.length === 0) return null;
 
   const count = photos.length;
-
-  const openLightbox = (i) => setLightboxIdx(i);
-
-  // Single photo
-  if (count === 1) {
-    return (
-      <>
-        <div className="max-h-96 overflow-hidden cursor-zoom-in" onClick={() => openLightbox(0)}>
-          <img src={photos[0]} alt="" className="w-full object-cover hover:scale-[1.02] transition-transform duration-300" />
-        </div>
-        {lightboxIdx !== null && <Lightbox photos={photos} startIndex={lightboxIdx} onClose={() => setLightboxIdx(null)} />}
-      </>
-    );
-  }
-
-  // Two photos — side by side
-  if (count === 2) {
-    return (
-      <>
-        <div className="grid grid-cols-2 gap-0.5 max-h-80 overflow-hidden">
-          {photos.map((url, i) => (
-            <div key={i} className="overflow-hidden cursor-zoom-in" onClick={() => openLightbox(i)}>
-              <img src={url} alt="" className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-300 aspect-square" />
-            </div>
-          ))}
-        </div>
-        {lightboxIdx !== null && <Lightbox photos={photos} startIndex={lightboxIdx} onClose={() => setLightboxIdx(null)} />}
-      </>
-    );
-  }
-
-  // Three photos — 1 big left + 2 stacked right
-  if (count === 3) {
-    return (
-      <>
-        <div className="grid grid-cols-2 gap-0.5 max-h-80 overflow-hidden">
-          <div className="row-span-2 overflow-hidden cursor-zoom-in" onClick={() => openLightbox(0)}>
-            <img src={photos[0]} alt="" className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-300" />
-          </div>
-          <div className="overflow-hidden cursor-zoom-in" onClick={() => openLightbox(1)}>
-            <img src={photos[1]} alt="" className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-300 aspect-square" />
-          </div>
-          <div className="overflow-hidden cursor-zoom-in" onClick={() => openLightbox(2)}>
-            <img src={photos[2]} alt="" className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-300 aspect-square" />
-          </div>
-        </div>
-        {lightboxIdx !== null && <Lightbox photos={photos} startIndex={lightboxIdx} onClose={() => setLightboxIdx(null)} />}
-      </>
-    );
-  }
-
-  // Four+ photos — 1 big top + 3 bottom (with +N overlay)
-  const visibleBottom = photos.slice(1, 4);
-  const remaining = count - 4;
+  const open = (i) => setLightboxIdx(i);
+  const remaining = count > 5 ? count - 5 : 0;
 
   return (
     <>
-      <div className="max-h-96 overflow-hidden">
-        <div className="cursor-zoom-in overflow-hidden" onClick={() => openLightbox(0)}>
-          <img src={photos[0]} alt="" className="w-full h-52 object-cover hover:scale-[1.02] transition-transform duration-300" />
+      {/* 1 photo — full width */}
+      {count === 1 && (
+        <div className="max-h-96 overflow-hidden">
+          <Tile src={photos[0]} onClick={() => open(0)} className="aspect-video" />
         </div>
-        <div className="grid grid-cols-3 gap-0.5 mt-0.5">
-          {visibleBottom.map((url, i) => (
-            <div key={i} className="relative overflow-hidden cursor-zoom-in aspect-square" onClick={() => openLightbox(i + 1)}>
-              <img src={url} alt="" className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-300" />
-              {i === 2 && remaining > 0 && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                  <span className="text-white text-xl font-bold">+{remaining}</span>
-                </div>
-              )}
-            </div>
-          ))}
+      )}
+
+      {/* 2 photos — side by side */}
+      {count === 2 && (
+        <div className="grid grid-cols-2 gap-0.5 max-h-72 overflow-hidden">
+          <Tile src={photos[0]} onClick={() => open(0)} className="aspect-square" />
+          <Tile src={photos[1]} onClick={() => open(1)} className="aspect-square" />
         </div>
-      </div>
-      {lightboxIdx !== null && <Lightbox photos={photos} startIndex={lightboxIdx} onClose={() => setLightboxIdx(null)} />}
+      )}
+
+      {/* 3 photos — 1 big left + 2 stacked right */}
+      {count === 3 && (
+        <div className="grid grid-cols-2 grid-rows-2 gap-0.5 h-72 overflow-hidden">
+          <Tile src={photos[0]} onClick={() => open(0)} className="row-span-2" />
+          <Tile src={photos[1]} onClick={() => open(1)} />
+          <Tile src={photos[2]} onClick={() => open(2)} />
+        </div>
+      )}
+
+      {/* 4 photos — 1 big top + 3 equal bottom */}
+      {count === 4 && (
+        <div className="grid grid-rows-2 gap-0.5 h-80 overflow-hidden">
+          <Tile src={photos[0]} onClick={() => open(0)} />
+          <div className="grid grid-cols-3 gap-0.5">
+            <Tile src={photos[1]} onClick={() => open(1)} />
+            <Tile src={photos[2]} onClick={() => open(2)} />
+            <Tile src={photos[3]} onClick={() => open(3)} />
+          </div>
+        </div>
+      )}
+
+      {/* 5+ photos — 2 top + 3 bottom, overlay on 5th if more */}
+      {count >= 5 && (
+        <div className="grid grid-rows-2 gap-0.5 h-80 overflow-hidden">
+          <div className="grid grid-cols-2 gap-0.5">
+            <Tile src={photos[0]} onClick={() => open(0)} />
+            <Tile src={photos[1]} onClick={() => open(1)} />
+          </div>
+          <div className="grid grid-cols-3 gap-0.5">
+            <Tile src={photos[2]} onClick={() => open(2)} />
+            <Tile src={photos[3]} onClick={() => open(3)} />
+            <Tile
+              src={photos[4]}
+              onClick={() => open(4)}
+              overlay={remaining > 0 ? remaining : undefined}
+            />
+          </div>
+        </div>
+      )}
+
+      {lightboxIdx !== null && (
+        <Lightbox photos={photos} startIndex={lightboxIdx} onClose={() => setLightboxIdx(null)} />
+      )}
     </>
   );
 }
