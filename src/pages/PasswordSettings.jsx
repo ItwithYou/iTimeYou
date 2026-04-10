@@ -18,7 +18,7 @@ export default function PasswordSettings() {
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
-    
+
     if (newPassword.length < 6) {
       toast.error(lang === 'lo' ? 'ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ຕົວອັກສອນ' : 'Password must be at least 6 characters');
       return;
@@ -33,7 +33,7 @@ export default function PasswordSettings() {
 
     try {
       // Update password using Base44 auth
-      await base44.auth.updateMe({ 
+      await base44.auth.updateMe({
         password: newPassword,
         currentPassword: currentPassword || undefined
       });
@@ -42,7 +42,7 @@ export default function PasswordSettings() {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      
+
       // Navigate back to profile
       navigate(`/profile/${profile?.id}`);
     } catch (error) {
@@ -60,23 +60,23 @@ export default function PasswordSettings() {
       <form onSubmit={handleChangePassword} className="space-y-4">
         <div className="bg-card rounded-2xl border border-border p-5 shadow-sm space-y-4">
           <div>
-            <label className="block text-sm font-semibold mb-1.5">
-              {lang === 'lo' ? 'ລະຫັດຜ່ານປັດຈຸບັນ' : 'Current Password'}
-            </label>
+            
+
+            
             <div className="relative">
-              <input
-                type={showCurrent ? 'text' : 'password'}
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder={lang === 'lo' ? 'ໃສ່ລະຫັດຜ່ານປັດຈຸບັນ' : 'Enter current password'}
-                className="w-full border border-border rounded-xl pl-10 pr-10 py-2.5 text-sm outline-none focus:border-primary"
-              />
+              
+
+
+
+
+
+              
               <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <button
                 type="button"
                 onClick={() => setShowCurrent(!showCurrent)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                
                 {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
@@ -92,14 +92,14 @@ export default function PasswordSettings() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder={lang === 'lo' ? 'ໃສ່ລະຫັດຜ່ານໃໝ່' : 'Enter new password'}
-                className="w-full border border-border rounded-xl pl-10 pr-10 py-2.5 text-sm outline-none focus:border-primary"
-              />
+                className="w-full border border-border rounded-xl pl-10 pr-10 py-2.5 text-sm outline-none focus:border-primary" />
+              
               <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <button
                 type="button"
                 onClick={() => setShowNew(!showNew)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                
                 {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
@@ -118,14 +118,14 @@ export default function PasswordSettings() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder={lang === 'lo' ? 'ຢືນຢັນລະຫັດຜ່ານໃໝ່' : 'Confirm new password'}
-                className="w-full border border-border rounded-xl pl-10 pr-10 py-2.5 text-sm outline-none focus:border-primary"
-              />
+                className="w-full border border-border rounded-xl pl-10 pr-10 py-2.5 text-sm outline-none focus:border-primary" />
+              
               <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <button
                 type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                
                 {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
@@ -136,22 +136,22 @@ export default function PasswordSettings() {
           <button
             type="button"
             onClick={() => navigate(`/profile/${profile?.id}`)}
-            className="flex-1 border border-border py-3 rounded-xl font-semibold text-sm hover:bg-muted transition-colors"
-          >
+            className="flex-1 border border-border py-3 rounded-xl font-semibold text-sm hover:bg-muted transition-colors">
+            
             {lang === 'lo' ? 'ຍົກເລີກ' : 'Cancel'}
           </button>
           <button
             type="submit"
             disabled={loading || !newPassword || !confirmPassword}
-            className="flex-1 bg-primary text-primary-foreground py-3 rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <div className="w-4 h-4 border-2 border-white/60 border-t-white rounded-full animate-spin" />
-            ) : (
-              <>
+            className="flex-1 bg-primary text-primary-foreground py-3 rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2">
+            
+            {loading ?
+            <div className="w-4 h-4 border-2 border-white/60 border-t-white rounded-full animate-spin" /> :
+
+            <>
                 <Check size={16} /> {lang === 'lo' ? 'ບັນທຶກ' : 'Save'}
               </>
-            )}
+            }
           </button>
         </div>
       </form>
@@ -166,6 +166,6 @@ export default function PasswordSettings() {
           <li>• {lang === 'lo' ? 'ບໍ່ແບ່ງປັນກັບຜູ້ອື່ນ' : 'Do not share with others'}</li>
         </ul>
       </div>
-    </div>
-  );
+    </div>);
+
 }
