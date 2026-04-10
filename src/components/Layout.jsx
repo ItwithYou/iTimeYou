@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import Navbar from './Navbar';
 import Footer from './Footer';
@@ -32,6 +32,17 @@ export default function Layout() {
   const isTabPath = TAB_PATHS.includes(location.pathname);
 
 
+
+  // Track visited tab paths for persistent mounting
+  const [visitedPaths, setVisitedPaths] = useState(() => new Set([location.pathname]));
+  useEffect(() => {
+    if (TAB_PATHS.includes(location.pathname)) {
+      setVisitedPaths(prev => {
+        if (prev.has(location.pathname)) return prev;
+        return new Set([...prev, location.pathname]);
+      });
+    }
+  }, [location.pathname]);
 
   const contextValue = { profile, currentUser, t, lang, setLang, refreshProfile };
 
@@ -100,10 +111,10 @@ export default function Layout() {
         <Navbar profile={profile} currentUser={currentUser} t={t} lang={lang} setLang={setLang} />
         <MobileHeader t={t} lang={lang} />
         <main className="pb-20 md:pb-0">
-          {/* Active tab page only — render current tab, unmount others */}
+          {/* Persistent tab pages — hidden via CSS, stay mounted to preserve state/scroll */}
           {TAB_PAGES.map(({ path, PageComponent }) =>
-            location.pathname === path ? (
-              <div key={path}>
+            visitedPaths.has(path) ? (
+              <div key={path} className={location.pathname === path ? 'block' : 'hidden'}>
                 <PageComponent />
               </div>
             ) : null
