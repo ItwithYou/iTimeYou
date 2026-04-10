@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -40,6 +40,7 @@ import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
 import Messages from './pages/Messages';
 import PasswordSettings from './pages/PasswordSettings';
+import ResetPassword from './pages/ResetPassword';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -66,12 +67,14 @@ const AuthenticatedApp = () => {
             <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
               Please sign in to continue exploring local services and experiences.
             </p>
-            <button
-              onClick={navigateToLogin}
-              className="bg-primary text-primary-foreground px-8 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity"
-            >
-              Sign In / Register
-            </button>
+            <div className="space-y-3">
+              <button
+                onClick={navigateToLogin}
+                className="bg-primary text-primary-foreground px-8 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity w-full block"
+              >
+                Sign In / Register
+              </button>
+            </div>
           </div>
         </div>
       );
@@ -91,6 +94,7 @@ const AuthenticatedApp = () => {
         <Route path="/listing/:id" element={<ListingDetail />} />
         <Route path="/profile/:id" element={<Profile />} />
         <Route path="/profile/:id/password" element={<PasswordSettings />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/admin/verification" element={<AdminVerification />} />
         <Route path="*" element={<PageNotFound />} />

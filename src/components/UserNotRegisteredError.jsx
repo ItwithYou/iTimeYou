@@ -1,6 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
 
 const UserNotRegisteredError = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-white to-slate-50">
       <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-lg border border-slate-100">
@@ -21,6 +25,20 @@ const UserNotRegisteredError = () => {
               <li>Contact the app administrator for access</li>
               <li>Try logging out and back in again</li>
             </ul>
+          </div>
+          <div className="mt-6 space-y-3">
+            <button
+              onClick={() => base44.auth.redirectToLogin()}
+              className="w-full bg-primary text-white py-2.5 rounded-lg font-semibold hover:opacity-90 transition-opacity"
+            >
+              Sign In / Register
+            </button>
+            <button
+              onClick={() => navigate('/reset-password')}
+              className="w-full border border-slate-300 text-slate-700 py-2.5 rounded-lg font-semibold hover:bg-slate-50 transition-colors"
+            >
+              Forgot Password?
+            </button>
           </div>
         </div>
       </div>
