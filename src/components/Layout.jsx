@@ -75,19 +75,8 @@ export default function Layout() {
         <div className="text-center">
           {/* Logo */}
           <div className="mb-10">
-            <div className="inline-block relative">
-              <div className="w-24 h-24 border-4 border-[#0ADBB9] rounded-[45%] transform rotate-45 flex items-center justify-center">
-                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center transform -rotate-45">
-                  <div className="text-3xl">⏰</div>
-                </div>
-              </div>
-            </div>
+            <img src="https://media.base44.com/images/public/69d24b2d55b4f5275f81d6df/5910b1767_image.png" alt="iTimeYou" className="h-16 w-auto mx-auto" />
           </div>
-          
-          {/* Text */}
-          <h1 className="text-4xl font-black mb-2 text-white tracking-tight">
-            <span>i</span><span>Time</span><span className="text-[#0ADBB9]">You</span>
-          </h1>
           
           <p className="text-white/60 text-xs tracking-widest mb-1 lao-text font-semibold">ສັງຄົມ · ບ້ານ · ຈ່າຍ · ລາວ</p>
           <p className="text-white/50 text-xs tracking-widest mb-6">SOCIAL · STAY · PAY · LAOS</p>
