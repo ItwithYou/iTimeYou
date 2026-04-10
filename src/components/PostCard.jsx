@@ -14,6 +14,11 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
   const { profile, currentUser, refreshProfile } = useAppContext();
   const navigate = useNavigate();
   const isAdmin = currentUser?.role === 'admin';
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setTick(t => t + 1), 30000);
+    return () => clearInterval(timer);
+  }, []);
   const [authorProfile, setAuthorProfile] = useState(initialAuthorProfile || null);
 
   // If no initialAuthorProfile, fetch it
@@ -269,7 +274,16 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
         const allPhotos = (post.photo_urls && post.photo_urls.length > 0)
           ? post.photo_urls
           : (safeDisplayPhotoUrl ? [safeDisplayPhotoUrl] : []);
-        return <PhotoGrid photos={allPhotos} />;
+        return (
+          <div className="relative">
+            <PhotoGrid photos={allPhotos} />
+            {allPhotos.length > 1 && (
+              <span className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full backdrop-blur-sm z-10">
+                {allPhotos.length} 📷
+              </span>
+            )}
+          </div>
+        );
       })()}
 
       {post.service_location && (
