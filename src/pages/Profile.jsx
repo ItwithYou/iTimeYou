@@ -6,11 +6,12 @@ import TrustBadge from '../components/TrustBadge';
 import VerificationBadge from '../components/VerificationBadge';
 import ListingCard from '../components/ListingCard';
 import PostCard from '../components/PostCard';
-import { MapPin, Calendar, Users, Home, Camera, Shield, Trash2, MessageCircle, KeyRound } from 'lucide-react';
+import { MapPin, Calendar, Users, Home, Camera, Shield, Trash2, MessageCircle, KeyRound, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import VerificationModal from '../components/VerificationModal';
 import ReviewSection from '../components/ReviewSection';
+import PasswordSetupForm from '../components/PasswordSetupForm';
 
 export default function Profile() {
   const { id } = useParams();
@@ -23,6 +24,7 @@ export default function Profile() {
   const [editData, setEditData] = useState({});
   const [showVerModal, setShowVerModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
 
   const isOwn = viewProfile?.user_email === currentUser?.email;
   const navigate = useNavigate();
@@ -47,6 +49,10 @@ export default function Profile() {
 
   useEffect(() => {
     loadProfile();
+    // Show password prompt for new users who haven't set password
+    if (isOwn && currentUser && !currentUser.hasPassword) {
+      setShowPasswordPrompt(true);
+    }
   }, [id]);
 
   const loadProfile = async () => {
@@ -100,6 +106,32 @@ export default function Profile() {
     <div className="max-w-3xl mx-auto pb-8">
       {/* Cover */}
       <div className="h-16" />
+
+      {/* Password Setup Prompt for New Users */}
+      {isOwn && showPasswordPrompt && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4" onClick={() => setShowPasswordPrompt(false)}>
+          <div className="bg-card w-full max-w-md rounded-3xl border border-border shadow-2xl p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 mb-4">
+                <Lock size={28} className="text-primary" />
+              </div>
+              <h2 className="text-2xl font-lao font-bold text-primary mb-2">ສະບາຍດີ</h2>
+              <p className="text-sm text-muted-foreground">
+                Welcome! Set a password to secure your account for next time.
+              </p>
+            </div>
+
+            <PasswordSetupForm
+              onSuccess={() => {
+                setShowPasswordPrompt(false);
+                toast.success('Password set successfully! ✅');
+              }}
+              onCancel={() => setShowPasswordPrompt(false)}
+              lang={lang}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Info */}
       <div className="mx-auto max-w-sm rounded-[28px] border border-border bg-card px-6 pt-10 pb-6 text-center shadow-sm">
