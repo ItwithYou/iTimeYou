@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { X, Clock, Calendar, DollarSign, Wallet } from 'lucide-react';
 
 export default function BookServiceModal({ post, profile, currentUser, lang, onClose, onBooked }) {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const price = post.service_price || 0;
   const balance = profile?.wallet_balance || 0;
@@ -54,10 +56,37 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
       text: `${currentUser.full_name || currentUser.email} booked your service "${post.service_type}" for $${price}`,
     });
 
+    // Open or create conversation with the poster
+    const convs = await base44.entities.Conversation.list('-updated_date', 50);
+    const existing = convs.find(c =>
+      c.participants?.includes(currentUser.email) && c.participants?.includes(post.author_email)
+    );
+    let convId;
+    if (existing) {
+      convId = existing.id;
+    } else {
+      const conv = await base44.entities.Conversation.create({
+        participants: [currentUser.email, post.author_email],
+        last_message: '',
+      });
+      convId = conv.id;
+    }
+    // Send an auto message
+    await base44.entities.Message.create({
+      conversation_id: convId,
+      sender_email: currentUser.email,
+      text: `Hi! I just booked your service "${post.service_type || 'Service'}" for $${price}. Looking forward to it! 🎉`,
+    });
+    await base44.entities.Conversation.update(convId, {
+      last_message: `Booking confirmed for "${post.service_type || 'Service'}"`,
+      last_message_time: new Date().toISOString(),
+    });
+
     setLoading(false);
     toast.success(lang === 'lo' ? 'ຈອງສຳເລັດ! ✅' : 'Booking confirmed! ✅');
     onBooked?.();
     onClose();
+    navigate(`/messages?conv=${convId}`);
   };
 
   return (
