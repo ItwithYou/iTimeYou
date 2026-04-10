@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
@@ -11,6 +11,24 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
   const price = post.service_price || 0;
   const balance = profile?.wallet_balance || 0;
   const canAfford = balance >= price;
+  const isHourlyService = post.service_duration_unit === 'hours';
+  const slotOptions = useMemo(() => {
+    if (!isHourlyService) return [];
+    const baseDatePart = post.service_when?.split('·')[0]?.trim() || '';
+    const timeMatch = post.service_when?.match(/(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})/);
+    if (!timeMatch) return [];
+    const [, start, end] = timeMatch;
+    const options = [];
+    const startHour = Number(start.split(':')[0]);
+    const endHour = Number(end.split(':')[0]);
+    for (let hour = startHour; hour < endHour; hour += 1) {
+      const from = `${String(hour).padStart(2, '0')}:00`;
+      const to = `${String(hour + 1).padStart(2, '0')}:00`;
+      options.push(baseDatePart ? `${baseDatePart} · ${from} - ${to}` : `${from} - ${to}`);
+    }
+    return options;
+  }, [isHourlyService, post.service_when]);
+  const [selectedSlot, setSelectedSlot] = useState('');
 
   const handleBook = async () => {
     if (!profile?.is_verified) {
@@ -20,6 +38,10 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
     }
     if (!canAfford) {
       toast.error(lang === 'lo' ? 'ຍອດເງິນບໍ່ພໍ' : 'Insufficient wallet balance');
+      return;
+    }
+    if (isHourlyService && !selectedSlot) {
+      toast.error(lang === 'lo' ? 'ກະລຸນາເລືອກຊ່ວງເວລາ' : 'Please select a time slot');
       return;
     }
 
@@ -32,7 +54,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
       booker_email: currentUser.email,
       booker_name: currentUser.full_name || currentUser.email,
       service_type: post.service_type || '',
-      service_when: post.service_when || '',
+      service_when: selectedSlot || post.service_when || '',
       service_duration: post.service_duration || 0,
       price,
       status: 'pending',
@@ -116,6 +138,25 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar size={14} />
               {post.service_when}
+            </div>
+          )}
+          {isHourlyService && slotOptions.length > 0 && (
+            <div className="space-y-2 border-t border-border pt-3">
+              <p className="text-xs font-semibold text-muted-foreground">
+                {lang === 'lo' ? 'ເລືອກຊ່ວງເວລາ' : 'Select Time Slot'}
+              </p>
+              <div className="grid gap-2">
+                {slotOptions.map(slot => (
+                  <button
+                    key={slot}
+                    type="button"
+                    onClick={() => setSelectedSlot(slot)}
+                    className={`rounded-xl border px-3 py-2 text-left text-sm transition-colors ${selectedSlot === slot ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card hover:bg-muted'}`}
+                  >
+                    {slot}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
           <div className="flex items-center gap-2 text-sm font-bold text-primary pt-1 border-t border-border">

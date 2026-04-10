@@ -102,6 +102,8 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
   const [service, setService] = useState(SERVICES[0]);
   const [duration, setDuration] = useState(1);
   const [when, setWhen] = useState('');
+  const [timeFrom, setTimeFrom] = useState('');
+  const [timeTo, setTimeTo] = useState('');
   const [price, setPrice] = useState('');
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
@@ -120,6 +122,8 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
     setService(svc);
     setDuration(svc.minTime);
     setWhen('');
+    setTimeFrom('');
+    setTimeTo('');
   };
 
   const handlePost = async () => {
@@ -130,7 +134,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
       const res = await base44.integrations.Core.UploadFile({ file: photoFile });
       photo_url = res.file_url;
     }
-    const serviceDetails = `[${service.emoji} ${service.en}] ${duration} ${service.timeUnit}${when ? ` · ${when}` : ''}${price ? ` · $${price}` : ''}`;
+    const serviceTimeSlot = service.timeUnit === 'hours' && timeFrom && timeTo ? `${timeFrom} - ${timeTo}` : '';
     await base44.entities.Post.create({
       author_email: currentUser.email,
       author_name: `${profile.first_name} ${profile.last_name}`,
@@ -145,13 +149,15 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
       service_price: price ? parseFloat(price) : 0,
       service_duration: duration,
       service_duration_unit: service.timeUnit,
-      service_when: when,
+      service_when: serviceTimeSlot ? `${when} · ${serviceTimeSlot}` : when,
     });
     setText('');
     setPhotoFile(null);
     setPhotoPreview(null);
     setDuration(service.minTime);
     setWhen('');
+    setTimeFrom('');
+    setTimeTo('');
     setPrice('');
     setOpen(false);
     setPosting(false);
@@ -305,6 +311,33 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
           </div>
         </div>
 
+        {service.timeUnit === 'hours' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                {lang === 'lo' ? 'ເວລາເລີ່ມ' : 'Start Time'}
+              </label>
+              <input
+                type="time"
+                value={timeFrom}
+                onChange={e => setTimeFrom(e.target.value)}
+                className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                {lang === 'lo' ? 'ເວລາສິ້ນສຸດ' : 'End Time'}
+              </label>
+              <input
+                type="time"
+                value={timeTo}
+                onChange={e => setTimeTo(e.target.value)}
+                className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
+              />
+            </div>
+          </div>
+        )}
+
         {/* Summary pill */}
         {(price || when) && (
           <div className="flex flex-wrap gap-2">
@@ -316,6 +349,11 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
             {duration && (
               <span className="inline-flex items-center gap-1 bg-muted border border-border px-3 py-1 rounded-full text-xs font-semibold">
                 <Clock size={10} /> {duration} {service.timeUnit}
+              </span>
+            )}
+            {service.timeUnit === 'hours' && timeFrom && timeTo && (
+              <span className="inline-flex items-center gap-1 bg-muted border border-border px-3 py-1 rounded-full text-xs font-semibold">
+                <Calendar size={10} /> {timeFrom} - {timeTo}
               </span>
             )}
             {price && (
