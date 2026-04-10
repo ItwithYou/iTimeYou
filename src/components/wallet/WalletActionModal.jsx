@@ -138,6 +138,9 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
               type: 'send',
               status: 'completed',
               request_kind: 'send',
+              approved_by_name: currentUser.full_name || currentUser.email,
+              approved_by_email: currentUser.email,
+              approved_at: new Date().toISOString(),
             }),
             base44.entities.WalletTransaction.create({
               user_email: currentUser.email,
@@ -148,6 +151,9 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
               type: 'received',
               status: 'completed',
               request_kind: 'receive',
+              approved_by_name: currentUser.full_name || currentUser.email,
+              approved_by_email: currentUser.email,
+              approved_at: new Date().toISOString(),
             })
           ]);
           return;
