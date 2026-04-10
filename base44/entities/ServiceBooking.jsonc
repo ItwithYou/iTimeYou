@@ -77,9 +77,41 @@
       "enum": [
         "pending",
         "confirmed",
-        "cancelled"
+        "cancelled",
+        "completed"
       ],
       "default": "pending"
+    },
+    "completed_at": {
+      "type": "string"
+    },
+    "appeal_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "submitted",
+        "under_review",
+        "resolved"
+      ],
+      "default": "none"
+    },
+    "appeal_submitted_by": {
+      "type": "string"
+    },
+    "appeal_submitted_at": {
+      "type": "string"
+    },
+    "appeal_reason": {
+      "type": "string"
+    },
+    "appeal_resolved_by": {
+      "type": "string"
+    },
+    "appeal_resolved_at": {
+      "type": "string"
+    },
+    "appeal_resolution_notes": {
+      "type": "string"
     }
   },
   "required": [

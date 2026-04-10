@@ -116,7 +116,6 @@ export default function Wallet() {
           currentUser={currentUser}
           transactions={allTransactions}
           bookings={bookings}
-          profilesByEmail={profilesByEmail}
           lang={lang}
           onUpdated={() => { refreshProfile(); loadTx(); }}
         />

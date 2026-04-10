@@ -1,5 +1,7 @@
 import { X, Calendar, Clock, MapPin, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
+import { useState } from 'react';
 import moment from 'moment';
+import ServiceAppealsModal from '../wallet/ServiceAppealsModal';
 
 const statusConfig = {
   pending:   { label: 'Pending',   cls: 'bg-amber-100 text-amber-700 border-amber-200',      icon: AlertCircle },
@@ -9,6 +11,8 @@ const statusConfig = {
 };
 
 export default function ServiceBookingDetailModal({ booking, currentUser, lang, onClose, onRequestCancel, onApproveCancel, onDeclineCancel, onMarkCompleted }) {
+  const [showAppealModal, setShowAppealModal] = useState(false);
+
   if (!booking) return null;
 
   const st = statusConfig[booking.status] || statusConfig.pending;
@@ -20,6 +24,7 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
   const canRequestCancel = isBooker && booking.status !== 'cancelled' && booking.status !== 'completed' && booking.cancel_request_status !== 'requested' && (!serviceStart || serviceStart.isAfter(moment()));
   const canResolve = (isBooker || isPoster || currentUser?.role === 'admin') && booking.cancel_request_status === 'requested' && booking.cancel_requested_by !== currentUser?.email;
   const canMarkCompleted = currentUser?.role === 'admin' && booking.status !== 'completed' && booking.status !== 'cancelled';
+  const canAppeal = booking.status === 'completed' && isBooker;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center" onClick={onClose}>
@@ -227,7 +232,26 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
           <button onClick={onClose} className="w-full border border-border py-3 rounded-xl font-semibold text-sm">
             {lang === 'lo' ? 'ປິດ' : 'Close'}
           </button>
+
+          {canAppeal && (
+            <button 
+              onClick={() => setShowAppealModal(true)}
+              className="w-full mt-2 bg-amber-500 text-white py-3 rounded-xl font-semibold text-sm hover:opacity-90"
+            >
+              {lang === 'lo' ? 'ອຸທອນການບໍລິການ' : 'Appeal Service'}
+            </button>
+          )}
         </div>
+
+        {showAppealModal && (
+          <ServiceAppealsModal
+            booking={booking}
+            currentUser={currentUser}
+            lang={lang}
+            onClose={() => setShowAppealModal(false)}
+            onUpdated={onMarkCompleted}
+          />
+        )}
       </div>
     </div>
   );

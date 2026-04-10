@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
+import moment from 'moment';
 
 const getCurrencyBalanceField = (currency) => {
   if (currency === 'LAK') return 'wallet_balance_lak';
@@ -14,6 +15,7 @@ const adminTabs = [
   { key: 'send', label: 'Send' },
   { key: 'receive', label: 'Recieve' },
   { key: 'transactions', label: 'Transaction' },
+  { key: 'appeals', label: 'Appeals' },
   { key: 'account', label: 'Account' },
 ];
 
@@ -89,20 +91,29 @@ function TransactionRow({ tx, lang }) {
   );
 }
 
-export default function AdminWalletRequests({ currentUser, transactions, onUpdated, lang }) {
+export default function AdminWalletRequests({ currentUser, transactions, bookings, onUpdated, lang }) {
   const [activeTab, setActiveTab] = useState('topup');
   const [transactionFilter, setTransactionFilter] = useState('all');
+  const [appealFilter, setAppealFilter] = useState('all');
   const [accountSettings, setAccountSettings] = useState(null);
   const [accountForm, setAccountForm] = useState({ bank_name: 'BCEL', account_name: '', account_number: '', qr_code_url: '', notes: '' });
   const [qrFile, setQrFile] = useState(null);
   const [savingAccount, setSavingAccount] = useState(false);
   const [rejectingTx, setRejectingTx] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
+  const [selectedAppeal, setSelectedAppeal] = useState(null);
+  const [resolutionNotes, setResolutionNotes] = useState('');
 
   const pendingTopups = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'topup');
   const pendingWithdraws = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'withdraw');
   const pendingSends = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'send');
   const pendingReceives = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'receive');
+
+  const serviceAppeals = useMemo(() => {
+    const completedBookings = bookings?.filter((b) => b.status === 'completed' && b.appeal_status !== 'none') || [];
+    if (appealFilter === 'all') return completedBookings;
+    return completedBookings.filter((b) => b.appeal_status === appealFilter);
+  }, [bookings, appealFilter]);
 
   const filteredTransactions = useMemo(() => {
     const base = transactions.filter((tx) => tx.status === 'approved' || tx.status === 'completed' || tx.status === 'rejected');
@@ -229,6 +240,36 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
     ? pendingSends
     : pendingReceives;
 
+  const resolveAppeal = async (booking, resolution) => {
+    await base44.entities.ServiceBooking.update(booking.id, {
+      appeal_status: 'resolved',
+      appeal_resolved_by: currentUser.email,
+      appeal_resolved_at: new Date().toISOString(),
+      appeal_resolution_notes: resolution,
+    });
+
+    const notifications = [
+      base44.entities.Notification.create({
+        user_email: booking.booker_email,
+        type: '✅',
+        text: `Your appeal for ${booking.service_type} has been resolved`,
+        text_lao: `ຄຳອຸທອນຂອງທ່ານສຳລັບ ${booking.service_type} ໄດ້ຖືກແກ້ໄຂແລ້ວ`,
+      }),
+      base44.entities.Notification.create({
+        user_email: booking.poster_email,
+        type: 'ℹ️',
+        text: `An appeal for ${booking.service_type} has been resolved by admin`,
+        text_lao: `ຄຳອຸທອນສຳລັບ ${booking.service_type} ໄດ້ຖືກແກ້ໄຂໂດຍ admin`,
+      }),
+    ];
+
+    await Promise.all(notifications);
+    onUpdated?.();
+    setSelectedAppeal(null);
+    setResolutionNotes('');
+    toast.success(lang === 'lo' ? 'ແກ້ໄຂຄຳອຸທອນແລ້ວ' : 'Appeal resolved');
+  };
+
   const saveAccountSettings = async () => {
     if (!accountForm.account_number) {
       toast.error(lang === 'lo' ? 'ກະລຸນາໃສ່ເລກບັນຊີ' : 'Please enter account number');
@@ -277,7 +318,87 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
         ))}
       </div>
 
-      {activeTab === 'account' ? (
+      {activeTab === 'appeals' ? (
+        <div className="space-y-4">
+          <div className="flex gap-2 flex-wrap items-center">
+            <select value={appealFilter} onChange={(e) => setAppealFilter(e.target.value)} className="border border-border rounded-xl px-3 py-2 text-sm bg-card">
+              <option value="all">All appeals</option>
+              <option value="submitted">Submitted</option>
+              <option value="under_review">Under Review</option>
+              <option value="resolved">Resolved</option>
+            </select>
+          </div>
+
+          {serviceAppeals.length === 0 ? (
+            <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground">No service appeals</div>
+          ) : (
+            <div className="space-y-4">
+              {serviceAppeals.map((booking) => {
+                const completedAt = booking.completed_at ? new Date(booking.completed_at) : null;
+                const daysSince = completedAt ? (new Date() - completedAt) / (1000 * 60 * 60 * 24) : null;
+                return (
+                  <div key={booking.id} className="bg-card rounded-2xl border border-border p-4 shadow-sm space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-bold text-sm">{booking.service_type || 'Service'}</p>
+                        <p className="text-sm font-semibold break-all">{booking.booker_email}</p>
+                        <p className="text-xs text-muted-foreground">{booking.poster_email}</p>
+                        <p className="text-sm font-bold text-primary">{booking.price} {booking.currency || 'USD'}</p>
+                        {completedAt && (
+                          <p className="text-xs text-muted-foreground">Completed: {moment(completedAt).format('MMM D, YYYY')}</p>
+                        )}
+                        {daysSince !== null && (
+                          <p className={`text-xs ${daysSince <= 3 ? 'text-emerald-600 font-semibold' : 'text-destructive font-semibold'}`}>
+                            {daysSince <= 3 ? `${(3 - daysSince).toFixed(1)} days in appeal window` : 'Appeal window expired'}
+                          </p>
+                        )}
+                      </div>
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border flex-shrink-0 ${
+                        booking.appeal_status === 'resolved' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                        booking.appeal_status === 'under_review' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                        'bg-amber-100 text-amber-700 border-amber-200'
+                      }`}>
+                        {booking.appeal_status}
+                      </span>
+                    </div>
+
+                    {booking.appeal_reason && (
+                      <div className="p-3 bg-muted rounded-xl">
+                        <p className="text-xs font-semibold text-muted-foreground mb-1">Appeal reason:</p>
+                        <p className="text-sm">{booking.appeal_reason}</p>
+                        {booking.appeal_submitted_at && (
+                          <p className="text-xs text-muted-foreground mt-2">{moment(booking.appeal_submitted_at).fromNow()}</p>
+                        )}
+                      </div>
+                    )}
+
+                    {booking.appeal_resolution_notes && (
+                      <div className="p-3 bg-card rounded-xl border border-border">
+                        <p className="text-xs font-semibold text-muted-foreground mb-1">Admin response:</p>
+                        <p className="text-sm">{booking.appeal_resolution_notes}</p>
+                        {booking.appeal_resolved_by && (
+                          <p className="text-xs text-muted-foreground mt-1">By: {booking.appeal_resolved_by}</p>
+                        )}
+                      </div>
+                    )}
+
+                    {booking.appeal_status !== 'resolved' && (
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => { setSelectedAppeal(booking); setResolutionNotes(''); }}
+                          className="flex-1 bg-primary text-primary-foreground py-2.5 rounded-xl text-sm font-semibold"
+                        >
+                          Resolve
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      ) : activeTab === 'account' ? (
         <div className="bg-card rounded-2xl border border-border p-5 shadow-sm space-y-4">
           <div>
             <h3 className="font-bold text-base">Transfer Account</h3>
@@ -349,6 +470,44 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
             <div className="flex gap-2 mt-4">
               <button onClick={() => setRejectingTx(null)} className="flex-1 border border-border py-2.5 rounded-xl text-sm font-semibold">Cancel</button>
               <button onClick={async () => { await rejectTransaction(rejectingTx, rejectReason); setRejectingTx(null); setRejectReason(''); }} className="flex-1 bg-destructive text-destructive-foreground py-2.5 rounded-xl text-sm font-semibold">Send Reject</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedAppeal && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center" onClick={() => setSelectedAppeal(null)}>
+          <div className="bg-card w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl p-5 border border-border shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="font-bold text-base mb-3">Resolve Appeal</h3>
+            <div className="mb-4 p-3 bg-muted rounded-xl">
+              <p className="text-sm font-semibold">{selectedAppeal.service_type}</p>
+              <p className="text-xs text-muted-foreground">{selectedAppeal.booker_email}</p>
+              {selectedAppeal.appeal_reason && (
+                <p className="text-sm mt-2">{selectedAppeal.appeal_reason}</p>
+              )}
+            </div>
+            <label className="block text-sm font-semibold mb-2">Resolution notes</label>
+            <textarea
+              value={resolutionNotes}
+              onChange={(e) => setResolutionNotes(e.target.value)}
+              placeholder="Write your resolution decision and notes..."
+              rows={4}
+              className="w-full border border-border rounded-xl px-3 py-2 text-sm"
+            />
+            <div className="flex gap-2 mt-4">
+              <button onClick={() => setSelectedAppeal(null)} className="flex-1 border border-border py-2.5 rounded-xl text-sm font-semibold">Cancel</button>
+              <button 
+                onClick={async () => { 
+                  if (!resolutionNotes.trim()) {
+                    toast.error('Please provide resolution notes');
+                    return;
+                  }
+                  await resolveAppeal(selectedAppeal, resolutionNotes); 
+                }} 
+                className="flex-1 bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-semibold"
+              >
+                Resolve Appeal
+              </button>
             </div>
           </div>
         </div>
