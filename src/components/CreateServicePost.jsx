@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Image, Clock, Calendar, DollarSign, Loader2, MapPin } from 'lucide-react';
+import { X, Image, Clock, Calendar, DollarSign, Loader2, MapPin, LocateFixed } from 'lucide-react';
 import MobileSelect from './MobileSelect';
 import { toast } from 'sonner';
 import { getTodayISO, getNowDatetimeLocal, isDateInPast, isDateTimeInPast, formatDateDMY, formatDateTimeDMY } from '../utils/dateUtils';
@@ -392,15 +392,44 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
           <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
             {lang === 'lo' ? 'ສະຖານທີ່ບໍລິການ' : 'Service Location'}
           </label>
-          <input
-            value={location}
-            onChange={e => setLocation(e.target.value)}
-            placeholder={lang === 'lo' ? 'ວາງ Google Maps link ຫຼື ໃສ່ຊື່ສະຖານທີ່' : 'Paste Google Maps link or enter place name'}
-            className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
-          />
+          <div className="flex gap-2">
+            <input
+              value={location}
+              onChange={e => setLocation(e.target.value)}
+              placeholder={lang === 'lo' ? 'ວາງ Google Maps link ຫຼື ໃສ່ຊື່ສະຖານທີ່' : 'Paste Google Maps link or enter place name'}
+              className="flex-1 border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                if (!navigator.geolocation) {
+                  toast.error(lang === 'lo' ? 'ບຣາວເຊີບໍ່ຮອງຮັບ GPS' : 'Browser does not support GPS');
+                  return;
+                }
+                toast.info(lang === 'lo' ? 'ກຳລັງຊອກຫາຕຳແໜ່ງ...' : 'Getting location...');
+                navigator.geolocation.getCurrentPosition(
+                  (pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    const mapUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+                    setLocation(mapUrl);
+                    toast.success(lang === 'lo' ? 'ໄດ້ຕຳແໜ່ງແລ້ວ ✅' : 'Location set ✅');
+                  },
+                  () => {
+                    toast.error(lang === 'lo' ? 'ບໍ່ສາມາດເຂົ້າເຖິງຕຳແໜ່ງໄດ້' : 'Could not access location');
+                  },
+                  { enableHighAccuracy: true, timeout: 10000 }
+                );
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 border border-border rounded-xl text-xs font-semibold text-primary hover:bg-primary/5 active:bg-primary/10 transition-colors flex-shrink-0 min-h-[40px]"
+            >
+              <LocateFixed size={14} />
+              <span className="hidden sm:inline">{lang === 'lo' ? 'ຕຳແໜ່ງປັດຈຸບັນ' : 'My Location'}</span>
+              <span className="sm:hidden">📍</span>
+            </button>
+          </div>
           <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
             <MapPin size={11} />
-            {lang === 'lo' ? 'ຜູ້ຈອງຈະສາມາດກົດເພື່ອເປີດ Google Maps ໄດ້' : 'Bookers can tap this to open Google Maps directly'}
+            {lang === 'lo' ? 'ໃສ່ຊື່ສະຖານທີ່, ວາງ Google Maps link, ຫຼື ກົດ GPS ເພື່ອແຊຣ໌ຕຳແໜ່ງປັດຈຸບັນ' : 'Enter a place name, paste a Google Maps link, or tap GPS to share your current location'}
           </p>
         </div>
 
