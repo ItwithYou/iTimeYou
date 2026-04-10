@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Heart, MessageCircle, Share2, Send, MoreHorizontal, Pencil, Trash2, X, Check, MapPin, Image as ImageIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
-import ImageLightbox from './ImageLightbox';
+import PhotoGrid from './PhotoGrid';
 import BookServiceModal from './BookServiceModal';
 
 import { base44 } from '@/api/base44Client';
@@ -36,7 +36,6 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [liked, setLiked] = useState(post.likes?.includes(currentUserEmail));
-  const [lightboxSrc, setLightboxSrc] = useState(null);
   const editPhotoInputRef = useRef(null);
   const [likeCount, setLikeCount] = useState(post.like_count || 0);
   const isOwn = currentUserEmail === post.author_email;
@@ -265,12 +264,13 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
         <div className="px-4 pb-3 text-sm leading-relaxed text-foreground">{post.text}</div>
       )}
 
-      {/* Photo */}
-      {safeDisplayPhotoUrl && (
-        <div className="max-h-80 overflow-hidden cursor-zoom-in" onClick={() => setLightboxSrc(safeDisplayPhotoUrl)}>
-          <img src={safeDisplayPhotoUrl} alt="" className="w-full object-cover" />
-        </div>
-      )}
+      {/* Photos */}
+      {!editing && (() => {
+        const allPhotos = (post.photo_urls && post.photo_urls.length > 0)
+          ? post.photo_urls
+          : (safeDisplayPhotoUrl ? [safeDisplayPhotoUrl] : []);
+        return <PhotoGrid photos={allPhotos} />;
+      })()}
 
       {post.service_location && (
         <div className="px-4 pb-3">
@@ -292,7 +292,6 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
           )}
         </div>
       )}
-      <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
       {showBookModal && (
         <BookServiceModal
           post={post}

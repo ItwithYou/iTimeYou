@@ -28,6 +28,13 @@
     "photo_url": {
       "type": "string"
     },
+    "photo_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
     "linked_listing_id": {
       "type": "string"
     },
@@ -69,6 +76,9 @@
       "type": "string"
     },
     "service_location": {
+      "type": "string"
+    },
+    "service_location_map_url": {
       "type": "string"
     }
   },

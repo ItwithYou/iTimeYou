@@ -118,18 +118,30 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
   const [price, setPrice] = useState('');
   const [currency, setCurrency] = useState(profile?.wallet_currency || 'USD');
   const [location, setLocation] = useState(profile?.location || '');
-  const [photoFile, setPhotoFile] = useState(null);
-  const [photoPreview, setPhotoPreview] = useState(null);
+  const [photoFiles, setPhotoFiles] = useState([]);
+  const [photoPreviews, setPhotoPreviews] = useState([]);
   const [posting, setPosting] = useState(false);
   const photoInputRef = useRef(null);
 
-  const handlePhoto = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setPhotoFile(file);
-    const reader = new FileReader();
-    reader.onload = (ev) => setPhotoPreview(ev.target.result);
-    reader.readAsDataURL(file);
+  const handlePhotos = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    const total = photoFiles.length + files.length;
+    if (total > 10) {
+      toast.error(lang === 'lo' ? 'ສູງສຸດ 10 ຮູບ' : 'Maximum 10 photos');
+      return;
+    }
+    setPhotoFiles(prev => [...prev, ...files]);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (ev) => setPhotoPreviews(prev => [...prev, ev.target.result]);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removePhoto = (index) => {
+    setPhotoFiles(prev => prev.filter((_, i) => i !== index));
+    setPhotoPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const selectService = (svc) => {
@@ -141,7 +153,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
   };
 
   const handlePost = async () => {
-    if (!text.trim() && !photoFile) return;
+    if (!text.trim() && photoFiles.length === 0) return;
     // Validate date is not in the past
     if (when) {
       if (service.whenType === 'date' && isDateInPast(when)) {
@@ -160,9 +172,11 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
     }
     setPosting(true);
     let photo_url = '';
-    if (photoFile) {
-      const res = await base44.integrations.Core.UploadFile({ file: photoFile });
-      photo_url = res.file_url;
+    let photo_urls = [];
+    if (photoFiles.length > 0) {
+      const uploads = await Promise.all(photoFiles.map(f => base44.integrations.Core.UploadFile({ file: f })));
+      photo_urls = uploads.map(u => u.file_url);
+      photo_url = photo_urls[0] || '';
     }
     const serviceTimeSlot = service.timeUnit === 'hours' && timeFrom && timeTo ? `${timeFrom} - ${timeTo}` : '';
     const serviceLocationMapUrl = getGoogleMapsUrl(location);
@@ -173,6 +187,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
       text: `${text}`,
       category: service.key === 'talking' || service.key === 'culture' ? 'culture' : service.key === 'food' ? 'food' : service.key === 'room' ? 'stay' : service.key === 'experience' ? 'experience' : service.key === 'nature' ? 'nature' : 'home',
       photo_url,
+      photo_urls,
       likes: [],
       like_count: 0,
       service_type: lang === 'lo' ? service.lo : service.en,
@@ -186,8 +201,8 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
       service_location_map_url: serviceLocationMapUrl,
     });
     setText('');
-    setPhotoFile(null);
-    setPhotoPreview(null);
+    setPhotoFiles([]);
+    setPhotoPreviews([]);
     setDuration(service.minTime);
     setWhen('');
     setTimeFrom('');
@@ -253,16 +268,29 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
           />
         </div>
 
-        {/* Photo preview */}
-        {photoPreview && (
-          <div className="relative inline-block ml-12">
-            <img src={photoPreview} alt="" className="max-h-44 rounded-xl border border-border object-cover" />
-            <button
-              onClick={() => { setPhotoFile(null); setPhotoPreview(null); }}
-              className="absolute top-1.5 right-1.5 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center"
-            >
-              <X size={12} />
-            </button>
+        {/* Photo previews */}
+        {photoPreviews.length > 0 && (
+          <div className="ml-12 flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+            {photoPreviews.map((preview, i) => (
+              <div key={i} className="relative flex-shrink-0">
+                <img src={preview} alt="" className="h-24 w-24 rounded-xl border border-border object-cover" />
+                <button
+                  onClick={() => removePhoto(i)}
+                  className="absolute -top-1.5 -right-1.5 bg-black/70 text-white rounded-full w-5 h-5 flex items-center justify-center"
+                >
+                  <X size={10} />
+                </button>
+              </div>
+            ))}
+            {photoFiles.length < 10 && (
+              <button
+                type="button"
+                onClick={() => photoInputRef.current?.click()}
+                className="h-24 w-24 rounded-xl border-2 border-dashed border-border flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors flex-shrink-0"
+              >
+                <span className="text-2xl">+</span>
+              </button>
+            )}
           </div>
         )}
 
@@ -443,12 +471,12 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
         <div className="flex items-center justify-between pt-1 border-t border-border">
           <button type="button" onClick={() => photoInputRef.current?.click()} className="flex items-center gap-2 text-muted-foreground active:text-primary transition-colors text-sm font-medium min-h-[44px] px-2">
             <Image size={18} />
-            <span className="text-xs">{lang === 'lo' ? 'ເພີ່ມຮູບ' : 'Add Photo'}</span>
+            <span className="text-xs">{lang === 'lo' ? 'ເພີ່ມຮູບ' : 'Add Photos'}{photoFiles.length > 0 ? ` (${photoFiles.length})` : ''}</span>
           </button>
-          <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
+          <input ref={photoInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePhotos} />
           <button
             onClick={handlePost}
-            disabled={posting || (!text.trim() && !photoFile)}
+            disabled={posting || (!text.trim() && photoFiles.length === 0)}
             className="bg-gradient-to-r from-tiffany to-deep-green text-white px-6 py-2 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center gap-2"
           >
             {posting ? <Loader2 size={14} className="animate-spin" /> : null}
