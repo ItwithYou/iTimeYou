@@ -15,7 +15,7 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
   { to: '/explore', icon: Compass, label: t.explore },
   { to: '/bookings', icon: Calendar, label: t.trips },
   { to: '/wallet', icon: Wallet, label: t.wallet },
-  { to: '/messages', icon: MessageCircle, label: t.messages },
+  { to: '/messages', icon: MessageCircle, label: lang === 'lo' ? 'ແຊັດ' : 'Chat' },
   { to: '/notifications', icon: Bell, label: t.notifications }];
 
   const secondaryNavItems = [
