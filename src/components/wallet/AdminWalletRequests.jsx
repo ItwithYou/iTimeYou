@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
@@ -14,6 +14,7 @@ const adminTabs = [
   { key: 'send', label: 'Send' },
   { key: 'receive', label: 'Recieve' },
   { key: 'transactions', label: 'Transaction' },
+  { key: 'account', label: 'Account' },
 ];
 
 const statusStyles = {
@@ -82,6 +83,9 @@ function TransactionRow({ tx, lang }) {
 export default function AdminWalletRequests({ currentUser, transactions, onUpdated, lang }) {
   const [activeTab, setActiveTab] = useState('topup');
   const [transactionFilter, setTransactionFilter] = useState('all');
+  const [accountSettings, setAccountSettings] = useState(null);
+  const [accountForm, setAccountForm] = useState({ bank_name: 'BCEL', account_name: '', account_number: '', qr_code_url: '', notes: '' });
+  const [savingAccount, setSavingAccount] = useState(false);
 
   const pendingTopups = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'topup');
   const pendingWithdraws = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'withdraw');
@@ -93,6 +97,25 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
     if (transactionFilter === 'all') return base;
     return base.filter((tx) => (tx.request_kind || tx.type) === transactionFilter);
   }, [transactions, transactionFilter]);
+
+  useEffect(() => {
+    const loadAccountSettings = async () => {
+      const settings = await base44.entities.WalletAccountSettings.list('-updated_date', 1);
+      const item = settings[0] || null;
+      setAccountSettings(item);
+      if (item) {
+        setAccountForm({
+          bank_name: item.bank_name || 'BCEL',
+          account_name: item.account_name || '',
+          account_number: item.account_number || '',
+          qr_code_url: item.qr_code_url || '',
+          notes: item.notes || '',
+        });
+      }
+    };
+
+    loadAccountSettings();
+  }, []);
 
   if (currentUser?.role !== 'admin') return null;
 
@@ -183,6 +206,25 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
     ? pendingSends
     : pendingReceives;
 
+  const saveAccountSettings = async () => {
+    if (!accountForm.account_number) {
+      toast.error(lang === 'lo' ? 'ກະລຸນາໃສ່ເລກບັນຊີ' : 'Please enter account number');
+      return;
+    }
+
+    setSavingAccount(true);
+    if (accountSettings?.id) {
+      await base44.entities.WalletAccountSettings.update(accountSettings.id, accountForm);
+    } else {
+      const created = await base44.entities.WalletAccountSettings.create(accountForm);
+      setAccountSettings(created);
+    }
+    const latest = await base44.entities.WalletAccountSettings.list('-updated_date', 1);
+    setAccountSettings(latest[0] || null);
+    setSavingAccount(false);
+    toast.success(lang === 'lo' ? 'ບັນທຶກຂໍ້ມູນບັນຊີແລ້ວ' : 'Account details saved');
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
@@ -197,7 +239,31 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
         ))}
       </div>
 
-      {activeTab !== 'transactions' ? (
+      {activeTab === 'account' ? (
+        <div className="bg-card rounded-2xl border border-border p-5 shadow-sm space-y-4">
+          <div>
+            <h3 className="font-bold text-base">Transfer Account</h3>
+            <p className="text-sm text-muted-foreground">Users will see this account number and QR code for top up and withdraw.</p>
+          </div>
+
+          <select value={accountForm.bank_name} onChange={(e) => setAccountForm({ ...accountForm, bank_name: e.target.value })} className="w-full border border-border rounded-xl px-3 py-2 text-sm bg-card">
+            <option value="BCEL">BCEL</option>
+            <option value="LDB">LDB</option>
+          </select>
+          <input value={accountForm.account_name} onChange={(e) => setAccountForm({ ...accountForm, account_name: e.target.value })} placeholder="Account Name" className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
+          <input value={accountForm.account_number} onChange={(e) => setAccountForm({ ...accountForm, account_number: e.target.value })} placeholder="Account Number" className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
+          <input value={accountForm.qr_code_url} onChange={(e) => setAccountForm({ ...accountForm, qr_code_url: e.target.value })} placeholder="QR Code Image URL" className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
+          <textarea value={accountForm.notes} onChange={(e) => setAccountForm({ ...accountForm, notes: e.target.value })} placeholder="Notes" rows={3} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
+
+          {accountForm.qr_code_url && (
+            <img src={accountForm.qr_code_url} alt="QR code" className="w-48 h-48 object-cover rounded-2xl border border-border" />
+          )}
+
+          <button onClick={saveAccountSettings} disabled={savingAccount} className="bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-50">
+            {savingAccount ? '...' : 'Save Account'}
+          </button>
+        </div>
+      ) : activeTab !== 'transactions' ? (
         currentList.length === 0 ? (
           <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground">No requests</div>
         ) : (

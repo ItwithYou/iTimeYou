@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
@@ -14,6 +14,7 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
   const [targetEmail, setTargetEmail] = useState('');
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [accountSettings, setAccountSettings] = useState(null);
 
   const titleMap = {
     topup: lang === 'lo' ? 'ຄຳຂໍເຕີມເງິນ' : 'Top Up Request',
@@ -21,6 +22,20 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
     send: lang === 'lo' ? 'ຄຳຂໍໂອນເງິນ' : 'Send Request',
     receive: lang === 'lo' ? 'ຄຳຂໍຮັບເງິນ' : 'Receive Request',
   };
+
+  useEffect(() => {
+    const loadAccountSettings = async () => {
+      const settings = await base44.entities.WalletAccountSettings.list('-updated_date', 1);
+      const item = settings[0] || null;
+      setAccountSettings(item);
+      if (item) {
+        setBankName(item.bank_name || 'BCEL');
+        setAccountNumber(item.account_number || '');
+      }
+    };
+
+    loadAccountSettings();
+  }, []);
 
   const handleSubmit = async () => {
     const numericAmount = Number(amount);
@@ -93,10 +108,14 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
 
           {(type === 'topup' || type === 'withdraw') && (
             <>
-              <select value={bankName} onChange={(e) => setBankName(e.target.value)} className="w-full border border-border rounded-xl px-3 py-2 text-sm bg-card">
-                {BANKS.map((item) => <option key={item} value={item}>{item}</option>)}
-              </select>
-              <input value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} placeholder={lang === 'lo' ? 'ເລກບັນຊີ' : 'Account Number'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
+              <div className="rounded-2xl border border-border bg-muted/30 p-3 space-y-2 text-sm">
+                <p className="font-semibold">{lang === 'lo' ? 'ບັນຊີສຳລັບໂອນເງິນ' : 'Transfer Account'}</p>
+                <p>{bankName}</p>
+                {accountSettings?.account_name && <p>{accountSettings.account_name}</p>}
+                <p>{accountNumber || '-'}</p>
+                {accountSettings?.notes && <p className="text-muted-foreground text-xs">{accountSettings.notes}</p>}
+                {accountSettings?.qr_code_url && <img src={accountSettings.qr_code_url} alt="QR code" className="w-40 h-40 object-cover rounded-xl border border-border" />}
+              </div>
               <label className="block border-2 border-dashed border-border rounded-xl px-3 py-3 text-sm text-muted-foreground cursor-pointer hover:border-primary">
                 {file ? `✅ ${file.name}` : (lang === 'lo' ? 'ແນບສະລິບການຈ່າຍ' : 'Attach payment screenshot')}
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => setFile(e.target.files[0])} />
