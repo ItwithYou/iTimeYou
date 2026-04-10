@@ -193,17 +193,26 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
         </div>
 
         {!canAfford && (
-          <p className="text-xs text-destructive text-center mb-3">
-            {lang === 'lo' ? 'ຍອດເງິນໃນກະເປົາບໍ່ພໍ' : 'Not enough balance — top up your wallet first.'}
-          </p>
+          <button
+            onClick={() => {
+              onClose();
+              navigate('/wallet');
+            }}
+            className="w-full text-xs text-destructive text-center mb-3 underline underline-offset-2"
+          >
+            {lang === 'lo' ? 'ຍອດເງິນໃນກະເປົາບໍ່ພໍ — ກົດເພື່ອໄປໜ້າເຕີມເງິນ' : 'Not enough balance — tap to go to the top up page.'}
+          </button>
         )}
 
         <button
-          onClick={handleBook}
-          disabled={loading || !canAfford}
+          onClick={canAfford ? handleBook : () => {
+            onClose();
+            navigate('/wallet');
+          }}
+          disabled={loading}
           className="w-full bg-gradient-to-r from-tiffany to-deep-green text-white py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-40"
         >
-          {loading ? '...' : `${lang === 'lo' ? 'ຈ່າຍ & ຈອງ' : 'Pay & Book'} — ${price} ${currency}`}
+          {loading ? '...' : canAfford ? `${lang === 'lo' ? 'ຈ່າຍ & ຈອງ' : 'Pay & Book'} — ${price} ${currency}` : `${lang === 'lo' ? 'ໄປໜ້າເຕີມເງິນ' : 'Go to Top Up'}`}
         </button>
         <button onClick={onClose} className="w-full border border-border py-2.5 rounded-xl text-sm font-semibold mt-2 hover:bg-muted transition-colors">
           {lang === 'lo' ? 'ຍົກເລີກ' : 'Cancel'}
