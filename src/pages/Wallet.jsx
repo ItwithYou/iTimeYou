@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
-import { ArrowUp, ArrowDown, Send, ArrowDownLeft, Shield, ChevronRight, ExternalLink } from 'lucide-react';
+import { ArrowUp, ArrowDown, Send, ArrowDownLeft, Shield, ChevronRight, ExternalLink, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import moment from 'moment';
 import WalletActionModal from '../components/wallet/WalletActionModal';
@@ -155,21 +155,21 @@ export default function Wallet() {
           </div>
 
           <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-3xl border border-white/15 bg-white/10 px-4 py-3 shadow-inner shadow-black/5 backdrop-blur-sm">
+            <div className="min-w-0 rounded-3xl border border-white/15 bg-white/10 px-4 py-3 shadow-inner shadow-black/5 backdrop-blur-sm">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">LAK</p>
-              <p className="mt-1 text-[28px] font-bold leading-tight sm:text-[30px]">{lakBalance.toLocaleString()}</p>
+              <p className="mt-1 break-words text-[22px] font-bold leading-tight sm:text-[24px]">{lakBalance.toLocaleString()}</p>
             </div>
-            <div className="rounded-3xl border border-white/15 bg-white/10 px-4 py-3 shadow-inner shadow-black/5 backdrop-blur-sm">
+            <div className="min-w-0 rounded-3xl border border-white/15 bg-white/10 px-4 py-3 shadow-inner shadow-black/5 backdrop-blur-sm">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">USD</p>
-              <p className="mt-1 text-[28px] font-bold leading-tight sm:text-[30px]">{usdBalance.toLocaleString()}</p>
+              <p className="mt-1 break-words text-[22px] font-bold leading-tight sm:text-[24px]">{usdBalance.toLocaleString()}</p>
             </div>
-            <div className="rounded-3xl border border-white/15 bg-white/10 px-4 py-3 shadow-inner shadow-black/5 backdrop-blur-sm">
+            <div className="min-w-0 rounded-3xl border border-white/15 bg-white/10 px-4 py-3 shadow-inner shadow-black/5 backdrop-blur-sm">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">USDT</p>
-              <p className="mt-1 text-[28px] font-bold leading-tight sm:text-[30px]">{usdtBalance.toLocaleString()}</p>
+              <p className="mt-1 break-words text-[22px] font-bold leading-tight sm:text-[24px]">{usdtBalance.toLocaleString()}</p>
             </div>
-            <div className="rounded-3xl border border-white/15 bg-white/10 px-4 py-3 shadow-inner shadow-black/5 backdrop-blur-sm">
+            <div className="min-w-0 rounded-3xl border border-white/15 bg-white/10 px-4 py-3 shadow-inner shadow-black/5 backdrop-blur-sm">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">Total</p>
-              <p className="mt-1 text-[28px] font-bold leading-tight sm:text-[30px]">{totalLak.toLocaleString()}</p>
+              <p className="mt-1 break-words text-[22px] font-bold leading-tight sm:text-[24px]">{totalLak.toLocaleString()}</p>
               <p className="text-sm font-semibold text-white/80">LAK</p>
             </div>
           </div>
@@ -185,12 +185,13 @@ export default function Wallet() {
             </a>
           </div>
 
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-5 gap-3">
             {[
               { icon: ArrowUp, label: t.topUp, action: () => { if (requireVerified()) setActionType('topup'); } },
               { icon: ArrowDown, label: t.withdraw, action: () => { if (requireVerified()) setActionType('withdraw'); } },
               { icon: Send, label: t.send, action: () => { if (requireVerified()) setActionType('send'); } },
               { icon: ArrowDownLeft, label: t.receive, action: () => { if (requireVerified()) setActionType('receive'); } },
+              { icon: RefreshCw, label: lang === 'lo' ? 'ແລກປ່ຽນ' : 'Exchange', action: () => { if (requireVerified()) setActionType('exchange'); } },
             ].map(btn => (
               <button
                 key={btn.label}

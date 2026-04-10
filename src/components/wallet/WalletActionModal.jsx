@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ArrowRightLeft, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
+import { DEFAULT_EXCHANGE_RATES, convertFromLak, convertToLak, exchangeWalletBalance } from '../../utils/wallet';
 
 const BANKS = ['BCEL', 'LDB'];
 const CURRENCIES = ['LAK', 'USD', 'USDT'];
@@ -17,13 +18,26 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
   const [accountSettings, setAccountSettings] = useState(null);
   const [accountName, setAccountName] = useState('');
   const [accountQrFile, setAccountQrFile] = useState(null);
+  const [exchangeToCurrency, setExchangeToCurrency] = useState('USD');
 
   const titleMap = {
     topup: lang === 'lo' ? 'ຄຳຂໍເຕີມເງິນ' : 'Top Up Request',
     withdraw: lang === 'lo' ? 'ຄຳຂໍຖອນເງິນ' : 'Withdraw Request',
     send: lang === 'lo' ? 'ຄຳຂໍໂອນເງິນ' : 'Send Request',
     receive: lang === 'lo' ? 'ຄຳຂໍຮັບເງິນ' : 'Receive Request',
+    exchange: lang === 'lo' ? 'ແລກປ່ຽນສະກຸນເງິນ' : 'Exchange Currency',
   };
+
+  const exchangePreview = useMemo(() => {
+    const numericAmount = Number(amount);
+    if (type !== 'exchange' || !numericAmount || numericAmount <= 0 || currency === exchangeToCurrency) return null;
+    const amountLak = convertToLak(numericAmount, currency, DEFAULT_EXCHANGE_RATES);
+    const receivedAmount = convertFromLak(amountLak, exchangeToCurrency, DEFAULT_EXCHANGE_RATES);
+    return {
+      amountLak,
+      receivedAmount,
+    };
+  }, [amount, currency, exchangeToCurrency, type]);
 
   useEffect(() => {
     const loadAccountSettings = async () => {
@@ -39,6 +53,11 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
         setAccountName(savedAccountName || '');
         setAccountNumber(savedAccountNumber || '');
         return;
+      }
+
+      if (type === 'exchange') {
+        setCurrency('LAK');
+        setExchangeToCurrency('USD');
       }
 
       if (item) {
@@ -74,11 +93,15 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
       toast.error(lang === 'lo' ? 'ກະລຸນາໃສ່ອີເມວຜູ້ໃຊ້' : 'Please enter user email');
       return;
     }
+    if (type === 'exchange' && currency === exchangeToCurrency) {
+      toast.error(lang === 'lo' ? 'ເລືອກສະກຸນເງິນປາຍທາງອື່ນ' : 'Choose a different target currency');
+      return;
+    }
 
     setLoading(true);
 
     const finishSuccess = () => {
-      toast.success(lang === 'lo' ? 'ສົ່ງຄຳຂໍແລ້ວ' : 'Request sent for admin approval');
+      toast.success(type === 'exchange' ? (lang === 'lo' ? 'ແລກປ່ຽນສຳເລັດ' : 'Exchange completed') : (lang === 'lo' ? 'ສົ່ງຄຳຂໍແລ້ວ' : 'Request sent for admin approval'));
       setLoading(false);
       onSubmitted?.();
       onClose();
@@ -90,6 +113,46 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
 
     Promise.resolve()
       .then(async () => {
+        if (type === 'exchange') {
+          const numericAmount = Number(amount);
+          const nextBalances = exchangeWalletBalance(profile, currency, exchangeToCurrency, numericAmount, DEFAULT_EXCHANGE_RATES);
+          if (!nextBalances) {
+            toast.error(lang === 'lo' ? 'ຍອດເງິນບໍ່ພໍ' : 'Insufficient balance');
+            return;
+          }
+
+          await base44.entities.UserProfile.update(profile.id, {
+            wallet_balance_lak: nextBalances.wallet_balance_lak ?? profile.wallet_balance_lak,
+            wallet_balance_usd: nextBalances.wallet_balance_usd ?? profile.wallet_balance_usd,
+            wallet_balance_usdt: nextBalances.wallet_balance_usdt ?? profile.wallet_balance_usdt,
+            wallet_currency: exchangeToCurrency,
+          });
+
+          await Promise.all([
+            base44.entities.WalletTransaction.create({
+              user_email: currentUser.email,
+              description: `Exchange out ${numericAmount} ${currency}`,
+              description_lao: `ແລກອອກ ${numericAmount} ${currency}`,
+              amount: -numericAmount,
+              currency,
+              type: 'send',
+              status: 'completed',
+              request_kind: 'send',
+            }),
+            base44.entities.WalletTransaction.create({
+              user_email: currentUser.email,
+              description: `Exchange in ${nextBalances.convertedAmount} ${exchangeToCurrency}`,
+              description_lao: `ແລກເຂົ້າ ${nextBalances.convertedAmount} ${exchangeToCurrency}`,
+              amount: nextBalances.convertedAmount,
+              currency: exchangeToCurrency,
+              type: 'received',
+              status: 'completed',
+              request_kind: 'receive',
+            })
+          ]);
+          return;
+        }
+
         let payment_screenshot_url = '';
         if (file) {
           const upload = await base44.integrations.Core.UploadFile({ file });
@@ -151,6 +214,32 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
             {CURRENCIES.map((item) => <option key={item} value={item}>{item}</option>)}
           </select>
 
+          {type === 'exchange' && (
+            <div className="rounded-2xl border border-border bg-muted/30 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">{lang === 'lo' ? 'ຈາກ' : 'From'}</p>
+                <ArrowRightLeft size={16} className="text-muted-foreground" />
+                <p className="text-sm font-semibold">{lang === 'lo' ? 'ໄປຫາ' : 'To'}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl border border-border bg-card px-3 py-2">
+                  <p className="text-xs text-muted-foreground mb-1">{lang === 'lo' ? 'ສະກຸນຕົ້ນທາງ' : 'Source currency'}</p>
+                  <p className="font-semibold text-sm">{currency}</p>
+                </div>
+                <select value={exchangeToCurrency} onChange={(e) => setExchangeToCurrency(e.target.value)} className="w-full border border-border rounded-xl px-3 py-2 text-sm bg-card">
+                  {CURRENCIES.filter((item) => item !== currency).map((item) => <option key={item} value={item}>{item}</option>)}
+                </select>
+              </div>
+              {exchangePreview && (
+                <div className="rounded-xl bg-card border border-border px-3 py-3 space-y-1">
+                  <p className="text-xs text-muted-foreground">{lang === 'lo' ? 'ທ່ານຈະໄດ້ຮັບ' : 'You will receive'}</p>
+                  <p className="text-lg font-bold text-foreground">{exchangePreview.receivedAmount.toLocaleString()} {exchangeToCurrency}</p>
+                  <p className="text-xs text-muted-foreground">≈ {exchangePreview.amountLak.toLocaleString()} LAK</p>
+                </div>
+              )}
+            </div>
+          )}
+
           {type === 'topup' && (
             <>
               <div className="rounded-2xl border border-border bg-muted/30 p-3 space-y-2 text-sm">
@@ -192,7 +281,7 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
         </div>
 
         <button onClick={handleSubmit} disabled={loading} className="w-full mt-4 bg-primary text-primary-foreground py-3 rounded-xl font-semibold text-sm disabled:opacity-50">
-          {loading ? '...' : (lang === 'lo' ? 'ສົ່ງຄຳຂໍ' : 'Send Request')}
+          {loading ? '...' : type === 'exchange' ? (lang === 'lo' ? 'ຢືນຢັນການແລກປ່ຽນ' : 'Confirm Exchange') : (lang === 'lo' ? 'ສົ່ງຄຳຂໍ' : 'Send Request')}
         </button>
       </div>
     </div>
