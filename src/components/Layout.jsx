@@ -53,11 +53,32 @@ export default function Layout() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-tiffany to-deep-green flex items-center justify-center text-3xl mx-auto mb-4 shadow-lg">⏰</div>
-          <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
+      <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-[#004D4A] via-[#006864] to-[#00827D] overflow-hidden" style={{ minHeight: '600px' }}>
+        <link href="https://fonts.googleapis.com/css2?family=Phetsarath+OT&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Phetsarath&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
+        
+        {/* Ripple rings */}
+        <div className="absolute rounded-full border border-[rgba(10,186,181,0.16)] animate-[ripple_3.4s_ease-out_infinite]" style={{ width: '160px', height: '160px' }} />
+        <div className="absolute rounded-full border border-[rgba(10,186,181,0.16)] animate-[ripple_3.4s_ease-out_infinite]" style={{ width: '290px', height: '290px', animationDelay: '0.65s' }} />
+        <div className="absolute rounded-full border border-[rgba(10,186,181,0.16)] animate-[ripple_3.4s_ease-out_infinite]" style={{ width: '420px', height: '420px', animationDelay: '1.3s' }} />
+        <div className="absolute rounded-full border border-[rgba(10,186,181,0.16)] animate-[ripple_3.4s_ease-out_infinite]" style={{ width: '550px', height: '550px', animationDelay: '1.95s' }} />
+        
+        {/* Logo and spinner */}
+        <div className="relative z-10 text-center">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#0ADBB9] to-[#008B7C] flex items-center justify-center text-4xl mx-auto mb-6 shadow-2xl">
+            ⏰
+          </div>
+          <div className="w-10 h-10 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto" />
+          <p className="text-white/80 text-sm font-semibold mt-4 lao-text">ກຳລັງໂຫຼດ...</p>
         </div>
+        
+        <style>{`
+          @keyframes ripple {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(2.5); opacity: 0; }
+          }
+        `}</style>
       </div>
     );
   }
