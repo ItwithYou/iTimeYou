@@ -146,8 +146,8 @@ export default function Wallet() {
         <div className="relative">
           <p className="mb-2 text-[15px] font-semibold text-white/80">{t.balance}</p>
           <div className="mb-3 flex flex-wrap items-end gap-2">
-            <p className="text-[30px] font-extrabold leading-tight tracking-tight sm:text-[36px] break-all">{totalLak.toLocaleString()}</p>
-            <span className="pb-1 text-lg font-bold text-white/90 sm:text-xl">LAK</span>
+            <p className="text-[26px] font-semibold leading-tight tracking-[-0.03em] text-white sm:text-[30px] break-all">{totalLak.toLocaleString()}</p>
+            <span className="pb-1 text-base font-semibold tracking-wide text-white/80 sm:text-lg">LAK</span>
           </div>
           <div className="mb-6">
             <p className="text-base font-bold leading-tight">{profile?.first_name} {profile?.last_name}</p>
@@ -156,21 +156,21 @@ export default function Wallet() {
 
           <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div className="min-w-0 rounded-3xl border border-white/15 bg-white/10 px-4 py-3 shadow-inner shadow-black/5 backdrop-blur-sm">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">LAK</p>
-              <p className="mt-1 break-all text-[16px] font-bold leading-snug sm:text-[18px]">{lakBalance.toLocaleString()}</p>
+              <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/60">LAK</p>
+              <p className="mt-1 break-all text-[15px] font-semibold leading-[1.45] tracking-[-0.02em] text-white sm:text-[16px]">{lakBalance.toLocaleString()}</p>
             </div>
             <div className="min-w-0 rounded-3xl border border-white/15 bg-white/10 px-4 py-3 shadow-inner shadow-black/5 backdrop-blur-sm">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">USD</p>
-              <p className="mt-1 break-all text-[16px] font-bold leading-snug sm:text-[18px]">{usdBalance.toLocaleString()}</p>
+              <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/60">USD</p>
+              <p className="mt-1 break-all text-[15px] font-semibold leading-[1.45] tracking-[-0.02em] text-white sm:text-[16px]">{usdBalance.toLocaleString()}</p>
             </div>
             <div className="min-w-0 rounded-3xl border border-white/15 bg-white/10 px-4 py-3 shadow-inner shadow-black/5 backdrop-blur-sm">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">USDT</p>
-              <p className="mt-1 break-all text-[16px] font-bold leading-snug sm:text-[18px]">{usdtBalance.toLocaleString()}</p>
+              <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/60">USDT</p>
+              <p className="mt-1 break-all text-[15px] font-semibold leading-[1.45] tracking-[-0.02em] text-white sm:text-[16px]">{usdtBalance.toLocaleString()}</p>
             </div>
             <div className="min-w-0 rounded-3xl border border-white/15 bg-white/10 px-4 py-3 shadow-inner shadow-black/5 backdrop-blur-sm">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">Total</p>
-              <p className="mt-1 break-all text-[16px] font-bold leading-snug sm:text-[18px]">{totalLak.toLocaleString()}</p>
-              <p className="text-xs font-semibold uppercase tracking-wide text-white/80 sm:text-sm">LAK</p>
+              <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/60">Total</p>
+              <p className="mt-1 break-all text-[15px] font-semibold leading-[1.45] tracking-[-0.02em] text-white sm:text-[16px]">{totalLak.toLocaleString()}</p>
+              <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/75 sm:text-xs">LAK</p>
             </div>
           </div>
 
