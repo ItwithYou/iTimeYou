@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { Check, X, Eye } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import ImageLightbox from '../components/ImageLightbox';
 
 export default function AdminVerification() {
   const { currentUser, lang } = useOutletContext();
   const [profiles, setProfiles] = useState([]);
+  const [activeTab, setActiveTab] = useState('requests');
   const [selected, setSelected] = useState(null);
   const [bottomProfile, setBottomProfile] = useState(null);
   const [lightboxSrc, setLightboxSrc] = useState(null);
@@ -15,12 +16,12 @@ export default function AdminVerification() {
 
   useEffect(() => {
     if (currentUser?.role !== 'admin') return;
-    loadPending();
+    loadProfiles();
   }, [currentUser]);
 
-  const loadPending = async () => {
+  const loadProfiles = async () => {
     setLoading(true);
-    const data = await base44.entities.UserProfile.filter({ verification_status: 'pending' }, '-created_date', 50);
+    const data = await base44.entities.UserProfile.list('-created_date', 200);
     setProfiles(data);
     setLoading(false);
   };
@@ -38,7 +39,7 @@ export default function AdminVerification() {
     });
     toast.success('Profile approved ✅');
     setSelected(null);
-    loadPending();
+    loadProfiles();
   };
 
   const reject = async (profile) => {
@@ -54,7 +55,7 @@ export default function AdminVerification() {
     });
     toast.success('Profile rejected');
     setSelected(null);
-    loadPending();
+    loadProfiles();
   };
 
   if (currentUser?.role !== 'admin') {
@@ -69,15 +70,44 @@ export default function AdminVerification() {
     );
   }
 
+  const requestProfiles = profiles.filter(p => p.verification_status === 'pending');
+  const verifiedProfiles = profiles.filter(p => p.is_verified || p.verification_status === 'verified');
+  const notVerifiedProfiles = profiles.filter(p => !p.is_verified && p.verification_status !== 'pending' && p.verification_status !== 'verified');
+  const visibleProfiles = activeTab === 'requests' ? requestProfiles : activeTab === 'verified' ? verifiedProfiles : notVerifiedProfiles;
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Verification Requests</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">{profiles.length} pending review</p>
+          <h1 className="text-2xl font-bold">Verification Users</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">{visibleProfiles.length} users</p>
         </div>
-        <button onClick={loadPending} className="border border-border px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-muted transition-colors">
+        <button onClick={loadProfiles} className="border border-border px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-muted transition-colors">
           🔄 Refresh
+        </button>
+      </div>
+
+      <div className="flex gap-1 bg-muted rounded-xl p-1 mb-6">
+        <button
+          onClick={() => setActiveTab('verified')}
+          className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'verified' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          ✅ Verify User
+          {verifiedProfiles.length > 0 && <span className="ml-1 text-xs bg-primary text-white rounded-full px-1.5">{verifiedProfiles.length}</span>}
+        </button>
+        <button
+          onClick={() => setActiveTab('requests')}
+          className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'requests' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          ⏳ Requests
+          {requestProfiles.length > 0 && <span className="ml-1 text-xs bg-primary text-white rounded-full px-1.5">{requestProfiles.length}</span>}
+        </button>
+        <button
+          onClick={() => setActiveTab('not_verified')}
+          className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'not_verified' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          ❌ Not Verify
+          {notVerifiedProfiles.length > 0 && <span className="ml-1 text-xs bg-primary text-white rounded-full px-1.5">{notVerifiedProfiles.length}</span>}
         </button>
       </div>
 
@@ -85,14 +115,14 @@ export default function AdminVerification() {
         <div className="flex justify-center py-16">
           <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
         </div>
-      ) : profiles.length === 0 ? (
+      ) : visibleProfiles.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
-          <p className="text-4xl mb-3">✅</p>
-          <p className="font-semibold">No pending verifications</p>
+          <p className="text-4xl mb-3">👥</p>
+          <p className="font-semibold">No users in this list</p>
         </div>
       ) : (
         <div className="space-y-6">
-          {profiles.map(p => (
+          {visibleProfiles.map(p => (
             <div key={p.id} className="bg-card rounded-2xl border border-border p-5 shadow-sm">
               {/* Header */}
               <div className="flex items-center gap-4 mb-4">
@@ -107,9 +137,13 @@ export default function AdminVerification() {
                   {p.verification_name && <p className="text-xs text-muted-foreground">ID Name: <span className="font-semibold text-foreground">{p.verification_name}</span></p>}
                   {p.verification_dob && <p className="text-xs text-muted-foreground">Date of Birth: <span className="font-semibold text-foreground">{p.verification_dob}</span></p>}
                 </div>
-                <span className="text-xs bg-amber-100 text-amber-700 border border-amber-300 px-2.5 py-1 rounded-full font-semibold flex-shrink-0">⏳ Pending</span>
+                <span className={`text-xs px-2.5 py-1 rounded-full font-semibold flex-shrink-0 border ${p.verification_status === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-300' : p.is_verified || p.verification_status === 'verified' ? 'bg-emerald-100 text-emerald-700 border-emerald-300' : 'bg-slate-100 text-slate-700 border-slate-300'}`}>
+                  {p.verification_status === 'pending' ? '⏳ Pending' : p.is_verified || p.verification_status === 'verified' ? '✅ Verified' : '❌ Not Verified'}
+                </span>
               </div>
 
+              {activeTab === 'requests' && (
+              <>
               {/* Documents */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
@@ -145,6 +179,15 @@ export default function AdminVerification() {
                   <X size={15} /> Reject
                 </button>
               </div>
+              </>
+              )}
+
+              {activeTab !== 'requests' && (
+                <div className="pt-3 border-t border-border">
+                  <p className="text-sm font-semibold">{p.first_name} {p.last_name}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{p.user_email}</p>
+                </div>
+              )}
             </div>
           ))}
         </div>
