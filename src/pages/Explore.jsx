@@ -8,7 +8,7 @@ import { CAT_KEYS, CAT_ICONS } from '../hooks/useLang';
 import { Search } from 'lucide-react';
 
 export default function Explore() {
-  const { t, lang, profile } = useAppContext();
+  const { t, lang } = useAppContext();
 
   const loadData = () => base44.entities.Listing.list('-created_date', 50).then(data => {
     setListings(data);
@@ -83,15 +83,6 @@ export default function Explore() {
           }
         </div>
       )}
-      {(!profile?.is_verified || !profile?.is_pro) && (
-        <div className="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 mb-5">
-          <p className="text-sm font-semibold text-amber-800">{lang === 'lo' ? 'ໜ້ານີ້ແມ່ນ Business' : 'This page is for Business'}</p>
-          <p className="text-sm text-amber-700 mt-1">
-            {lang === 'lo' ? 'ຜູ້ໃຊ້ທົ່ວໄປສາມາດເບິ່ງໄດ້ ແຕ່ຜູ້ລົງໂພສຕ້ອງຜ່ານ Personal Verify ແລະ Pro ກ່ອນ' : 'Everyone can view, but only users with Personal verification and Pro can post business listings.'}
-          </p>
-        </div>
-      )}
-
       {/* Search bar */}
       <div className="bg-card rounded-2xl p-4 shadow-sm border border-border mb-5">
         <div className="flex flex-col sm:flex-row gap-3">
