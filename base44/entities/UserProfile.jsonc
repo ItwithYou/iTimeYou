@@ -48,7 +48,7 @@
     },
     "wallet_balance": {
       "type": "number",
-      "default": 100
+      "default": 0
     },
     "wallet_currency": {
       "type": "string",
@@ -65,7 +65,7 @@
     },
     "wallet_balance_usd": {
       "type": "number",
-      "default": 100
+      "default": 0
     },
     "wallet_balance_usdt": {
       "type": "number",

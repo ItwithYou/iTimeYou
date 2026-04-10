@@ -21,7 +21,7 @@ export default function useProfile() {
         last_name: user.full_name?.split(' ').slice(1).join(' ') || '',
         avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.email)}`,
         trust_stars: 3.0,
-        wallet_balance: 100,
+        wallet_balance: 0,
         is_verified: false,
         verification_status: 'none',
         total_ratings: 0,
