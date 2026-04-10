@@ -43,6 +43,9 @@
       ],
       "default": "pending"
     },
+    "reject_reason": {
+      "type": "string"
+    },
     "counterparty_email": {
       "type": "string"
     },

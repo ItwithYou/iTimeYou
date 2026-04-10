@@ -78,8 +78,6 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
   const [transactionFilter, setTransactionFilter] = useState('all');
 
   const pendingTopups = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'topup');
-
-  if (currentUser?.role !== 'admin') return null;
   const pendingWithdraws = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'withdraw');
   const pendingSends = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'send');
   const pendingReceives = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'receive');
@@ -89,6 +87,8 @@ export default function AdminWalletRequests({ currentUser, transactions, onUpdat
     if (transactionFilter === 'all') return base;
     return base.filter((tx) => (tx.request_kind || tx.type) === transactionFilter);
   }, [transactions, transactionFilter]);
+
+  if (currentUser?.role !== 'admin') return null;
 
   const approveTransaction = async (tx) => {
     const targetProfiles = await base44.entities.UserProfile.filter({ user_email: tx.user_email });

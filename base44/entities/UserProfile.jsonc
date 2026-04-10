@@ -59,6 +59,18 @@
       ],
       "default": "USD"
     },
+    "wallet_balance_lak": {
+      "type": "number",
+      "default": 0
+    },
+    "wallet_balance_usd": {
+      "type": "number",
+      "default": 100
+    },
+    "wallet_balance_usdt": {
+      "type": "number",
+      "default": 0
+    },
     "is_verified": {
       "type": "boolean",
       "default": false

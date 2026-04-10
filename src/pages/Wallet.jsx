@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
-import { ArrowUp, ArrowDown, Send, ArrowDownLeft, Shield, ChevronRight } from 'lucide-react';
+import { ArrowUp, ArrowDown, Send, ArrowDownLeft, Shield, ChevronRight, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import moment from 'moment';
 import WalletActionModal from '../components/wallet/WalletActionModal';
@@ -24,6 +24,12 @@ export default function Wallet() {
   const [bookings, setBookings] = useState([]);
   const [profilesByEmail, setProfilesByEmail] = useState({});
   const [actionType, setActionType] = useState('');
+  const lakBalance = profile?.wallet_balance_lak || 0;
+  const usdBalance = profile?.wallet_balance_usd || 0;
+  const usdtBalance = profile?.wallet_balance_usdt || 0;
+  const bcelUsdToLakRate = 21500;
+  const bcelUsdtToLakRate = 21500;
+  const totalLak = lakBalance + (usdBalance * bcelUsdToLakRate) + (usdtBalance * bcelUsdtToLakRate);
 
   const loadTx = async () => {
     if (currentUser) {
@@ -93,8 +99,37 @@ export default function Wallet() {
         <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/8" />
         <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-white/6" />
         <p className="text-sm opacity-75 font-medium mb-1">{t.balance}</p>
-        <p className="text-5xl font-black tracking-tight mb-1">{(profile?.wallet_balance || 0).toLocaleString()} {profile?.wallet_currency || 'USD'}</p>
-        <p className="text-xs opacity-60 mb-6">{currentUser?.email}</p>
+        <p className="text-3xl sm:text-4xl font-black tracking-tight mb-1">{totalLak.toLocaleString()} LAK</p>
+        <p className="text-xs opacity-60 mb-4">{currentUser?.email}</p>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+          <div className="rounded-2xl bg-white/10 border border-white/15 px-3 py-2">
+            <p className="text-[10px] opacity-70">LAK</p>
+            <p className="text-sm font-bold">{lakBalance.toLocaleString()}</p>
+          </div>
+          <div className="rounded-2xl bg-white/10 border border-white/15 px-3 py-2">
+            <p className="text-[10px] opacity-70">USD</p>
+            <p className="text-sm font-bold">{usdBalance.toLocaleString()}</p>
+          </div>
+          <div className="rounded-2xl bg-white/10 border border-white/15 px-3 py-2">
+            <p className="text-[10px] opacity-70">USDT</p>
+            <p className="text-sm font-bold">{usdtBalance.toLocaleString()}</p>
+          </div>
+          <div className="rounded-2xl bg-white/10 border border-white/15 px-3 py-2">
+            <p className="text-[10px] opacity-70">Total</p>
+            <p className="text-sm font-bold">{totalLak.toLocaleString()} LAK</p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between gap-3 mb-6 rounded-2xl bg-white/10 border border-white/15 px-3 py-2 text-xs">
+          <div>
+            <p className="font-semibold">BCEL rate reference</p>
+            <p className="opacity-75">1 USD ≈ {bcelUsdToLakRate.toLocaleString()} LAK · 1 USDT ≈ {bcelUsdtToLakRate.toLocaleString()} LAK</p>
+          </div>
+          <a href="https://www.bcel.com.la/bcel/exchange-rate.html" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold underline underline-offset-2">
+            BCEL <ExternalLink size={12} />
+          </a>
+        </div>
 
         <div className="grid grid-cols-4 gap-2">
           {[
