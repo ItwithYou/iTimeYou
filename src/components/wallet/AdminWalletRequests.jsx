@@ -77,8 +77,9 @@ function TransactionRow({ tx, lang }) {
         <p className="text-sm font-semibold break-all">{lang === 'lo' && tx.description_lao ? tx.description_lao : tx.description}</p>
         <p className="text-xs text-muted-foreground break-all">{tx.user_email}</p>
         <p className="text-xs text-muted-foreground">{tx.request_kind || tx.type} · {Math.abs(tx.amount)} {tx.currency || 'USD'}</p>
-        {tx.approved_by_name && <p className="text-xs text-muted-foreground">Approved by: {tx.approved_by_name}</p>}
+        {(tx.approved_by_name || tx.approved_by_email) && <p className="text-xs text-muted-foreground">Approved by: {tx.approved_by_name || tx.approved_by_email}</p>}
         {tx.approved_at && <p className="text-xs text-muted-foreground">Approved time: {new Date(tx.approved_at).toLocaleString()}</p>}
+        {tx.status !== 'pending' && !tx.approved_by_name && !tx.approved_by_email && <p className="text-xs text-muted-foreground">Approved by: Not recorded on older transaction</p>}
       </div>
       <div className="flex items-center gap-3 sm:flex-col sm:items-end">
         <StatusBadge status={tx.status} />
