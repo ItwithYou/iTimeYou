@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Share2, Send, CalendarCheck, MoreHorizontal, Pencil, Trash2, X, Check } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Send, MoreHorizontal, Pencil, Trash2, X, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import ImageLightbox from './ImageLightbox';
@@ -10,8 +10,10 @@ import { CAT_ICONS } from '../hooks/useLang';
 import moment from 'moment';
 
 export default function PostCard({ post, currentUserEmail, t, lang, onRefresh }) {
-  const { profile, currentUser } = useAppContext();
+  const { profile, currentUser, refreshProfile } = useAppContext();
   const navigate = useNavigate();
+  const [authorProfile, setAuthorProfile] = useState(null);
+  const [followLoading, setFollowLoading] = useState(false);
   const [showBookModal, setShowBookModal] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -43,6 +45,12 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
     if (showComments) loadComments();
   }, [post.id, showComments]);
 
+  useEffect(() => {
+    base44.entities.UserProfile.filter({ user_email: post.author_email }).then((profiles) => {
+      setAuthorProfile(profiles[0] || null);
+    });
+  }, [post.author_email]);
+
   const toggleLike = async () => {
     const newLiked = !liked;
     const newLikes = newLiked
@@ -71,6 +79,27 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
     setShowBookModal(true);
   };
 
+  const isFollowing = !!profile?.friends?.includes(post.author_email);
+
+  const handleFollowToggle = async () => {
+    if (!profile || !authorProfile || followLoading || currentUserEmail === post.author_email) return;
+    setFollowLoading(true);
+
+    const myFriends = profile.friends || [];
+    const theirFriends = authorProfile.friends || [];
+    const nextMyFriends = isFollowing ? myFriends.filter((email) => email !== post.author_email) : [...myFriends, post.author_email];
+    const nextTheirFriends = isFollowing ? theirFriends.filter((email) => email !== currentUserEmail) : [...theirFriends, currentUserEmail];
+
+    await Promise.all([
+      base44.entities.UserProfile.update(profile.id, { friends: nextMyFriends }),
+      base44.entities.UserProfile.update(authorProfile.id, { friends: nextTheirFriends }),
+    ]);
+
+    setAuthorProfile({ ...authorProfile, friends: nextTheirFriends });
+    await refreshProfile?.();
+    setFollowLoading(false);
+  };
+
   const addComment = async () => {
     if (!commentText.trim()) return;
     await base44.entities.Comment.create({
@@ -88,35 +117,47 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh })
       {/* Header */}
       <div className="flex items-center gap-3 p-4">
         <button
-          onClick={async () => {
-            const profiles = await base44.entities.UserProfile.filter({ user_email: post.author_email });
-            if (profiles[0]) navigate(`/profile/${profiles[0].id}`);
+          onClick={() => {
+            if (authorProfile?.id) navigate(`/profile/${authorProfile.id}`);
           }}
           className="flex-shrink-0"
         >
           <img
             src={post.author_avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author_email}`}
             alt=""
-            className="w-10 h-10 rounded-full object-cover border-2 border-primary/20 hover:opacity-80 transition-opacity"
+            className="w-12 h-12 rounded-full object-cover border-2 border-primary/20 hover:opacity-80 transition-opacity"
           />
         </button>
         <div className="flex-1 min-w-0">
           <button
-            onClick={async () => {
-              const profiles = await base44.entities.UserProfile.filter({ user_email: post.author_email });
-              if (profiles[0]) navigate(`/profile/${profiles[0].id}`);
+            onClick={() => {
+              if (authorProfile?.id) navigate(`/profile/${authorProfile.id}`);
             }}
             className="text-sm font-bold truncate hover:text-primary transition-colors block"
           >
             {post.author_name || 'User'}
           </button>
-          <span className="text-xs text-muted-foreground">{moment(post.created_date).fromNow()}</span>
+          <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+            <span>{moment(post.created_date).fromNow()}</span>
+            {authorProfile && <span>• {(authorProfile.friends || []).length} {lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'followers'}</span>}
+          </div>
         </div>
-        {post.category && (
-          <span className="text-xs px-2.5 py-1 rounded-xl bg-gradient-to-r from-primary/10 to-deep-green/10 text-primary font-semibold border border-primary/15 flex-shrink-0">
-            {CAT_ICONS[post.category]} {t.categories[catIndex] || ''}
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {post.category && (
+            <span className="text-xs px-2.5 py-1 rounded-xl bg-gradient-to-r from-primary/10 to-deep-green/10 text-primary font-semibold border border-primary/15 flex-shrink-0">
+              {CAT_ICONS[post.category]} {t.categories[catIndex] || ''}
+            </span>
+          )}
+          {!isOwn && (
+            <button
+              onClick={handleFollowToggle}
+              disabled={followLoading}
+              className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors ${isFollowing ? 'border-border text-muted-foreground hover:bg-muted' : 'border-primary bg-primary text-primary-foreground hover:opacity-90'} disabled:opacity-50`}
+            >
+              {isFollowing ? (lang === 'lo' ? 'ກຳລັງຕິດຕາມ' : 'Following') : (lang === 'lo' ? 'ຕິດຕາມ' : 'Follow')}
+            </button>
+          )}
+        </div>
         {isOwn && (
           <div className="relative">
             <button onClick={() => setShowMenu(!showMenu)} className="p-1.5 rounded-full hover:bg-muted transition-colors">
