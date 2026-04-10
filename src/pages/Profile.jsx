@@ -109,7 +109,7 @@ export default function Profile() {
 
       {/* Info */}
       <div className="pt-16 pb-4 px-6 bg-card text-center">
-        <h1 className="text-xl font-bold">{viewProfile.first_name} {viewProfile.last_name}</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{viewProfile.first_name} {viewProfile.last_name}</h1>
         <div className="flex items-center justify-center gap-2 mt-2">
           <StarRating rating={viewProfile.trust_stars || 0} size={18} />
         </div>
@@ -124,13 +124,23 @@ export default function Profile() {
           <span className="flex items-center gap-1"><MapPin size={14} /> {viewProfile.location}</span>
           }
           <span className="flex items-center gap-1"><Calendar size={14} /> {t.joined} {new Date(viewProfile.created_date).getFullYear()}</span>
-          <span className="flex items-center gap-1"><Users size={14} /> {(viewProfile.friends || []).length} {t.friends}</span>
-          {viewProfile.is_host &&
-          <span className="flex items-center gap-1 text-primary font-semibold"><Home size={14} /> {t.host}</span>
-          }
-          <span>💰 ${viewProfile.wallet_balance || 0}</span>
         </div>
-        <p className="text-sm text-muted-foreground mt-3">
+
+        <div className="grid grid-cols-3 gap-3 mt-5 max-w-md mx-auto">
+          <div className="rounded-2xl border border-border bg-muted/30 px-4 py-3 text-center">
+            <p className="text-2xl font-black tracking-tight text-foreground">{(viewProfile.friends || []).length}</p>
+            <p className="text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Followers'}</p>
+          </div>
+          <div className="rounded-2xl border border-border bg-muted/30 px-4 py-3 text-center">
+            <p className="text-2xl font-black tracking-tight text-primary">{posts.length}</p>
+            <p className="text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ໃຫ້ບໍລິການ' : 'Provide Service'}</p>
+          </div>
+          <div className="rounded-2xl border border-border bg-muted/30 px-4 py-3 text-center">
+            <p className="text-2xl font-black tracking-tight text-primary">{viewProfile.wallet_balance || 0}</p>
+            <p className="text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ໃຊ້ບໍລິການ' : 'Use Service'}</p>
+          </div>
+        </div>
+        <p className="text-sm text-muted-foreground mt-3 font-medium tracking-wide">
           {lang === 'lo' ? viewProfile.bio_lao || viewProfile.bio : viewProfile.bio}
         </p>
 

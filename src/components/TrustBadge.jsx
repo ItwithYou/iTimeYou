@@ -6,7 +6,7 @@ export default function TrustBadge({ stars, lang = 'en' }) {
     : { en: 'Bronze Trust', lo: 'ຄວາມໜ້າເຊື່ອຖືທອງແດງ', cls: 'bg-orange-100 text-orange-700 border-orange-300', dot: 'bg-orange-400' };
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${level.cls}`}>
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold tracking-wide border shadow-sm ${level.cls}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${level.dot}`} />
       {level[lang]} · {(stars || 0).toFixed(1)}
     </span>

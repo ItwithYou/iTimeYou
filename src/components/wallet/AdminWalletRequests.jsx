@@ -39,7 +39,8 @@ function RequestCard({ tx, lang, onApprove, onReject }) {
         <div className="min-w-0">
           <p className="font-bold text-sm">ID: {tx.id}</p>
           <p className="text-sm font-semibold break-all">{tx.user_email}</p>
-          <p className="text-xs text-muted-foreground">{tx.request_kind} · {Math.abs(tx.amount)} {tx.currency || 'USD'}</p>
+          <p className="text-lg font-black tracking-tight text-primary">{Math.abs(tx.amount)} {tx.currency || 'USD'}</p>
+          <p className="text-xs text-muted-foreground">{tx.request_kind}</p>
           {tx.bank_name && <p className="text-xs text-muted-foreground">{tx.bank_name} · {tx.account_number}</p>}
           {tx.account_name && <p className="text-xs text-muted-foreground">{tx.account_name}</p>}
           {tx.counterparty_email && <p className="text-xs text-muted-foreground break-all">{lang === 'lo' ? 'ຜູ້ກ່ຽວຂ້ອງ' : 'Counterparty'}: {tx.counterparty_email}</p>}
