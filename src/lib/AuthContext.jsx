@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [authError, setAuthError] = useState(null);
+  // Auth state management for Base44 platform
 
   useEffect(() => {
     checkAppState();
@@ -17,7 +18,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setAuthError(null);
       
-      // Fetch current user from Base44 auth
+      // Get authenticated user from Base44
       const currentUser = await base44.auth.me();
       setUser(currentUser);
       setIsAuthenticated(true);
