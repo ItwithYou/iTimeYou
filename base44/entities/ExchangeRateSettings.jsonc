@@ -1,0 +1,56 @@
+{
+  "name": "ExchangeRateSettings",
+  "type": "object",
+  "properties": {
+    "usd_buy": {
+      "type": "number",
+      "description": "USD buy rate in LAK"
+    },
+    "usd_sell": {
+      "type": "number",
+      "description": "USD sell rate in LAK"
+    },
+    "usdt_buy": {
+      "type": "number",
+      "description": "USDT buy rate in LAK"
+    },
+    "usdt_sell": {
+      "type": "number",
+      "description": "USDT sell rate in LAK"
+    },
+    "thb_buy": {
+      "type": "number",
+      "description": "THB buy rate in LAK"
+    },
+    "thb_sell": {
+      "type": "number",
+      "description": "THB sell rate in LAK"
+    },
+    "cny_buy": {
+      "type": "number",
+      "description": "CNY buy rate in LAK"
+    },
+    "cny_sell": {
+      "type": "number",
+      "description": "CNY sell rate in LAK"
+    },
+    "vnd_buy": {
+      "type": "number",
+      "description": "VND buy rate in LAK"
+    },
+    "vnd_sell": {
+      "type": "number",
+      "description": "VND sell rate in LAK"
+    },
+    "updated_by": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "usd_buy",
+    "usd_sell"
+  ]
+}

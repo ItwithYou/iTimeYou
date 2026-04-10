@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import moment from 'moment';
+import AdminExchangeRates from './AdminExchangeRates';
 
 const getCurrencyBalanceField = (currency) => {
   if (currency === 'LAK') return 'wallet_balance_lak';
@@ -16,6 +17,7 @@ const adminTabs = [
   { key: 'receive', label: 'Recieve' },
   { key: 'transactions', label: 'Transaction' },
   { key: 'appeals', label: 'Appeals' },
+  { key: 'rates', label: 'Rates' },
   { key: 'account', label: 'Account' },
 ];
 
@@ -318,7 +320,9 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
         ))}
       </div>
 
-      {activeTab === 'appeals' ? (
+      {activeTab === 'rates' ? (
+        <AdminExchangeRates currentUser={currentUser} lang={lang} />
+      ) : activeTab === 'appeals' ? (
         <div className="space-y-4">
           <div className="flex gap-2 flex-wrap items-center">
             <select value={appealFilter} onChange={(e) => setAppealFilter(e.target.value)} className="border border-border rounded-xl px-3 py-2 text-sm bg-card">

@@ -33,12 +33,13 @@ export default function Wallet() {
   const [profilesByEmail, setProfilesByEmail] = useState({});
   const [actionType, setActionType] = useState('');
   const [exchangeRates, setExchangeRates] = useState({
-    usdBuy: 22072,
-    usdSell: 22183,
-    usdtBuy: 22072,
-    usdtSell: 22183,
+    usdBuy: 0,
+    usdSell: 0,
+    usdtBuy: 0,
+    usdtSell: 0,
     updatedAt: '',
   });
+  const [ratesLoaded, setRatesLoaded] = useState(false);
   const lakBalance = profile?.wallet_balance_lak || 0;
   const usdBalance = profile?.wallet_balance_usd || 0;
   const usdtBalance = profile?.wallet_balance_usdt || 0;
@@ -69,10 +70,17 @@ export default function Wallet() {
 
   const loadExchangeRates = async () => {
     try {
-      const response = await base44.functions.invoke('fetchBcelRates', {});
-      const data = response.data;
-      if (data?.success && data.rates) {
-        setExchangeRates(data.rates);
+      const items = await base44.entities.ExchangeRateSettings.list('-updated_date', 1);
+      const item = items[0];
+      if (item) {
+        setExchangeRates({
+          usdBuy: item.usd_buy || 0,
+          usdSell: item.usd_sell || 0,
+          usdtBuy: item.usdt_buy || item.usd_buy || 0,
+          usdtSell: item.usdt_sell || item.usd_sell || 0,
+          updatedAt: item.updated_date || '',
+        });
+        setRatesLoaded(true);
       }
     } catch (error) {
       console.error('Failed to load exchange rates:', error);
@@ -80,22 +88,7 @@ export default function Wallet() {
   };
 
   useEffect(() => {
-    let active = true;
-
-    const loadWhenVisible = async () => {
-      if (document.visibilityState !== 'visible' || !active) return;
-      await loadExchangeRates();
-    };
-
-    loadWhenVisible();
-    const interval = setInterval(loadWhenVisible, 300000);
-    document.addEventListener('visibilitychange', loadWhenVisible);
-
-    return () => {
-      active = false;
-      clearInterval(interval);
-      document.removeEventListener('visibilitychange', loadWhenVisible);
-    };
+    loadExchangeRates();
   }, []);
 
   const requireVerified = () => {
@@ -170,9 +163,18 @@ export default function Wallet() {
 
           <div className="mb-7 flex items-center justify-between gap-4 rounded-3xl border border-white/15 bg-white/10 px-4 py-3 text-sm backdrop-blur-sm">
             <div>
-              <p className="font-bold text-white">BCEL live rates</p>
-              <p className="mt-0.5 text-white/75">USD Buy {exchangeRates.usdBuy.toLocaleString()} · Sell {exchangeRates.usdSell.toLocaleString()}</p>
-              <p className="text-white/75">USDT Buy {exchangeRates.usdtBuy.toLocaleString()} · Sell {exchangeRates.usdtSell.toLocaleString()}</p>
+              <p className="font-bold text-white">{lang === 'lo' ? 'ອັດຕາແລກປ່ຽນ' : 'Exchange Rates'}</p>
+              {ratesLoaded ? (
+                <>
+                  <p className="mt-0.5 text-white/75">USD Buy {exchangeRates.usdBuy.toLocaleString()} · Sell {exchangeRates.usdSell.toLocaleString()}</p>
+                  <p className="text-white/75">USDT Buy {exchangeRates.usdtBuy.toLocaleString()} · Sell {exchangeRates.usdtSell.toLocaleString()}</p>
+                  {exchangeRates.updatedAt && (
+                    <p className="text-white/50 text-[10px] mt-1">Updated: {new Date(exchangeRates.updatedAt).toLocaleString()}</p>
+                  )}
+                </>
+              ) : (
+                <p className="mt-0.5 text-white/60 text-sm">{lang === 'lo' ? 'ກຳລັງໂຫລດ...' : 'Loading...'}</p>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <button 
