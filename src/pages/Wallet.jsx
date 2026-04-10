@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
@@ -24,12 +24,19 @@ export default function Wallet() {
   const [bookings, setBookings] = useState([]);
   const [profilesByEmail, setProfilesByEmail] = useState({});
   const [actionType, setActionType] = useState('');
+  const [exchangeRates, setExchangeRates] = useState({
+    usdBuy: 22072,
+    usdSell: 22183,
+    usdtBuy: 22072,
+    usdtSell: 22183,
+    updatedAt: '',
+  });
   const lakBalance = profile?.wallet_balance_lak || 0;
   const usdBalance = profile?.wallet_balance_usd || 0;
   const usdtBalance = profile?.wallet_balance_usdt || 0;
-  const bcelUsdToLakRate = 21500;
-  const bcelUsdtToLakRate = 21500;
-  const totalLak = lakBalance + (usdBalance * bcelUsdToLakRate) + (usdtBalance * bcelUsdtToLakRate);
+  const usdReferenceRate = exchangeRates.usdBuy || 22072;
+  const usdtReferenceRate = exchangeRates.usdtBuy || usdReferenceRate;
+  const totalLak = lakBalance + (usdBalance * usdReferenceRate) + (usdtBalance * usdtReferenceRate);
 
   const loadTx = async () => {
     if (currentUser) {
@@ -51,6 +58,37 @@ export default function Wallet() {
   };
 
   useEffect(() => { loadTx(); }, [currentUser]);
+
+  useEffect(() => {
+    const loadExchangeRates = async () => {
+      const response = await fetch('https://www.bcel.com.la:8083/exchange.php?langid');
+      const html = await response.text();
+
+      const findRate = (code) => {
+        const rowMatch = html.match(new RegExp(`<tr[^>]*>[\\s\\S]*?<td[^>]*>\\s*${code}\\s*<\\/td>[\\s\\S]*?<td[^>]*>\\s*([0-9,\\.]+)\\s*<\\/td>[\\s\\S]*?<td[^>]*>\\s*([0-9,\\.]+)\\s*<\\/td>`, 'i'));
+        if (!rowMatch) return null;
+        return {
+          buy: Number(rowMatch[1].replace(/,/g, '')),
+          sell: Number(rowMatch[2].replace(/,/g, '')),
+        };
+      };
+
+      const usdRate = findRate('USD');
+      const usdtRate = findRate('USDT') || usdRate;
+
+      setExchangeRates({
+        usdBuy: usdRate?.buy || 22072,
+        usdSell: usdRate?.sell || 22183,
+        usdtBuy: usdtRate?.buy || usdRate?.buy || 22072,
+        usdtSell: usdtRate?.sell || usdRate?.sell || 22183,
+        updatedAt: new Date().toISOString(),
+      });
+    };
+
+    loadExchangeRates();
+    const interval = setInterval(loadExchangeRates, 300000);
+    return () => clearInterval(interval);
+  }, []);
 
   const requireVerified = () => {
     if (!profile?.is_verified) {
@@ -126,10 +164,11 @@ export default function Wallet() {
 
         <div className="flex items-center justify-between gap-3 mb-6 rounded-2xl bg-white/10 border border-white/15 px-3 py-2 text-xs">
           <div>
-            <p className="font-semibold">BCEL rate reference</p>
-            <p className="opacity-75">1 USD ≈ {bcelUsdToLakRate.toLocaleString()} LAK · 1 USDT ≈ {bcelUsdtToLakRate.toLocaleString()} LAK</p>
+            <p className="font-semibold">BCEL live rates</p>
+            <p className="opacity-75">USD Buy {exchangeRates.usdBuy.toLocaleString()} · Sell {exchangeRates.usdSell.toLocaleString()}</p>
+            <p className="opacity-75">USDT Buy {exchangeRates.usdtBuy.toLocaleString()} · Sell {exchangeRates.usdtSell.toLocaleString()}</p>
           </div>
-          <a href="https://www.bcel.com.la/bcel/exchange-rate.html" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold underline underline-offset-2">
+          <a href="https://www.bcel.com.la/bcel/exchange-rate.html?lang=en" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold underline underline-offset-2">
             BCEL <ExternalLink size={12} />
           </a>
         </div>
