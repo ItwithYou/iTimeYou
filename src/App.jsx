@@ -8,7 +8,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from './components/Layout';
 
-// Lazy-loaded page components
+const Login = React.lazy(() => import('./pages/Login'));
 const Bookings = React.lazy(() => import('./pages/Bookings'));
 const AdminVerification = React.lazy(() => import('./pages/AdminVerification'));
 const ListingDetail = React.lazy(() => import('./pages/ListingDetail'));
@@ -18,7 +18,6 @@ const Messages = React.lazy(() => import('./pages/Messages'));
 const PasswordSettings = React.lazy(() => import('./pages/PasswordSettings'));
 const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
 const HelpCenter = React.lazy(() => import('./pages/HelpCenter'));
-// Add page imports here
 
 const LazyFallback = () => (
   <div className="flex items-center justify-center min-h-[40vh]">
@@ -29,7 +28,6 @@ const LazyFallback = () => (
 const AuthenticatedApp = () => {
   const { isLoadingAuth, authError, navigateToLogin } = useAuth();
 
-  // Show loading spinner while checking auth
   if (isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
@@ -38,17 +36,11 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Handle authentication errors
   if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      navigateToLogin();
-      return null;
-    }
+    if (authError.type === 'user_not_registered') return <UserNotRegisteredError />;
+    if (authError.type === 'auth_required') { navigateToLogin(); return null; }
   }
 
-  // Render the main app
   return (
     <Suspense fallback={<LazyFallback />}>
       <Routes>
@@ -73,19 +65,22 @@ const AuthenticatedApp = () => {
   );
 };
 
-
 function App() {
-
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
-          <AuthenticatedApp />
+          <Suspense fallback={<LazyFallback />}>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/*" element={<AuthenticatedApp />} />
+            </Routes>
+          </Suspense>
         </Router>
         <Toaster />
       </QueryClientProvider>
     </AuthProvider>
-  )
+  );
 }
 
-export default App
+export default App;
