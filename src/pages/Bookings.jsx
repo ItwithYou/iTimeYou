@@ -122,6 +122,17 @@ export default function Bookings() {
     toast.success(lang === 'lo' ? 'ສົ່ງຄຳຂໍຍົກເລີກແລ້ວ' : 'Cancel request sent');
   };
 
+  const requestComplete = async (booking) => {
+    await base44.entities.ServiceBooking.update(booking.id, {
+      complete_request_status: 'requested',
+      complete_requested_by: currentUser.email,
+      complete_requested_at: new Date().toISOString()
+    });
+    await loadServiceBookings();
+    setSelectedServiceBooking(null);
+    toast.success(lang === 'lo' ? 'ສົ່ງຄຳຂໍສຳເລັດແລ້ວ (ລໍຖ້າ Admin ອະນຸມັດ)' : 'Completion request sent (waiting for admin approval)');
+  };
+
   const approveCancel = async (booking) => {
     await base44.entities.ServiceBooking.update(booking.id, {
       status: 'cancelled',
@@ -172,7 +183,10 @@ export default function Bookings() {
     if (booking.status === 'completed') return;
 
     await base44.entities.ServiceBooking.update(booking.id, {
-      status: 'completed'
+      status: 'completed',
+      complete_request_status: 'approved',
+      complete_resolved_by: currentUser.email,
+      complete_resolved_at: new Date().toISOString()
     });
 
     const providerProfiles = await base44.entities.UserProfile.filter({ user_email: booking.poster_email });
@@ -346,6 +360,7 @@ export default function Bookings() {
           lang={lang}
           onClose={() => setSelectedServiceBooking(null)}
           onRequestCancel={requestCancel}
+          onRequestComplete={requestComplete}
           onApproveCancel={approveCancel}
           onDeclineCancel={declineCancel}
           onMarkCompleted={markServiceCompleted}

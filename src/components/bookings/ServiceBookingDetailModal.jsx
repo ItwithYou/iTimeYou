@@ -13,7 +13,7 @@ const statusConfig = {
   cancelled: { label: 'Cancelled', cls: 'bg-red-100 text-red-700 border-red-200',             icon: XCircle },
 };
 
-export default function ServiceBookingDetailModal({ booking, currentUser, lang, onClose, onRequestCancel, onApproveCancel, onDeclineCancel, onMarkCompleted }) {
+export default function ServiceBookingDetailModal({ booking, currentUser, lang, onClose, onRequestCancel, onRequestComplete, onApproveCancel, onDeclineCancel, onMarkCompleted }) {
   const [showAppealModal, setShowAppealModal] = useState(false);
   const navigate = useNavigate();
   const [posterProfile, setPosterProfile] = useState(null);
@@ -34,6 +34,7 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
   const serviceStart = booking.service_when ? moment(booking.service_when.split('·')[0].trim()) : null;
   // Allow cancel if: user is booker, not already cancelled, no pending request, and service hasn't started yet
   const canRequestCancel = isBooker && booking.status !== 'cancelled' && booking.status !== 'completed' && booking.cancel_request_status !== 'requested' && (!serviceStart || serviceStart.isAfter(moment()));
+  const canRequestComplete = isBooker && booking.status !== 'cancelled' && booking.status !== 'completed' && booking.complete_request_status !== 'requested';
   const canResolve = (isBooker || isPoster || currentUser?.role === 'admin') && booking.cancel_request_status === 'requested' && booking.cancel_requested_by !== currentUser?.email;
   const canMarkCompleted = currentUser?.role === 'admin' && booking.status !== 'completed' && booking.status !== 'cancelled';
   const canAppeal = booking.status === 'completed' && isBooker;
@@ -174,6 +175,16 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
             )}
           </div>
 
+          {/* Completion Status */}
+          {booking.complete_request_status === 'requested' && booking.status !== 'completed' && (
+            <div className="rounded-2xl border border-primary/30 bg-primary/10 p-4 space-y-2">
+              <p className="flex items-center gap-2 font-semibold text-primary">
+                <CheckCircle2 size={16} />
+                {lang === 'lo' ? 'ລູກຄ້າໄດ້ຮັບການບໍລິການແລ້ວ (ລໍຖ້າ Admin ໂອນເງິນ)' : 'Customer received service (Waiting for Admin to release payment)'}
+              </p>
+            </div>
+          )}
+
           {/* Cancellation Status */}
           {booking.cancel_request_status === 'requested' && (
             <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 space-y-2">
@@ -235,6 +246,11 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
         </div>
 
         <div className="mt-5 space-y-2">
+          {canRequestComplete && (
+            <button onClick={() => onRequestComplete(booking)} className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-semibold text-sm shadow-sm hover:opacity-90 transition-opacity">
+              {lang === 'lo' ? 'ໄດ້ຮັບການບໍລິການແລ້ວ (Got Service)' : 'Got Service'}
+            </button>
+          )}
           {canRequestCancel && (
             <button onClick={() => onRequestCancel(booking)} className="w-full bg-destructive text-destructive-foreground py-3 rounded-xl font-semibold text-sm">
               {lang === 'lo' ? 'ສົ່ງຄຳຂໍຍົກເລີກ' : 'Send Cancel Request'}
