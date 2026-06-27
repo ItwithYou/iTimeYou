@@ -7,7 +7,7 @@ import TrustBadge from '../components/TrustBadge';
 import VerificationBadge from '../components/VerificationBadge';
 import ListingCard from '../components/ListingCard';
 import PostCard from '../components/PostCard';
-import { MapPin, Calendar, Users, Home, Camera, Shield, Trash2, MessageCircle, KeyRound, BadgeCheck, Building2 } from 'lucide-react';
+import { MapPin, Calendar, Users, Home, Camera, Shield, Trash2, MessageCircle, KeyRound, BadgeCheck, Building2, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import VerificationModal from '../components/VerificationModal';
@@ -231,14 +231,8 @@ export default function Profile() {
         {isOwn && (
           <div className="mt-8 pt-6 border-t border-border/50 flex flex-wrap justify-center sm:justify-end gap-2 sm:gap-4">
             <input ref={photoUploadRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
-            <button onClick={() => navigate(`/profile/${viewProfile.id}/password`)} className="flex items-center gap-2 text-muted-foreground hover:text-foreground px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors bg-card hover:bg-muted/50 border border-transparent hover:border-border/50">
-              <KeyRound size={16} /> {lang === 'lo' ? 'ລະຫັດຜ່ານ' : 'Password'}
-            </button>
             <button onClick={() => base44.auth.logout()} className="flex items-center gap-2 text-muted-foreground hover:text-foreground px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors bg-card hover:bg-muted/50 border border-transparent hover:border-border/50">
-              🚪 {lang === 'lo' ? 'ອອກຈາກລະບົບ' : 'Logout'}
-            </button>
-            <button onClick={() => setShowDeleteConfirm(true)} className="flex items-center gap-2 text-destructive/70 hover:text-destructive px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors bg-card hover:bg-destructive/10 border border-transparent hover:border-destructive/20">
-              <Trash2 size={16} /> {lang === 'lo' ? 'ລຶບບັນຊີ' : 'Delete Account'}
+              <LogOut size={16} /> {lang === 'lo' ? 'ອອກຈາກລະບົບ' : 'Logout'}
             </button>
           </div>
         )}
