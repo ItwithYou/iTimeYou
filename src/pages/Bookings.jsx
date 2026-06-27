@@ -29,17 +29,22 @@ export default function Bookings() {
       const listingMap = {};
       allListings.forEach(l => { listingMap[l.id] = l; });
 
+      const allPosts = await base44.entities.ServicePost.list('-created_date', 200);
+      const postMap = {};
+      allPosts.forEach(p => { postMap[p.id] = p; });
+
       if (currentUser.role === 'admin') {
         const [allServices, allStays] = await Promise.all([
           base44.entities.ServiceBooking.list('-created_date', 100),
           base44.entities.Booking.list('-created_date', 100)
         ]);
-        const services = allServices.map(b => ({ ...b, booking_kind: 'service' }));
+        const services = allServices.map(b => ({ ...b, booking_kind: 'service', image: postMap[b.post_id]?.images?.[0] }));
         const stays = allStays.map(b => {
           const lst = listingMap[b.listing_id];
           return {
             ...b,
             booking_kind: 'stay',
+            image: lst?.images?.[0],
             service_type: lst ? (lang === 'lo' && lst.title_lao ? lst.title_lao : lst.title) : 'Stay Accommodation',
             booker_email: b.guest_email,
             booker_name: b.guest_name || b.guest_email,
@@ -65,7 +70,7 @@ export default function Bookings() {
 
       const services = [...asBooker, ...asPoster]
         .filter((b, i, arr) => arr.findIndex(x => x.id === b.id) === i)
-        .map(b => ({ ...b, booking_kind: 'service' }));
+        .map(b => ({ ...b, booking_kind: 'service', image: postMap[b.post_id]?.images?.[0] }));
 
       const stays = [...stayAsBooker, ...stayAsPoster]
         .filter((b, i, arr) => arr.findIndex(x => x.id === b.id) === i)
@@ -74,6 +79,7 @@ export default function Bookings() {
           return {
             ...b,
             booking_kind: 'stay',
+            image: lst?.images?.[0],
             service_type: lst ? (lang === 'lo' && lst.title_lao ? lst.title_lao : lst.title) : 'Stay Accommodation',
             booker_email: b.guest_email,
             booker_name: b.guest_name || b.guest_email,
@@ -254,108 +260,121 @@ export default function Bookings() {
         lang === 'lo' ? 'ລາຍການຈອງທັງໝົດຂອງທ່ານ' : 'All your reservations in one place'}
       </p>
 
-      {/* Pending / Completed tabs */}
-      <div className="flex gap-1 bg-muted rounded-xl p-1 mb-4">
+      {/* Giving / Asking Service Main Tabs */}
+      <div className="flex gap-2 mb-6 p-1.5 bg-muted/30 rounded-2xl border border-border/50">
+        <button
+          onClick={() => setServiceTab('incoming_requests')}
+          className={`flex-1 py-3.5 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${serviceTab === 'incoming_requests' ? 'bg-card text-primary shadow-sm border border-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          🤝 {lang === 'lo' ? 'ໃຫ້ບໍລິການ (Giving)' : 'Giving Service'}
+        </button>
+        <button
+          onClick={() => setServiceTab('my_bookings')}
+          className={`flex-1 py-3.5 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${serviceTab === 'my_bookings' ? 'bg-card text-primary shadow-sm border border-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          🙋 {lang === 'lo' ? 'ຂໍບໍລິການ (Asking)' : 'Asking Service'}
+        </button>
+      </div>
+
+      {/* Pending / Completed Sub-tabs */}
+      <div className="flex gap-6 border-b border-border mb-6 px-2">
         <button
           onClick={() => setTab('pending')}
-          className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${tab === 'pending' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-          
-          ⏳ {lang === 'lo' ? 'ກຳລັງດຳເນີນການ' : 'Pending'}
-          {pendingBookings.length > 0 && <span className="ml-1 text-xs bg-amber-500 text-white rounded-full px-1.5">{pendingBookings.length}</span>}
+          className={`pb-3 text-sm font-bold relative transition-colors ${tab === 'pending' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          ⏳ {lang === 'lo' ? 'ລໍຖ້າດຳເນີນການ' : 'Pending'}
+          {pendingBookings.length > 0 && <span className="ml-1.5 text-[10px] bg-amber-500 text-white rounded-full px-2 py-0.5">{pendingBookings.length}</span>}
+          {tab === 'pending' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-foreground rounded-t-full" />}
         </button>
         <button
           onClick={() => setTab('completed')}
-          className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${tab === 'completed' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-          
+          className={`pb-3 text-sm font-bold relative transition-colors ${tab === 'completed' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
           ✅ {lang === 'lo' ? 'ສຳເລັດແລ້ວ' : 'Completed'}
-          {completedBookings.length > 0 && <span className="ml-1 text-xs bg-primary text-white rounded-full px-1.5">{completedBookings.length}</span>}
+          {completedBookings.length > 0 && <span className="ml-1.5 text-[10px] bg-primary text-white rounded-full px-2 py-0.5">{completedBookings.length}</span>}
+          {tab === 'completed' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-foreground rounded-t-full" />}
         </button>
       </div>
 
-      {/* My Bookings / Incoming sub-tabs */}
-      <div className="flex gap-4 border-b border-border mb-4">
-        <button
-          onClick={() => setServiceTab('my_bookings')}
-          className={`pb-2 text-sm font-semibold relative ${serviceTab === 'my_bookings' ? 'text-primary' : 'text-muted-foreground'}`}
-        >
-          {lang === 'lo' ? 'ການຈອງຂອງຂ້ອຍ' : 'My Bookings'}
-          {serviceTab === 'my_bookings' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />}
-        </button>
-        <button
-          onClick={() => setServiceTab('incoming_requests')}
-          className={`pb-2 text-sm font-semibold relative ${serviceTab === 'incoming_requests' ? 'text-primary' : 'text-muted-foreground'}`}
-        >
-          {lang === 'lo' ? 'ຄຳຂໍທີ່ໄດ້ຮັບ' : 'Received Requests'}
-          {serviceTab === 'incoming_requests' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />}
-        </button>
-      </div>
-
-      {/* Booking list */}
+      {/* Transaction list */}
       {visibleBookings.length > 0 ? (
         <div className="space-y-4">
           {visibleBookings.map((b) => {
             const st = statusConfig[b.status] || statusConfig.pending;
             const Icon = st.icon;
             const isIncoming = serviceTab === 'incoming_requests';
+            const statusColor = b.status === 'completed' ? 'border-l-blue-500' : b.status === 'confirmed' ? 'border-l-emerald-500' : b.status === 'cancelled' ? 'border-l-red-500' : 'border-l-amber-500';
+
             return (
               <button
                 key={b.id}
                 onClick={() => setSelectedServiceBooking(b)}
-                className="w-full text-left bg-card rounded-2xl border border-border shadow-sm p-4 hover:shadow-md transition-all hover:border-primary/50 cursor-pointer"
+                className={`w-full text-left bg-card rounded-2xl border border-border shadow-sm hover:shadow-md transition-all cursor-pointer overflow-hidden border-l-[6px] ${statusColor}`}
               >
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">
-                      {b.booking_kind === 'stay' ? '🏠' : '🛎️'}
+                <div className="p-4 sm:p-5">
+                  <div className="flex items-start justify-between gap-3 mb-4">
+                    <div className="flex items-center gap-3.5">
+                      {b.image ? (
+                        <img src={b.image} alt={b.service_type} className="w-14 h-14 rounded-xl object-cover shadow-sm border border-border flex-shrink-0" />
+                      ) : (
+                        <div className="w-14 h-14 bg-muted/50 rounded-xl flex items-center justify-center text-2xl shadow-sm border border-border flex-shrink-0">
+                          {b.booking_kind === 'stay' ? '🏠' : '🛎️'}
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-bold text-base line-clamp-1">{b.service_type || 'Service Transaction'}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {isIncoming
+                            ? `${lang === 'lo' ? 'ລູກຄ້າ:' : 'Client:'} ${b.booker_name || b.booker_email}`
+                            : `${lang === 'lo' ? 'ຜູ້ໃຫ້ບໍລິການ:' : 'Provider:'} ${b.poster_name || b.poster_email}`}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-bold text-sm">{b.service_type || 'Service'}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {isIncoming
-                          ? `${lang === 'lo' ? 'ຈາກລູກຄ້າ' : 'From customer'} ${b.booker_name || b.booker_email}`
-                          : `${lang === 'lo' ? 'ຈາກຜູ້ໃຫ້ບໍລິການ' : 'From host'} ${b.poster_name || b.poster_email}`}
-                      </p>
-                    </div>
+                    <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border flex-shrink-0 ${st.cls}`}>
+                      <Icon size={12} /> {st.label}
+                    </span>
                   </div>
-                  <span className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border flex-shrink-0 ${st.cls}`}>
-                    <Icon size={11} /> {st.label}
-                  </span>
+
+                  <div className="flex flex-wrap gap-4 text-[13px] text-muted-foreground mb-4">
+                    {b.service_when && (
+                      <span className="flex items-center gap-1.5 font-medium">
+                        <Calendar size={14} className="text-primary/70" /> {formatServiceWhen(b.service_when)}
+                      </span>
+                    )}
+                    {b.service_duration > 0 && (
+                      <span className="flex items-center gap-1.5 font-medium">
+                        <Clock size={14} className="text-primary/70" /> {b.service_duration}{b.booking_kind === 'stay' ? ' nights' : 'h'}
+                      </span>
+                    )}
+                    {b.service_location && (
+                      <span className="flex items-center gap-1.5 font-medium truncate max-w-[200px]">
+                        <MapPin size={14} className="text-primary/70" /> {b.service_location}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-3">
-                  {b.service_when && (
-                    <span className="flex items-center gap-1">
-                      <Calendar size={11} /> {formatServiceWhen(b.service_when)}
-                    </span>
-                  )}
-                  {b.service_duration > 0 && (
-                    <span className="flex items-center gap-1">
-                      <Clock size={11} /> {b.service_duration}{b.booking_kind === 'stay' ? ' nights' : 'h'}
-                    </span>
-                  )}
-                  {b.service_location && (
-                    <span className="flex items-center gap-1">
-                      <MapPin size={11} /> {b.service_location}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center justify-between pt-2 border-t border-border">
-                  <span className="font-bold text-primary">{b.price} {b.currency || 'USD'}</span>
-                  <span className="text-xs text-muted-foreground">{formatTimestampDMY(b.created_date)}</span>
+
+                <div className="bg-muted/30 px-4 sm:px-5 py-3 border-t border-dashed border-border flex items-center justify-between">
+                  <span className="text-xs font-semibold text-muted-foreground">{formatTimestampDMY(b.created_date)}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-muted-foreground uppercase">{lang === 'lo' ? 'ລາຄາລວມ' : 'TOTAL'}</span>
+                    <span className="text-lg font-black text-foreground">{b.price} {b.currency || 'USD'}</span>
+                  </div>
                 </div>
               </button>
             );
           })}
         </div>
       ) : (
-        <div className="text-center py-16 text-muted-foreground">
-          <p className="text-5xl mb-3">{tab === 'pending' ? '⏳' : '✅'}</p>
-          <h3 className="font-semibold mb-1">
+        <div className="text-center py-20 text-muted-foreground bg-muted/20 rounded-3xl border border-border border-dashed">
+          <p className="text-5xl mb-4">{tab === 'pending' ? '⏳' : '✅'}</p>
+          <h3 className="text-lg font-bold mb-2">
             {tab === 'pending'
-              ? lang === 'lo' ? 'ຍັງບໍ່ມີການຈອງທີ່ລໍຖ້າ' : 'No pending bookings'
-              : lang === 'lo' ? 'ຍັງບໍ່ມີການຈອງທີ່ສຳເລັດ' : 'No completed bookings'}
+              ? lang === 'lo' ? 'ຍັງບໍ່ມີທຸລະກຳທີ່ລໍຖ້າ' : 'No pending transactions'
+              : lang === 'lo' ? 'ຍັງບໍ່ມີທຸລະກຳທີ່ສຳເລັດ' : 'No completed transactions'}
           </h3>
-          <p className="text-sm mb-5">{lang === 'lo' ? 'ຊອກຫາການບໍລິການໃນ Feed' : 'Browse services in the Feed'}</p>
-          <Link to="/feed" className="inline-block bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90">{t.feed}</Link>
+          <p className="text-sm mb-6 max-w-sm mx-auto">{lang === 'lo' ? 'ຊອກຫາການບໍລິການໃນ Feed ເພື່ອເລີ່ມຕົ້ນທຸລະກຳໃໝ່' : 'Browse services in the Feed to start a new transaction'}</p>
+          <Link to="/feed" className="inline-block bg-primary text-primary-foreground px-8 py-3 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:opacity-90 hover:scale-105 transition-all">{t.feed}</Link>
         </div>
       )}
 
