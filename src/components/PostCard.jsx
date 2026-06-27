@@ -93,6 +93,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
   }, [post.id, post.comment_count]);
 
   const toggleLike = async () => {
+    if (!currentUser) { window.dispatchEvent(new Event('open-login')); return; }
     const currentLikes = post.likes || [];
     const alreadyLiked = currentLikes.includes(currentUserEmail);
     const newLikes = alreadyLiked
@@ -124,7 +125,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
   };
 
   const handleBookOrChat = async () => {
-    if (!currentUser) { navigate('/login'); return; }
+    if (!currentUser) { window.dispatchEvent(new Event('open-login')); return; }
     setShowBookModal(true);
   };
 

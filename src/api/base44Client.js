@@ -269,11 +269,11 @@ const authModule = {
   async verifyResetCode(oobCode) {
     return verifyPasswordResetCode(auth, oobCode);
   },
-  logout() {
-    signOut(auth).finally(() => { window.location.href = '/login'; });
+  async logout() {
+    signOut(auth).finally(() => { window.location.href = '/'; });
   },
   redirectToLogin() {
-    window.location.href = '/login';
+    window.dispatchEvent(new Event('open-login'));
   },
   onAuthStateChanged(cb) {
     return onAuthStateChanged(auth, cb);

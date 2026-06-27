@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   // authError stays null — guests are allowed to browse freely.
   const [authError] = useState(null);
 
@@ -31,6 +32,7 @@ export const AuthProvider = ({ children }) => {
           photo_url: firebaseUser.photoURL || '',
         });
         setIsAuthenticated(true);
+        setShowLoginModal(false); // Close modal on successful login
       } else {
         setUser(null);
         setIsAuthenticated(false);
@@ -40,25 +42,35 @@ export const AuthProvider = ({ children }) => {
     return () => { clearTimeout(failSafe); unsub(); };
   }, []);
 
+  useEffect(() => {
+    const handleOpenLogin = () => setShowLoginModal(true);
+    window.addEventListener('open-login', handleOpenLogin);
+    return () => window.removeEventListener('open-login', handleOpenLogin);
+  }, []);
+
   const logout = () => {
     import('firebase/auth').then(({ signOut }) => signOut(auth)).then(() => {
       window.location.href = '/';
     });
   };
 
-  const navigateToLogin = () => { window.location.href = '/login'; };
+  const navigateToLogin = () => { setShowLoginModal(true); };
 
-  // Helper for gated actions: returns true if allowed, else sends user to /login.
+  // Helper for gated actions: returns true if allowed, else pops the modal.
   const requireAuth = () => {
     if (isAuthenticated) return true;
-    window.location.href = '/login';
+    setShowLoginModal(true);
     return false;
   };
 
   const checkAppState = () => {};
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isLoadingAuth, authError, logout, navigateToLogin, requireAuth, checkAppState }}>
+    <AuthContext.Provider value={{ 
+      user, isAuthenticated, isLoadingAuth, authError, logout, 
+      navigateToLogin, requireAuth, checkAppState,
+      showLoginModal, setShowLoginModal
+    }}>
       {children}
     </AuthContext.Provider>
   );

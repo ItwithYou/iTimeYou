@@ -53,7 +53,7 @@ export default function ListingDetail() {
   const bookingCurrency = 'USD';
 
   const handleBooking = async () => {
-    if (!currentUser) { navigate('/login'); return; }
+    if (!currentUser) { window.dispatchEvent(new Event('open-login')); return; }
     if (!checkIn || !checkOut) { toast.error(t.selectDates); return; }
     if (nights <= 0) { toast.error(t.selectDates); return; }
     if (checkIn < getTodayISO()) {
@@ -110,7 +110,7 @@ export default function ListingDetail() {
   };
 
   const handleMessageHost = async () => {
-    if (!currentUser) { navigate('/login'); return; }
+    if (!currentUser) { window.dispatchEvent(new Event('open-login')); return; }
     if (listing?.host_email) {
       const convId = await startOrGetConversation(currentUser.email, listing.host_email);
       if (convId) {

@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { base44, auth } from '@/api/base44Client';
 import { onAuthStateChanged } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Phone, User, MessageSquare } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ArrowLeft, Phone, User, MessageSquare, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 function friendlyError(err) {
@@ -22,16 +22,16 @@ function friendlyError(err) {
 }
 
 const COUNTRY_CODES = [
-  { code: '+856', label: 'Lao (+856)' },
-  { code: '+66', label: 'Thailand (+66)' },
-  { code: '+84', label: 'Vietnam (+84)' },
-  { code: '+855', label: 'Cambodia (+855)' },
-  { code: '+86', label: 'China (+86)' },
-  { code: '+1', label: 'US/Canada (+1)' },
-  { code: '+44', label: 'UK (+44)' },
+  { code: '+856', label: '🇱🇦' },
+  { code: '+66', label: '🇹🇭' },
+  { code: '+84', label: '🇻🇳' },
+  { code: '+855', label: '🇰🇭' },
+  { code: '+86', label: '🇨🇳' },
+  { code: '+1', label: '🇺🇸' },
+  { code: '+44', label: '🇬🇧' },
 ];
 
-export default function Login() {
+export default function LoginModal({ isOpen, onClose }) {
   const [step, setStep] = useState('initial'); // 'initial', 'phone', 'otp', 'username'
   const [countryCode, setCountryCode] = useState('+856');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -42,18 +42,28 @@ export default function Login() {
   const [confirmationResult, setConfirmationResult] = useState(null);
   
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!isOpen) {
+      setStep('initial');
+      setError('');
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => { 
-      if (u) {
-        // Only auto-redirect if on the initial screen (covers already-logged-in and Google Auth reload)
-        if (step === 'initial') navigate('/feed'); 
+      if (u && isOpen) {
+        if (step === 'initial') go();
       }
     });
     return unsub;
-  }, [navigate, step]);
+  }, [navigate, step, isOpen]);
 
-  const go = () => navigate('/feed');
+  const go = () => {
+    onClose?.();
+    if (location.pathname === '/') navigate('/feed');
+  };
 
   const handleGoogle = async () => {
     setError(''); setLoading(true);
@@ -120,21 +130,28 @@ export default function Login() {
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-background to-primary/5 px-4 py-10 relative overflow-hidden">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-md px-4 py-10 overflow-y-auto">
       
       {/* Decorative background blurs */}
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-tiffany/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob pointer-events-none"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-tiffany/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000 pointer-events-none"></div>
 
-      <div className="w-full max-w-sm relative z-10">
-        <div className="text-center mb-8">
-          <div className="text-5xl font-black text-primary tracking-tight mb-1">iTimeYou</div>
-          <div className="text-xs text-muted-foreground uppercase tracking-widest font-semibold mt-2">Log In or Sign Up</div>
-        </div>
-
-        <div className="bg-card/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-primary/5 border border-border/50 p-7">
+      <div className="w-full max-w-sm relative z-10 animate-in zoom-in-95 fade-in duration-300">
+        <button onClick={onClose} className="absolute -top-12 right-0 p-2 text-white/70 hover:text-white transition-colors bg-black/20 rounded-full backdrop-blur-md">
+          <X size={20} />
+        </button>
+        <div className="bg-card/60 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-primary/10 rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden">
           
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+
+          <div className="text-center mb-8">
+            <div className="text-5xl font-black text-primary tracking-tight mb-1">iTimeYou</div>
+            <div className="text-xs text-muted-foreground uppercase tracking-widest font-semibold mt-2">Log In or Sign Up</div>
+          </div>
+
           {step === 'initial' && (
             <div className="space-y-4">
               <button onClick={handleGoogle} disabled={loading}
@@ -165,7 +182,7 @@ export default function Login() {
                 <select 
                   value={countryCode} 
                   onChange={e => setCountryCode(e.target.value)}
-                  className="px-3 py-3.5 rounded-2xl border border-border bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all font-medium min-w-[110px]"
+                  className="px-2 py-3.5 rounded-2xl border border-border bg-background/50 text-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all font-medium min-w-[70px] text-center"
                 >
                   {COUNTRY_CODES.map(c => (
                     <option key={c.code} value={c.code}>{c.label}</option>

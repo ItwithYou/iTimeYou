@@ -138,8 +138,14 @@ export default function Layout() {
   }
 
   // Guests can browse everything except the login-gated tabs.
+  useEffect(() => {
+    if (!loading && !currentUser && PROTECTED_TABS.includes(location.pathname)) {
+      window.dispatchEvent(new Event('open-login'));
+    }
+  }, [loading, currentUser, location.pathname]);
+
   if (!currentUser && PROTECTED_TABS.includes(location.pathname)) {
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+    return <Navigate to="/" replace />;
   }
 
   return (

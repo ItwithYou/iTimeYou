@@ -7,7 +7,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import Layout from './components/Layout';
 
-const Login = React.lazy(() => import('./pages/Login'));
+const LoginModal = React.lazy(() => import('./components/LoginModal'));
 const AdminVerification = React.lazy(() => import('./pages/AdminVerification'));
 const ListingDetail = React.lazy(() => import('./pages/ListingDetail'));
 const Profile = React.lazy(() => import('./pages/Profile'));
@@ -26,9 +26,16 @@ const LazyFallback = () => (
 const RequireAuth = ({ children }) => {
   const { isAuthenticated, isLoadingAuth } = useAuth();
   const location = useLocation();
+  
+  React.useEffect(() => {
+    if (!isLoadingAuth && !isAuthenticated) {
+      window.dispatchEvent(new Event('open-login'));
+    }
+  }, [isLoadingAuth, isAuthenticated]);
+
   if (isLoadingAuth) return <LazyFallback />;
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+    return <Navigate to="/" replace />;
   }
   return children;
 };
@@ -78,6 +85,11 @@ const AuthenticatedApp = () => {
   );
 };
 
+const GlobalLoginModal = () => {
+  const { showLoginModal, setShowLoginModal } = useAuth();
+  return <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />;
+};
+
 function App() {
   return (
     <AuthProvider>
@@ -85,10 +97,10 @@ function App() {
         <Router>
           <Suspense fallback={<LazyFallback />}>
             <Routes>
-              <Route path="/login" element={<Login />} />
               <Route path="/*" element={<AuthenticatedApp />} />
             </Routes>
           </Suspense>
+          <GlobalLoginModal />
         </Router>
         <Toaster />
       </QueryClientProvider>
