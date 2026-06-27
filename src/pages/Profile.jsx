@@ -436,7 +436,7 @@ export default function Profile() {
         {activeTab === 'posts' &&
         <div className="space-y-4">
             {posts.map((p) =>
-          <PostCard key={p.id} post={p} currentUserEmail={currentUser?.email} t={t} lang={lang} />
+          <PostCard key={p.id} post={p} currentUserEmail={currentUser?.email} t={t} lang={lang} authorProfile={viewProfile} />
           )}
             {posts.length === 0 &&
           <p className="text-center py-8 text-muted-foreground">{t.noPosts}</p>

@@ -20,20 +20,20 @@ export default function Feed() {
 
   const loadPosts = async () => {
     const data = await base44.entities.Post.list('-created_date', 30);
-    setPosts(data);
-
     const emails = [...new Set(data.map(p => p.author_email).filter(Boolean))];
-    if (emails.length === 0) {
+    
+    if (emails.length > 0) {
+      const profiles = await base44.entities.UserProfile.list('-created_date', 100);
+      const map = {};
+      profiles.forEach(p => {
+        if (emails.includes(p.user_email)) map[p.user_email] = p;
+      });
+      setAuthorProfiles(map);
+    } else {
       setAuthorProfiles({});
-      return;
     }
-
-    const profiles = await base44.entities.UserProfile.list('-created_date', 100);
-    const map = {};
-    profiles.forEach(p => {
-      if (emails.includes(p.user_email)) map[p.user_email] = p;
-    });
-    setAuthorProfiles(map);
+    
+    setPosts(data);
   };
 
   const { refreshing, pullDistance, threshold } = usePullToRefresh(loadPosts, '/feed');
