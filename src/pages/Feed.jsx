@@ -44,8 +44,8 @@ export default function Feed() {
   // Automated one-time seeder for premium demo data — Yakuci admin posts
   useEffect(() => {
     const seedData = async () => {
-      if (localStorage.getItem('seeded_yakuci_v1')) return;
-      localStorage.setItem('seeded_yakuci_v1', 'true');
+      if (localStorage.getItem('seeded_yakuci_v2')) return;
+      localStorage.setItem('seeded_yakuci_v2', 'true');
 
       // Clean up old corrupted demo posts from previous seeders
       try {
@@ -53,6 +53,7 @@ export default function Feed() {
         const toDelete = oldPosts.filter(p =>
           p.author_name === 'Premium User' ||
           p.author_name === 'iTimeYou Admin' ||
+          p.author_name === 'Yakuci' ||
           (p.author_name && p.author_name.includes('Latdaphone'))
         );
         for (const p of toDelete) {
@@ -70,13 +71,13 @@ export default function Feed() {
           text_en: 'Stunning morning views at the golden stupa in Vientiane. The heritage here is incredibly well-preserved! 🙏✨',
           text_lo: 'ທັດສະນີຍະພາບຍາມເຊົ້າທີ່ງົດງາມຂອງທາດຫຼວງທອງໃນນະຄອນຫຼວງວຽງຈັນ. ມໍລະດົກທາງວັດທະນະທຳທີ່ນີ້ຖືກຮັກສາໄວ້ຢ່າງດີ! 🙏✨',
           photo_urls: [
-            'https://images.unsplash.com/photo-1590396472288-51829e2f9d6c?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1605648814781-a9f826372d82?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1549491873-1082c9769352?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1528169941961-80f4f9fde2c9?auto=format&fit=crop&w=800&q=80'
+            'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
+            'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800&q=80',
+            'https://images.unsplash.com/photo-1540122995631-7c74c31c2cf5?w=800&q=80',
+            'https://images.unsplash.com/photo-1504214208698-ea446f65c935?w=800&q=80',
+            'https://images.unsplash.com/photo-1493780474015-ba834fd0ce2f?w=800&q=80'
           ],
-          photo_url: 'https://images.unsplash.com/photo-1590396472288-51829e2f9d6c?auto=format&fit=crop&w=800&q=80',
+          photo_url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
           service_price: 0,
         },
         {
@@ -85,13 +86,13 @@ export default function Feed() {
           text_en: 'Hidden jungle waterfalls that take your breath away. The hike was tough but absolutely worth every step! 🌿💦',
           text_lo: 'ນ້ຳຕົກໃນປ່າເລິກທີ່ເຮັດໃຫ້ຫາຍໃຈບໍ່ທັນ. ການຍ່າງປ່າແມ່ນໜັກແຕ່ຄຸ້ມຄ່າທຸກບາດກ້າວ! 🌿💦',
           photo_urls: [
-            'https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80'
+            'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800&q=80',
+            'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80',
+            'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=800&q=80',
+            'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+            'https://images.unsplash.com/photo-1446329813274-7c9036bd9a1f?w=800&q=80'
           ],
-          photo_url: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=800&q=80',
+          photo_url: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800&q=80',
           service_price: 0,
         },
         {
@@ -100,13 +101,13 @@ export default function Feed() {
           text_en: 'Luxury riverside villa available now. Private infinity pool overlooking the Mekong — your perfect weekend escape! 🌊🏨',
           text_lo: 'ວິນລ້າລະດັບຫ້ອງດາວຫ້າຕິດແມ່ນ້ຳຂອງ. ສະລອຍນ້ຳສ່ວນຕົວແບບ infinity ເບິ່ງເຫັນແມ່ນ້ຳຂອງ — ສະຖານທີ່ພັກຜ່ອນທີ່ສົມບູນແບບ! 🌊🏨',
           photo_urls: [
-            'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1502672260266-1c15a8223d61?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80'
+            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
+            'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&q=80',
+            'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80',
+            'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80',
+            'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&q=80'
           ],
-          photo_url: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=800&q=80',
+          photo_url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
           service_price: 250, service_type: 'Luxury Villa', service_location: 'Luang Prabang', service_currency: 'USD',
         },
         {
@@ -115,13 +116,13 @@ export default function Feed() {
           text_en: 'The best Khao Soi in town! Rich, spicy, and absolutely packed with flavor. A must-try Lao experience. 🍜🌶️',
           text_lo: 'ເຂົ້າຊອຍທີ່ແຊບທີ່ສຸດໃນເມືອງ! ເຂັ້ມຂຸ້ນ, ເຜັດ, ແລະ ເຕັມໄປດ້ວຍລົດຊາດ. ຕ້ອງລອງເມື່ອມາລາວ! 🍜🌶️',
           photo_urls: [
-            'https://images.unsplash.com/photo-1559314809-0d155014e29e?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1548943487-a2e4e43b4859?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1556740758-90de374c12ad?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1544025162-8111149f4851?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=800&q=80'
+            'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80',
+            'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=800&q=80',
+            'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80',
+            'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=800&q=80',
+            'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=800&q=80'
           ],
-          photo_url: 'https://images.unsplash.com/photo-1559314809-0d155014e29e?auto=format&fit=crop&w=800&q=80',
+          photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80',
           service_price: 5, service_type: 'Local Cuisine', service_location: 'Night Market', service_currency: 'USD',
         },
         {
@@ -130,13 +131,13 @@ export default function Feed() {
           text_en: 'Sunset cruise down the Mekong river. Includes a traditional dinner and drinks on board — pure magic! 🛥️🍷',
           text_lo: 'ລ່ອງເຮືອຊົມພະອາທິດຕົກດິນລົງແມ່ນ້ຳຂອງ. ລວມອາຫານຄ່ຳແບບດັ້ງເດີມ ແລະ ເຄື່ອງດື່ມເທິງເຮືອ — ມະຫັດສະຈັນແທ້ໆ! 🛥️🍷',
           photo_urls: [
-            'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1610756055562-b94f6e1f0e42?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1517400508447-f8dd518b86db?auto=format&fit=crop&w=800&q=80'
+            'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
+            'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
+            'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
+            'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80',
+            'https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=800&q=80'
           ],
-          photo_url: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80',
+          photo_url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
           service_price: 60, service_type: 'River Cruise', service_location: 'Mekong River', service_currency: 'USD',
         },
       ];

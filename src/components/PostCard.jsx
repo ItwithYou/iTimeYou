@@ -395,10 +395,11 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
       )}
 
       {/* Actions */}
-      <div className="flex border-t border-border">
+      <div className="flex border-t border-border" style={{ touchAction: 'manipulation' }}>
         <button
           onClick={toggleLike}
           className={`flex-1 flex items-center justify-center gap-1.5 py-3.5 text-sm transition-colors active:bg-muted ${liked ? 'text-red-500 font-semibold' : 'text-muted-foreground'}`}
+          style={{ touchAction: 'manipulation', minHeight: '48px' }}
         >
           <Heart size={17} className={liked ? 'fill-red-500' : ''} />
           {t.like}
@@ -406,6 +407,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
         <button
           onClick={() => setShowComments(!showComments)}
           className="flex-1 flex items-center justify-center gap-1.5 py-3.5 text-sm text-muted-foreground active:bg-muted transition-colors"
+          style={{ touchAction: 'manipulation', minHeight: '48px' }}
         >
           <MessageCircle size={17} />
           {t.comment}
@@ -413,6 +415,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
         <button
           onClick={handleShare}
           className="flex-1 flex items-center justify-center gap-1.5 py-3.5 text-sm text-muted-foreground active:bg-muted transition-colors"
+          style={{ touchAction: 'manipulation', minHeight: '48px' }}
         >
           <Share2 size={17} />
           {t.share}
