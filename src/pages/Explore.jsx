@@ -26,8 +26,13 @@ export default function Explore() {
   // Automated one-time seeder for premium listings
   useEffect(() => {
     const seedData = async () => {
-      if (localStorage.getItem('seeded_explore_data_v2') || !currentUser) return;
-      localStorage.setItem('seeded_explore_data_v2', 'true');
+      if (localStorage.getItem('seeded_explore_data_v4') || !currentUser) return;
+      localStorage.setItem('seeded_explore_data_v4', 'true');
+      
+      try {
+        const existing = await base44.entities.Listing.list();
+        await Promise.all(existing.map(e => base44.entities.Listing.delete(e.id)));
+      } catch (e) {}
       
       const CAT_IMAGES = {
         culture: [
@@ -75,9 +80,8 @@ export default function Explore() {
       };
 
       const getImages = (cat, idx) => {
-        const arr = [...CAT_IMAGES[cat]];
-        for(let i=0; i<idx; i++) arr.push(arr.shift());
-        return arr;
+        const arr = CAT_IMAGES[cat];
+        return [arr[idx % arr.length]];
       };
 
       const LISTINGS = [
