@@ -63,7 +63,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
     const map = {};
     profiles.forEach(p => {
       if (emails.includes(p.user_email)) {
-        map[p.user_email] = `${p.first_name} ${p.last_name}`.trim();
+        map[p.user_email] = p;
       }
     });
     setCommentProfiles(map);
@@ -178,7 +178,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
           className="flex-shrink-0"
         >
           <img
-            src={post.author_avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author_email}`}
+            src={authorProfile?.photo_url || authorProfile?.avatar_url || post.author_avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author_email}`}
             alt=""
             className="w-12 h-12 rounded-full object-cover border-2 border-primary/20 hover:opacity-80 transition-opacity"
           />
@@ -190,7 +190,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
             }}
             className="text-sm font-bold truncate hover:text-primary transition-colors block"
           >
-            {post.author_name || 'User'}
+            {authorProfile ? `${authorProfile.first_name} ${authorProfile.last_name}`.trim() : (post.author_name || 'User')}
           </button>
           <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
             <span>{moment(new Date(post.created_date)).fromNow()}</span>
@@ -406,7 +406,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
               {comments.slice(0, 5).map(c => (
                 <div key={c.id} className="flex gap-2">
                   <img
-                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${c.author_email}`}
+                    src={commentProfiles[c.author_email]?.photo_url || commentProfiles[c.author_email]?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${c.author_email}`}
                     alt=""
                     onClick={() => {
                       // Navigate to commenter's profile
@@ -417,7 +417,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
                     className="w-6 h-6 rounded-full flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                   />
                   <div className="bg-card rounded-xl px-3 py-1.5 text-xs">
-                    <span className="font-bold">{commentProfiles[c.author_email] || c.author_name || 'User'}</span>{' '}
+                    <span className="font-bold">{commentProfiles[c.author_email] ? `${commentProfiles[c.author_email].first_name} ${commentProfiles[c.author_email].last_name}`.trim() : (c.author_name || 'User')}</span>{' '}
                     <span className="text-muted-foreground">{c.text}</span>
                   </div>
                 </div>
