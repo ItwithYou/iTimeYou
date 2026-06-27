@@ -95,50 +95,52 @@
     --sidebar-ring: 170 100% 45%;
   }
 
-  /* Warm Gold Soft — cozy cream background with warm gold accents */
+  /* Warm Gold Soft — cozy cream background with deep, readable bronze-gold accents */
   .warm {
     --background: 40 40% 96%;
-    --foreground: 28 30% 18%;
+    --foreground: 26 35% 16%;
     --card: 42 50% 99%;
-    --card-foreground: 28 30% 18%;
+    --card-foreground: 26 35% 16%;
     --popover: 42 50% 99%;
-    --popover-foreground: 28 30% 18%;
-    --primary: 38 78% 52%;
-    --primary-foreground: 40 50% 99%;
-    --secondary: 32 60% 45%;
-    --secondary-foreground: 40 50% 99%;
+    --popover-foreground: 26 35% 16%;
+    --primary: 30 72% 40%;
+    --primary-foreground: 42 60% 99%;
+    --secondary: 28 55% 34%;
+    --secondary-foreground: 42 60% 99%;
     --muted: 40 30% 91%;
-    --muted-foreground: 30 18% 42%;
-    --accent: 36 70% 55%;
-    --accent-foreground: 28 30% 18%;
-    --destructive: 4 70% 52%;
-    --destructive-foreground: 40 50% 99%;
-    --border: 38 28% 85%;
-    --input: 38 28% 85%;
-    --ring: 38 78% 52%;
-    --chart-1: 38 78% 52%;
-    --chart-2: 32 60% 45%;
-    --chart-3: 24 70% 55%;
-    --chart-4: 44 80% 58%;
-    --chart-5: 30 50% 40%;
+    --muted-foreground: 28 22% 36%;
+    --accent: 32 62% 40%;
+    --accent-foreground: 42 60% 99%;
+    --destructive: 4 72% 46%;
+    --destructive-foreground: 42 60% 99%;
+    --border: 38 26% 84%;
+    --input: 38 26% 84%;
+    --ring: 30 72% 40%;
+    --chart-1: 30 72% 40%;
+    --chart-2: 28 55% 34%;
+    --chart-3: 22 65% 45%;
+    --chart-4: 40 70% 45%;
+    --chart-5: 26 50% 32%;
 
-    --gold: 40 85% 55%;
-    --success: 150 45% 42%;
-    --warning: 38 95% 52%;
-    --info: 30 60% 50%;
-    --tiffany: 38 78% 52%;
-    --deep-green: 32 55% 40%;
+    --gold: 38 80% 48%;
+    --success: 150 50% 34%;
+    --warning: 32 85% 44%;
+    --info: 28 60% 42%;
+    --tiffany: 30 72% 40%;
+    --deep-green: 28 55% 30%;
 
     --sidebar-background: 42 45% 97%;
-    --sidebar-foreground: 28 30% 18%;
-    --sidebar-primary: 38 78% 52%;
-    --sidebar-primary-foreground: 40 50% 99%;
+    --sidebar-foreground: 26 35% 16%;
+    --sidebar-primary: 30 72% 40%;
+    --sidebar-primary-foreground: 42 60% 99%;
     --sidebar-accent: 40 30% 91%;
-    --sidebar-accent-foreground: 28 30% 18%;
-    --sidebar-border: 38 28% 85%;
-    --sidebar-ring: 38 78% 52%;
+    --sidebar-accent-foreground: 26 35% 16%;
+    --sidebar-border: 38 26% 84%;
+    --sidebar-ring: 30 72% 40%;
   }
 }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 @layer base {
   * {

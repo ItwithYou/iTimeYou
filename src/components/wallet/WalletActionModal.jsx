@@ -3,7 +3,7 @@ import { ArrowRightLeft, X } from 'lucide-react';
 import MobileSelect from '../MobileSelect';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { convertFromLak, convertToLak, exchangeWalletBalance } from '../../utils/wallet';
+import { DEFAULT_EXCHANGE_RATES, convertFromLak, convertToLak, exchangeWalletBalance } from '../../utils/wallet';
 
 const BANKS = ['BCEL', 'LDB'];
 const CURRENCIES = ['LAK', 'USD', 'USDT'];
@@ -24,7 +24,7 @@ function FileUploadButton({ label, accept, onChange }) {
   );
 }
 
-export default function WalletActionModal({ type, currentUser, profile, lang, exchangeRates, onClose, onSubmitted }) {
+export default function WalletActionModal({ type, currentUser, profile, lang, onClose, onSubmitted }) {
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState(profile?.wallet_currency || 'USD');
   const [accountNumber, setAccountNumber] = useState('');
@@ -48,13 +48,13 @@ export default function WalletActionModal({ type, currentUser, profile, lang, ex
   const exchangePreview = useMemo(() => {
     const numericAmount = Number(amount);
     if (type !== 'exchange' || !numericAmount || numericAmount <= 0 || currency === exchangeToCurrency) return null;
-    const amountLak = convertToLak(numericAmount, currency, exchangeRates);
-    const receivedAmount = convertFromLak(amountLak, exchangeToCurrency, exchangeRates);
+    const amountLak = convertToLak(numericAmount, currency, DEFAULT_EXCHANGE_RATES);
+    const receivedAmount = convertFromLak(amountLak, exchangeToCurrency, DEFAULT_EXCHANGE_RATES);
     return {
       amountLak,
       receivedAmount,
     };
-  }, [amount, currency, exchangeToCurrency, type, exchangeRates]);
+  }, [amount, currency, exchangeToCurrency, type]);
 
   useEffect(() => {
     const loadAccountSettings = async () => {
@@ -94,12 +94,10 @@ export default function WalletActionModal({ type, currentUser, profile, lang, ex
       toast.error(lang === 'lo' ? 'ກະລຸນາໃສ່ຈຳນວນເງິນ' : 'Please enter amount');
       return;
     }
-    if (type === 'topup' && !bankName) {
-      toast.error(lang === 'lo' ? 'ກະລຸນາເລືອກທະນາຄານ' : 'Please select a bank');
-      return;
-    }
+    // For top-up the account shown is the admin's receiving account (display only),
+    // so we only require the amount + the payment screenshot (the bill).
     if (type === 'topup' && !file) {
-      toast.error(lang === 'lo' ? 'ກະລຸນາແນບສະລິບ' : 'Please attach payment screenshot');
+      toast.error(lang === 'lo' ? 'ກະລຸນາແນບສະລິບການຈ່າຍເງິນ' : 'Please attach your payment screenshot');
       return;
     }
     if (type === 'withdraw' && (!accountNumber || !bankName || !accountName)) {
@@ -132,7 +130,7 @@ export default function WalletActionModal({ type, currentUser, profile, lang, ex
       .then(async () => {
         if (type === 'exchange') {
           const numericAmount = Number(amount);
-          const nextBalances = exchangeWalletBalance(profile, currency, exchangeToCurrency, numericAmount, exchangeRates);
+          const nextBalances = exchangeWalletBalance(profile, currency, exchangeToCurrency, numericAmount, DEFAULT_EXCHANGE_RATES);
           if (!nextBalances) {
             toast.error(lang === 'lo' ? 'ຍອດເງິນບໍ່ພໍ' : 'Insufficient balance');
             return;
