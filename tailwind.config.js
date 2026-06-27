@@ -3,9 +3,10 @@ module.exports = {
     darkMode: ["class"],
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
-  	extend: {
+    extend: {
       fontFamily: {
-        inter: ['var(--font-inter)'],
+        sans: ['var(--font-sans)'],
+        inter: ['var(--font-sans)'],
         lao: ['var(--font-lao)'],
       },
   		borderRadius: {

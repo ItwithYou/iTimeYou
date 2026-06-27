@@ -6,8 +6,8 @@
 
 @layer base {
   :root {
-    --font-inter: 'Inter', sans-serif;
-    --font-lao: 'Phetsarath', sans-serif;
+    --font-sans: 'Inter', 'Phetsarath OT', 'Phetsarath', sans-serif;
+    --font-lao: 'Phetsarath OT', 'Phetsarath', sans-serif;
 
     --background: 240 8% 97%;
     --foreground: 220 25% 10%;
@@ -147,7 +147,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-inter;
+    @apply bg-background text-foreground font-sans;
     overscroll-behavior-y: none;
   }
   button, a, nav a {
