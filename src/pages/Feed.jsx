@@ -43,8 +43,8 @@ export default function Feed() {
   // Automated one-time seeder for premium demo data — Yakuci admin posts
   useEffect(() => {
     const seedData = async () => {
-      if (localStorage.getItem('seeded_yakuci_v3')) return;
-      localStorage.setItem('seeded_yakuci_v3', 'true');
+      if (localStorage.getItem('seeded_yakuci_v4')) return;
+      localStorage.setItem('seeded_yakuci_v4', 'true');
 
       // Clean up old demo posts
       try {
@@ -100,13 +100,13 @@ export default function Feed() {
           text_en: 'Book a 1-on-1 session with a Lao cultural expert! Learn about Baci traditions, silk weaving heritage, and ethnic group history. 1-hour private consultation available 🎓🇱🇦',
           text_lo: 'ນັດລົມກັບຜູ້ຊ່ຽວຊານດ້ານວັດທະນະທຳລາວ! ຮຽນຮູ້ກ່ຽວກັບປະເພນີບາສີ, ການຖັກແສ່ວ, ແລະ ປະຫວັດສາດຊົນເຜົ່າ. ຈອງເວລາ 1 ຊົ່ວໂມງ ເພື່ອສົນທະນາສ່ວນຕົວ 🎓🇱🇦',
           photo_urls: [
-            'https://images.unsplash.com/photo-1615568153396-1c0b115682b7?w=800&q=80',
+            'https://images.unsplash.com/photo-1627894483216-2138af692e32?w=800&q=80',
+            'https://images.unsplash.com/photo-1605389659050-2f3b922262d0?w=800&q=80',
+            'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80',
             'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80',
-            'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
-            'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80',
             'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80'
           ],
-          photo_url: 'https://images.unsplash.com/photo-1615568153396-1c0b115682b7?w=800&q=80',
+          photo_url: 'https://images.unsplash.com/photo-1627894483216-2138af692e32?w=800&q=80',
           service_price: 25, service_type: 'Expert Session', service_location: 'Online / Vientiane', service_currency: 'USD',
         },
         {
