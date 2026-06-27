@@ -9,7 +9,6 @@ import { base44 } from '@/api/base44Client';
 import { CAT_ICONS } from '../hooks/useLang';
 import moment from 'moment';
 import { formatTimestampDMY } from '../utils/dateUtils';
-import { formatServiceWhen } from '../utils/dateUtils';
 
 export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, authorProfile: initialAuthorProfile }) {
   const { profile, currentUser, refreshProfile } = useAppContext();

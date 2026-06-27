@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
 import { MapPin, Calendar, Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
-import moment from 'moment';
 import ServiceBookingDetailModal from '../components/bookings/ServiceBookingDetailModal';
+import StayBookingDetailModal from '../components/bookings/StayBookingDetailModal';
 import { toast } from 'sonner';
 import { formatServiceWhen, formatTimestampDMY } from '../utils/dateUtils';
 
@@ -24,17 +24,73 @@ export default function Bookings() {
 
   const loadServiceBookings = async () => {
     if (!currentUser) return;
-    if (currentUser.role === 'admin') {
-      const all = await base44.entities.ServiceBooking.list('-created_date', 100);
-      setServiceBookings(all);
-      return;
+    try {
+      const allListings = await base44.entities.Listing.list('-created_date', 200);
+      const listingMap = {};
+      allListings.forEach(l => { listingMap[l.id] = l; });
+
+      if (currentUser.role === 'admin') {
+        const [allServices, allStays] = await Promise.all([
+          base44.entities.ServiceBooking.list('-created_date', 100),
+          base44.entities.Booking.list('-created_date', 100)
+        ]);
+        const services = allServices.map(b => ({ ...b, booking_kind: 'service' }));
+        const stays = allStays.map(b => {
+          const lst = listingMap[b.listing_id];
+          return {
+            ...b,
+            booking_kind: 'stay',
+            service_type: lst ? (lang === 'lo' && lst.title_lao ? lst.title_lao : lst.title) : 'Stay Accommodation',
+            booker_email: b.guest_email,
+            booker_name: b.guest_name || b.guest_email,
+            poster_email: b.host_email,
+            poster_name: b.host_name || b.host_email,
+            price: b.total,
+            service_duration: b.nights,
+            service_duration_unit: 'nights',
+            service_location: b.city || (lst ? `${lst.city}, ${lst.country}` : 'Stay'),
+            service_when: `${b.check_in} - ${b.check_out}`,
+          };
+        });
+        setServiceBookings([...services, ...stays].sort((a, b) => new Date(b.created_date) - new Date(a.created_date)));
+        return;
+      }
+
+      const [asBooker, asPoster, stayAsBooker, stayAsPoster] = await Promise.all([
+        base44.entities.ServiceBooking.filter({ booker_email: currentUser.email }, '-created_date', 30),
+        base44.entities.ServiceBooking.filter({ poster_email: currentUser.email }, '-created_date', 30),
+        base44.entities.Booking.filter({ guest_email: currentUser.email }, '-created_date', 30),
+        base44.entities.Booking.filter({ host_email: currentUser.email }, '-created_date', 30)
+      ]);
+
+      const services = [...asBooker, ...asPoster]
+        .filter((b, i, arr) => arr.findIndex(x => x.id === b.id) === i)
+        .map(b => ({ ...b, booking_kind: 'service' }));
+
+      const stays = [...stayAsBooker, ...stayAsPoster]
+        .filter((b, i, arr) => arr.findIndex(x => x.id === b.id) === i)
+        .map(b => {
+          const lst = listingMap[b.listing_id];
+          return {
+            ...b,
+            booking_kind: 'stay',
+            service_type: lst ? (lang === 'lo' && lst.title_lao ? lst.title_lao : lst.title) : 'Stay Accommodation',
+            booker_email: b.guest_email,
+            booker_name: b.guest_name || b.guest_email,
+            poster_email: b.host_email,
+            poster_name: b.host_name || b.host_email,
+            price: b.total,
+            service_duration: b.nights,
+            service_duration_unit: 'nights',
+            service_location: b.city || (lst ? `${lst.city}, ${lst.country}` : 'Stay'),
+            service_when: `${b.check_in} - ${b.check_out}`,
+          };
+        });
+
+      setServiceBookings([...services, ...stays].sort((a, b) => new Date(b.created_date) - new Date(a.created_date)));
+    } catch (err) {
+      console.error('Failed to load bookings:', err);
     }
-    const [asBooker, asPoster] = await Promise.all([
-    base44.entities.ServiceBooking.filter({ booker_email: currentUser.email }, '-created_date', 30),
-    base44.entities.ServiceBooking.filter({ poster_email: currentUser.email }, '-created_date', 30)]
-    );
-    const all = [...asBooker, ...asPoster].filter((b, i, arr) => arr.findIndex((x) => x.id === b.id) === i);
-    setServiceBookings(all);
   };
 
   useEffect(() => {
@@ -43,16 +99,16 @@ export default function Bookings() {
 
   // Real-time subscription for fast updates
   useEffect(() => {
-    const unsub = base44.entities.ServiceBooking.subscribe((event) => {
-      if (event.type === 'create') {
-        setServiceBookings(prev => [event.data, ...prev]);
-      } else if (event.type === 'update') {
-        setServiceBookings(prev => prev.map(b => b.id === event.id ? { ...b, ...event.data } : b));
-      } else if (event.type === 'delete') {
-        setServiceBookings(prev => prev.filter(b => b.id !== event.id));
-      }
+    const unsubServices = base44.entities.ServiceBooking.subscribe(() => {
+      loadServiceBookings();
     });
-    return unsub;
+    const unsubStays = base44.entities.Booking.subscribe(() => {
+      loadServiceBookings();
+    });
+    return () => {
+      unsubServices();
+      unsubStays();
+    };
   }, []);
 
   const requestCancel = async (booking) => {
@@ -189,43 +245,47 @@ export default function Bookings() {
       </div>
 
       {/* My Bookings / Incoming sub-tabs */}
-      
-
-
-
-
-
-
-
-
-
-
-
-
-      
+      <div className="flex gap-4 border-b border-border mb-4">
+        <button
+          onClick={() => setServiceTab('my_bookings')}
+          className={`pb-2 text-sm font-semibold relative ${serviceTab === 'my_bookings' ? 'text-primary' : 'text-muted-foreground'}`}
+        >
+          {lang === 'lo' ? 'ການຈອງຂອງຂ້ອຍ' : 'My Bookings'}
+          {serviceTab === 'my_bookings' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />}
+        </button>
+        <button
+          onClick={() => setServiceTab('incoming_requests')}
+          className={`pb-2 text-sm font-semibold relative ${serviceTab === 'incoming_requests' ? 'text-primary' : 'text-muted-foreground'}`}
+        >
+          {lang === 'lo' ? 'ຄຳຂໍທີ່ໄດ້ຮັບ' : 'Received Requests'}
+          {serviceTab === 'incoming_requests' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />}
+        </button>
+      </div>
 
       {/* Booking list */}
-      {visibleBookings.length > 0 ?
-      <div className="space-y-4">
+      {visibleBookings.length > 0 ? (
+        <div className="space-y-4">
           {visibleBookings.map((b) => {
-          const st = statusConfig[b.status] || statusConfig.pending;
-          const Icon = st.icon;
-          const isIncoming = serviceTab === 'incoming_requests';
-          return (
-            <button
-              key={b.id}
-              onClick={() => setSelectedServiceBooking(b)}
-              className="w-full text-left bg-card rounded-2xl border border-border shadow-sm p-4 hover:shadow-md transition-all hover:border-primary/50 cursor-pointer">
-              
+            const st = statusConfig[b.status] || statusConfig.pending;
+            const Icon = st.icon;
+            const isIncoming = serviceTab === 'incoming_requests';
+            return (
+              <button
+                key={b.id}
+                onClick={() => setSelectedServiceBooking(b)}
+                className="w-full text-left bg-card rounded-2xl border border-border shadow-sm p-4 hover:shadow-md transition-all hover:border-primary/50 cursor-pointer"
+              >
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🛎️</div>
+                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">
+                      {b.booking_kind === 'stay' ? '🏠' : '🛎️'}
+                    </div>
                     <div>
                       <p className="font-bold text-sm">{b.service_type || 'Service'}</p>
                       <p className="text-xs text-muted-foreground">
-                        {isIncoming ?
-                      `${lang === 'lo' ? 'ຈາກລູກຄ້າ' : 'From customer'} ${b.booker_name || b.booker_email}` :
-                      `${lang === 'lo' ? 'ຈາກຜູ້ໃຫ້ບໍລິການ' : 'From host'} ${b.poster_name || b.poster_email}`}
+                        {isIncoming
+                          ? `${lang === 'lo' ? 'ຈາກລູກຄ້າ' : 'From customer'} ${b.booker_name || b.booker_email}`
+                          : `${lang === 'lo' ? 'ຈາກຜູ້ໃຫ້ບໍລິການ' : 'From host'} ${b.poster_name || b.poster_email}`}
                       </p>
                     </div>
                   </div>
@@ -234,43 +294,62 @@ export default function Bookings() {
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-3">
-                  {b.service_when && <span className="flex items-center gap-1"><Calendar size={11} /> {formatServiceWhen(b.service_when)}</span>}
-                  {b.service_duration > 0 && <span className="flex items-center gap-1"><Clock size={11} /> {b.service_duration}h</span>}
-                  {b.service_location && <span className="flex items-center gap-1"><MapPin size={11} /> {b.service_location}</span>}
+                  {b.service_when && (
+                    <span className="flex items-center gap-1">
+                      <Calendar size={11} /> {formatServiceWhen(b.service_when)}
+                    </span>
+                  )}
+                  {b.service_duration > 0 && (
+                    <span className="flex items-center gap-1">
+                      <Clock size={11} /> {b.service_duration}{b.booking_kind === 'stay' ? ' nights' : 'h'}
+                    </span>
+                  )}
+                  {b.service_location && (
+                    <span className="flex items-center gap-1">
+                      <MapPin size={11} /> {b.service_location}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t border-border">
                   <span className="font-bold text-primary">{b.price} {b.currency || 'USD'}</span>
                   <span className="text-xs text-muted-foreground">{formatTimestampDMY(b.created_date)}</span>
                 </div>
-              </button>);
-
-        })}
-        </div> :
-
-      <div className="text-center py-16 text-muted-foreground">
+              </button>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="text-center py-16 text-muted-foreground">
           <p className="text-5xl mb-3">{tab === 'pending' ? '⏳' : '✅'}</p>
           <h3 className="font-semibold mb-1">
-            {tab === 'pending' ?
-          lang === 'lo' ? 'ຍັງບໍ່ມີການຈອງທີ່ລໍຖ້າ' : 'No pending bookings' :
-          lang === 'lo' ? 'ຍັງບໍ່ມີການຈອງທີ່ສຳເລັດ' : 'No completed bookings'}
+            {tab === 'pending'
+              ? lang === 'lo' ? 'ຍັງບໍ່ມີການຈອງທີ່ລໍຖ້າ' : 'No pending bookings'
+              : lang === 'lo' ? 'ຍັງບໍ່ມີການຈອງທີ່ສຳເລັດ' : 'No completed bookings'}
           </h3>
           <p className="text-sm mb-5">{lang === 'lo' ? 'ຊອກຫາການບໍລິການໃນ Feed' : 'Browse services in the Feed'}</p>
           <Link to="/feed" className="inline-block bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90">{t.feed}</Link>
         </div>
-      }
+      )}
 
-      {selectedServiceBooking &&
-      <ServiceBookingDetailModal
-        booking={selectedServiceBooking}
-        currentUser={currentUser}
-        lang={lang}
-        onClose={() => setSelectedServiceBooking(null)}
-        onRequestCancel={requestCancel}
-        onApproveCancel={approveCancel}
-        onDeclineCancel={declineCancel}
-        onMarkCompleted={markServiceCompleted} />
-
-      }
+      {selectedServiceBooking && selectedServiceBooking.booking_kind === 'stay' ? (
+        <StayBookingDetailModal
+          booking={selectedServiceBooking}
+          currentUser={currentUser}
+          lang={lang}
+          onClose={() => setSelectedServiceBooking(null)}
+          onUpdated={loadServiceBookings}
+        />
+      ) : selectedServiceBooking && (
+        <ServiceBookingDetailModal
+          booking={selectedServiceBooking}
+          currentUser={currentUser}
+          lang={lang}
+          onClose={() => setSelectedServiceBooking(null)}
+          onRequestCancel={requestCancel}
+          onApproveCancel={approveCancel}
+          onDeclineCancel={declineCancel}
+          onMarkCompleted={markServiceCompleted}
+        />
+      )}
     </div>);
-
 }

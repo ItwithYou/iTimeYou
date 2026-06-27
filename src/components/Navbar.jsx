@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Home, Compass, Calendar, Wallet, MessageCircle, Bell, LogOut, Menu, X, User, ShieldCheck, HelpCircle } from 'lucide-react';
+import { Home, Compass, Calendar, Wallet, MessageCircle, Bell, ShieldCheck, HelpCircle } from 'lucide-react';
 import LangToggle from './LangToggle';
 import ThemeToggle from './ThemeToggle';
 import { base44 } from '@/api/base44Client';

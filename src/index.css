@@ -6,8 +6,8 @@
 
 @layer base {
   :root {
-    --font-inter: 'Inter', sans-serif;
-    --font-lao: 'Phetsarath', sans-serif;
+    --font-inter: 'Inter', 'Phetsarath OT', 'Phetsarath', sans-serif;
+    --font-lao: 'Phetsarath OT', 'Phetsarath', sans-serif;
 
     --background: 240 8% 97%;
     --foreground: 220 25% 10%;
@@ -53,46 +53,89 @@
   }
 
   .dark {
-    --background: 222 18% 8%;
-    --foreground: 210 20% 95%;
-    --card: 222 18% 11%;
-    --card-foreground: 210 20% 95%;
-    --popover: 222 18% 11%;
-    --popover-foreground: 210 20% 95%;
-    --primary: 170 100% 45%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 170 90% 35%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 220 14% 16%;
-    --muted-foreground: 215 12% 58%;
-    --accent: 170 80% 40%;
-    --accent-foreground: 0 0% 95%;
-    --destructive: 0 62.8% 30.6%;
+    --background: 0 0% 3%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 170 100% 42%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 170 100% 42%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 15% 20%;
-    --input: 220 15% 20%;
-    --ring: 170 100% 45%;
-    --chart-1: 170 100% 45%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 170 100% 42%;
+    --chart-1: 170 100% 42%;
     --chart-2: 170 80% 40%;
     --chart-3: 170 60% 55%;
     --chart-4: 170 90% 50%;
     --chart-5: 170 70% 35%;
 
-    --gold: 43 85% 58%;
-    --success: 158 55% 45%;
+    --gold: 43 100% 60%;
+    --success: 152 69% 45%;
     --warning: 38 100% 55%;
-    --info: 178 87% 42%;
-    --tiffany: 170 100% 45%;
+    --info: 178 87% 45%;
+    --tiffany: 170 100% 42%;
     --deep-green: 170 80% 35%;
 
-    --sidebar-background: 222 18% 8%;
-    --sidebar-foreground: 210 20% 95%;
-    --sidebar-primary: 170 100% 45%;
+    --sidebar-background: 0 0% 3%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 170 100% 42%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 170 100% 42%;
+  }
+
+  .gold {
+    --background: 43 30% 96%;
+    --foreground: 30 15% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 30 15% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 15% 20%;
+    --primary: 43 70% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 40 20% 90%;
+    --secondary-foreground: 30 15% 20%;
+    --muted: 40 20% 92%;
+    --muted-foreground: 30 10% 45%;
+    --accent: 40 20% 90%;
+    --accent-foreground: 30 15% 20%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 30 20% 85%;
+    --input: 30 20% 85%;
+    --ring: 43 70% 45%;
+    --chart-1: 43 70% 45%;
+    --chart-2: 30 50% 40%;
+    --chart-3: 15 50% 50%;
+    --chart-4: 0 40% 60%;
+    --chart-5: 43 50% 60%;
+
+    --gold: 43 70% 45%;
+    --success: 152 69% 40%;
+    --warning: 38 100% 50%;
+    --info: 178 87% 40%;
+    --tiffany: 170 80% 35%;
+    --deep-green: 150 40% 30%;
+
+    --sidebar-background: 43 30% 96%;
+    --sidebar-foreground: 30 15% 20%;
+    --sidebar-primary: 43 70% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 16%;
-    --sidebar-accent-foreground: 210 20% 95%;
-    --sidebar-border: 220 15% 20%;
-    --sidebar-ring: 170 100% 45%;
+    --sidebar-accent: 40 20% 90%;
+    --sidebar-accent-foreground: 30 15% 20%;
+    --sidebar-border: 30 20% 85%;
+    --sidebar-ring: 43 70% 45%;
   }
 }
 

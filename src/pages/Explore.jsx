@@ -5,7 +5,7 @@ import usePullToRefresh from '../hooks/usePullToRefresh';
 import { RefreshCw } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import ListingCard from '../components/ListingCard';
-import CreateServicePost from '../components/CreateServicePost';
+import CreateListing from '../components/CreateListing';
 import { CAT_KEYS, CAT_ICONS } from '../hooks/useLang';
 import { Search } from 'lucide-react';
 
@@ -87,7 +87,7 @@ export default function Explore() {
       )}
       <div className="mb-5">
         {profile?.is_pro ? (
-          <CreateServicePost
+          <CreateListing
             profile={{ ...profile, first_name: profile.business_name || profile.first_name, last_name: '' }}
             currentUser={currentUser}
             lang={lang}

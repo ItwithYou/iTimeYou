@@ -4,10 +4,9 @@ import { base44 } from '@/api/base44Client';
 import MobileSelect from '../components/MobileSelect';
 import StarRating from '../components/StarRating';
 import TrustBadge from '../components/TrustBadge';
-import VerificationBadge from '../components/VerificationBadge';
 import ListingCard from '../components/ListingCard';
 import PostCard from '../components/PostCard';
-import { MapPin, Calendar, Users, Home, Camera, Shield, Trash2, MessageCircle, KeyRound, BadgeCheck, Building2 } from 'lucide-react';
+import { MapPin, Calendar, Camera, Shield, Trash2, MessageCircle, KeyRound, BadgeCheck, Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import VerificationModal from '../components/VerificationModal';
@@ -222,20 +221,20 @@ export default function Profile() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-semibold">{lang === 'lo' ? 'ຊື່' : 'First Name'}</label>
-              <input value={editData.first_name} onChange={(e) => setEditData({ ...editData, first_name: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+              <input value={editData.first_name || ''} onChange={(e) => setEditData({ ...editData, first_name: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-background" />
             </div>
             <div>
               <label className="text-xs font-semibold">{lang === 'lo' ? 'ນາມສະກຸນ' : 'Last Name'}</label>
-              <input value={editData.last_name} onChange={(e) => setEditData({ ...editData, last_name: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+              <input value={editData.last_name || ''} onChange={(e) => setEditData({ ...editData, last_name: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-background" />
             </div>
           </div>
           <div>
             <label className="text-xs font-semibold">Bio</label>
-            <textarea value={editData.bio} onChange={(e) => setEditData({ ...editData, bio: e.target.value })} rows={2} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary resize-none" />
+            <textarea value={editData.bio || ''} onChange={(e) => setEditData({ ...editData, bio: e.target.value })} rows={2} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-background resize-none" />
           </div>
           <div>
             <label className="text-xs font-semibold">{lang === 'lo' ? 'ສະຖານທີ່' : 'Location'}</label>
-            <input value={editData.location} onChange={(e) => setEditData({ ...editData, location: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+            <input value={editData.location || ''} onChange={(e) => setEditData({ ...editData, location: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-background" />
           </div>
           <div>
             <label className="text-xs font-semibold">{lang === 'lo' ? 'ເພດ' : 'Gender'}</label>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
@@ -8,12 +8,28 @@ import { formatServiceWhen } from '../utils/dateUtils';
 
 export default function BookServiceModal({ post, profile, currentUser, lang, onClose, onBooked }) {
   const [loading, setLoading] = useState(false);
+  const [exchangeRates, setExchangeRates] = useState(DEFAULT_EXCHANGE_RATES);
   const navigate = useNavigate();
 
   const price = post.service_price || 0;
   const currency = post.service_currency || profile?.wallet_currency || 'USD';
-  const totalLakBalance = getTotalLakBalance(profile, DEFAULT_EXCHANGE_RATES);
-  const requiredLak = currency === 'LAK' ? price : price * (currency === 'USDT' ? DEFAULT_EXCHANGE_RATES.usdtBuy : DEFAULT_EXCHANGE_RATES.usdBuy);
+
+  useEffect(() => {
+    base44.entities.ExchangeRateSettings.list('-updated_date', 1).then((items) => {
+      const item = items[0];
+      if (item) {
+        setExchangeRates({
+          usdBuy: item.usd_buy || 22072,
+          usdSell: item.usd_sell || 22183,
+          usdtBuy: item.usdt_buy || item.usd_buy || 22072,
+          usdtSell: item.usdt_sell || item.usd_sell || 22183,
+        });
+      }
+    });
+  }, []);
+
+  const totalLakBalance = getTotalLakBalance(profile, exchangeRates);
+  const requiredLak = currency === 'LAK' ? price : price * (currency === 'USDT' ? exchangeRates.usdtBuy : exchangeRates.usdBuy);
   const canAfford = totalLakBalance >= requiredLak;
   const isHourlyService = post.service_duration_unit === 'hours';
   const slotOptions = useMemo(() => {
@@ -45,7 +61,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
       return;
     }
 
-    const balanceUpdate = deductCrossCurrencyBalance(profile, price, currency, DEFAULT_EXCHANGE_RATES);
+    const balanceUpdate = deductCrossCurrencyBalance(profile, price, currency, exchangeRates);
     if (!balanceUpdate) {
       toast.error(lang === 'lo' ? 'ຍອດເງິນບໍ່ພໍ' : 'Insufficient wallet balance');
       return;

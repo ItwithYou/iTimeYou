@@ -78,33 +78,13 @@ export default function AdminExchangeRates({ currentUser, lang }) {
   const handleSave = async () => {
     setSaving(true);
 
-    // Always fetch latest BCEL rates first
-    let latestForm = { ...form };
-    try {
-      const response = await base44.functions.invoke('fetchBcelRates', {});
-      const data = response.data;
-      if (data?.success && data.rates) {
-        latestForm = {
-          ...latestForm,
-          usd_buy: data.rates.usdBuy,
-          usd_sell: data.rates.usdSell,
-          usdt_buy: data.rates.usdtBuy,
-          usdt_sell: data.rates.usdtSell,
-        };
-        setForm(latestForm);
-        toast.success(lang === 'lo' ? 'ດຶງອັດຕາ BCEL ລ່າສຸດແລ້ວ' : 'Fetched latest BCEL rates');
-      } else {
-        toast.error(lang === 'lo' ? 'ບໍ່ສາມາດດຶງອັດຕາ BCEL ໄດ້ — ໃຊ້ອັດຕາເກົ່າ' : 'Could not fetch BCEL — saving with current values');
-      }
-    } catch {
-      toast.error(lang === 'lo' ? 'ບໍ່ສາມາດດຶງອັດຕາ BCEL ໄດ້ — ໃຊ້ອັດຕາເກົ່າ' : 'Could not fetch BCEL — saving with current values');
-    }
-
-    if (!latestForm.usd_buy || !latestForm.usd_sell) {
+    if (!form.usd_buy || !form.usd_sell) {
       toast.error('USD buy and sell rates are required');
       setSaving(false);
       return;
     }
+
+    const latestForm = { ...form };
 
     const payload = {
       usd_buy: Number(latestForm.usd_buy) || 0,

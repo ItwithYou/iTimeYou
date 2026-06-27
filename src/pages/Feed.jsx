@@ -65,18 +65,15 @@ export default function Feed() {
     if (filterCat !== 'all' && p.category !== filterCat) return false;
     if (filterLocation) {
       const authorProfile = authorProfiles[p.author_email];
-      if (!authorProfile?.location || !authorProfile.location.toLowerCase().includes(filterLocation.toLowerCase())) return false;
+      const matchesAuthorLocation = authorProfile?.location?.toLowerCase().includes(filterLocation.toLowerCase());
+      const matchesService = p.service_type?.toLowerCase().includes(filterLocation.toLowerCase()) ||
+                            p.text?.toLowerCase().includes(filterLocation.toLowerCase()) ||
+                            p.service_location?.toLowerCase().includes(filterLocation.toLowerCase());
+      if (!matchesAuthorLocation && !matchesService) return false;
     }
     if (filterGender) {
       const authorProfile = authorProfiles[p.author_email];
       if (!authorProfile?.gender || authorProfile.gender !== filterGender) return false;
-    }
-    // Search across service type, description, and location
-    if (filterLocation) {
-      const matchesService = p.service_type?.toLowerCase().includes(filterLocation.toLowerCase()) ||
-                            p.text?.toLowerCase().includes(filterLocation.toLowerCase()) ||
-                            p.service_location?.toLowerCase().includes(filterLocation.toLowerCase());
-      if (!matchesService) return false;
     }
     return true;
   });

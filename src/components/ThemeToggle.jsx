@@ -1,41 +1,44 @@
 import { useState, useEffect } from 'react';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Sparkles } from 'lucide-react';
 
 export default function ThemeToggle() {
-  const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'));
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('theme');
+      if (saved) return saved;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'light';
+  });
 
   useEffect(() => {
-    if (dark) {
+    document.documentElement.classList.remove('dark', 'gold');
+    if (theme === 'dark') {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+    } else if (theme === 'gold') {
+      document.documentElement.classList.add('gold');
     }
-  }, [dark]);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
-  // On mount, read from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('theme');
-    if (saved === 'dark') {
-      setDark(true);
-    } else if (saved === 'light') {
-      setDark(false);
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setDark(true);
-    }
-  }, []);
+  const cycleTheme = () => {
+    if (theme === 'light') setTheme('dark');
+    else if (theme === 'dark') setTheme('gold');
+    else setTheme('light');
+  };
 
   return (
     <button
-      onClick={() => setDark(!dark)}
-      aria-label="Toggle dark mode"
-      className="p-2 rounded-full hover:bg-muted transition-colors"
+      onClick={cycleTheme}
+      aria-label="Toggle theme"
+      className="p-2 rounded-full hover:bg-muted transition-colors flex items-center justify-center"
     >
-      {dark ? (
-        <Sun size={18} className="text-amber-400" />
+      {theme === 'dark' ? (
+        <Moon size={18} className="text-indigo-300" />
+      ) : theme === 'gold' ? (
+        <Sparkles size={18} className="text-amber-600" />
       ) : (
-        <Moon size={18} className="text-muted-foreground" />
+        <Sun size={18} className="text-amber-500" />
       )}
     </button>
   );
