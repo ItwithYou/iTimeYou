@@ -14,7 +14,7 @@ import {
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword,
   createUserWithEmailAndPassword, signOut,
-  GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail,
+  GoogleAuthProvider, signInWithRedirect, getRedirectResult, sendPasswordResetEmail,
   updateProfile, updatePassword,
   confirmPasswordReset, verifyPasswordResetCode
 } from 'firebase/auth';
@@ -187,6 +187,13 @@ async function ensureUserDir(firebaseUser) {
   } catch (e) { /* non-fatal */ }
 }
 
+// Automatically handle redirect results when the page reloads after Google sign-in
+getRedirectResult(auth).then(cred => {
+  if (cred?.user) {
+    ensureUserDir(cred.user).catch(console.error);
+  }
+}).catch(console.error);
+
 const authModule = {
   async me() {
     const u = await currentUserOnce();
@@ -210,9 +217,10 @@ const authModule = {
   },
   async loginWithGoogle() {
     const provider = new GoogleAuthProvider();
-    const cred = await signInWithPopup(auth, provider);
-    await ensureUserDir(cred.user);
-    return mapUser(cred.user);
+    // Using redirect instead of popup to avoid showing the standalone browser window with the firebaseapp URL
+    await signInWithRedirect(auth, provider);
+    // Note: ensureUserDir and mapping will happen on the next page load via getRedirectResult()
+    // but the app's auth state listener will automatically pick up the user.
   },
   async register({ email, password, full_name }) {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
