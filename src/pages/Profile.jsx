@@ -7,7 +7,7 @@ import TrustBadge from '../components/TrustBadge';
 import VerificationBadge from '../components/VerificationBadge';
 import ListingCard from '../components/ListingCard';
 import PostCard from '../components/PostCard';
-import { MapPin, Calendar, Users, Home, Camera, Shield, Trash2, MessageCircle, KeyRound, BadgeCheck, Building2, LogOut } from 'lucide-react';
+import { MapPin, Calendar, Users, Home, Camera, Shield, Trash2, MessageCircle, KeyRound, BadgeCheck, Building2, LogOut, Settings2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import VerificationModal from '../components/VerificationModal';
@@ -126,6 +126,23 @@ export default function Profile() {
       toast.error(lang === 'lo' ? 'ບັນທຶກບໍ່ສຳເລັດ ລອງໃໝ່' : 'Could not save. Please try again.');
     }
   };
+  const handleCurrencyToggle = async () => {
+    if (!isOwn) return;
+    const currencies = ['LAK', 'USD', 'USDT'];
+    const current = viewProfile.wallet_currency || 'LAK';
+    const nextIdx = (currencies.indexOf(current) + 1) % currencies.length;
+    const nextCurrency = currencies[nextIdx];
+    
+    setViewProfile({ ...viewProfile, wallet_currency: nextCurrency });
+    try {
+      await base44.entities.UserProfile.update(viewProfile.id, { wallet_currency: nextCurrency });
+      toast.success(lang === 'lo' ? `ປ່ຽນສະກຸນເງິນເປັນ ${nextCurrency}` : `Currency set to ${nextCurrency}`);
+      refreshProfile();
+    } catch (e) {
+      setViewProfile({ ...viewProfile, wallet_currency: current });
+      toast.error('Failed to update currency');
+    }
+  };
 
   if (!currentUser) return (
     <div className="flex items-center justify-center min-h-[60vh]">
@@ -231,22 +248,33 @@ export default function Profile() {
         </div>
 
         {/* Premium Glass Stats Box */}
-        <div className="mt-6 mx-auto max-w-xl bg-gradient-to-br from-card/60 to-muted/30 backdrop-blur-md border border-border/60 rounded-3xl p-5 shadow-sm flex flex-wrap items-center justify-between sm:justify-around gap-4 text-center">
-            <div className="flex flex-col items-center gap-1 min-w-[70px]">
-              <p className="text-xl font-black text-foreground">{(viewProfile.friends || []).length}</p>
+        <div className="mt-6 mx-auto max-w-2xl bg-gradient-to-br from-card/60 to-muted/30 backdrop-blur-md border border-border/60 rounded-3xl p-5 shadow-sm flex flex-wrap items-center justify-between sm:justify-around gap-4 text-center">
+            <div className="flex flex-col items-center gap-1 min-w-[65px]">
+              <p className="text-xl font-serif font-semibold text-foreground tracking-tight">{(viewProfile.friends || []).length}</p>
               <p className="text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Followers'}</p>
             </div>
-            <div className="flex flex-col items-center gap-1 min-w-[70px]">
-              <p className="text-xl font-black text-foreground">{posts.filter((post) => post.author_email === viewProfile.user_email && post.service_price > 0).length}</p>
+            <div className="flex flex-col items-center gap-1 min-w-[65px]">
+              <p className="text-xl font-serif font-semibold text-foreground tracking-tight">{posts.filter((post) => post.author_email === viewProfile.user_email && post.service_price > 0).length}</p>
               <p className="text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ບໍລິການ' : 'Services'}</p>
             </div>
-            <div className="flex flex-col items-center gap-1 min-w-[70px]">
-              <p className="text-xl font-black text-foreground capitalize">{viewProfile.gender || '-'}</p>
+            <div className="flex flex-col items-center gap-1 min-w-[65px]">
+              <p className="text-xl font-serif font-semibold text-foreground tracking-tight capitalize">{viewProfile.gender || '-'}</p>
               <p className="text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ເພດ' : 'Gender'}</p>
             </div>
-            <div className="flex flex-col items-center gap-1 min-w-[70px]">
-              <p className="text-xl font-black text-foreground">{viewProfile.birthdate ? new Date(viewProfile.birthdate).toLocaleDateString(lang === 'lo' ? 'lo-LA' : 'en-US', { day: 'numeric', month: 'short' }) : '-'}</p>
+            <div className="flex flex-col items-center gap-1 min-w-[65px]">
+              <p className="text-xl font-serif font-semibold text-foreground tracking-tight">{viewProfile.birthdate ? new Date(viewProfile.birthdate).toLocaleDateString(lang === 'lo' ? 'lo-LA' : 'en-US', { day: 'numeric', month: 'short' }) : '-'}</p>
               <p className="text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ວັນເກີດ' : 'Birthday'}</p>
+            </div>
+            <div 
+              onClick={handleCurrencyToggle} 
+              className={`flex flex-col items-center gap-1 min-w-[65px] ${isOwn ? 'cursor-pointer hover:opacity-70 transition-opacity' : ''}`}
+              title={isOwn ? (lang === 'lo' ? 'ຄລິກເພື່ອປ່ຽນສະກຸນເງິນ' : 'Click to change currency') : ''}
+            >
+              <div className="flex items-center gap-1">
+                <p className="text-xl font-serif font-semibold text-foreground tracking-tight">{viewProfile.wallet_currency || 'LAK'}</p>
+                {isOwn && <Settings2 size={12} className="text-muted-foreground" />}
+              </div>
+              <p className="text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}</p>
             </div>
         </div>
       </div>
