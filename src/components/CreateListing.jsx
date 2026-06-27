@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { X, Image, DollarSign, Loader2, CheckSquare, Square } from 'lucide-react';
 import MobileSelect from './MobileSelect';
+import PhotoGrid from './PhotoGrid';
 import { toast } from 'sonner';
 
 const CATEGORIES = [
@@ -37,18 +38,30 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
   const [beds, setBeds] = useState(1);
   const [baths, setBaths] = useState(1);
   const [selectedAmenities, setSelectedAmenities] = useState([]);
-  const [photoFile, setPhotoFile] = useState(null);
-  const [photoPreview, setPhotoPreview] = useState(null);
+  const [photoFiles, setPhotoFiles] = useState([]);
+  const [photoPreviews, setPhotoPreviews] = useState([]);
   const [posting, setPosting] = useState(false);
   const photoInputRef = useRef(null);
 
-  const handlePhoto = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setPhotoFile(file);
-    const reader = new FileReader();
-    reader.onload = (ev) => setPhotoPreview(ev.target.result);
-    reader.readAsDataURL(file);
+  const handlePhotos = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    const total = photoFiles.length + files.length;
+    if (total > 10) {
+      toast.error(lang === 'lo' ? 'ສູງສຸດ 10 ຮູບ' : 'Maximum 10 photos');
+      return;
+    }
+    setPhotoFiles(prev => [...prev, ...files]);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (ev) => setPhotoPreviews(prev => [...prev, ev.target.result]);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removePhoto = (index) => {
+    setPhotoFiles(prev => prev.filter((_, i) => i !== index));
+    setPhotoPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const toggleAmenity = (amenity) => {
@@ -62,15 +75,16 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
       toast.error(lang === 'lo' ? 'ກະລຸນາປ້ອນຂໍ້ມູນໃຫ້ຄົບ' : 'Please fill in required fields');
       return;
     }
-    if (!photoFile) {
+    if (photoFiles.length === 0) {
       toast.error(lang === 'lo' ? 'ກະລຸນາແນບຮູບພາບ' : 'Please attach a photo');
       return;
     }
 
     setPosting(true);
     try {
-      const upload = await base44.integrations.Core.UploadFile({ file: photoFile });
-      const image_url = upload.file_url;
+      const uploads = await Promise.all(photoFiles.map(f => base44.integrations.Core.UploadFile({ file: f })));
+      const image_urls = uploads.map(u => u.file_url).filter(Boolean);
+      const image_url = image_urls[0] || '';
 
       await base44.entities.Listing.create({
         title: title.trim(),
@@ -78,6 +92,7 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
         description: description.trim(),
         description_lao: descriptionLao.trim() || description.trim(),
         image_url,
+        image_urls,
         price: parseFloat(price) || 0,
         cleaning_fee: parseFloat(cleaningFee) || 0,
         service_fee: parseFloat(serviceFee) || 0,
@@ -105,8 +120,8 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
       setCity('');
       setCityLao('');
       setSelectedAmenities([]);
-      setPhotoFile(null);
-      setPhotoPreview(null);
+      setPhotoFiles([]);
+      setPhotoPreviews([]);
       setOpen(false);
       toast.success(lang === 'lo' ? 'ລົງລາຍການສຳເລັດ ✅' : 'Listing posted! ✅');
       onPosted?.();
@@ -155,30 +170,29 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
       <div className="p-4 space-y-4 text-sm">
         {/* Photos */}
         <div>
-          <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase">
-            {lang === 'lo' ? 'ຮູບພາບທີ່ພັກ' : 'Listing Photo'}
-          </label>
-          {photoPreview ? (
-            <div className="relative w-fit">
-              <img src={photoPreview} alt="" className="h-32 w-48 rounded-xl border border-border object-cover" />
-              <button
-                onClick={() => { setPhotoFile(null); setPhotoPreview(null); }}
-                className="absolute -top-1.5 -right-1.5 bg-black/70 text-white rounded-full w-5 h-5 flex items-center justify-center"
-              >
-                <X size={10} />
-              </button>
+          <div className="flex items-center justify-between mb-2 border-b border-border pb-2">
+             <label className="text-xs font-semibold text-muted-foreground uppercase">
+               {lang === 'lo' ? 'ຮູບພາບທີ່ພັກ' : 'Listing Photos'}
+             </label>
+             <button type="button" onClick={() => photoInputRef.current?.click()} className="flex items-center gap-1.5 text-xs font-bold text-primary hover:bg-primary/10 px-2 py-1 rounded transition-colors">
+               <Image size={14} /> {lang === 'lo' ? 'ເພີ່ມຮູບ' : 'Add Photos'}{photoFiles.length > 0 ? ` (${photoFiles.length})` : ''}
+             </button>
+          </div>
+          {photoPreviews.length > 0 ? (
+            <div className="mb-4 rounded-xl overflow-hidden border border-border relative">
+              <PhotoGrid photos={photoPreviews} onRemove={removePhoto} />
             </div>
           ) : (
             <button
               type="button"
               onClick={() => photoInputRef.current?.click()}
-              className="h-28 w-44 rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+              className="w-full h-28 rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors mb-4 bg-muted/30"
             >
               <Image size={24} className="mb-1" />
-              <span className="text-xs">{lang === 'lo' ? 'ອັບໂຫລດຮູບ' : 'Upload Photo'}</span>
+              <span className="text-xs">{lang === 'lo' ? 'ອັບໂຫລດຮູບທີ່ພັກ' : 'Upload photos of the space'}</span>
             </button>
           )}
-          <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
+          <input ref={photoInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePhotos} />
         </div>
 
         {/* Title & Description */}

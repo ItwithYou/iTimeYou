@@ -6,6 +6,7 @@ import { base44 } from '@/api/base44Client';
 import { Star, MapPin, Users, Bed, Bath, Check, MessageCircle, User } from 'lucide-react';
 import StarRating from '../components/StarRating';
 import TrustBadge from '../components/TrustBadge';
+import PhotoGrid from '../components/PhotoGrid';
 import { CAT_ICONS } from '../hooks/useLang';
 import { toast } from 'sonner';
 import { DEFAULT_EXCHANGE_RATES, deductCrossCurrencyBalance } from '../utils/wallet';
@@ -110,8 +111,13 @@ export default function ListingDetail() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
-      <div className="rounded-2xl overflow-hidden h-64 md:h-96 mb-6">
-        <img src={coverImage(listing)} alt={listing.title} onError={(e) => onImgError(e, listing)} className="w-full h-full object-cover" />
+      <div className="mb-6 relative rounded-2xl overflow-hidden border border-border">
+        <PhotoGrid photos={listing.image_urls?.length > 0 ? listing.image_urls : [coverImage(listing)]} />
+        {listing.image_urls?.length > 1 && (
+          <span className="absolute top-4 right-4 bg-black/60 text-white text-xs font-semibold px-2.5 py-1 rounded-full backdrop-blur-sm z-10 shadow-lg border border-white/10">
+            {listing.image_urls.length} 📷
+          </span>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
