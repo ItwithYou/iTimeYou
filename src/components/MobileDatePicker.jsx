@@ -119,7 +119,7 @@ export default function MobileDatePicker({ value, onChange, placeholder = 'Selec
         </button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-auto p-4 rounded-2xl" align="start">
+      <PopoverContent className="z-[9999] w-auto p-4 rounded-2xl shadow-xl" align="start">
         {label && <div className="font-bold text-sm mb-4">{label}</div>}
         <CalendarGrid
           value={value}

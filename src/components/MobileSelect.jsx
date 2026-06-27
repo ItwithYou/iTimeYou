@@ -42,7 +42,7 @@ export default function MobileSelect({ value, onChange, options = [], placeholde
         </button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-1 rounded-xl" align="start">
+      <PopoverContent className="z-[9999] w-[var(--radix-popover-trigger-width)] p-1 rounded-xl shadow-xl" align="start">
         {label && <div className="font-bold text-xs mb-2 px-2 pt-2 text-muted-foreground uppercase tracking-wider">{label}</div>}
         <div role="listbox" aria-label={label || placeholder} className="max-h-[50vh] overflow-y-auto overscroll-contain">
           {normalizedOptions.map(opt => {
