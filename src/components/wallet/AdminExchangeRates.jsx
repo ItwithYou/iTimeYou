@@ -61,10 +61,16 @@ export default function AdminExchangeRates({ currentUser, lang }) {
       if (data?.success && data.rates) {
         setForm(prev => ({
           ...prev,
-          usd_buy: data.rates.usdBuy,
-          usd_sell: data.rates.usdSell,
-          usdt_buy: data.rates.usdtBuy,
-          usdt_sell: data.rates.usdtSell,
+          usd_buy: data.rates.usdBuy ?? prev.usd_buy,
+          usd_sell: data.rates.usdSell ?? prev.usd_sell,
+          usdt_buy: data.rates.usdtBuy ?? data.rates.usdBuy ?? prev.usdt_buy,
+          usdt_sell: data.rates.usdtSell ?? data.rates.usdSell ?? prev.usdt_sell,
+          thb_buy: data.rates.thbBuy ?? prev.thb_buy,
+          thb_sell: data.rates.thbSell ?? prev.thb_sell,
+          cny_buy: data.rates.cnyBuy ?? prev.cny_buy,
+          cny_sell: data.rates.cnySell ?? prev.cny_sell,
+          vnd_buy: data.rates.vndBuy ?? prev.vnd_buy,
+          vnd_sell: data.rates.vndSell ?? prev.vnd_sell,
         }));
         setBcelTime(data.time || data.rates.time || new Date().toISOString());
         toast.success(lang === 'lo' ? 'ດຶງອັດຕາ BCEL ສຳເລັດ' : 'BCEL rates fetched');
