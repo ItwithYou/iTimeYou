@@ -201,9 +201,13 @@ export default function ListingCard({ listing, t, lang }) {
           </div>
           
           <div className="flex items-center gap-3">
-             <div className="text-right">
-               <span className="text-primary font-black text-lg">{convertAndFormatPrice(listing.price, listing.currency, preferredCurrency, exchangeRates)}</span>
-               <span className="text-muted-foreground text-xs block -mt-1">{t.perNight || '/night'}</span>
+             <div className="flex flex-col items-end">
+               <div className="bg-gradient-to-tr from-amber-50 to-orange-50 border border-amber-200/60 shadow-sm rounded-lg px-2.5 py-1 flex items-center justify-center">
+                 <span className="font-serif text-[1.1rem] font-black bg-gradient-to-r from-amber-700 to-amber-900 bg-clip-text text-transparent tracking-tight">
+                   {convertAndFormatPrice(listing.price, listing.currency, preferredCurrency, exchangeRates)}
+                 </span>
+               </div>
+               <span className="text-muted-foreground text-[9px] uppercase font-bold tracking-widest mt-1 opacity-70">{t.perNight || '/night'}</span>
              </div>
              <Link to={`/listing/${listing.id}`} className="bg-primary text-primary-foreground px-4 py-2 rounded-xl text-sm font-semibold shadow-sm hover:opacity-90 transition-opacity">
                {lang === 'lo' ? 'ຈອງ' : 'Book'}

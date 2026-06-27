@@ -393,10 +393,15 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
         <div className="px-4 pb-3">
           <button
             onClick={handleBookOrChat}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-tiffany to-deep-green text-white py-3 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity shadow-sm"
+            className="w-full flex items-center justify-between bg-gradient-to-r from-tiffany to-deep-green text-white p-1.5 pl-4 rounded-xl text-sm hover:opacity-90 transition-opacity shadow-sm"
           >
-            <MessageCircle size={16} />
-            {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມ / ຈອງ' : 'Message & Book'} — {convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates)}
+            <div className="flex items-center gap-2 font-bold">
+              <MessageCircle size={16} />
+              {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມ / ຈອງ' : 'Message & Book'}
+            </div>
+            <div className="bg-white text-deep-green px-3 py-1.5 rounded-lg shadow-sm border border-white/20 flex items-center">
+              <span className="font-serif font-black text-[15px] tracking-tight">{convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates)}</span>
+            </div>
           </button>
         </div>
       )}

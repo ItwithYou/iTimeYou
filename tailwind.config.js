@@ -8,6 +8,7 @@ module.exports = {
         sans: ['var(--font-sans)'],
         inter: ['var(--font-sans)'],
         lao: ['var(--font-lao)'],
+        serif: ['var(--font-serif)'],
       },
   		borderRadius: {
   			lg: 'var(--radius)',
