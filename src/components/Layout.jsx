@@ -98,6 +98,14 @@ export default function Layout() {
     };
   }, [currentUser]);
 
+  // Guests can browse everything except the login-gated tabs.
+  // Must be called before any early returns to satisfy React Hooks rules!
+  useEffect(() => {
+    if (!loading && !currentUser && PROTECTED_TABS.includes(location.pathname)) {
+      window.dispatchEvent(new Event('open-login'));
+    }
+  }, [loading, currentUser, location.pathname]);
+
   if (loading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-[#004D4A] via-[#0A7A74] to-[#006B63] overflow-hidden">
@@ -136,13 +144,6 @@ export default function Layout() {
       </div>
     );
   }
-
-  // Guests can browse everything except the login-gated tabs.
-  useEffect(() => {
-    if (!loading && !currentUser && PROTECTED_TABS.includes(location.pathname)) {
-      window.dispatchEvent(new Event('open-login'));
-    }
-  }, [loading, currentUser, location.pathname]);
 
   if (!currentUser && PROTECTED_TABS.includes(location.pathname)) {
     return <Navigate to="/" replace />;
