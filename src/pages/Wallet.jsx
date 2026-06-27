@@ -154,9 +154,6 @@ export default function Wallet() {
             <span className="text-[19px] font-black tracking-tight">
               <span className="text-amber-300">i</span>TimeYou
             </span>
-            <span className="rounded-full border border-amber-200/30 bg-amber-200/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.24em] text-amber-200">
-              Premium
-            </span>
           </div>
 
           {/* Chip + balance label */}
@@ -175,10 +172,6 @@ export default function Wallet() {
             <span className="pb-2 text-sm font-bold text-amber-200/80">LAK</span>
           </div>
 
-          {/* Savings motivation */}
-          <p className="mt-2.5 text-[11px] font-medium text-emerald-200/75">
-            {lang === 'lo' ? '✨ ເກັບອອມເພີ່ມຂຶ້ນທຸກໆມື້' : '✨ Keep growing your savings'}
-          </p>
 
           {/* Owner + masked number */}
           <div className="mt-6 flex items-center justify-between">
