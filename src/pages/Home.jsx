@@ -1,9 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
-import { Search, ArrowRight, Landmark, BedDouble, UtensilsCrossed, Sparkles, Building2, Leaf } from 'lucide-react';
+import { Search, Globe, Bus, Hotel, Plane, ChefHat, Presentation } from 'lucide-react';
 import { firebaseClient } from '@/api/firebaseClient';
 import ListingCard from '../components/ListingCard';
+import { BUSINESS_CATS } from '../hooks/useLang';
+
+const iconMap = {
+  'all': Globe,
+  'tours': Bus,
+  'hotels': Hotel,
+  'flights': Plane,
+  'restaurants': ChefHat,
+  'seminars': Presentation,
+};
 
 export default function Home() {
   const { t, lang } = useAppContext();
@@ -19,14 +29,7 @@ export default function Home() {
     navigate(`/explore${searchQuery.trim() ? `?q=${encodeURIComponent(searchQuery)}` : ''}`);
   };
 
-  const categories = [
-  { key: 'culture',    Icon: Landmark,         gradient: 'from-amber-400 to-orange-500' },
-  { key: 'stay',       Icon: BedDouble,         gradient: 'from-sky-400 to-indigo-500' },
-  { key: 'food',       Icon: UtensilsCrossed,   gradient: 'from-rose-400 to-pink-600' },
-  { key: 'experience', Icon: Sparkles,           gradient: 'from-violet-400 to-purple-600' },
-  { key: 'home',       Icon: Building2,          gradient: 'from-teal-400 to-emerald-600' },
-  { key: 'nature',     Icon: Leaf,              gradient: 'from-lime-400 to-green-600' },
-  ];
+
 
 
   return (
@@ -72,25 +75,25 @@ export default function Home() {
       {/* Category Navigation (Premium Minimalist Design) */}
       <section className="py-6 bg-background relative z-10 -mt-6 mx-0 sm:mx-4 rounded-t-3xl sm:rounded-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.04)] border border-border/40">
         <div className="flex justify-center sm:justify-center overflow-x-auto no-scrollbar gap-6 sm:gap-10 px-6 max-w-4xl mx-auto hide-scroll-bar">
-          {categories.map((cat, i) => {
-            const { Icon } = cat;
+          {BUSINESS_CATS.filter(c => c.key !== 'all').map((cat) => {
+            const Icon = iconMap[cat.key] || Globe;
             return (
               <Link
                 key={cat.key}
                 to={`/explore?cat=${cat.key}`}
-                className="flex flex-col items-center gap-2 group cursor-pointer flex-shrink-0 relative pb-2"
+                className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 relative pb-2"
               >
-                <div className="w-12 h-12 rounded-full bg-muted/30 group-hover:bg-primary/5 flex items-center justify-center transition-all duration-300">
+                <div className="w-[52px] h-[52px] rounded-full bg-gradient-to-br from-[#faf8f5] to-[#f0e8df] border border-[#e2d5c5] shadow-sm group-hover:shadow-md text-[#8B7355] flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1">
                   <Icon
                     size={22}
-                    className="text-muted-foreground group-hover:text-primary transition-colors duration-300"
+                    className="transition-colors duration-300"
                     strokeWidth={1.5}
                   />
                 </div>
-                <span className="text-[11px] font-semibold text-muted-foreground group-hover:text-foreground transition-colors duration-300 text-center whitespace-nowrap">
-                  {t.categories[i]}
+                <span className="text-[11px] font-semibold text-muted-foreground group-hover:text-[#8B7355] transition-colors duration-300 text-center whitespace-nowrap tracking-wide">
+                  {lang === 'lo' ? cat.lo : cat.en}
                 </span>
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300 rounded-t-full opacity-0 group-hover:opacity-100" />
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-[#8B7355] group-hover:w-full transition-all duration-300 rounded-t-full opacity-0 group-hover:opacity-100" />
               </Link>
             );
           })}
