@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useAppContext } from '../lib/AppContext';
+import { useOutletContext, useParams, Link, useNavigate } from 'react-router-dom';
+import { coverImage, onImgError } from '../utils/img';
 import MobileDatePicker from '../components/MobileDatePicker';
 import { base44 } from '@/api/base44Client';
 import { Star, MapPin, Users, Bed, Bath, Check, MessageCircle, User } from 'lucide-react';
@@ -11,12 +11,10 @@ import { toast } from 'sonner';
 import { DEFAULT_EXCHANGE_RATES, deductCrossCurrencyBalance } from '../utils/wallet';
 import moment from 'moment';
 import { getTodayISO } from '../utils/dateUtils';
-import { DEMO_TRANSLATIONS } from '../lib/demoTranslations';
-import { startOrGetConversation } from '../utils/messaging';
 
 export default function ListingDetail() {
   const { id } = useParams();
-  const { profile, currentUser, t, lang } = useAppContext();
+  const { profile, currentUser, t, lang } = useOutletContext();
   const navigate = useNavigate();
   const [listing, setListing] = useState(null);
   const [host, setHost] = useState(null);
@@ -53,7 +51,7 @@ export default function ListingDetail() {
   const bookingCurrency = 'USD';
 
   const handleBooking = async () => {
-    if (!currentUser) { window.dispatchEvent(new Event('open-login')); return; }
+    if (!currentUser) { navigate('/login'); return; }
     if (!checkIn || !checkOut) { toast.error(t.selectDates); return; }
     if (nights <= 0) { toast.error(t.selectDates); return; }
     if (checkIn < getTodayISO()) {
@@ -104,21 +102,8 @@ export default function ListingDetail() {
       request_kind: 'booking_release',
       counterparty_email: listing.host_email,
     });
-    
     setBooked(true);
-    toast.success(t.bookSuccess);
-  };
-
-  const handleMessageHost = async () => {
-    if (!currentUser) { window.dispatchEvent(new Event('open-login')); return; }
-    if (listing?.host_email) {
-      const convId = await startOrGetConversation(currentUser.email, listing.host_email);
-      if (convId) {
-        navigate(`/messages?conv=${convId}`);
-      } else {
-        toast.error('Unable to start conversation');
-      }
-    }
+    toast.success(t.bookingRequested);
   };
 
   const isLao = lang === 'lo';
@@ -126,7 +111,7 @@ export default function ListingDetail() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
       <div className="rounded-2xl overflow-hidden h-64 md:h-96 mb-6">
-        <img src={listing.image_url} alt={listing.title} className="w-full h-full object-cover" />
+        <img src={coverImage(listing)} alt={listing.title} onError={(e) => onImgError(e, listing)} className="w-full h-full object-cover" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -134,7 +119,7 @@ export default function ListingDetail() {
         <div className="lg:col-span-2 space-y-6">
           <div>
             <h1 className="text-2xl font-bold mb-2">
-              {(lang === 'lo' && DEMO_TRANSLATIONS[listing.title]) ? DEMO_TRANSLATIONS[listing.title] : (lang === 'lo' && listing.title_lao ? listing.title_lao : listing.title)}
+              {isLao && listing.title_lao ? listing.title_lao : listing.title}
             </h1>
             <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1 text-gold font-semibold">
@@ -168,10 +153,10 @@ export default function ListingDetail() {
                   </div>
                 </div>
               </Link>
-              <button onClick={handleMessageHost} className="flex items-center gap-1 border border-border px-3 py-1.5 rounded-lg text-sm hover:bg-muted transition-colors">
+              <Link to="/messages" className="flex items-center gap-1 border border-border px-3 py-1.5 rounded-lg text-sm hover:bg-muted transition-colors">
                 <MessageCircle size={14} />
                 {t.message}
-              </button>
+              </Link>
             </div>
           )}
 
@@ -184,8 +169,8 @@ export default function ListingDetail() {
 
           <div className="py-4 border-b border-border">
             <h2 className="font-semibold text-lg mb-2">{t.about}</h2>
-            <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap">
-              {(lang === 'lo' && DEMO_TRANSLATIONS[listing.description]) ? DEMO_TRANSLATIONS[listing.description] : (lang === 'lo' && listing.description_lao ? listing.description_lao : listing.description)}
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              {isLao && listing.description_lao ? listing.description_lao : listing.description}
             </p>
           </div>
 

@@ -14,10 +14,8 @@ import {
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword,
   createUserWithEmailAndPassword, signOut,
-  GoogleAuthProvider, signInWithPopup, getRedirectResult, sendPasswordResetEmail,
-  updateProfile, updatePassword,
-  confirmPasswordReset, verifyPasswordResetCode,
-  RecaptchaVerifier, signInWithPhoneNumber
+  GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail,
+  updateProfile, updatePassword
 } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
@@ -41,6 +39,20 @@ const ADMIN_EMAILS = ['norecord88@gmail.com'];
 const isAdminEmail = (email) => !!email && ADMIN_EMAILS.includes(email.toLowerCase());
 
 // ── helpers ──────────────────────────────────────────────────
+// Firestore rejects any write containing `undefined`. Strip undefined values
+// (deeply) so a single missing field never silently fails the whole write.
+function clean(value) {
+  if (Array.isArray(value)) return value.map(clean);
+  if (value && typeof value === 'object' && !(value instanceof Date)) {
+    const out = {};
+    for (const [k, v] of Object.entries(value)) {
+      if (v !== undefined) out[k] = clean(v);
+    }
+    return out;
+  }
+  return value;
+}
+
 function parseSort(sort) {
   if (!sort || typeof sort !== 'string') return { field: 'created_date', dir: 'desc' };
   const desc = sort.startsWith('-');
@@ -49,11 +61,10 @@ function parseSort(sort) {
 
 function mapUser(u) {
   if (!u) return null;
-  const userIdentifier = u.email || u.phoneNumber || u.uid;
-  const display = u.displayName || userIdentifier.split('@')[0] || 'User';
+  const display = u.displayName || u.email?.split('@')[0] || 'User';
   return {
     id: u.uid,
-    email: userIdentifier,
+    email: u.email,
     full_name: display,
     first_name: display.split(' ')[0],
     last_name: (u.displayName || '').split(' ').slice(1).join(' '),
@@ -114,13 +125,14 @@ function createEntity(collectionName) {
     },
     async create(data) {
       const ts = new Date().toISOString();
-      const clean = { ...data, created_date: ts, updated_date: ts };
-      const docRef = await addDoc(collection(db, collectionName), clean);
-      return { id: docRef.id, ...clean };
+      const payload = clean({ ...data, created_date: ts, updated_date: ts });
+      const docRef = await addDoc(collection(db, collectionName), payload);
+      return { id: docRef.id, ...payload };
     },
     async update(id, data) {
-      await updateDoc(doc(db, collectionName, id), { ...data, updated_date: new Date().toISOString() });
-      return { id, ...data };
+      const payload = clean({ ...data, updated_date: new Date().toISOString() });
+      await updateDoc(doc(db, collectionName, id), payload);
+      return { id, ...payload };
     },
     async delete(id) {
       await deleteDoc(doc(db, collectionName, id));
@@ -174,13 +186,11 @@ async function ensureUserDir(firebaseUser) {
   try {
     const uref = doc(db, 'users', firebaseUser.uid);
     const snap = await getDoc(uref);
-    const userIdentifier = firebaseUser.email || firebaseUser.phoneNumber || firebaseUser.uid;
     const desiredRole = isAdminEmail(firebaseUser.email) ? 'admin' : 'user';
-    
     if (!snap.exists()) {
       await setDoc(uref, {
-        email: userIdentifier,
-        full_name: firebaseUser.displayName || userIdentifier.split('@')[0] || 'User',
+        email: firebaseUser.email,
+        full_name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
         role: desiredRole,
         created_date: new Date().toISOString(),
       });
@@ -188,15 +198,8 @@ async function ensureUserDir(firebaseUser) {
       // Promote an existing owner account to admin.
       await setDoc(uref, { role: 'admin' }, { merge: true });
     }
-  } catch (e) { console.error('ensureUserDir error:', e); }
+  } catch (e) { /* non-fatal */ }
 }
-
-// Automatically handle redirect results when the page reloads after Google sign-in
-getRedirectResult(auth).then(cred => {
-  if (cred?.user) {
-    ensureUserDir(cred.user).catch(console.error);
-  }
-}).catch(console.error);
 
 const authModule = {
   async me() {
@@ -216,23 +219,6 @@ const authModule = {
   },
   async login({ email, password }) {
     const cred = await signInWithEmailAndPassword(auth, email, password);
-    await ensureUserDir(cred.user);
-    return mapUser(cred.user);
-  },
-  setupRecaptcha(containerId) {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
-        size: 'invisible'
-      });
-    }
-    return window.recaptchaVerifier;
-  },
-  async loginWithPhone(phoneNumber, appVerifier) {
-    return signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-  },
-  async confirmOTP(confirmationResult, code, fullName) {
-    const cred = await confirmationResult.confirm(code);
-    if (fullName) await updateProfile(cred.user, { displayName: fullName });
     await ensureUserDir(cred.user);
     return mapUser(cred.user);
   },
@@ -263,17 +249,11 @@ const authModule = {
   async resetPassword(email) {
     return sendPasswordResetEmail(auth, email);
   },
-  async confirmReset(oobCode, newPassword) {
-    return confirmPasswordReset(auth, oobCode, newPassword);
-  },
-  async verifyResetCode(oobCode) {
-    return verifyPasswordResetCode(auth, oobCode);
-  },
-  async logout() {
-    signOut(auth).finally(() => { window.location.href = '/'; });
+  logout() {
+    signOut(auth).finally(() => { window.location.href = '/login'; });
   },
   redirectToLogin() {
-    window.dispatchEvent(new Event('open-login'));
+    window.location.href = '/login';
   },
   onAuthStateChanged(cb) {
     return onAuthStateChanged(auth, cb);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
@@ -116,6 +116,14 @@ export default function Wallet() {
     );
   }
 
+  const actions = [
+    { icon: ArrowUp, label: t.topUp, key: 'topup' },
+    { icon: ArrowDown, label: t.withdraw, key: 'withdraw' },
+    { icon: Send, label: t.send, key: 'send' },
+    { icon: ArrowDownLeft, label: t.receive, key: 'receive' },
+    { icon: RefreshCw, label: lang === 'lo' ? 'ແລກປ່ຽນ' : 'Exchange', key: 'exchange' },
+  ];
+
   return (
     <div className="max-w-md mx-auto px-4 py-5">
       <h1 className="text-xl font-bold mb-4">{t.walletTitle}</h1>
@@ -132,123 +140,105 @@ export default function Wallet() {
         </Link>
       )}
 
-      {/* Balance card */}
-      <div className="relative mb-5 overflow-hidden rounded-[28px] bg-gradient-to-br from-[#0c6b5f] via-[#09594f] to-[#06483f] p-7 text-white shadow-[0_20px_50px_rgba(4,51,44,0.22)]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.10),transparent_32%)]" />
+      {/* Premium wallet card */}
+      <div className="relative mb-4 overflow-hidden rounded-[26px] p-6 text-white shadow-[0_24px_60px_-12px_rgba(4,51,44,0.45)] bg-gradient-to-br from-[#0e8273] via-[#0a5f54] to-[#06352f]">
+        {/* decorative glows */}
+        <div className="pointer-events-none absolute -top-16 -right-12 h-52 w-52 rounded-full bg-[#23e8cc]/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-10 h-52 w-52 rounded-full bg-amber-300/10 blur-3xl" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.12),transparent_38%)]" />
+
         <div className="relative">
-          <p className="mb-2 text-[15px] font-semibold text-white/80">{t.balance}</p>
-          <div className="mb-3 flex flex-wrap items-end gap-2">
-            <p className="text-[26px] font-semibold leading-tight tracking-[-0.03em] text-white sm:text-[30px] break-all">{totalLak.toLocaleString()}</p>
-            <span className="pb-1 text-base font-semibold tracking-wide text-white/80 sm:text-lg">LAK</span>
-          </div>
-          <div className="mb-6">
-            <p className="text-base font-bold leading-tight">{profile?.first_name} {profile?.last_name}</p>
-            <p className="text-sm text-white/65">{currentUser?.email}</p>
-          </div>
-
-          <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="min-w-0 rounded-[32px] border border-white/15 bg-white/10 px-5 py-4 shadow-inner shadow-black/5 backdrop-blur-sm">
-              <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-white/60">LAK</p>
-              <p className="mt-1 break-all text-[13px] font-medium leading-[1.55] tracking-[-0.01em] text-white/95 sm:text-[14px]">{lakBalance.toLocaleString()}</p>
+          {/* Top row: brand + chip */}
+          <div className="mb-7 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              {/* EMV-style chip */}
+              <div className="grid h-8 w-10 place-items-center rounded-md bg-gradient-to-br from-amber-200 to-amber-400 shadow-inner">
+                <div className="h-3.5 w-5 rounded-[3px] border border-amber-700/30" />
+              </div>
+              <span className="text-[15px] font-extrabold tracking-tight">iTimeYou</span>
             </div>
-            <div className="min-w-0 rounded-[32px] border border-white/15 bg-white/10 px-5 py-4 shadow-inner shadow-black/5 backdrop-blur-sm">
-              <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-white/60">USD</p>
-              <p className="mt-1 break-all text-[13px] font-medium leading-[1.55] tracking-[-0.01em] text-white/95 sm:text-[14px]">{usdBalance.toLocaleString()}</p>
-            </div>
-            <div className="min-w-0 rounded-[32px] border border-white/15 bg-white/10 px-5 py-4 shadow-inner shadow-black/5 backdrop-blur-sm">
-              <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-white/60">USDT</p>
-              <p className="mt-1 break-all text-[13px] font-medium leading-[1.55] tracking-[-0.01em] text-white/95 sm:text-[14px]">{usdtBalance.toLocaleString()}</p>
-            </div>
+            <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/55">Wallet</span>
           </div>
 
-          <div className="mb-7 flex items-center justify-between gap-4 rounded-3xl border border-white/15 bg-white/10 px-4 py-3 text-sm backdrop-blur-sm">
-            <div>
-              <p className="font-bold text-white">{lang === 'lo' ? 'ອັດຕາແລກປ່ຽນ' : 'Exchange Rates'}</p>
-              {ratesLoaded ? (
-                <>
-                  <p className="mt-0.5 text-white/75">USD Buy {exchangeRates.usdBuy.toLocaleString()} · Sell {exchangeRates.usdSell.toLocaleString()}</p>
-                  <p className="text-white/75">USDT Buy {exchangeRates.usdtBuy.toLocaleString()} · Sell {exchangeRates.usdtSell.toLocaleString()}</p>
-                  {exchangeRates.updatedAt && (
-                    <p className="text-white/50 text-[10px] mt-1">Updated: {new Date(exchangeRates.updatedAt).toLocaleString()}</p>
-                  )}
-                </>
-              ) : (
-                <p className="mt-0.5 text-white/60 text-sm">{lang === 'lo' ? 'ກຳລັງໂຫລດ...' : 'Loading...'}</p>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={() => { loadExchangeRates(); refreshProfile(); }}
-                className="inline-flex items-center gap-1 self-start pt-1 font-bold text-white hover:opacity-80 transition-opacity"
-                title="Refresh rates"
-              >
-                <RefreshCw size={13} />
-              </button>
-              <a href="https://www.bcel.com.la/bcel/exchange-rate.html?lang=en" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 self-start pt-1 font-bold text-white underline underline-offset-2">
-                BCEL <ExternalLink size={13} />
-              </a>
-            </div>
+          {/* Balance */}
+          <p className="text-[12px] font-medium uppercase tracking-[0.18em] text-white/55">{t.balance}</p>
+          <div className="mt-1.5 flex items-end gap-2">
+            <p className="text-[36px] font-bold leading-none tracking-tight break-all">{totalLak.toLocaleString()}</p>
+            <span className="pb-1.5 text-sm font-semibold text-white/65">LAK</span>
           </div>
 
-          <div className="grid grid-cols-5 gap-3">
+          {/* Owner */}
+          <p className="mt-5 mb-6 text-[15px] font-semibold tracking-wide text-white/90">
+            {profile?.first_name} {profile?.last_name}
+          </p>
+
+          {/* Currency pills */}
+          <div className="mb-2 grid grid-cols-3 gap-2.5">
             {[
-              { icon: ArrowUp, label: t.topUp, action: () => { if (requireVerified()) setActionType('topup'); } },
-              { icon: ArrowDown, label: t.withdraw, action: () => { if (requireVerified()) setActionType('withdraw'); } },
-              { icon: Send, label: t.send, action: () => { if (requireVerified()) setActionType('send'); } },
-              { icon: ArrowDownLeft, label: t.receive, action: () => { if (requireVerified()) setActionType('receive'); } },
-              { icon: RefreshCw, label: lang === 'lo' ? 'ແລກປ່ຽນ' : 'Exchange', action: () => { if (requireVerified()) setActionType('exchange'); } },
-            ].map(btn => (
-              <button
-                key={btn.label}
-                onClick={btn.action}
-                className="flex flex-col items-center gap-2.5 text-center"
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/20 bg-white/14 backdrop-blur-sm transition-colors hover:bg-white/22">
-                  <btn.icon size={22} />
-                </div>
-                <span className="text-xs font-semibold text-white/90">{btn.label}</span>
-              </button>
+              { code: 'LAK', val: lakBalance },
+              { code: 'USD', val: usdBalance },
+              { code: 'USDT', val: usdtBalance },
+            ].map((c) => (
+              <div key={c.code} className="min-w-0 rounded-2xl border border-white/15 bg-white/10 px-3.5 py-3 backdrop-blur-sm">
+                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/55">{c.code}</p>
+                <p className="mt-1 break-all text-[13px] font-semibold leading-tight text-white/95">{(c.val || 0).toLocaleString()}</p>
+              </div>
             ))}
           </div>
         </div>
       </div>
 
+      {/* Actions */}
+      <div className="mb-4 grid grid-cols-5 gap-2">
+        {actions.map((btn) => (
+          <button
+            key={btn.key}
+            onClick={() => { if (requireVerified()) setActionType(btn.key); }}
+            className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card py-3 shadow-sm transition-all hover:border-primary/40 hover:shadow-md active:scale-95"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <btn.icon size={18} />
+            </div>
+            <span className="text-[10px] font-semibold text-foreground leading-tight text-center">{btn.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Exchange rates strip */}
+      <div className="mb-5 flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-sm">
+        <div className="min-w-0">
+          <p className="text-xs font-bold text-foreground">{lang === 'lo' ? 'ອັດຕາແລກປ່ຽນ' : 'Exchange Rates'}</p>
+          {ratesLoaded ? (
+            <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
+              USD {exchangeRates.usdBuy.toLocaleString()} · USDT {exchangeRates.usdtBuy.toLocaleString()}
+            </p>
+          ) : (
+            <p className="mt-0.5 text-[11px] text-muted-foreground">{lang === 'lo' ? 'ກຳລັງໂຫລດ...' : 'Loading...'}</p>
+          )}
+        </div>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <button onClick={() => { loadExchangeRates(); refreshProfile(); }} className="text-muted-foreground hover:text-primary transition-colors" title="Refresh rates">
+            <RefreshCw size={15} />
+          </button>
+          <a href="https://www.bcel.com.la/bcel/exchange-rate.html?lang=en" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-bold text-primary">
+            BCEL <ExternalLink size={12} />
+          </a>
+        </div>
+      </div>
+
       {/* Stats row */}
-      {(() => {
-        const getTransactionAmountInUsd = (tx) => {
-          const amount = tx.amount || 0;
-          const currency = tx.currency || 'USD';
-          if (currency === 'USD') return amount;
-          if (currency === 'USDT') return amount;
-          if (currency === 'LAK' && usdReferenceRate > 0) {
-            return amount / usdReferenceRate;
-          }
-          return amount;
-        };
-
-        const moneyInUsd = transactions
-          .filter(t => t.amount > 0 && (t.status === 'completed' || t.status === 'approved'))
-          .reduce((s, t) => s + getTransactionAmountInUsd(t), 0);
-
-        const moneyOutUsd = transactions
-          .filter(t => t.amount < 0 && (t.status === 'completed' || t.status === 'approved'))
-          .reduce((s, t) => s + getTransactionAmountInUsd(t), 0);
-
-        return (
-          <div className="grid grid-cols-3 gap-3 mb-5">
-            {[
-              { label: lang === 'lo' ? 'ການໄຫຼເຂົ້າ' : 'Money In', value: `+$${moneyInUsd.toFixed(2)}`, color: 'text-success' },
-              { label: lang === 'lo' ? 'ການໄຫຼອອກ' : 'Money Out', value: `-$${Math.abs(moneyOutUsd).toFixed(2)}`, color: 'text-destructive' },
-              { label: lang === 'lo' ? 'ທຸລະກຳ' : 'Transactions', value: transactions.length, color: 'text-foreground' },
-            ].map(stat => (
-              <div key={stat.label} className="bg-card rounded-2xl p-3 text-center border border-border shadow-sm">
-                <p className={`font-semibold text-[13px] sm:text-[14px] tracking-[-0.02em] leading-tight break-all ${stat.color}`}>{stat.value}</p>
-                <p className="text-xs text-muted-foreground mt-1 leading-tight">{stat.label}</p>
-              </div>
-            ))}
+      <div className="grid grid-cols-3 gap-3 mb-5">
+        {[
+          { label: lang === 'lo' ? 'ການໄຫຼເຂົ້າ' : 'Money In', value: `+$${transactions.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0)}`, color: 'text-success' },
+          { label: lang === 'lo' ? 'ການໄຫຼອອກ' : 'Money Out', value: `-$${Math.abs(transactions.filter(t => t.amount < 0).reduce((s, t) => s + t.amount, 0))}`, color: 'text-destructive' },
+          { label: lang === 'lo' ? 'ທຸລະກຳ' : 'Transactions', value: transactions.length, color: 'text-foreground' },
+        ].map(stat => (
+          <div key={stat.label} className="bg-card rounded-2xl p-3 text-center border border-border shadow-sm">
+            <p className={`font-semibold text-[13px] sm:text-[14px] tracking-[-0.02em] leading-tight break-all ${stat.color}`}>{stat.value}</p>
+            <p className="text-xs text-muted-foreground mt-1 leading-tight">{stat.label}</p>
           </div>
-        );
-      })()}
+        ))}
+      </div>
 
       {/* Transaction list */}
       <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
@@ -297,7 +287,6 @@ export default function Wallet() {
           currentUser={currentUser}
           profile={profile}
           lang={lang}
-          exchangeRates={exchangeRates}
           onClose={() => setActionType('')}
           onSubmitted={() => { refreshProfile(); loadTx(); }}
         />
