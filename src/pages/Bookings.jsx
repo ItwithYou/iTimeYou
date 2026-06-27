@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
-import { base44 } from '@/api/base44Client';
+import { firebaseClient } from '@/api/firebaseClient';
 import { MapPin, Calendar, Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import ServiceBookingDetailModal from '../components/bookings/ServiceBookingDetailModal';
 import StayBookingDetailModal from '../components/bookings/StayBookingDetailModal';
@@ -25,18 +25,18 @@ export default function Bookings() {
   const loadServiceBookings = async () => {
     if (!currentUser) return;
     try {
-      const allListings = await base44.entities.Listing.list('-created_date', 200);
+      const allListings = await firebaseClient.entities.Listing.list('-created_date', 200);
       const listingMap = {};
       allListings.forEach(l => { listingMap[l.id] = l; });
 
-      const allPosts = await base44.entities.ServicePost.list('-created_date', 200);
+      const allPosts = await firebaseClient.entities.Post.list('-created_date', 200);
       const postMap = {};
       allPosts.forEach(p => { postMap[p.id] = p; });
 
       if (currentUser.role === 'admin') {
         const [allServices, allStays] = await Promise.all([
-          base44.entities.ServiceBooking.list('-created_date', 100),
-          base44.entities.Booking.list('-created_date', 100)
+          firebaseClient.entities.ServiceBooking.list('-created_date', 100),
+          firebaseClient.entities.Booking.list('-created_date', 100)
         ]);
         const services = allServices.map(b => ({ ...b, booking_kind: 'service', image: postMap[b.post_id]?.images?.[0] }));
         const stays = allStays.map(b => {
@@ -62,10 +62,10 @@ export default function Bookings() {
       }
 
       const [asBooker, asPoster, stayAsBooker, stayAsPoster] = await Promise.all([
-        base44.entities.ServiceBooking.filter({ booker_email: currentUser.email }, '-created_date', 30),
-        base44.entities.ServiceBooking.filter({ poster_email: currentUser.email }, '-created_date', 30),
-        base44.entities.Booking.filter({ guest_email: currentUser.email }, '-created_date', 30),
-        base44.entities.Booking.filter({ host_email: currentUser.email }, '-created_date', 30)
+        firebaseClient.entities.ServiceBooking.filter({ booker_email: currentUser.email }, '-created_date', 30),
+        firebaseClient.entities.ServiceBooking.filter({ poster_email: currentUser.email }, '-created_date', 30),
+        firebaseClient.entities.Booking.filter({ guest_email: currentUser.email }, '-created_date', 30),
+        firebaseClient.entities.Booking.filter({ host_email: currentUser.email }, '-created_date', 30)
       ]);
 
       const services = [...asBooker, ...asPoster]
@@ -105,10 +105,10 @@ export default function Bookings() {
 
   // Real-time subscription for fast updates
   useEffect(() => {
-    const unsubServices = base44.entities.ServiceBooking.subscribe(() => {
+    const unsubServices = firebaseClient.entities.ServiceBooking.subscribe(() => {
       loadServiceBookings();
     });
-    const unsubStays = base44.entities.Booking.subscribe(() => {
+    const unsubStays = firebaseClient.entities.Booking.subscribe(() => {
       loadServiceBookings();
     });
     return () => {
@@ -117,7 +117,7 @@ export default function Bookings() {
     };
   }, []);
 
-  const getEntity = (b) => b.booking_kind === 'stay' ? base44.entities.Booking : base44.entities.ServiceBooking;
+  const getEntity = (b) => b.booking_kind === 'stay' ? firebaseClient.entities.Booking : firebaseClient.entities.ServiceBooking;
 
   const requestCancel = async (booking) => {
     await getEntity(booking).update(booking.id, {
@@ -127,7 +127,7 @@ export default function Bookings() {
     });
     await loadServiceBookings();
     setSelectedServiceBooking(null);
-    toast.success(lang === 'lo' ? 'ສົ່ງຄຳຂໍຍົກເລີກແລ້ວ' : 'Cancel request sent');
+    toast.success(lang === 'lo' ? 'àºªàº»à»ˆàº‡àº„àº³àº‚à»àºàº»àºà»€àº¥àºµàºà»àº¥à»‰àº§' : 'Cancel request sent');
   };
 
   const requestComplete = async (booking) => {
@@ -138,7 +138,7 @@ export default function Bookings() {
     });
     await loadServiceBookings();
     setSelectedServiceBooking(null);
-    toast.success(lang === 'lo' ? 'ສົ່ງຄຳຂໍສຳເລັດແລ້ວ (ລໍຖ້າ Admin ອະນຸມັດ)' : 'Completion request sent (waiting for admin approval)');
+    toast.success(lang === 'lo' ? 'àºªàº»à»ˆàº‡àº„àº³àº‚à»àºªàº³à»€àº¥àº±àº”à»àº¥à»‰àº§ (àº¥à»àº–à»‰àº² Admin àº­àº°àº™àº¸àº¡àº±àº”)' : 'Completion request sent (waiting for admin approval)');
   };
 
   const approveCancel = async (booking) => {
@@ -155,19 +155,19 @@ export default function Bookings() {
     const price = booking.booking_kind === 'stay' ? booking.total : booking.price;
     const serviceType = booking.service_type || 'Stay';
 
-    const profiles = await base44.entities.UserProfile.filter({ user_email: bookerEmail });
+    const profiles = await firebaseClient.entities.UserProfile.filter({ user_email: bookerEmail });
     const bookerProfile = profiles[0];
     if (bookerProfile) {
       const balanceField = booking.currency === 'LAK' ? 'wallet_balance_lak' : booking.currency === 'USDT' ? 'wallet_balance_usdt' : 'wallet_balance_usd';
-      await base44.entities.UserProfile.update(bookerProfile.id, {
+      await firebaseClient.entities.UserProfile.update(bookerProfile.id, {
         [balanceField]: (bookerProfile[balanceField] || 0) + Math.abs(price || 0)
       });
     }
 
-    await base44.entities.WalletTransaction.create({
+    await firebaseClient.entities.WalletTransaction.create({
       user_email: bookerEmail,
       description: `Refund for cancelled ${serviceType}`,
-      description_lao: `ຄືນເງິນສຳລັບ ${serviceType}`,
+      description_lao: `àº„àº·àº™à»€àº‡àº´àº™àºªàº³àº¥àº±àºš ${serviceType}`,
       amount: Math.abs(price || 0),
       currency: booking.currency || 'USD',
       type: 'received',
@@ -178,7 +178,7 @@ export default function Bookings() {
 
     await loadServiceBookings();
     setSelectedServiceBooking(null);
-    toast.success(lang === 'lo' ? 'ຍົກເລີກ ແລະ ຄືນເງິນສຳເລັດ' : 'Cancelled and refunded');
+    toast.success(lang === 'lo' ? 'àºàº»àºà»€àº¥àºµàº à»àº¥àº° àº„àº·àº™à»€àº‡àº´àº™àºªàº³à»€àº¥àº±àº”' : 'Cancelled and refunded');
   };
 
   const declineCancel = async (booking) => {
@@ -189,7 +189,7 @@ export default function Bookings() {
     });
     await loadServiceBookings();
     setSelectedServiceBooking(null);
-    toast.success(lang === 'lo' ? 'ບໍ່ອະນຸມັດຄຳຂໍຍົກເລີກ' : 'Cancel request declined');
+    toast.success(lang === 'lo' ? 'àºšà»à»ˆàº­àº°àº™àº¸àº¡àº±àº”àº„àº³àº‚à»àºàº»àºà»€àº¥àºµàº' : 'Cancel request declined');
   };
 
   const markServiceCompleted = async (booking) => {
@@ -209,19 +209,19 @@ export default function Bookings() {
     const price = booking.booking_kind === 'stay' ? booking.total : booking.price;
     const serviceType = booking.service_type || 'Stay';
 
-    const providerProfiles = await base44.entities.UserProfile.filter({ user_email: posterEmail });
+    const providerProfiles = await firebaseClient.entities.UserProfile.filter({ user_email: posterEmail });
     const providerProfile = providerProfiles[0];
     if (providerProfile) {
       const balanceField = booking.currency === 'LAK' ? 'wallet_balance_lak' : booking.currency === 'USDT' ? 'wallet_balance_usdt' : 'wallet_balance_usd';
-      await base44.entities.UserProfile.update(providerProfile.id, {
+      await firebaseClient.entities.UserProfile.update(providerProfile.id, {
         [balanceField]: (providerProfile[balanceField] || 0) + Math.abs(price || 0),
         wallet_currency: booking.currency || 'USD'
       });
 
-      await base44.entities.WalletTransaction.create({
+      await firebaseClient.entities.WalletTransaction.create({
         user_email: posterEmail,
         description: `Payout for ${serviceType}`,
-        description_lao: `ຮັບເງິນຄ່າ ${serviceType}`,
+        description_lao: `àº®àº±àºšà»€àº‡àº´àº™àº„à»ˆàº² ${serviceType}`,
         amount: Math.abs(price || 0),
         currency: booking.currency || 'USD',
         type: 'received',
@@ -231,16 +231,16 @@ export default function Bookings() {
       });
     }
 
-    await base44.entities.Notification.create({
+    await firebaseClient.entities.Notification.create({
       user_email: posterEmail,
-      type: '💸',
+      type: 'ðŸ’¸',
       text: `Payment for ${serviceType} has been released to your wallet`,
-      text_lao: `ເງິນຄ່າ ${serviceType} ໄດ້ເຂົ້າກະເປົາແລ້ວ`
+      text_lao: `à»€àº‡àº´àº™àº„à»ˆàº² ${serviceType} à»„àº”à»‰à»€àº‚àº»à»‰àº²àºàº°à»€àº›àº»àº²à»àº¥à»‰àº§`
     });
 
     await loadServiceBookings();
     setSelectedServiceBooking(null);
-    toast.success(lang === 'lo' ? 'ສຳເລັດ ແລະ ໂອນເງິນໃຫ້ຜູ້ໃຫ້ບໍລິການແລ້ວ' : 'Completed and paid to provider');
+    toast.success(lang === 'lo' ? 'àºªàº³à»€àº¥àº±àº” à»àº¥àº° à»‚àº­àº™à»€àº‡àº´àº™à»ƒàº«à»‰àºœàº¹à»‰à»ƒàº«à»‰àºšà»àº¥àº´àºàº²àº™à»àº¥à»‰àº§' : 'Completed and paid to provider');
   };
 
   const myServiceBookings = serviceBookings.filter((b) => currentUser?.role === 'admin' || b.booker_email === currentUser?.email);
@@ -256,8 +256,8 @@ export default function Bookings() {
       <h1 className="text-2xl font-bold mb-1">{t.bookingsTitle}</h1>
       <p className="text-muted-foreground text-sm mb-5">
         {currentUser?.role === 'admin' ?
-        lang === 'lo' ? 'ລາຍການຈອງຂອງຜູ້ໃຊ້ທັງໝົດ' : 'All user bookings in one place' :
-        lang === 'lo' ? 'ລາຍການຈອງທັງໝົດຂອງທ່ານ' : 'All your reservations in one place'}
+        lang === 'lo' ? 'àº¥àº²àºàºàº²àº™àºˆàº­àº‡àº‚àº­àº‡àºœàº¹à»‰à»ƒàºŠà»‰àº—àº±àº‡à»àº»àº”' : 'All user bookings in one place' :
+        lang === 'lo' ? 'àº¥àº²àºàºàº²àº™àºˆàº­àº‡àº—àº±àº‡à»àº»àº”àº‚àº­àº‡àº—à»ˆàº²àº™' : 'All your reservations in one place'}
       </p>
 
       {/* Giving / Asking Service Main Tabs */}
@@ -266,13 +266,13 @@ export default function Bookings() {
           onClick={() => setServiceTab('incoming_requests')}
           className={`flex-1 py-3.5 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${serviceTab === 'incoming_requests' ? 'bg-card text-primary shadow-sm border border-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          🤝 {lang === 'lo' ? 'ໃຫ້ບໍລິການ' : 'Giving Service'}
+          ðŸ¤ {lang === 'lo' ? 'à»ƒàº«à»‰àºšà»àº¥àº´àºàº²àº™' : 'Giving Service'}
         </button>
         <button
           onClick={() => setServiceTab('my_bookings')}
           className={`flex-1 py-3.5 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${serviceTab === 'my_bookings' ? 'bg-card text-primary shadow-sm border border-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          🙋 {lang === 'lo' ? 'ໃຊ້ບໍລິການ' : 'Using Service'}
+          ðŸ™‹ {lang === 'lo' ? 'à»ƒàºŠà»‰àºšà»àº¥àº´àºàº²àº™' : 'Using Service'}
         </button>
       </div>
 
@@ -282,7 +282,7 @@ export default function Bookings() {
           onClick={() => setTab('pending')}
           className={`pb-3 text-sm font-bold relative transition-colors ${tab === 'pending' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          ⏳ {lang === 'lo' ? 'ລໍຖ້າດຳເນີນການ' : 'Pending'}
+          â³ {lang === 'lo' ? 'àº¥à»àº–à»‰àº²àº”àº³à»€àº™àºµàº™àºàº²àº™' : 'Pending'}
           {pendingBookings.length > 0 && <span className="ml-1.5 text-[10px] bg-amber-500 text-white rounded-full px-2 py-0.5">{pendingBookings.length}</span>}
           {tab === 'pending' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-foreground rounded-t-full" />}
         </button>
@@ -290,7 +290,7 @@ export default function Bookings() {
           onClick={() => setTab('completed')}
           className={`pb-3 text-sm font-bold relative transition-colors ${tab === 'completed' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          ✅ {lang === 'lo' ? 'ສຳເລັດແລ້ວ' : 'Completed'}
+          âœ… {lang === 'lo' ? 'àºªàº³à»€àº¥àº±àº”à»àº¥à»‰àº§' : 'Completed'}
           {completedBookings.length > 0 && <span className="ml-1.5 text-[10px] bg-primary text-white rounded-full px-2 py-0.5">{completedBookings.length}</span>}
           {tab === 'completed' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-foreground rounded-t-full" />}
         </button>
@@ -318,15 +318,15 @@ export default function Bookings() {
                         <img src={b.image} alt={b.service_type} className="w-14 h-14 rounded-xl object-cover shadow-sm border border-border flex-shrink-0" />
                       ) : (
                         <div className="w-14 h-14 bg-muted/50 rounded-xl flex items-center justify-center text-2xl shadow-sm border border-border flex-shrink-0">
-                          {b.booking_kind === 'stay' ? '🏠' : '🛎️'}
+                          {b.booking_kind === 'stay' ? 'ðŸ ' : 'ðŸ›Žï¸'}
                         </div>
                       )}
                       <div>
                         <p className="font-bold text-base line-clamp-1">{b.service_type || 'Service Transaction'}</p>
                         <p className="text-xs text-muted-foreground mt-1">
                           {isIncoming
-                            ? `${lang === 'lo' ? 'ລູກຄ້າ:' : 'Client:'} ${b.booker_name || b.booker_email}`
-                            : `${lang === 'lo' ? 'ຜູ້ໃຫ້ບໍລິການ:' : 'Provider:'} ${b.poster_name || b.poster_email}`}
+                            ? `${lang === 'lo' ? 'àº¥àº¹àºàº„à»‰àº²:' : 'Client:'} ${b.booker_name || b.booker_email}`
+                            : `${lang === 'lo' ? 'àºœàº¹à»‰à»ƒàº«à»‰àºšà»àº¥àº´àºàº²àº™:' : 'Provider:'} ${b.poster_name || b.poster_email}`}
                         </p>
                       </div>
                     </div>
@@ -357,7 +357,7 @@ export default function Bookings() {
                 <div className="bg-muted/30 px-4 sm:px-5 py-3 border-t border-dashed border-border flex items-center justify-between">
                   <span className="text-xs font-semibold text-muted-foreground">{formatTimestampDMY(b.created_date)}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-muted-foreground uppercase">{lang === 'lo' ? 'ລາຄາລວມ' : 'TOTAL'}</span>
+                    <span className="text-xs font-bold text-muted-foreground uppercase">{lang === 'lo' ? 'àº¥àº²àº„àº²àº¥àº§àº¡' : 'TOTAL'}</span>
                     <span className="text-lg font-black text-foreground">{b.price} {b.currency || 'USD'}</span>
                   </div>
                 </div>
@@ -367,13 +367,13 @@ export default function Bookings() {
         </div>
       ) : (
         <div className="text-center py-20 text-muted-foreground bg-muted/20 rounded-3xl border border-border border-dashed">
-          <p className="text-5xl mb-4">{tab === 'pending' ? '⏳' : '✅'}</p>
+          <p className="text-5xl mb-4">{tab === 'pending' ? 'â³' : 'âœ…'}</p>
           <h3 className="text-lg font-bold mb-2">
             {tab === 'pending'
-              ? lang === 'lo' ? 'ຍັງບໍ່ມີທຸລະກຳທີ່ລໍຖ້າ' : 'No pending transactions'
-              : lang === 'lo' ? 'ຍັງບໍ່ມີທຸລະກຳທີ່ສຳເລັດ' : 'No completed transactions'}
+              ? lang === 'lo' ? 'àºàº±àº‡àºšà»à»ˆàº¡àºµàº—àº¸àº¥àº°àºàº³àº—àºµà»ˆàº¥à»àº–à»‰àº²' : 'No pending transactions'
+              : lang === 'lo' ? 'àºàº±àº‡àºšà»à»ˆàº¡àºµàº—àº¸àº¥àº°àºàº³àº—àºµà»ˆàºªàº³à»€àº¥àº±àº”' : 'No completed transactions'}
           </h3>
-          <p className="text-sm mb-6 max-w-sm mx-auto">{lang === 'lo' ? 'ຊອກຫາການບໍລິການໃນ Feed ເພື່ອເລີ່ມຕົ້ນທຸລະກຳໃໝ່' : 'Browse services in the Feed to start a new transaction'}</p>
+          <p className="text-sm mb-6 max-w-sm mx-auto">{lang === 'lo' ? 'àºŠàº­àºàº«àº²àºàº²àº™àºšà»àº¥àº´àºàº²àº™à»ƒàº™ Feed à»€àºžàº·à»ˆàº­à»€àº¥àºµà»ˆàº¡àº•àº»à»‰àº™àº—àº¸àº¥àº°àºàº³à»ƒà»à»ˆ' : 'Browse services in the Feed to start a new transaction'}</p>
           <Link to="/feed" className="inline-block bg-primary text-primary-foreground px-8 py-3 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:opacity-90 hover:scale-105 transition-all">{t.feed}</Link>
         </div>
       )}

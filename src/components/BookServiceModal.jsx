@@ -1,6 +1,6 @@
-import { useMemo, useState, useEffect } from 'react';
+﻿import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { firebaseClient } from '@/api/firebaseClient';
 import { toast } from 'sonner';
 import { X, Clock, Calendar, DollarSign, Wallet, MapPin } from 'lucide-react';
 import { DEFAULT_EXCHANGE_RATES, deductCrossCurrencyBalance, getTotalLakBalance } from '../utils/wallet';
@@ -15,7 +15,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
   const currency = post.service_currency || profile?.wallet_currency || 'USD';
 
   useEffect(() => {
-    base44.entities.ExchangeRateSettings.list('-updated_date', 1).then((items) => {
+    firebaseClient.entities.ExchangeRateSettings.list('-updated_date', 1).then((items) => {
       const item = items[0];
       if (item) {
         setExchangeRates({
@@ -34,7 +34,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
   const isHourlyService = post.service_duration_unit === 'hours';
   const slotOptions = useMemo(() => {
     if (!isHourlyService) return [];
-    const baseDatePart = post.service_when?.split('·')[0]?.trim() || '';
+    const baseDatePart = post.service_when?.split('Â·')[0]?.trim() || '';
     const timeMatch = post.service_when?.match(/(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})/);
     if (!timeMatch) return [];
     const [, start, end] = timeMatch;
@@ -44,7 +44,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
     for (let hour = startHour; hour < endHour; hour += 1) {
       const from = `${String(hour).padStart(2, '0')}:00`;
       const to = `${String(hour + 1).padStart(2, '0')}:00`;
-      options.push(baseDatePart ? `${baseDatePart} · ${from} - ${to}` : `${from} - ${to}`);
+      options.push(baseDatePart ? `${baseDatePart} Â· ${from} - ${to}` : `${from} - ${to}`);
     }
     return options;
   }, [isHourlyService, post.service_when]);
@@ -66,34 +66,34 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
 
   const handleBook = async () => {
     if (!profile?.is_verified && !profile?.is_pro) {
-      toast.error(lang === 'lo' ? 'ຕ້ອງຢືນຢັນຕົວຕົນກ່ອນ' : 'You must verify your identity first');
+      toast.error(lang === 'lo' ? 'àº•à»‰àº­àº‡àº¢àº·àº™àº¢àº±àº™àº•àº»àº§àº•àº»àº™àºà»ˆàº­àº™' : 'You must verify your identity first');
       onClose();
       return;
     }
     if (!canAfford) {
-      toast.error(lang === 'lo' ? 'ຍອດເງິນບໍ່ພໍ' : 'Insufficient wallet balance');
+      toast.error(lang === 'lo' ? 'àºàº­àº”à»€àº‡àº´àº™àºšà»à»ˆàºžà»' : 'Insufficient wallet balance');
       return;
     }
 
     const balanceUpdate = deductCrossCurrencyBalance(profile, price, currency, exchangeRates);
     if (!balanceUpdate) {
-      toast.error(lang === 'lo' ? 'ຍອດເງິນບໍ່ພໍ' : 'Insufficient wallet balance');
+      toast.error(lang === 'lo' ? 'àºàº­àº”à»€àº‡àº´àº™àºšà»à»ˆàºžà»' : 'Insufficient wallet balance');
       return;
     }
     if (isHourlyService && slotOptions.length > 0 && !selectedSlot) {
-      toast.error(lang === 'lo' ? 'ກະລຸນາເລືອກຊ່ວງເວລາ' : 'Please select a time slot');
+      toast.error(lang === 'lo' ? 'àºàº°àº¥àº¸àº™àº²à»€àº¥àº·àº­àºàºŠà»ˆàº§àº‡à»€àº§àº¥àº²' : 'Please select a time slot');
       return;
     }
 
     setLoading(true);
 
     // Optimistic: close modal and show success immediately
-    toast.success(lang === 'lo' ? 'ກຳລັງຈອງ... ✅' : 'Booking in progress... ✅');
+    toast.success(lang === 'lo' ? 'àºàº³àº¥àº±àº‡àºˆàº­àº‡... âœ…' : 'Booking in progress... âœ…');
     onClose();
 
     // Run all API calls in background
     try {
-      const booking = await base44.entities.ServiceBooking.create({
+      const booking = await firebaseClient.entities.ServiceBooking.create({
         post_id: post.id,
         poster_email: post.author_email,
         booker_email: currentUser.email,
@@ -109,13 +109,13 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
         status: 'pending',
       });
 
-      await base44.entities.UserProfile.update(profile.id, {
+      await firebaseClient.entities.UserProfile.update(profile.id, {
         wallet_balance_lak: balanceUpdate.wallet_balance_lak,
         wallet_balance_usd: balanceUpdate.wallet_balance_usd,
         wallet_balance_usdt: balanceUpdate.wallet_balance_usdt,
         wallet_currency: currency,
       });
-      const walletTx = await base44.entities.WalletTransaction.create({
+      const walletTx = await firebaseClient.entities.WalletTransaction.create({
         user_email: currentUser.email,
         description: `Booked: ${post.service_type || 'Service'} from ${post.author_name}`,
         amount: -price,
@@ -123,17 +123,17 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
         type: 'payment',
       });
 
-      await base44.entities.ServiceBooking.update(booking.id, {
+      await firebaseClient.entities.ServiceBooking.update(booking.id, {
         wallet_transaction_id: walletTx.id,
       });
 
-      await base44.entities.Notification.create({
+      await firebaseClient.entities.Notification.create({
         user_email: post.author_email,
-        type: '📅',
+        type: 'ðŸ“…',
         text: `${currentUser.full_name || currentUser.email} booked your service "${post.service_type}" for ${price} ${currency}`,
       });
 
-      const convs = await base44.entities.Conversation.list('-updated_date', 50);
+      const convs = await firebaseClient.entities.Conversation.list('-updated_date', 50);
       const existing = convs.find(c =>
         c.participants?.includes(currentUser.email) && c.participants?.includes(post.author_email)
       );
@@ -141,7 +141,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
       const bookingContext = JSON.stringify({
         booking_id: booking.id,
         service_type: post.service_type || 'Service',
-        service_emoji: post.service_type_emoji || '🛎️',
+        service_emoji: post.service_type_emoji || 'ðŸ›Žï¸',
         price,
         currency,
         service_when: selectedSlot || post.service_when || '',
@@ -153,41 +153,41 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
       });
       if (existing) {
         convId = existing.id;
-        await base44.entities.Conversation.update(convId, {
+        await firebaseClient.entities.Conversation.update(convId, {
           booking_context: bookingContext,
           booking_id: booking.id,
-          last_message: `📋 ${lang === 'lo' ? 'ຈອງ' : 'Booked'}: ${post.service_type || 'Service'}`,
+          last_message: `ðŸ“‹ ${lang === 'lo' ? 'àºˆàº­àº‡' : 'Booked'}: ${post.service_type || 'Service'}`,
           last_message_time: new Date().toISOString(),
         });
       } else {
-        const conv = await base44.entities.Conversation.create({
+        const conv = await firebaseClient.entities.Conversation.create({
           participants: [currentUser.email, post.author_email],
           booking_context: bookingContext,
           booking_id: booking.id,
-          last_message: `📋 ${lang === 'lo' ? 'ຈອງ' : 'Booked'}: ${post.service_type || 'Service'}`,
+          last_message: `ðŸ“‹ ${lang === 'lo' ? 'àºˆàº­àº‡' : 'Booked'}: ${post.service_type || 'Service'}`,
           last_message_time: new Date().toISOString(),
         });
         convId = conv.id;
       }
       // Send initial booking confirmation message
       const whenText = selectedSlot || post.service_when
-        ? `\n⏰ ${selectedSlot || post.service_when}` : '';
-      const locationText = post.service_location ? `\n📍 ${post.service_location}` : '';
-      await base44.entities.Message.create({
+        ? `\nâ° ${selectedSlot || post.service_when}` : '';
+      const locationText = post.service_location ? `\nðŸ“ ${post.service_location}` : '';
+      await firebaseClient.entities.Message.create({
         conversation_id: convId,
         sender_email: currentUser.email,
-        text: `📋 ${lang === 'lo' ? 'ຂ້ອຍຈອງ' : 'I booked'}: "${post.service_type || 'Service'}"
-💰 ${price} ${currency}${whenText}${locationText}
+        text: `ðŸ“‹ ${lang === 'lo' ? 'àº‚à»‰àº­àºàºˆàº­àº‡' : 'I booked'}: "${post.service_type || 'Service'}"
+ðŸ’° ${price} ${currency}${whenText}${locationText}
 
-${lang === 'lo' ? 'ລໍຖ້າ ✅' : 'Looking forward to it! ✅'}`,
+${lang === 'lo' ? 'àº¥à»àº–à»‰àº² âœ…' : 'Looking forward to it! âœ…'}`,
         msg_type: 'booking_card',
       });
 
-      toast.success(lang === 'lo' ? 'ຈອງສຳເລັດ! ✅' : 'Booking confirmed! ✅');
+      toast.success(lang === 'lo' ? 'àºˆàº­àº‡àºªàº³à»€àº¥àº±àº”! âœ…' : 'Booking confirmed! âœ…');
       onBooked?.();
       navigate(`/messages?conv=${convId}`);
     } catch (err) {
-      toast.error(lang === 'lo' ? 'ເກີດຂໍ້ຜິດພາດ' : 'Booking failed, please try again');
+      toast.error(lang === 'lo' ? 'à»€àºàºµàº”àº‚à»à»‰àºœàº´àº”àºžàº²àº”' : 'Booking failed, please try again');
     }
   };
 
@@ -199,14 +199,14 @@ ${lang === 'lo' ? 'ລໍຖ້າ ✅' : 'Looking forward to it! ✅'}`,
         onTouchEnd={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5 sticky top-0 bg-card z-10 pb-2 border-b border-border">
-          <h2 className="font-bold text-base">{lang === 'lo' ? 'ຈອງບໍລິການ' : 'Book Service'}</h2>
+          <h2 className="font-bold text-base">{lang === 'lo' ? 'àºˆàº­àº‡àºšà»àº¥àº´àºàº²àº™' : 'Book Service'}</h2>
           <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-full transition-colors"><X size={18} /></button>
         </div>
 
         {/* Service summary */}
         <div className="bg-muted/50 rounded-2xl p-4 space-y-2.5 mb-5">
           <div className="flex items-center gap-2 text-sm font-semibold">
-            <span className="text-lg">{post.service_type_emoji || '🛎️'}</span>
+            <span className="text-lg">{post.service_type_emoji || 'ðŸ›Žï¸'}</span>
             {post.service_type || 'Service'}
           </div>
           {post.service_duration > 0 && (
@@ -242,7 +242,7 @@ ${lang === 'lo' ? 'ລໍຖ້າ ✅' : 'Looking forward to it! ✅'}`,
           {isHourlyService && slotOptions.length > 0 && (
             <div className="space-y-2 border-t border-border pt-3">
               <p className="text-xs font-semibold text-muted-foreground">
-                {lang === 'lo' ? 'ເລືອກຊ່ວງເວລາ' : 'Select Time Slot'}
+                {lang === 'lo' ? 'à»€àº¥àº·àº­àºàºŠà»ˆàº§àº‡à»€àº§àº¥àº²' : 'Select Time Slot'}
               </p>
               <div className="grid gap-2">
                 {slotOptions.map(slot => (
@@ -268,7 +268,7 @@ ${lang === 'lo' ? 'ລໍຖ້າ ✅' : 'Looking forward to it! ✅'}`,
         <div className={`flex items-center justify-between px-4 py-3 rounded-xl mb-5 border ${canAfford ? 'bg-success/5 border-success/20' : 'bg-destructive/5 border-destructive/20'}`}>
           <div className="flex items-center gap-2 text-sm">
             <Wallet size={16} className={canAfford ? 'text-success' : 'text-destructive'} />
-            <span className="font-medium">{lang === 'lo' ? 'ຍອດເງິນ' : 'Wallet Balance'}</span>
+            <span className="font-medium">{lang === 'lo' ? 'àºàº­àº”à»€àº‡àº´àº™' : 'Wallet Balance'}</span>
           </div>
           <span className={`font-bold text-sm ${canAfford ? 'text-success' : 'text-destructive'}`}>
             {Math.round(totalLakBalance).toLocaleString()} LAK
@@ -283,7 +283,7 @@ ${lang === 'lo' ? 'ລໍຖ້າ ✅' : 'Looking forward to it! ✅'}`,
             }}
             className="w-full text-xs text-destructive text-center mb-3 underline underline-offset-2"
           >
-            {lang === 'lo' ? 'ຍອດເງິນໃນກະເປົາບໍ່ພໍ — ກົດເພື່ອໄປໜ້າເຕີມເງິນ' : 'Not enough balance — tap to go to the top up page.'}
+            {lang === 'lo' ? 'àºàº­àº”à»€àº‡àº´àº™à»ƒàº™àºàº°à»€àº›àº»àº²àºšà»à»ˆàºžà» â€” àºàº»àº”à»€àºžàº·à»ˆàº­à»„àº›à»œà»‰àº²à»€àº•àºµàº¡à»€àº‡àº´àº™' : 'Not enough balance â€” tap to go to the top up page.'}
           </button>
         )}
 
@@ -295,13 +295,13 @@ ${lang === 'lo' ? 'ລໍຖ້າ ✅' : 'Looking forward to it! ✅'}`,
           disabled={loading}
           className="w-full bg-gradient-to-r from-tiffany to-deep-green text-white py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-40"
         >
-          {loading ? '...' : canAfford ? `${lang === 'lo' ? 'ຈ່າຍ & ຈອງ' : 'Pay & Book'} — ${price} ${currency}` : `${lang === 'lo' ? 'ໄປໜ້າເຕີມເງິນ' : 'Go to Top Up'}`}
+          {loading ? '...' : canAfford ? `${lang === 'lo' ? 'àºˆà»ˆàº²àº & àºˆàº­àº‡' : 'Pay & Book'} â€” ${price} ${currency}` : `${lang === 'lo' ? 'à»„àº›à»œà»‰àº²à»€àº•àºµàº¡à»€àº‡àº´àº™' : 'Go to Top Up'}`}
         </button>
         <button onClick={handleMessage} disabled={loading} className="w-full border border-primary text-primary py-2.5 rounded-xl font-semibold text-sm hover:bg-primary/5 transition-colors mt-3">
-          {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມຫາຜູ້ໃຫ້ບໍລິການ' : 'Message Provider'}
+          {lang === 'lo' ? 'àºªàº»à»ˆàº‡àº‚à»à»‰àº„àº§àº²àº¡àº«àº²àºœàº¹à»‰à»ƒàº«à»‰àºšà»àº¥àº´àºàº²àº™' : 'Message Provider'}
         </button>
         <button onClick={onClose} disabled={loading} className="w-full border border-border py-2.5 rounded-xl text-sm font-semibold mt-2 hover:bg-muted transition-colors">
-          {lang === 'lo' ? 'ຍົກເລີກ' : 'Cancel'}
+          {lang === 'lo' ? 'àºàº»àºà»€àº¥àºµàº' : 'Cancel'}
         </button>
       </div>
     </div>

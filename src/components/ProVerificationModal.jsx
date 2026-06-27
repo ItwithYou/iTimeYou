@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react';
+﻿import { useRef, useState } from 'react';
 import { X } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { firebaseClient } from '@/api/firebaseClient';
 import { toast } from 'sonner';
 
 export default function ProVerificationModal({ profile, lang, onClose, onSubmitted }) {
@@ -13,14 +13,14 @@ export default function ProVerificationModal({ profile, lang, onClose, onSubmitt
 
   const handleSubmit = async () => {
     if (!businessName.trim() || !taxId.trim() || !serviceNames.trim() || !licenseFile) {
-      toast.error(lang === 'lo' ? 'ກະລຸນາກອກຂໍ້ມູນໃຫ້ຄົບ' : 'Please complete all fields');
+      toast.error(lang === 'lo' ? 'àºàº°àº¥àº¸àº™àº²àºàº­àºàº‚à»à»‰àº¡àº¹àº™à»ƒàº«à»‰àº„àº»àºš' : 'Please complete all fields');
       return;
     }
 
     setSubmitting(true);
-    const upload = await base44.integrations.Core.UploadFile({ file: licenseFile });
+    const upload = await firebaseClient.integrations.Core.UploadFile({ file: licenseFile });
 
-    await base44.entities.UserProfile.update(profile.id, {
+    await firebaseClient.entities.UserProfile.update(profile.id, {
       business_name: businessName,
       business_tax_id: taxId,
       business_license_url: upload.file_url,
@@ -29,15 +29,15 @@ export default function ProVerificationModal({ profile, lang, onClose, onSubmitt
       pro_reject_reason: '',
     });
 
-    await base44.entities.Notification.create({
+    await firebaseClient.entities.Notification.create({
       user_email: profile.user_email,
-      type: '🔵',
+      type: 'ðŸ”µ',
       text: `Pro verification submitted. Business: ${businessName}. Services: ${serviceNames}`,
-      text_lao: `ສົ່ງຄຳຂໍ Pro ແລ້ວ. ຊື່ທຸລະກິດ: ${businessName}. ບໍລິການ: ${serviceNames}`,
+      text_lao: `àºªàº»à»ˆàº‡àº„àº³àº‚à» Pro à»àº¥à»‰àº§. àºŠàº·à»ˆàº—àº¸àº¥àº°àºàº´àº”: ${businessName}. àºšà»àº¥àº´àºàº²àº™: ${serviceNames}`,
     });
 
     setSubmitting(false);
-    toast.success(lang === 'lo' ? 'ສົ່ງຄຳຂໍ Pro ແລ້ວ' : 'Pro request submitted');
+    toast.success(lang === 'lo' ? 'àºªàº»à»ˆàº‡àº„àº³àº‚à» Pro à»àº¥à»‰àº§' : 'Pro request submitted');
     onSubmitted?.();
   };
 
@@ -45,34 +45,34 @@ export default function ProVerificationModal({ profile, lang, onClose, onSubmitt
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-md p-4" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="bg-card rounded-[24px] w-full sm:max-w-lg p-4 sm:p-6 shadow-2xl border border-border max-h-[90vh] overflow-y-auto overscroll-contain" onMouseDown={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-3 sticky top-0 bg-card z-10 pb-2 border-b border-border">
-          <h2 className="text-[15px] sm:text-lg font-bold">{lang === 'lo' ? 'ສະໝັກ Pro' : 'Apply for Pro'}</h2>
+          <h2 className="text-[15px] sm:text-lg font-bold">{lang === 'lo' ? 'àºªàº°à»àº±àº Pro' : 'Apply for Pro'}</h2>
           <button onClick={onClose} className="p-1 hover:bg-muted rounded-full transition-colors"><X size={18} /></button>
         </div>
 
         <div className="space-y-2.5">
           <div>
-            <label className="text-[11px] font-semibold block mb-1">{lang === 'lo' ? 'ຊື່ທຸລະກິດ' : 'Business name'}</label>
-            <input value={businessName} onChange={e => setBusinessName(e.target.value)} className="w-full border border-border rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-primary" placeholder={lang === 'lo' ? 'ຊື່ຕາມໃບອະນຸຍາດ' : 'Name from your business license'} />
+            <label className="text-[11px] font-semibold block mb-1">{lang === 'lo' ? 'àºŠàº·à»ˆàº—àº¸àº¥àº°àºàº´àº”' : 'Business name'}</label>
+            <input value={businessName} onChange={e => setBusinessName(e.target.value)} className="w-full border border-border rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-primary" placeholder={lang === 'lo' ? 'àºŠàº·à»ˆàº•àº²àº¡à»ƒàºšàº­àº°àº™àº¸àºàº²àº”' : 'Name from your business license'} />
           </div>
           <div>
             <label className="text-[11px] font-semibold block mb-1">{lang === 'lo' ? 'Tax ID' : 'Tax ID'}</label>
-            <input value={taxId} onChange={e => setTaxId(e.target.value)} className="w-full border border-border rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-primary" placeholder={lang === 'lo' ? 'ເລກປະຈຳຕົວພາສີ' : 'Tax number'} />
+            <input value={taxId} onChange={e => setTaxId(e.target.value)} className="w-full border border-border rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-primary" placeholder={lang === 'lo' ? 'à»€àº¥àºàº›àº°àºˆàº³àº•àº»àº§àºžàº²àºªàºµ' : 'Tax number'} />
           </div>
           <div>
-            <label className="text-[11px] font-semibold block mb-1">{lang === 'lo' ? 'ລາຍຊື່ບໍລິການທີ່ຈະເຮັດ' : 'Service names you provide'}</label>
-            <textarea value={serviceNames} onChange={e => setServiceNames(e.target.value)} rows={2} className="w-full border border-border rounded-lg px-2.5 py-1.5 text-sm resize-none outline-none focus:border-primary" placeholder={lang === 'lo' ? 'ເຊັ່ນ ໂຮງແຮມ, guest house, tour...' : 'Example: hotel, guest house, tour...'} />
+            <label className="text-[11px] font-semibold block mb-1">{lang === 'lo' ? 'àº¥àº²àºàºŠàº·à»ˆàºšà»àº¥àº´àºàº²àº™àº—àºµà»ˆàºˆàº°à»€àº®àº±àº”' : 'Service names you provide'}</label>
+            <textarea value={serviceNames} onChange={e => setServiceNames(e.target.value)} rows={2} className="w-full border border-border rounded-lg px-2.5 py-1.5 text-sm resize-none outline-none focus:border-primary" placeholder={lang === 'lo' ? 'à»€àºŠàº±à»ˆàº™ à»‚àº®àº‡à»àº®àº¡, guest house, tour...' : 'Example: hotel, guest house, tour...'} />
           </div>
           <div>
-            <label className="text-[11px] font-semibold block mb-1">{lang === 'lo' ? 'ໃບອະນຸຍາດທຸລະກິດ' : 'Business license'}</label>
+            <label className="text-[11px] font-semibold block mb-1">{lang === 'lo' ? 'à»ƒàºšàº­àº°àº™àº¸àºàº²àº”àº—àº¸àº¥àº°àºàº´àº”' : 'Business license'}</label>
             <button type="button" onClick={() => fileRef.current?.click()} className="flex items-center gap-2 border border-dashed border-border rounded-lg px-3 py-2 text-xs text-muted-foreground active:border-primary transition-colors w-full text-left">
-              {licenseFile ? `✅ ${licenseFile.name}` : (lang === 'lo' ? '📄 ກົດເພື່ອອັບໂຫລດໃບອະນຸຍາດ' : '📄 Tap to upload business license')}
+              {licenseFile ? `âœ… ${licenseFile.name}` : (lang === 'lo' ? 'ðŸ“„ àºàº»àº”à»€àºžàº·à»ˆàº­àº­àº±àºšà»‚àº«àº¥àº”à»ƒàºšàº­àº°àº™àº¸àºàº²àº”' : 'ðŸ“„ Tap to upload business license')}
             </button>
             <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden" onChange={e => setLicenseFile(e.target.files?.[0] || null)} />
           </div>
         </div>
 
         <button onClick={handleSubmit} disabled={submitting} className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold text-sm mt-4 hover:bg-blue-700 transition-colors disabled:opacity-50">
-          {submitting ? '...' : (lang === 'lo' ? 'ສົ່ງຄຳຂໍ Pro' : 'Submit Pro request')}
+          {submitting ? '...' : (lang === 'lo' ? 'àºªàº»à»ˆàº‡àº„àº³àº‚à» Pro' : 'Submit Pro request')}
         </button>
       </div>
     </div>

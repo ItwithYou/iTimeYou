@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../lib/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { firebaseClient } from '@/api/firebaseClient';
 import { Send, MessageCircle, MapPin, ChevronLeft, Package, Clock, Navigation } from 'lucide-react';
 import { formatTimestampDMY } from '../utils/dateUtils';
 
@@ -19,9 +19,9 @@ export default function Messages() {
 
   useEffect(() => {
     if (!currentUser) return;
-    base44.entities.Conversation.list('-updated_date', 30).then(async convs => {
+    firebaseClient.entities.Conversation.list('-updated_date', 30).then(async convs => {
       const myConvs = convs.filter(c => c.participants?.includes(currentUser.email));
-      const allProfiles = await base44.entities.UserProfile.list('-created_date', 100);
+      const allProfiles = await firebaseClient.entities.UserProfile.list('-created_date', 100);
       const map = {};
       allProfiles.forEach(p => { map[p.user_email] = p; });
       setProfiles(map);
@@ -58,7 +58,7 @@ export default function Messages() {
     } else {
       setBookingCtx(null);
     }
-    const msgs = await base44.entities.Message.filter({ conversation_id: conv.id }, 'created_date', 50);
+    const msgs = await firebaseClient.entities.Message.filter({ conversation_id: conv.id }, 'created_date', 50);
     setMessages(msgs);
   };
 
@@ -66,7 +66,7 @@ export default function Messages() {
   const activeConvRef = useRef(null);
   activeConvRef.current = activeConv;
   useEffect(() => {
-    const unsub = base44.entities.Message.subscribe((event) => {
+    const unsub = firebaseClient.entities.Message.subscribe((event) => {
       if (!activeConvRef.current) return;
       if (event.data?.conversation_id !== activeConvRef.current.id) return;
       if (event.type === 'create') {
@@ -78,7 +78,7 @@ export default function Messages() {
 
   // Real-time conversation subscription
   useEffect(() => {
-    const unsub = base44.entities.Conversation.subscribe((event) => {
+    const unsub = firebaseClient.entities.Conversation.subscribe((event) => {
       if (event.type === 'update') {
         setConversations(prev => {
           const updated = prev.map(c => c.id === event.id ? { ...c, ...event.data } : c);
@@ -98,12 +98,12 @@ export default function Messages() {
     if (!newMessage.trim() || !activeConv) return;
     const text = newMessage;
     setNewMessage('');
-    await base44.entities.Message.create({
+    await firebaseClient.entities.Message.create({
       conversation_id: activeConv.id,
       sender_email: currentUser.email,
       text,
     });
-    await base44.entities.Conversation.update(activeConv.id, {
+    await firebaseClient.entities.Conversation.update(activeConv.id, {
       last_message: text,
       last_message_time: new Date().toISOString(),
     });
@@ -111,7 +111,7 @@ export default function Messages() {
 
   const shareLocation = async () => {
     if (!navigator.geolocation) {
-      alert(lang === 'lo' ? 'ໂທລະສັບຂອງທ່ານບໍ່ຮອງຮັບ GPS' : 'Geolocation not supported');
+      alert(lang === 'lo' ? 'à»‚àº—àº¥àº°àºªàº±àºšàº‚àº­àº‡àº—à»ˆàº²àº™àºšà»à»ˆàº®àº­àº‡àº®àº±àºš GPS' : 'Geolocation not supported');
       return;
     }
     setSharingLoc(true);
@@ -119,22 +119,22 @@ export default function Messages() {
       async (pos) => {
         const { latitude: lat, longitude: lng } = pos.coords;
         const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
-        const text = `📍 ${lang === 'lo' ? 'ສະຖານທີ່ຂອງຂ້ອຍ' : 'My location'}: ${mapsUrl}`;
-        await base44.entities.Message.create({
+        const text = `ðŸ“ ${lang === 'lo' ? 'àºªàº°àº–àº²àº™àº—àºµà»ˆàº‚àº­àº‡àº‚à»‰àº­àº' : 'My location'}: ${mapsUrl}`;
+        await firebaseClient.entities.Message.create({
           conversation_id: activeConv.id,
           sender_email: currentUser.email,
           text,
           msg_type: 'location',
         });
-        await base44.entities.Conversation.update(activeConv.id, {
-          last_message: lang === 'lo' ? '📍 ສ່ງສະຖານທີ່' : '📍 Location shared',
+        await firebaseClient.entities.Conversation.update(activeConv.id, {
+          last_message: lang === 'lo' ? 'ðŸ“ àºªà»ˆàº‡àºªàº°àº–àº²àº™àº—àºµà»ˆ' : 'ðŸ“ Location shared',
           last_message_time: new Date().toISOString(),
         });
         setSharingLoc(false);
       },
       () => {
         setSharingLoc(false);
-        alert(lang === 'lo' ? 'ບໍ່ສາມາດຮັບ GPS ໄດ້' : 'Could not get location. Please allow GPS access.');
+        alert(lang === 'lo' ? 'àºšà»à»ˆàºªàº²àº¡àº²àº”àº®àº±àºš GPS à»„àº”à»‰' : 'Could not get location. Please allow GPS access.');
       },
       { timeout: 8000 }
     );
@@ -145,11 +145,11 @@ export default function Messages() {
     return profiles[otherEmail] || { first_name: 'User', last_name: '', user_email: otherEmail };
   };
 
-  const isLocationMsg = (text) => text?.includes('maps.google.com') || text?.includes('📍');
+  const isLocationMsg = (text) => text?.includes('maps.google.com') || text?.includes('ðŸ“');
 
   return (
     <div className="flex h-[calc(100vh-64px)] relative">
-      {/* ── Conversation list ── */}
+      {/* â”€â”€ Conversation list â”€â”€ */}
       <div className={`${activeConv ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-border bg-card overflow-y-auto flex-shrink-0`}>
         <div className="p-4 border-b border-border">
           <h2 className="font-bold text-lg">{t.messages}</h2>
@@ -188,12 +188,12 @@ export default function Messages() {
           })
         ) : (
           <div className="text-center py-8 text-muted-foreground text-sm">
-            💬 {t.noMessages}
+            ðŸ’¬ {t.noMessages}
           </div>
         )}
       </div>
 
-      {/* ── Chat area ── */}
+      {/* â”€â”€ Chat area â”€â”€ */}
       <div className={`${activeConv ? 'flex' : 'hidden md:flex'} flex-1 flex-col bg-muted/20`}>
         {activeConv ? (
           <>
@@ -221,7 +221,7 @@ export default function Messages() {
                       </button>
                       {bookingCtx && (
                         <p className="text-xs text-primary font-medium flex items-center gap-1">
-                          <Package size={10} /> {lang === 'lo' ? 'ມີການຈອງ' : 'Has booking'}
+                          <Package size={10} /> {lang === 'lo' ? 'àº¡àºµàºàº²àº™àºˆàº­àº‡' : 'Has booking'}
                         </p>
                       )}
                     </div>
@@ -230,13 +230,13 @@ export default function Messages() {
               })()}
             </div>
 
-            {/* ── Booking info card banner ── */}
+            {/* â”€â”€ Booking info card banner â”€â”€ */}
             {bookingCtx && (
               <div className="mx-3 mt-3 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-deep-green/5 overflow-hidden">
                 <div className="flex items-center gap-2 px-4 py-2.5 bg-primary/10 border-b border-primary/10">
                   <Package size={13} className="text-primary" />
                   <span className="text-xs font-bold text-primary uppercase tracking-wide">
-                    {lang === 'lo' ? 'ລາຍການຈອງ' : 'Booking Details'}
+                    {lang === 'lo' ? 'àº¥àº²àºàºàº²àº™àºˆàº­àº‡' : 'Booking Details'}
                   </span>
                 </div>
                 <div className="px-4 py-3 space-y-2">
@@ -247,7 +247,7 @@ export default function Messages() {
                   <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1.5">
                       <span className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-[9px] font-bold text-primary">₭</span>
+                        <span className="text-[9px] font-bold text-primary">â‚­</span>
                       </span>
                       <span className="font-semibold text-foreground">{bookingCtx.price} {bookingCtx.currency}</span>
                     </div>
@@ -278,7 +278,7 @@ export default function Messages() {
                   {/* Customer info for provider */}
                   {bookingCtx.booker_email !== currentUser?.email && (
                     <div className="pt-2 border-t border-border/50 text-xs text-muted-foreground">
-                      👤 {lang === 'lo' ? 'ລູກຄ້າ' : 'Customer'}: <span className="font-semibold text-foreground">{bookingCtx.booker_name}</span>
+                      ðŸ‘¤ {lang === 'lo' ? 'àº¥àº¹àºàº„à»‰àº²' : 'Customer'}: <span className="font-semibold text-foreground">{bookingCtx.booker_name}</span>
                     </div>
                   )}
                 </div>
@@ -292,8 +292,8 @@ export default function Messages() {
                     >
                       <Navigation size={12} className={sharingLoc ? 'animate-pulse' : ''} />
                       {sharingLoc
-                        ? (lang === 'lo' ? 'ກຳລັງຮັບ GPS...' : 'Getting GPS...')
-                        : (lang === 'lo' ? '📍 ສົ່ງທີ່ຢູ່ຂອງຂ້ອຍໃຫ້ຜູ້ໃຫ້ບໍລິການ' : '📍 Share my location with provider')}
+                        ? (lang === 'lo' ? 'àºàº³àº¥àº±àº‡àº®àº±àºš GPS...' : 'Getting GPS...')
+                        : (lang === 'lo' ? 'ðŸ“ àºªàº»à»ˆàº‡àº—àºµà»ˆàº¢àº¹à»ˆàº‚àº­àº‡àº‚à»‰àº­àºà»ƒàº«à»‰àºœàº¹à»‰à»ƒàº«à»‰àºšà»àº¥àº´àºàº²àº™' : 'ðŸ“ Share my location with provider')}
                     </button>
                   </div>
                 )}
@@ -302,22 +302,22 @@ export default function Messages() {
                   <div className="px-4 pb-3">
                     <button
                       onClick={async () => {
-                        await base44.entities.Message.create({
+                        await firebaseClient.entities.Message.create({
                           conversation_id: activeConv.id,
                           sender_email: currentUser.email,
                           text: lang === 'lo'
-                            ? '📍 ກະລຸນາສົ່ງທີ່ຢູ່ຂອງທ່ານ ເພື່ອໃຫ້ຂ້ອຍສາມາດຮູ້ສະຖານທີ່ຂອງທ່ານ'
-                            : '📍 Could you please share your location so I can find you?',
+                            ? 'ðŸ“ àºàº°àº¥àº¸àº™àº²àºªàº»à»ˆàº‡àº—àºµà»ˆàº¢àº¹à»ˆàº‚àº­àº‡àº—à»ˆàº²àº™ à»€àºžàº·à»ˆàº­à»ƒàº«à»‰àº‚à»‰àº­àºàºªàº²àº¡àº²àº”àº®àº¹à»‰àºªàº°àº–àº²àº™àº—àºµà»ˆàº‚àº­àº‡àº—à»ˆàº²àº™'
+                            : 'ðŸ“ Could you please share your location so I can find you?',
                         });
-                        await base44.entities.Conversation.update(activeConv.id, {
-                          last_message: lang === 'lo' ? '📍 ຂໍທີ່ຢູ່' : '📍 Location requested',
+                        await firebaseClient.entities.Conversation.update(activeConv.id, {
+                          last_message: lang === 'lo' ? 'ðŸ“ àº‚à»àº—àºµà»ˆàº¢àº¹à»ˆ' : 'ðŸ“ Location requested',
                           last_message_time: new Date().toISOString(),
                         });
                       }}
                       className="flex items-center gap-2 text-xs font-semibold text-muted-foreground bg-muted border border-border px-3 py-2 rounded-xl hover:bg-muted/80 transition-colors w-full justify-center"
                     >
                       <MapPin size={12} />
-                      {lang === 'lo' ? 'ຂໍທີ່ຢູ່ຈາກລູກຄ້າ' : 'Request location from customer'}
+                      {lang === 'lo' ? 'àº‚à»àº—àºµà»ˆàº¢àº¹à»ˆàºˆàº²àºàº¥àº¹àºàº„à»‰àº²' : 'Request location from customer'}
                     </button>
                   </div>
                 )}
@@ -343,7 +343,7 @@ export default function Messages() {
                         // Location message
                         <div className="p-3">
                           <div className="flex items-center gap-1.5 font-semibold text-xs mb-2">
-                            <MapPin size={12} /> {lang === 'lo' ? 'ທີ່ຢູ່' : 'Location'}
+                            <MapPin size={12} /> {lang === 'lo' ? 'àº—àºµà»ˆàº¢àº¹à»ˆ' : 'Location'}
                           </div>
                           <a
                             href={mapsUrl}
@@ -352,7 +352,7 @@ export default function Messages() {
                             className={`flex items-center gap-1.5 text-xs underline underline-offset-2 ${isMine ? 'text-primary-foreground/80' : 'text-primary'}`}
                           >
                             <Navigation size={11} />
-                            {lang === 'lo' ? 'ເປີດໃນ Google Maps' : 'Open in Google Maps'}
+                            {lang === 'lo' ? 'à»€àº›àºµàº”à»ƒàº™ Google Maps' : 'Open in Google Maps'}
                           </a>
                         </div>
                       ) : msg.msg_type === 'booking_card' ? (
@@ -380,7 +380,7 @@ export default function Messages() {
               <button
                 onClick={shareLocation}
                 disabled={sharingLoc}
-                title={lang === 'lo' ? 'ສົ່ງທີ່ຢູ່' : 'Share location'}
+                title={lang === 'lo' ? 'àºªàº»à»ˆàº‡àº—àºµà»ˆàº¢àº¹à»ˆ' : 'Share location'}
                 className="w-10 h-10 flex-shrink-0 rounded-full bg-muted border border-border flex items-center justify-center hover:border-primary/50 transition-colors disabled:opacity-40"
               >
                 <Navigation size={16} className={`text-muted-foreground ${sharingLoc ? 'animate-pulse text-primary' : ''}`} />
@@ -404,8 +404,8 @@ export default function Messages() {
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-4">
             <MessageCircle size={40} className="mb-3 opacity-30" />
-            <h3 className="font-semibold mb-2">{lang === 'lo' ? 'ເລືອກການສົນທະນາ' : 'Select a conversation'}</h3>
-            <p className="text-sm text-center">{lang === 'lo' ? 'ເລືອກຈາກລາຍການດ້ານຊ້າຍ' : 'Choose from the list on the left'}</p>
+            <h3 className="font-semibold mb-2">{lang === 'lo' ? 'à»€àº¥àº·àº­àºàºàº²àº™àºªàº»àº™àº—àº°àº™àº²' : 'Select a conversation'}</h3>
+            <p className="text-sm text-center">{lang === 'lo' ? 'à»€àº¥àº·àº­àºàºˆàº²àºàº¥àº²àºàºàº²àº™àº”à»‰àº²àº™àºŠà»‰àº²àº' : 'Choose from the list on the left'}</p>
           </div>
         )}
       </div>

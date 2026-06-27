@@ -1,11 +1,11 @@
-// ─────────────────────────────────────────────────────────────
-//  iTimeYou — Firebase backend (full Base44 SDK replacement)
-//  Provides the same `base44.*` API surface the app already uses:
-//    base44.entities.<Name>.list/filter/get/create/update/delete/subscribe
-//    base44.auth.me/login/register/loginWithGoogle/logout/updateMe/...
-//    base44.integrations.Core.UploadFile({ file }) -> { file_url }
-//    base44.functions.invoke(name, payload) -> { data }
-// ─────────────────────────────────────────────────────────────
+﻿// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  iTimeYou â€” Firebase backend (full firebaseClient SDK replacement)
+//  Provides the same `firebaseClient.*` API surface the app already uses:
+//    firebaseClient.entities.<Name>.list/filter/get/create/update/delete/subscribe
+//    firebaseClient.auth.me/login/register/loginWithGoogle/logout/updateMe/...
+//    firebaseClient.integrations.Core.UploadFile({ file }) -> { file_url }
+//    firebaseClient.functions.invoke(name, payload) -> { data }
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 import { initializeApp } from 'firebase/app';
 import {
   getFirestore, collection, query, where, orderBy, limit as fbLimit,
@@ -20,13 +20,13 @@ import {
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDQl2T85WMrJY1cD40-TudCL8ryI6yYkxw",
-  authDomain: "itimeyou-88.firebaseapp.com",
-  projectId: "itimeyou-88",
-  storageBucket: "itimeyou-88.firebasestorage.app",
-  messagingSenderId: "410299185915",
-  appId: "1:410299185915:web:951e92d98ed6339938ce5e",
-  measurementId: "G-WEKG4XXTDL"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 const app = initializeApp(firebaseConfig);
@@ -34,11 +34,11 @@ export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 
-// Owner / CEO accounts — always treated as admin.
+// Owner / CEO accounts â€” always treated as admin.
 const ADMIN_EMAILS = ['norecord88@gmail.com'];
 const isAdminEmail = (email) => !!email && ADMIN_EMAILS.includes(email.toLowerCase());
 
-// ── helpers ──────────────────────────────────────────────────
+// â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Firestore rejects any write containing `undefined`. Strip undefined values
 // (deeply) so a single missing field never silently fails the whole write.
 function clean(value) {
@@ -73,7 +73,7 @@ function mapUser(u) {
   };
 }
 
-// ── generic Firestore entity ─────────────────────────────────
+// â”€â”€ generic Firestore entity â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function createEntity(collectionName) {
   return {
     async list(sort = '-created_date', maxResults = 50) {
@@ -153,7 +153,7 @@ function createEntity(collectionName) {
   };
 }
 
-// ── User entity (registered accounts, backed by `users` collection) ──
+// â”€â”€ User entity (registered accounts, backed by `users` collection) â”€â”€
 const usersCol = createEntity('users');
 const UserEntity = {
   ...usersCol,
@@ -165,7 +165,7 @@ const UserEntity = {
   },
 };
 
-// ── file uploads ─────────────────────────────────────────────
+// â”€â”€ file uploads â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function uploadFile(fileOrObj, folder = 'uploads') {
   const file = fileOrObj?.file || fileOrObj;
   const safeName = (file?.name || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -174,7 +174,7 @@ async function uploadFile(fileOrObj, folder = 'uploads') {
   return getDownloadURL(r);
 }
 
-// ── auth module ──────────────────────────────────────────────
+// â”€â”€ auth module â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function currentUserOnce() {
   return new Promise((resolve) => {
     const unsub = onAuthStateChanged(auth, u => { unsub(); resolve(u); });
@@ -260,7 +260,7 @@ const authModule = {
   },
 };
 
-// ── serverless functions (stubbed client-side) ───────────────
+// â”€â”€ serverless functions (stubbed client-side) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const functionsModule = {
   async invoke(name, payload = {}) {
     switch (name) {
@@ -280,8 +280,8 @@ const functionsModule = {
   },
 };
 
-// ── public client ────────────────────────────────────────────
-export const base44 = {
+// â”€â”€ public client â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export const firebaseClient = {
   entities: {
     Post: createEntity('posts'),
     Listing: createEntity('listings'),
@@ -312,4 +312,4 @@ export const base44 = {
   storage: { uploadFile },
 };
 
-export default base44;
+export default firebaseClient;

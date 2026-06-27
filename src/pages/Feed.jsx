@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
-import MobileSelect from '../components/MobileSelect';
 import usePullToRefresh from '../hooks/usePullToRefresh';
 import { RefreshCw } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { firebaseClient } from '@/api/firebaseClient';
 import PostCard from '../components/PostCard';
 import StarRating from '../components/StarRating';
 import TrustBadge from '../components/TrustBadge';
-import { CAT_KEYS, CAT_ICONS } from '../hooks/useLang';
+import { PERSONAL_CATS } from '../hooks/useLang';
 import CreateServicePost from '../components/CreateServicePost';
 
 export default function Feed() {
@@ -19,11 +18,11 @@ export default function Feed() {
   const [filterLocation, setFilterLocation] = useState('');
 
   const loadPosts = async () => {
-    const data = await base44.entities.Post.list('-created_date', 30);
+    const data = await firebaseClient.entities.Post.list('-created_date', 30);
     const emails = [...new Set(data.map(p => p.author_email).filter(Boolean))];
     
     if (emails.length > 0) {
-      const profiles = await base44.entities.UserProfile.list('-created_date', 100);
+      const profiles = await firebaseClient.entities.UserProfile.list('-created_date', 100);
       const map = {};
       profiles.forEach(p => {
         if (emails.includes(p.user_email)) map[p.user_email] = p;
@@ -40,148 +39,18 @@ export default function Feed() {
 
   useEffect(() => { loadPosts(); }, []);
 
-  // Automated one-time seeder for premium demo data — Yakuci admin posts
-  useEffect(() => {
-    const seedData = async () => {
-      if (localStorage.getItem('seeded_yakuci_v9')) return;
-      localStorage.setItem('seeded_yakuci_v9', 'true');
 
-      // Clean up old demo posts
-      try {
-        const oldPosts = await base44.entities.Post.list('-created_date', 200);
-        const toDelete = oldPosts.filter(p =>
-          p.author_name === 'Premium User' ||
-          p.author_name === 'iTimeYou Admin' ||
-          p.author_name === 'Yakuci' ||
-          (p.author_name && p.author_name.includes('Latdaphone'))
-        );
-        for (const p of toDelete) {
-          try { await base44.entities.Post.delete(p.id); } catch {}
-        }
-      } catch {}
 
-      const ADMIN_EMAIL = 'norecord88@gmail.com';
-      const ADMIN_NAME = 'Yakuci';
 
-      const DEMO_POSTS = [
-        {
-          category: 'culture',
-          text: 'ປີໃໝ່ມົ້ງ 2026! ເທດສະການທີ່ສວຍງາມທີ່ສຸດ — ເຕັ້ນລຳ, ເກມໂຍນລູກບານ, ແລະ ຊຸດມົ້ງດັ້ງເດີມ. ມາສະເຫຼີມສະຫຼອງນຳກັນ! 🎊🌸',
-          text_en: 'Hmong New Year 2026! The most beautiful festival — traditional dances, ball-tossing games, and stunning Hmong costumes. Come celebrate with us! 🎊🌸',
-          text_lo: 'ປີໃໝ່ມົ້ງ 2026! ເທດສະການທີ່ສວຍງາມທີ່ສຸດ — ເຕັ້ນລຳ, ເກມໂຍນລູກບານ, ແລະ ຊຸດມົ້ງດັ້ງເດີມ. ມາສະເຫຼີມສະຫຼອງນຳກັນ! 🎊🌸',
-          photo_urls: [
-            'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
-            'https://images.unsplash.com/photo-1596489481283-36cb9eb070d6?w=800&q=80',
-            'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80',
-            'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
-            'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80'
-          ],
-          photo_url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
-          service_price: 0,
-        },
-        {
-          category: 'food',
-          text: 'ເຊີນມາກິນເຂົ້ານຳຄອບຄົວລາວແທ້ໆ! ລາບ, ຕຳໝາກຫຸ່ງ, ປີ້ງໄກ່, ເຂົ້າໜຽວ — ອາຫານເຮັດສົດໆຈາກສວນຫຼັງບ້ານ. ປະສົບການທີ່ອົບອຸ່ນ ແລະ ເປັນກັນເອງ 🏡🍚',
-          text_en: 'Join a real Lao family dinner at home! Laab, papaya salad, grilled chicken, sticky rice — all freshly made from the backyard garden. A warm and authentic home-hosted experience 🏡🍚',
-          text_lo: 'ເຊີນມາກິນເຂົ້ານຳຄອບຄົວລາວແທ້ໆ! ລາບ, ຕຳໝາກຫຸ່ງ, ປີ້ງໄກ່, ເຂົ້າໜຽວ — ອາຫານເຮັດສົດໆຈາກສວນຫຼັງບ້ານ. ປະສົບການທີ່ອົບອຸ່ນ ແລະ ເປັນກັນເອງ 🏡🍚',
-          photo_urls: [
-            'https://images.unsplash.com/photo-1559314809-0d155014e29e?w=800&q=80',
-            'https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?w=800&q=80',
-            'https://images.unsplash.com/photo-1547592180-85f173990554?w=800&q=80',
-            'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&q=80',
-            'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80'
-          ],
-          photo_url: 'https://images.unsplash.com/photo-1559314809-0d155014e29e?w=800&q=80',
-          service_price: 15, service_type: 'Family Dinner', service_location: 'Vientiane Home', service_currency: 'USD',
-        },
-        {
-          category: 'experience',
-          text: 'ນັດລົມກັບຜູ້ຊ່ຽວຊານດ້ານວັດທະນະທຳລາວ! ຮຽນຮູ້ກ່ຽວກັບປະເພນີບາສີ, ການຖັກແສ່ວ, ແລະ ປະຫວັດສາດຊົນເຜົ່າ. ຈອງເວລາ 1 ຊົ່ວໂມງ ເພື່ອສົນທະນາສ່ວນຕົວ 🎓🇱🇦',
-          text_en: 'Book a 1-on-1 session with a Lao cultural expert! Learn about Baci traditions, silk weaving heritage, and ethnic group history. 1-hour private consultation available 🎓🇱🇦',
-          text_lo: 'ນັດລົມກັບຜູ້ຊ່ຽວຊານດ້ານວັດທະນະທຳລາວ! ຮຽນຮູ້ກ່ຽວກັບປະເພນີບາສີ, ການຖັກແສ່ວ, ແລະ ປະຫວັດສາດຊົນເຜົ່າ. ຈອງເວລາ 1 ຊົ່ວໂມງ ເພື່ອສົນທະນາສ່ວນຕົວ 🎓🇱🇦',
-          photo_urls: [
-            'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
-            'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800&q=80',
-            'https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8e?w=800&q=80',
-            'https://images.unsplash.com/photo-1534008897995-27a23e859048?w=800&q=80',
-            'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800&q=80'
-          ],
-          photo_url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
-          service_price: 25, service_type: 'Expert Session', service_location: 'Online / Vientiane', service_currency: 'USD',
-        },
-        {
-          category: 'nature',
-          text: 'ທຳມະຊາດຂອງລາວງາມຫຼາຍ! ນ້ຳຕົກຕາດກວາງຊີ ນ້ຳໃສສີຟ້າທີ່ບໍ່ເຄີຍເຫັນມາກ່ອນ. ການເດີນປ່າຍາກແຕ່ຄຸ້ມຄ່າ — ທຳມະຊາດລາວບໍ່ມີບ່ອນໃດທຽບໄດ້ ⛰️💚',
-          text_en: 'Lao nature is unmatched! Kuang Si Falls with crystal-clear turquoise water like nowhere else. The trek is challenging but so worth it — nothing compares to Lao wilderness ⛰️💚',
-          text_lo: 'ທຳມະຊາດຂອງລາວງາມຫຼາຍ! ນ້ຳຕົກຕາດກວາງຊີ ນ້ຳໃສສີຟ້າທີ່ບໍ່ເຄີຍເຫັນມາກ່ອນ. ການເດີນປ່າຍາກແຕ່ຄຸ້ມຄ່າ — ທຳມະຊາດລາວບໍ່ມີບ່ອນໃດທຽບໄດ້ ⛰️💚',
-          photo_urls: [
-            'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&q=80',
-            'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
-            'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800&q=80',
-            'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80',
-            'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=800&q=80'
-          ],
-          photo_url: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&q=80',
-          service_price: 0,
-        },
-        {
-          category: 'stay',
-          text: 'ເຮືອນພັກແບບລາວດັ້ງເດີມຕິດແມ່ນ້ຳຂອງ ຢູ່ຫຼວງພະບາງ. ຕື່ນມາຕອນເຊົ້າຟັງສຽງນ້ຳ, ເບິ່ງຂະບວນຕັກບາດ, ແລະ ກິນເຂົ້າເຊົ້າແບບລາວ ☀️🏘️',
-          text_en: 'Traditional Lao riverside guesthouse in Luang Prabang. Wake up to the sound of the Mekong, watch the morning alms giving, and enjoy an authentic Lao breakfast ☀️🏘️',
-          text_lo: 'ເຮືອນພັກແບບລາວດັ້ງເດີມຕິດແມ່ນ້ຳຂອງ ຢູ່ຫຼວງພະບາງ. ຕື່ນມາຕອນເຊົ້າຟັງສຽງນ້ຳ, ເບິ່ງຂະບວນຕັກບາດ, ແລະ ກິນເຂົ້າເຊົ້າແບບລາວ ☀️🏘️',
-          photo_urls: [
-            'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80',
-            'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80',
-            'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80',
-            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
-            'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&q=80'
-          ],
-          photo_url: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80',
-          service_price: 45, service_type: 'Lao Guesthouse', service_location: 'Luang Prabang', service_currency: 'USD/night',
-        },
-        {
-          category: 'home',
-          text: 'ບ້ານພັກຕາກອາກາດກາງປ່າທຳມະຊາດໃນລາວ! ງຽບສະຫງົບ, ອາກາດສົດຊື່ນ, ແລະ ໄດ້ສຳຜັດກັບວິຖີຊີວິດຊົນນະບົດແບບແທ້ໆ 🌳🏡',
-          text_en: 'Rural forest homestay in Laos! Peaceful, fresh air, and a true taste of authentic countryside living. Your perfect Airbnb-style getaway 🌳🏡',
-          text_lo: 'ບ້ານພັກຕາກອາກາດກາງປ່າທຳມະຊາດໃນລາວ! ງຽບສະຫງົບ, ອາກາດສົດຊື່ນ, ແລະ ໄດ້ສຳຜັດກັບວິຖີຊີວິດຊົນນະບົດແບບແທ້ໆ 🌳🏡',
-          photo_urls: [
-            'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=800&q=80',
-            'https://images.unsplash.com/photo-1449844908441-8829872d2607?w=800&q=80',
-            'https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=800&q=80',
-            'https://images.unsplash.com/photo-1521401830884-6c03c1c87ebb?w=800&q=80',
-            'https://images.unsplash.com/photo-1542718610-a1d656d1884c?w=800&q=80'
-          ],
-          photo_url: 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=800&q=80',
-          service_price: 35, service_type: 'Forest Homestay', service_location: 'Vang Vieng Rural', service_currency: 'USD/night',
-        },
-      ];
-
-      // Create demo posts in parallel batches of 5 (faster, non-blocking)
-      const chunkSize = 5;
-      for (let i = 0; i < DEMO_POSTS.length; i += chunkSize) {
-        const chunk = DEMO_POSTS.slice(i, i + chunkSize);
-        await Promise.all(chunk.map(p => base44.entities.Post.create({
-          ...p,
-          author_email: ADMIN_EMAIL,
-          author_name: ADMIN_NAME,
-          likes: [],
-          like_count: Math.floor(Math.random() * 40),
-          comment_count: 0,
-        })));
-      }
-      loadPosts();
-    };
-    seedData();
-  }, []);
 
   // Real-time post subscription for instant updates
   useEffect(() => {
-    const unsub = base44.entities.Post.subscribe((event) => {
+    const unsub = firebaseClient.entities.Post.subscribe((event) => {
       if (event.type === 'create') {
         setPosts(prev => [event.data, ...prev]);
         // Fetch author profile if missing
         if (event.data.author_email && !authorProfiles[event.data.author_email]) {
-          base44.entities.UserProfile.filter({ user_email: event.data.author_email }).then(profiles => {
+          firebaseClient.entities.UserProfile.filter({ user_email: event.data.author_email }).then(profiles => {
             if (profiles[0]) setAuthorProfiles(prev => ({ ...prev, [event.data.author_email]: profiles[0] }));
           });
         }
@@ -225,7 +94,7 @@ export default function Feed() {
         </div>
       }
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
-        {/* Sidebar — desktop only */}
+        {/* Sidebar â€” desktop only */}
         <div className="hidden lg:block space-y-3">
           <div className="bg-card rounded-2xl p-5 shadow-sm border border-border text-center">
             <div className="relative inline-block mb-3">
@@ -235,7 +104,7 @@ export default function Feed() {
                 className="w-16 h-16 rounded-full border-3 border-primary object-cover" />
               
               {profile?.is_verified &&
-              <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center text-white text-[10px]">✓</span>
+              <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center text-white text-[10px]">âœ“</span>
               }
             </div>
             <h3 className="font-bold text-sm">{profile?.first_name} {profile?.last_name}</h3>
@@ -249,21 +118,21 @@ export default function Feed() {
             <div className="flex justify-around mt-3 pt-3 border-t border-border text-xs">
               <div className="text-center">
                 <strong className="text-base font-bold">{(profile?.friends || []).length}</strong>
-                <div className="text-muted-foreground">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Followers'}</div>
+                <div className="text-muted-foreground">{lang === 'lo' ? 'àºœàº¹à»‰àº•àº´àº”àº•àº²àº¡' : 'Followers'}</div>
               </div>
               <div className="text-center">
                 <strong className="text-base font-bold">{posts.filter((post) => post.author_email === currentUser?.email && post.service_price > 0).length}</strong>
-                <div className="text-muted-foreground">{lang === 'lo' ? 'ບໍລິການ' : 'Services'}</div>
+                <div className="text-muted-foreground">{lang === 'lo' ? 'àºšà»àº¥àº´àºàº²àº™' : 'Services'}</div>
               </div>
             </div>
           </div>
           <div className="bg-card rounded-2xl border border-border p-2 shadow-sm">
             {[
-            { to: '/explore', icon: '🏛️', label: t.explore },
-            { to: '/wallet', icon: '💰', label: t.wallet },
-            { to: '/messages', icon: '💬', label: t.messages },
-            { to: '/bookings', icon: '📅', label: t.trips },
-            { to: '/help', icon: '❓', label: lang === 'lo' ? 'ສູນຊ່ວຍເຫຼືອ' : 'Help Center' }].
+            { to: '/explore', icon: 'ðŸ›ï¸', label: t.explore },
+            { to: '/wallet', icon: 'ðŸ’°', label: t.wallet },
+            { to: '/messages', icon: 'ðŸ’¬', label: t.messages },
+            { to: '/bookings', icon: 'ðŸ“…', label: t.trips },
+            { to: '/help', icon: 'â“', label: lang === 'lo' ? 'àºªàº¹àº™àºŠà»ˆàº§àºà»€àº«àº¼àº·àº­' : 'Help Center' }].
             map((item) =>
             <Link key={item.to} to={item.to} className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm hover:bg-muted transition-colors font-medium">
                 <span>{item.icon}</span> {item.label}
@@ -285,21 +154,17 @@ export default function Feed() {
           <div className="space-y-3 mb-4">
             {/* Category filters */}
             <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-              <button
-                  onClick={() => setFilterCat('all')}
-                  className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${filterCat === 'all' ? 'bg-primary text-white border-primary' : 'border-border text-muted-foreground hover:border-primary/50'}`}>
-                  
-                🌐 {lang === 'lo' ? 'ທັງໝົດ' : 'All'}
-              </button>
-              {CAT_KEYS.map((cat, i) =>
+              {PERSONAL_CATS.map(cat => (
                 <button
-                  key={cat}
-                  onClick={() => setFilterCat(cat)}
-                  className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${filterCat === cat ? 'bg-primary text-white border-primary' : 'border-border text-muted-foreground hover:border-primary/50'}`}>
+                  key={cat.key}
+                  onClick={() => setFilterCat(cat.key)}
+                  className={`flex-shrink-0 px-3 py-1.5 rounded-xl border transition-all flex flex-col items-center min-w-[80px] ${filterCat === cat.key ? 'bg-primary text-primary-foreground border-primary shadow-sm' : 'border-border bg-card text-muted-foreground hover:border-primary/50'}`}>
                   
-                  {CAT_ICONS[cat]} {t.categories[i]}
+                  <div className="text-base mb-0.5">{cat.icon}</div>
+                  <div className="text-[11px] font-bold leading-tight">{lang === 'lo' ? cat.lo : cat.en}</div>
+                  <div className="text-[9px] opacity-75 mt-0.5 whitespace-nowrap">{lang === 'lo' ? cat.descLo : cat.descEn}</div>
                 </button>
-                )}
+              ))}
             </div>
 
             {/* Location filters */}
@@ -308,7 +173,7 @@ export default function Feed() {
                 type="text"
                 value={filterLocation}
                 onChange={(e) => { setFilterLocation(e.target.value); }}
-                placeholder={lang === 'lo' ? 'ຊອກຫາບໍລິການ...' : 'Search services...'}
+                placeholder={lang === 'lo' ? 'àºŠàº­àºàº«àº²àºšà»àº¥àº´àºàº²àº™...' : 'Search services...'}
                 className="flex-1 min-w-[120px] bg-card border border-border rounded-full px-3 py-1.5 text-xs outline-none focus:border-primary"
               />
               {filterLocation && (
@@ -316,7 +181,7 @@ export default function Feed() {
                   onClick={() => { setFilterLocation(''); }}
                   className="px-3 py-1.5 rounded-full text-xs font-semibold bg-muted border border-border hover:bg-destructive/10 hover:border-destructive/50 transition-colors"
                 >
-                  ✕
+                  âœ•
                 </button>
               )}
             </div>
@@ -337,7 +202,7 @@ export default function Feed() {
               )}
             {filteredPosts.length === 0 &&
               <div className="text-center py-14 text-muted-foreground">
-                <p className="text-5xl mb-3">📝</p>
+                <p className="text-5xl mb-3">ðŸ“</p>
                 <p className="font-semibold">{t.noPosts}</p>
               </div>
               }

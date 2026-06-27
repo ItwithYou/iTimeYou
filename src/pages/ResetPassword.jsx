@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { firebaseClient } from '@/api/firebaseClient';
 import { toast } from 'sonner';
 import { Lock, Eye, EyeOff, Check, AlertCircle, Mail } from 'lucide-react';
 
@@ -41,7 +41,7 @@ export default function ResetPassword() {
 
   const verifyOobCode = async (code) => {
     try {
-      await base44.auth.verifyResetCode(code);
+      await firebaseClient.auth.verifyResetCode(code);
       setVerified(true);
     } catch (err) {
       setError(err.message || 'Invalid or expired reset link');
@@ -51,7 +51,7 @@ export default function ResetPassword() {
 
   const verifyToken = async (tokenParam, emailParam) => {
     try {
-      const resets = await base44.entities.PasswordReset.filter({ 
+      const resets = await firebaseClient.entities.PasswordReset.filter({ 
         token: tokenParam,
         email: emailParam
       });
@@ -96,7 +96,7 @@ export default function ResetPassword() {
     
     try {
       // Use Firebase native reset password mail sender
-      await base44.auth.resetPassword(email);
+      await firebaseClient.auth.resetPassword(email);
       toast.success('Password reset email sent! Please check your inbox.');
       setEmail('');
     } catch (error) {
@@ -123,18 +123,18 @@ export default function ResetPassword() {
     
     try {
       if (oobCode) {
-        await base44.auth.confirmReset(oobCode, password);
+        await firebaseClient.auth.confirmReset(oobCode, password);
       } else {
-        await base44.auth.updateMe({ password });
-        const resets = await base44.entities.PasswordReset.filter({ token });
+        await firebaseClient.auth.updateMe({ password });
+        const resets = await firebaseClient.entities.PasswordReset.filter({ token });
         if (resets.length > 0) {
-          await base44.entities.PasswordReset.update(resets[0].id, { used: true });
+          await firebaseClient.entities.PasswordReset.update(resets[0].id, { used: true });
         }
       }
       
       toast.success('Password reset successfully! Redirecting...');
       setTimeout(() => {
-        base44.auth.logout();
+        firebaseClient.auth.logout();
       }, 2000);
     } catch (error) {
       toast.error(error.message || 'Failed to reset password');

@@ -1,6 +1,6 @@
-import React from 'react';
+﻿import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { firebaseClient } from '@/api/firebaseClient';
 
 const UserNotRegisteredError = () => {
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ const UserNotRegisteredError = () => {
           </div>
           <div className="mt-6 space-y-3">
             <button
-              onClick={() => base44.auth.redirectToLogin()}
+              onClick={() => firebaseClient.auth.redirectToLogin()}
               className="w-full bg-primary text-white py-2.5 rounded-lg font-semibold hover:opacity-90 transition-opacity"
             >
               Sign In / Register

@@ -1,23 +1,23 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+﻿import { Link, useNavigate } from 'react-router-dom';
+import { firebaseClient } from '@/api/firebaseClient';
 import { toast } from 'sonner';
 
 export default function Footer({ t, lang }) {
   const navigate = useNavigate();
 
   const startChatWithAdmin = async () => {
-    if (!await base44.auth.isAuthenticated()) {
-      base44.auth.redirectToLogin('/messages');
+    if (!await firebaseClient.auth.isAuthenticated()) {
+      firebaseClient.auth.redirectToLogin('/messages');
       return;
     }
-    const currentUser = await base44.auth.me();
-    const users = await base44.entities.User.list('-created_date', 100);
+    const currentUser = await firebaseClient.auth.me();
+    const users = await firebaseClient.entities.User.list('-created_date', 100);
     const admin = users.find(u => u.role === 'admin');
     if (!admin) {
-      toast.error(lang === 'lo' ? 'ບໍ່ມີ admin ຢູ່' : 'No admin available');
+      toast.error(lang === 'lo' ? 'àºšà»à»ˆàº¡àºµ admin àº¢àº¹à»ˆ' : 'No admin available');
       return;
     }
-    const existing = await base44.entities.Conversation.list('-updated_date', 50);
+    const existing = await firebaseClient.entities.Conversation.list('-updated_date', 50);
     const found = existing.find(c => 
       c.participants?.includes(currentUser.email) && c.participants?.includes(admin.email)
     );
@@ -25,7 +25,7 @@ export default function Footer({ t, lang }) {
     if (found) {
       convId = found.id;
     } else {
-      const conv = await base44.entities.Conversation.create({
+      const conv = await firebaseClient.entities.Conversation.create({
         participants: [currentUser.email, admin.email],
         last_message: ''
       });
@@ -64,7 +64,7 @@ export default function Footer({ t, lang }) {
           </div>
         </div>
         <div className="border-t border-card/10 pt-4 text-center text-xs text-card/40">
-          © 2024 iTimeYou. All rights reserved. | ສະຫງວນລິຂະສິດ
+          Â© 2024 iTimeYou. All rights reserved. | àºªàº°àº«àº‡àº§àº™àº¥àº´àº‚àº°àºªàº´àº”
         </div>
       </div>
     </footer>

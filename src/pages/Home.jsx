@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import { Search, ArrowRight, Landmark, BedDouble, UtensilsCrossed, Sparkles, Building2, Leaf } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { firebaseClient } from '@/api/firebaseClient';
 import ListingCard from '../components/ListingCard';
 
 export default function Home() {
@@ -12,7 +12,7 @@ export default function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    base44.entities.Listing.list('-created_date', 6).then(setListings);
+    firebaseClient.entities.Listing.list('-created_date', 6).then(setListings);
   }, []);
 
   const handleSearch = () => {
@@ -39,14 +39,14 @@ export default function Home() {
         <div className="relative max-w-3xl mx-auto px-5 py-10 sm:py-14 text-center">
           <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full px-3 py-1 text-[10px] font-medium mb-4">
             <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
-            {lang === 'lo' ? 'ເວທີໄວ້ວາງໃຈ' : 'Trusted Community Platform'}
+            {lang === 'lo' ? 'à»€àº§àº—àºµà»„àº§à»‰àº§àº²àº‡à»ƒàºˆ' : 'Trusted Community Platform'}
           </div>
           <h1 className="text-xl sm:text-3xl font-bold leading-snug mb-2">
-            {lang === 'lo' ? 'ຄົ້ນພົບ ແລະ ແລກປ່ຽນ' : 'Discover, Share &'}{' '}
-            <span className="text-emerald-300">{lang === 'lo' ? 'ບໍລິການທີ່ໜ້າເຊື່ອຖື' : 'Book Trusted Services'}</span>
+            {lang === 'lo' ? 'àº„àº»à»‰àº™àºžàº»àºš à»àº¥àº° à»àº¥àºàº›à»ˆàº½àº™' : 'Discover, Share &'}{' '}
+            <span className="text-emerald-300">{lang === 'lo' ? 'àºšà»àº¥àº´àºàº²àº™àº—àºµà»ˆà»œà»‰àº²à»€àºŠàº·à»ˆàº­àº–àº·' : 'Book Trusted Services'}</span>
           </h1>
           <p className="text-white/60 text-xs sm:text-sm mb-6 max-w-md mx-auto">
-            {lang === 'lo' ? 'ຊຸມຊົນທີ່ຢືນຢັນຕົວຕົນ · ກະເປົາເງິນດິຈິທັລ · ທົ່ວໂລກ' : 'Verified identities · Digital wallet · Bilingual EN & Lao'}
+            {lang === 'lo' ? 'àºŠàº¸àº¡àºŠàº»àº™àº—àºµà»ˆàº¢àº·àº™àº¢àº±àº™àº•àº»àº§àº•àº»àº™ Â· àºàº°à»€àº›àº»àº²à»€àº‡àº´àº™àº”àº´àºˆàº´àº—àº±àº¥ Â· àº—àº»à»ˆàº§à»‚àº¥àº' : 'Verified identities Â· Digital wallet Â· Bilingual EN & Lao'}
           </p>
           <div className="flex flex-col sm:flex-row gap-2 justify-center max-w-xs mx-auto sm:max-w-none">
             <div
@@ -58,12 +58,12 @@ export default function Home() {
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                placeholder={lang === 'lo' ? 'ຄົ້ນຫາລາຍຊື່...' : 'Search listings, services...'}
+                placeholder={lang === 'lo' ? 'àº„àº»à»‰àº™àº«àº²àº¥àº²àºàºŠàº·à»ˆ...' : 'Search listings, services...'}
                 className="flex-1 bg-transparent text-foreground text-xs outline-none placeholder:text-muted-foreground"
               />
             </div>
             <button onClick={handleSearch} className="bg-emerald-400 hover:bg-emerald-300 text-[#0d3d2e] px-6 py-2.5 rounded-xl font-semibold text-xs transition-colors shadow-md">
-              {lang === 'lo' ? 'ຄົ້ນຫາ' : 'Search'}
+              {lang === 'lo' ? 'àº„àº»à»‰àº™àº«àº²' : 'Search'}
             </button>
           </div>
         </div>
@@ -115,7 +115,7 @@ export default function Home() {
             {listings.map((l) => <ListingCard key={l.id} listing={l} t={t} lang={lang} />)}
           </div> :
         <div className="text-center py-10 text-muted-foreground">
-            <p className="text-3xl mb-2">🏠</p>
+            <p className="text-3xl mb-2">ðŸ </p>
             <p className="text-xs">No listings yet. Be the first to create one!</p>
           </div>
         }

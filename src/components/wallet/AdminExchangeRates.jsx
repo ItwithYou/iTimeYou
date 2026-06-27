@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+﻿import { useState, useEffect } from 'react';
+import { firebaseClient } from '@/api/firebaseClient';
 import { toast } from 'sonner';
 import { RefreshCw } from 'lucide-react';
 import moment from 'moment';
 
 const RATE_FIELDS = [
-  { code: 'USD', buyKey: 'usd_buy', sellKey: 'usd_sell', flag: '🇺🇸' },
-  { code: 'USDT', buyKey: 'usdt_buy', sellKey: 'usdt_sell', flag: '💲' },
-  { code: 'THB', buyKey: 'thb_buy', sellKey: 'thb_sell', flag: '🇹🇭' },
-  { code: 'CNY', buyKey: 'cny_buy', sellKey: 'cny_sell', flag: '🇨🇳' },
-  { code: 'VND', buyKey: 'vnd_buy', sellKey: 'vnd_sell', flag: '🇻🇳' },
+  { code: 'USD', buyKey: 'usd_buy', sellKey: 'usd_sell', flag: 'ðŸ‡ºðŸ‡¸' },
+  { code: 'USDT', buyKey: 'usdt_buy', sellKey: 'usdt_sell', flag: 'ðŸ’²' },
+  { code: 'THB', buyKey: 'thb_buy', sellKey: 'thb_sell', flag: 'ðŸ‡¹ðŸ‡­' },
+  { code: 'CNY', buyKey: 'cny_buy', sellKey: 'cny_sell', flag: 'ðŸ‡¨ðŸ‡³' },
+  { code: 'VND', buyKey: 'vnd_buy', sellKey: 'vnd_sell', flag: 'ðŸ‡»ðŸ‡³' },
 ];
 
 export default function AdminExchangeRates({ currentUser, lang }) {
@@ -21,7 +21,7 @@ export default function AdminExchangeRates({ currentUser, lang }) {
   const [bcelTime, setBcelTime] = useState(null);
 
   const loadSettings = async () => {
-    const items = await base44.entities.ExchangeRateSettings.list('-updated_date', 1);
+    const items = await firebaseClient.entities.ExchangeRateSettings.list('-updated_date', 1);
     const item = items[0] || null;
     setSettings(item);
     if (item) {
@@ -56,7 +56,7 @@ export default function AdminExchangeRates({ currentUser, lang }) {
   const fetchBcelRates = async () => {
     setFetching(true);
     try {
-      const response = await base44.functions.invoke('fetchBcelRates', {});
+      const response = await firebaseClient.functions.invoke('fetchBcelRates', {});
       const data = response.data;
       if (data?.success && data.rates) {
         setForm(prev => ({
@@ -73,12 +73,12 @@ export default function AdminExchangeRates({ currentUser, lang }) {
           vnd_sell: data.rates.vndSell ?? prev.vnd_sell,
         }));
         setBcelTime(data.time || data.rates.time || new Date().toISOString());
-        toast.success(lang === 'lo' ? 'ດຶງອັດຕາ BCEL ສຳເລັດ' : 'BCEL rates fetched');
+        toast.success(lang === 'lo' ? 'àº”àº¶àº‡àº­àº±àº”àº•àº² BCEL àºªàº³à»€àº¥àº±àº”' : 'BCEL rates fetched');
       } else {
-        toast.error(lang === 'lo' ? 'ບໍ່ສາມາດດຶງອັດຕາໄດ້' : 'Failed to fetch rates');
+        toast.error(lang === 'lo' ? 'àºšà»à»ˆàºªàº²àº¡àº²àº”àº”àº¶àº‡àº­àº±àº”àº•àº²à»„àº”à»‰' : 'Failed to fetch rates');
       }
     } catch {
-      toast.error(lang === 'lo' ? 'ເກີດຂໍ້ຜິດພາດ' : 'Error fetching rates');
+      toast.error(lang === 'lo' ? 'à»€àºàºµàº”àº‚à»à»‰àºœàº´àº”àºžàº²àº”' : 'Error fetching rates');
     }
     setFetching(false);
   };
@@ -110,14 +110,14 @@ export default function AdminExchangeRates({ currentUser, lang }) {
     };
 
     if (settings?.id) {
-      await base44.entities.ExchangeRateSettings.update(settings.id, payload);
+      await firebaseClient.entities.ExchangeRateSettings.update(settings.id, payload);
     } else {
-      const created = await base44.entities.ExchangeRateSettings.create(payload);
+      const created = await firebaseClient.entities.ExchangeRateSettings.create(payload);
       setSettings(created);
     }
     await loadSettings();
     setSaving(false);
-    toast.success(lang === 'lo' ? 'ບັນທຶກອັດຕາແລກປ່ຽນສຳເລັດ' : 'Exchange rates saved');
+    toast.success(lang === 'lo' ? 'àºšàº±àº™àº—àº¶àºàº­àº±àº”àº•àº²à»àº¥àºàº›à»ˆàº½àº™àºªàº³à»€àº¥àº±àº”' : 'Exchange rates saved');
   };
 
   const updateField = (key, value) => {
@@ -134,8 +134,8 @@ export default function AdminExchangeRates({ currentUser, lang }) {
       <div className="bg-card rounded-2xl border border-border p-5 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="font-bold text-base">{lang === 'lo' ? 'ອັດຕາແລກປ່ຽນ' : 'Exchange Rates'}</h3>
-            <p className="text-sm text-muted-foreground">{lang === 'lo' ? 'ຕັ້ງອັດຕາແລກປ່ຽນທີ່ຈະສະແດງໃຫ້ຜູ້ໃຊ້' : 'Set the rates shown to all users in their wallet'}</p>
+            <h3 className="font-bold text-base">{lang === 'lo' ? 'àº­àº±àº”àº•àº²à»àº¥àºàº›à»ˆàº½àº™' : 'Exchange Rates'}</h3>
+            <p className="text-sm text-muted-foreground">{lang === 'lo' ? 'àº•àº±à»‰àº‡àº­àº±àº”àº•àº²à»àº¥àºàº›à»ˆàº½àº™àº—àºµà»ˆàºˆàº°àºªàº°à»àº”àº‡à»ƒàº«à»‰àºœàº¹à»‰à»ƒàºŠà»‰' : 'Set the rates shown to all users in their wallet'}</p>
           </div>
           <div className="flex items-center gap-2">
             <a 
@@ -144,7 +144,7 @@ export default function AdminExchangeRates({ currentUser, lang }) {
               rel="noreferrer"
               className="flex items-center gap-1 border border-primary text-primary px-3 py-2 rounded-xl text-xs font-bold hover:bg-primary/10 transition-colors"
             >
-              {lang === 'lo' ? 'ເວັບ BCEL' : 'BCEL Web'} ↗
+              {lang === 'lo' ? 'à»€àº§àº±àºš BCEL' : 'BCEL Web'} â†—
             </a>
             <button
               onClick={fetchBcelRates}
@@ -152,22 +152,22 @@ export default function AdminExchangeRates({ currentUser, lang }) {
               className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-xl text-xs font-bold hover:opacity-90 disabled:opacity-50 transition-colors"
             >
               <RefreshCw size={14} className={fetching ? 'animate-spin' : ''} />
-              {fetching ? '...' : (lang === 'lo' ? 'ດຶງ BCEL' : 'Fetch BCEL')}
+              {fetching ? '...' : (lang === 'lo' ? 'àº”àº¶àº‡ BCEL' : 'Fetch BCEL')}
             </button>
           </div>
         </div>
 
         {settings?.updated_date && (
           <p className="text-xs text-muted-foreground mb-2">
-            {lang === 'lo' ? 'ອັບເດດລ່າສຸດໃນລະບົບ' : 'Last saved in system'}: {moment(settings.updated_date).format('MMM D, YYYY h:mm A')}
-            {settings.updated_by && ` · ${settings.updated_by}`}
+            {lang === 'lo' ? 'àº­àº±àºšà»€àº”àº”àº¥à»ˆàº²àºªàº¸àº”à»ƒàº™àº¥àº°àºšàº»àºš' : 'Last saved in system'}: {moment(settings.updated_date).format('MMM D, YYYY h:mm A')}
+            {settings.updated_by && ` Â· ${settings.updated_by}`}
           </p>
         )}
         
         {bcelTime && (
           <div className="mb-4">
             <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-100/50 border border-emerald-200 px-2 py-1 rounded-md">
-              ✅ {lang === 'lo' ? 'ດຶງອັດຕາ BCEL ເວລາ' : 'Fetched BCEL rates at'}: {moment(bcelTime).format('MMM D, YYYY h:mm A')}
+              âœ… {lang === 'lo' ? 'àº”àº¶àº‡àº­àº±àº”àº•àº² BCEL à»€àº§àº¥àº²' : 'Fetched BCEL rates at'}: {moment(bcelTime).format('MMM D, YYYY h:mm A')}
             </span>
           </div>
         )}
@@ -206,11 +206,11 @@ export default function AdminExchangeRates({ currentUser, lang }) {
 
         {/* Notes */}
         <div className="mt-4">
-          <label className="text-xs font-semibold text-muted-foreground">{lang === 'lo' ? 'ໝາຍເຫດ' : 'Notes'}</label>
+          <label className="text-xs font-semibold text-muted-foreground">{lang === 'lo' ? 'à»àº²àºà»€àº«àº”' : 'Notes'}</label>
           <textarea
             value={form.notes || ''}
             onChange={(e) => updateField('notes', e.target.value)}
-            placeholder={lang === 'lo' ? 'ໝາຍເຫດ (ເລືອກໄດ້)' : 'Notes (optional)'}
+            placeholder={lang === 'lo' ? 'à»àº²àºà»€àº«àº” (à»€àº¥àº·àº­àºà»„àº”à»‰)' : 'Notes (optional)'}
             rows={2}
             className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary mt-1 resize-none"
           />
@@ -221,7 +221,7 @@ export default function AdminExchangeRates({ currentUser, lang }) {
           disabled={saving}
           className="mt-4 w-full bg-primary text-primary-foreground py-3 rounded-xl text-sm font-bold hover:opacity-90 disabled:opacity-50"
         >
-          {saving ? '...' : (lang === 'lo' ? '💾 ບັນທຶກອັດຕາ' : '💾 Save Rates')}
+          {saving ? '...' : (lang === 'lo' ? 'ðŸ’¾ àºšàº±àº™àº—àº¶àºàº­àº±àº”àº•àº²' : 'ðŸ’¾ Save Rates')}
         </button>
       </div>
     </div>

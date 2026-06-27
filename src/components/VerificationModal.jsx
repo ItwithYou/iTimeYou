@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { base44 } from '@/api/base44Client';
+﻿import { useState, useRef } from 'react';
+import { firebaseClient } from '@/api/firebaseClient';
 import { toast } from 'sonner';
 import { X } from 'lucide-react';
 
@@ -14,9 +14,9 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
   const selfieInputRef = useRef(null);
 
   const handleSubmit = async () => {
-    if (!name || !dob) { toast.error(lang === 'lo' ? 'ກະລຸນາຕື່ມຂໍ້ມູນ' : 'Please fill all fields'); return; }
+    if (!name || !dob) { toast.error(lang === 'lo' ? 'àºàº°àº¥àº¸àº™àº²àº•àº·à»ˆàº¡àº‚à»à»‰àº¡àº¹àº™' : 'Please fill all fields'); return; }
     if (!idFile || !selfieFile) {
-      toast.error(lang === 'lo' ? 'ກະລຸນາອັບໂຫລດເອກະສານໃຫ້ຄົບ' : 'Please upload your ID and ID selfie');
+      toast.error(lang === 'lo' ? 'àºàº°àº¥àº¸àº™àº²àº­àº±àºšà»‚àº«àº¥àº”à»€àº­àºàº°àºªàº²àº™à»ƒàº«à»‰àº„àº»àºš' : 'Please upload your ID and ID selfie');
       return;
     }
     if (!termsChecked) { toast.error(t.termsAgree); return; }
@@ -24,15 +24,15 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
     setSubmitting(true);
     let id_url = '', selfie_url = '';
     if (idFile) {
-      const res = await base44.integrations.Core.UploadFile({ file: idFile });
+      const res = await firebaseClient.integrations.Core.UploadFile({ file: idFile });
       id_url = res.file_url;
     }
     if (selfieFile) {
-      const res = await base44.integrations.Core.UploadFile({ file: selfieFile });
+      const res = await firebaseClient.integrations.Core.UploadFile({ file: selfieFile });
       selfie_url = res.file_url;
     }
 
-    await base44.entities.UserProfile.update(profile.id, {
+    await firebaseClient.entities.UserProfile.update(profile.id, {
       verification_status: 'pending',
       verification_name: name,
       verification_dob: dob,
@@ -40,15 +40,15 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
       selfie_url: selfie_url,
     });
 
-    await base44.entities.Notification.create({
+    await firebaseClient.entities.Notification.create({
       user_email: profile.user_email,
-      type: '🔐',
-      text: 'Identity verification submitted — under review ⏳',
-      text_lao: 'ສົ່ງຢືນຢັນຕົວຕົນ ⏳',
+      type: 'ðŸ”',
+      text: 'Identity verification submitted â€” under review â³',
+      text_lao: 'àºªàº»à»ˆàº‡àº¢àº·àº™àº¢àº±àº™àº•àº»àº§àº•àº»àº™ â³',
     });
 
     setSubmitting(false);
-    toast.success(lang === 'lo' ? 'ສົ່ງຂໍ້ມູນແລ້ວ! ⏳' : 'Submitted for review! ⏳');
+    toast.success(lang === 'lo' ? 'àºªàº»à»ˆàº‡àº‚à»à»‰àº¡àº¹àº™à»àº¥à»‰àº§! â³' : 'Submitted for review! â³');
     onSubmitted();
   };
 
@@ -88,7 +88,7 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
                 onClick={() => idInputRef.current?.click()}
                 className="flex items-center gap-2 border border-dashed border-border rounded-lg px-3 py-2 text-xs text-muted-foreground active:border-primary transition-colors w-full text-left"
               >
-                {idFile ? `✅ ${idFile.name}` : '📄 Tap to upload (Passport / National ID)'}
+                {idFile ? `âœ… ${idFile.name}` : 'ðŸ“„ Tap to upload (Passport / National ID)'}
               </button>
               <input ref={idInputRef} type="file" accept="image/*,.pdf" className="hidden" onChange={e => { if (e.target.files[0]) setIdFile(e.target.files[0]); }} />
             </div>
@@ -99,7 +99,7 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
                 onClick={() => selfieInputRef.current?.click()}
                 className="flex items-center gap-2 border border-dashed border-border rounded-lg px-3 py-2 text-xs text-muted-foreground active:border-primary transition-colors w-full text-left"
               >
-                {selfieFile ? `✅ ${selfieFile.name}` : '🤳 Tap to upload selfie holding your ID'}
+                {selfieFile ? `âœ… ${selfieFile.name}` : 'ðŸ¤³ Tap to upload selfie holding your ID'}
               </button>
               <input ref={selfieInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => { if (e.target.files[0]) setSelfieFile(e.target.files[0]); }} />
             </div>

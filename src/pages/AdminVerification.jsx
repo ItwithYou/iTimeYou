@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useAppContext } from '../lib/AppContext';
-import { base44 } from '@/api/base44Client';
+import { firebaseClient } from '@/api/firebaseClient';
 import { toast } from 'sonner';
 import { Check, X, KeyRound } from 'lucide-react';
 import ImageLightbox from '../components/ImageLightbox';
@@ -28,51 +28,51 @@ export default function AdminVerification() {
 
   const loadProfiles = async () => {
     setLoading(true);
-    const data = await base44.entities.UserProfile.list('-created_date', 200);
+    const data = await firebaseClient.entities.UserProfile.list('-created_date', 200);
     setProfiles(data);
     setLoading(false);
   };
 
   const approve = async (profile, expiry) => {
-    await base44.entities.UserProfile.update(profile.id, {
+    await firebaseClient.entities.UserProfile.update(profile.id, {
       verification_status: 'verified',
       is_verified: true,
       verification_expiry_date: expiry || '',
       verification_reject_reason: '',
     });
     await Promise.all([
-      base44.entities.Notification.create({
+      firebaseClient.entities.Notification.create({
         user_email: profile.user_email,
-        type: '✅',
+        type: 'âœ…',
         text: `Your identity has been verified!${expiry ? ` Document expires: ${formatDateDMY(expiry)}` : ''} You can now use all features.`,
-        text_lao: `ຕົວຕົນຂອງທ່ານໄດ້ຖືກຢືນຢັນແລ້ວ!${expiry ? ` ເອກະສານໝົດອາຍຸ: ${formatDateDMY(expiry)}` : ''} ທ່ານສາມາດໃຊ້ທຸກຟັງຊັ່ນໄດ້ແລ້ວ.`,
+        text_lao: `àº•àº»àº§àº•àº»àº™àº‚àº­àº‡àº—à»ˆàº²àº™à»„àº”à»‰àº–àº·àºàº¢àº·àº™àº¢àº±àº™à»àº¥à»‰àº§!${expiry ? ` à»€àº­àºàº°àºªàº²àº™à»àº»àº”àº­àº²àºàº¸: ${formatDateDMY(expiry)}` : ''} àº—à»ˆàº²àº™àºªàº²àº¡àº²àº”à»ƒàºŠà»‰àº—àº¸àºàºŸàº±àº‡àºŠàº±à»ˆàº™à»„àº”à»‰à»àº¥à»‰àº§.`,
       }),
-      base44.functions.invoke('sendVerificationEmail', {
+      firebaseClient.functions.invoke('sendVerificationEmail', {
         email: profile.user_email,
         status: 'verified',
         fullName: `${profile.first_name || ''} ${profile.last_name || ''}`.trim(),
       }),
     ]);
-    toast.success('Profile approved ✅');
+    toast.success('Profile approved âœ…');
     setApprovingProfile(null);
     setExpiryDate('');
     loadProfiles();
   };
 
   const reject = async (profile, reason) => {
-    await base44.entities.UserProfile.update(profile.id, {
+    await firebaseClient.entities.UserProfile.update(profile.id, {
       verification_status: 'rejected',
       is_verified: false,
       verification_reject_reason: reason || '',
     });
     await Promise.all([
-      base44.entities.Notification.create({
+      firebaseClient.entities.Notification.create({
         user_email: profile.user_email,
-        type: '❌',
+        type: 'âŒ',
         text: `Your identity verification was rejected.${reason ? ` Reason: ${reason}` : ''} Please resubmit with clearer documents.`,
-        text_lao: `ການຢືນຢັນຕົວຕົນຂອງທ່ານຖືກປະຕິເສດ.${reason ? ` ເຫດຜົນ: ${reason}` : ''} ກະລຸນາສົ່ງໃໝ່ດ້ວຍເອກະສານທີ່ຊັດເຈນກວ່າ.`,
+        text_lao: `àºàº²àº™àº¢àº·àº™àº¢àº±àº™àº•àº»àº§àº•àº»àº™àº‚àº­àº‡àº—à»ˆàº²àº™àº–àº·àºàº›àº°àº•àº´à»€àºªàº”.${reason ? ` à»€àº«àº”àºœàº»àº™: ${reason}` : ''} àºàº°àº¥àº¸àº™àº²àºªàº»à»ˆàº‡à»ƒà»à»ˆàº”à»‰àº§àºà»€àº­àºàº°àºªàº²àº™àº—àºµà»ˆàºŠàº±àº”à»€àºˆàº™àºàº§à»ˆàº².`,
       }),
-      base44.functions.invoke('sendVerificationEmail', {
+      firebaseClient.functions.invoke('sendVerificationEmail', {
         email: profile.user_email,
         status: 'rejected',
         fullName: `${profile.first_name || ''} ${profile.last_name || ''}`.trim(),
@@ -90,32 +90,32 @@ export default function AdminVerification() {
   };
 
   const approvePro = async (profile) => {
-    await base44.entities.UserProfile.update(profile.id, {
+    await firebaseClient.entities.UserProfile.update(profile.id, {
       pro_verification_status: 'verified',
       is_pro: true,
       pro_reject_reason: '',
     });
-    await base44.entities.Notification.create({
+    await firebaseClient.entities.Notification.create({
       user_email: profile.user_email,
-      type: '🔵',
+      type: 'ðŸ”µ',
       text: `Your Pro verification has been approved for ${profile.business_name || 'your business'}.`,
-      text_lao: `ການຢືນຢັນ Pro ຂອງທ່ານສຳລັບ ${profile.business_name || 'ທຸລະກິດ'} ໄດ້ຖືກອະນຸມັດແລ້ວ.`,
+      text_lao: `àºàº²àº™àº¢àº·àº™àº¢àº±àº™ Pro àº‚àº­àº‡àº—à»ˆàº²àº™àºªàº³àº¥àº±àºš ${profile.business_name || 'àº—àº¸àº¥àº°àºàº´àº”'} à»„àº”à»‰àº–àº·àºàº­àº°àº™àº¸àº¡àº±àº”à»àº¥à»‰àº§.`,
     });
-    toast.success('Pro approved ✅');
+    toast.success('Pro approved âœ…');
     loadProfiles();
   };
 
   const rejectPro = async (profile) => {
-    await base44.entities.UserProfile.update(profile.id, {
+    await firebaseClient.entities.UserProfile.update(profile.id, {
       pro_verification_status: 'rejected',
       is_pro: false,
       pro_reject_reason: 'Rejected by admin',
     });
-    await base44.entities.Notification.create({
+    await firebaseClient.entities.Notification.create({
       user_email: profile.user_email,
-      type: '🔵',
+      type: 'ðŸ”µ',
       text: 'Your Pro verification was rejected.',
-      text_lao: 'ການຢືນຢັນ Pro ຂອງທ່ານຖືກປະຕິເສດ.',
+      text_lao: 'àºàº²àº™àº¢àº·àº™àº¢àº±àº™ Pro àº‚àº­àº‡àº—à»ˆàº²àº™àº–àº·àºàº›àº°àº•àº´à»€àºªàº”.',
     });
     toast.success('Pro rejected');
     loadProfiles();
@@ -123,28 +123,28 @@ export default function AdminVerification() {
 
   const quickApprovePro = async (profile) => {
     if (!window.confirm(`Quick pass Pro for ${profile.first_name} ${profile.last_name}?`)) return;
-    await base44.entities.UserProfile.update(profile.id, {
+    await firebaseClient.entities.UserProfile.update(profile.id, {
       pro_verification_status: 'verified',
       is_pro: true,
       pro_reject_reason: '',
       business_name: profile.business_name || `${profile.first_name} ${profile.last_name}`.trim(),
     });
-    await base44.entities.Notification.create({
+    await firebaseClient.entities.Notification.create({
       user_email: profile.user_email,
-      type: '🔵',
+      type: 'ðŸ”µ',
       text: 'Admin quick-passed your Pro verification.',
-      text_lao: 'Admin ອະນຸມັດ Pro ໃຫ້ທ່ານແບບດ່ວນແລ້ວ.',
+      text_lao: 'Admin àº­àº°àº™àº¸àº¡àº±àº” Pro à»ƒàº«à»‰àº—à»ˆàº²àº™à»àºšàºšàº”à»ˆàº§àº™à»àº¥à»‰àº§.',
     });
-    toast.success('Pro quick pass ✅');
+    toast.success('Pro quick pass âœ…');
     loadProfiles();
   };
 
   const resetPassword = async (profile) => {
     if (!window.confirm(`Reset password for ${profile.user_email}?`)) return;
     try {
-      const res = await base44.functions.invoke('resetUserPassword', { email: profile.user_email });
+      const res = await firebaseClient.functions.invoke('resetUserPassword', { email: profile.user_email });
       if (res.data.success) {
-        toast.success('Password reset email sent ✅');
+        toast.success('Password reset email sent âœ…');
       }
     } catch {
       toast.error('Failed to reset password');
@@ -161,7 +161,7 @@ export default function AdminVerification() {
     return (
       <div className="flex items-center justify-center min-h-[60vh] text-center px-4">
         <div>
-          <p className="text-4xl mb-3">🔒</p>
+          <p className="text-4xl mb-3">ðŸ”’</p>
           <h2 className="font-bold text-lg mb-1">Admin Only</h2>
           <p className="text-muted-foreground text-sm">You don't have permission to view this page.</p>
         </div>
@@ -182,7 +182,7 @@ export default function AdminVerification() {
           <p className="text-sm text-muted-foreground mt-0.5">{visibleProfiles.length} users</p>
         </div>
         <button onClick={loadProfiles} className="border border-border px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-muted transition-colors">
-          🔄 Refresh
+          ðŸ”„ Refresh
         </button>
       </div>
 
@@ -191,21 +191,21 @@ export default function AdminVerification() {
           onClick={() => setActiveTab('verified')}
           className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'verified' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          ✅ Verified
+          âœ… Verified
           {verifiedProfiles.length > 0 && <span className="ml-1 text-xs bg-primary text-white rounded-full px-1.5">{verifiedProfiles.length}</span>}
         </button>
         <button
           onClick={() => setActiveTab('requests')}
           className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'requests' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          ⏳ Requests
+          â³ Requests
           {requestProfiles.length > 0 && <span className="ml-1 text-xs bg-amber-500 text-white rounded-full px-1.5">{requestProfiles.length}</span>}
         </button>
         <button
           onClick={() => setActiveTab('not_verified')}
           className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'not_verified' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          ❌ Not Verified
+          âŒ Not Verified
           {notVerifiedProfiles.length > 0 && <span className="ml-1 text-xs bg-destructive text-white rounded-full px-1.5">{notVerifiedProfiles.length}</span>}
         </button>
       </div>
@@ -216,7 +216,7 @@ export default function AdminVerification() {
         </div>
       ) : visibleProfiles.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
-          <p className="text-4xl mb-3">👥</p>
+          <p className="text-4xl mb-3">ðŸ‘¥</p>
           <p className="font-semibold">No users in this list</p>
         </div>
       ) : (
@@ -249,17 +249,17 @@ export default function AdminVerification() {
                 </div>
                 <div className="flex flex-col items-end gap-1">
                   <span className={`text-xs px-2.5 py-1 rounded-full font-semibold flex-shrink-0 border ${p.pro_verification_status === 'pending' || p.verification_status === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-300' : p.is_pro || p.pro_verification_status === 'verified' ? 'bg-blue-100 text-blue-700 border-blue-300' : p.is_verified || p.verification_status === 'verified' ? 'bg-emerald-100 text-emerald-700 border-emerald-300' : 'bg-slate-100 text-slate-700 border-slate-300'}`}>
-                    {p.pro_verification_status === 'pending' ? '🔵 Pro Pending' : p.verification_status === 'pending' ? '⏳ Pending' : p.is_pro || p.pro_verification_status === 'verified' ? '🔵 Pro' : p.is_verified || p.verification_status === 'verified' ? '✅ Verified' : '❌ Not Verified'}
+                    {p.pro_verification_status === 'pending' ? 'ðŸ”µ Pro Pending' : p.verification_status === 'pending' ? 'â³ Pending' : p.is_pro || p.pro_verification_status === 'verified' ? 'ðŸ”µ Pro' : p.is_verified || p.verification_status === 'verified' ? 'âœ… Verified' : 'âŒ Not Verified'}
                   </span>
                   {isOnline(p) && (
                     <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold border border-emerald-300">
-                      🟢 Online
+                      ðŸŸ¢ Online
                     </span>
                   )}
                 </div>
               </div>
 
-              {/* Pending requests — show documents + approve/reject */}
+              {/* Pending requests â€” show documents + approve/reject */}
               {activeTab === 'requests' && (
                 <>
                   {p.pro_verification_status === 'pending' ? (
@@ -272,7 +272,7 @@ export default function AdminVerification() {
                           <p className="text-sm">{p.business_tax_id || '-'}</p>
                         </div>
                         <div className="sm:col-span-2">
-                          <p className="text-xs font-semibold text-muted-foreground mb-2">🏢 Business License</p>
+                          <p className="text-xs font-semibold text-muted-foreground mb-2">ðŸ¢ Business License</p>
                           {p.business_license_url ? (
                             <img src={p.business_license_url} alt="Business License" onClick={() => setLightboxSrc(p.business_license_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
                           ) : (
@@ -299,7 +299,7 @@ export default function AdminVerification() {
                     <>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <div>
-                          <p className="text-xs font-semibold text-muted-foreground mb-2">🪪 ID Document</p>
+                          <p className="text-xs font-semibold text-muted-foreground mb-2">ðŸªª ID Document</p>
                           {p.id_document_url ? (
                             <img src={p.id_document_url} alt="ID" onClick={() => setLightboxSrc(p.id_document_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
                           ) : (
@@ -307,7 +307,7 @@ export default function AdminVerification() {
                           )}
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-muted-foreground mb-2">🤳 Selfie with ID</p>
+                          <p className="text-xs font-semibold text-muted-foreground mb-2">ðŸ¤³ Selfie with ID</p>
                           {p.selfie_url ? (
                             <img src={p.selfie_url} alt="Selfie" onClick={() => setLightboxSrc(p.selfie_url)} className="w-full rounded-xl border border-border object-cover max-h-52 hover:opacity-90 transition-opacity cursor-zoom-in" />
                           ) : (
@@ -342,7 +342,7 @@ export default function AdminVerification() {
                 </>
               )}
 
-              {/* Verified users — show expiry + reset password */}
+              {/* Verified users â€” show expiry + reset password */}
               {activeTab === 'verified' && (
                 <div className="pt-3 border-t border-border flex items-center justify-between gap-3 flex-wrap">
                   <div>
@@ -369,7 +369,7 @@ export default function AdminVerification() {
                 </div>
               )}
 
-              {/* Not verified users — quick approve + reset password */}
+              {/* Not verified users â€” quick approve + reset password */}
               {activeTab === 'not_verified' && (
                 <div className="pt-3 border-t border-border">
                   {p.verification_reject_reason && (
@@ -419,7 +419,7 @@ export default function AdminVerification() {
           <div className="bg-card w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 border border-border shadow-xl" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold text-base mb-1">Approve Verification</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              {approvingProfile.first_name} {approvingProfile.last_name} — {approvingProfile.user_email}
+              {approvingProfile.first_name} {approvingProfile.last_name} â€” {approvingProfile.user_email}
             </p>
             <label className="block text-sm font-semibold mb-2">Document Expiry Date</label>
             <input
@@ -435,7 +435,7 @@ export default function AdminVerification() {
                 onClick={() => approve(approvingProfile, expiryDate)}
                 className="flex-1 bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-bold hover:opacity-90"
               >
-                ✅ Approve
+                âœ… Approve
               </button>
             </div>
           </div>
@@ -448,7 +448,7 @@ export default function AdminVerification() {
           <div className="bg-card w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 border border-border shadow-xl" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold text-base mb-1">Reject Verification</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              {rejectingProfile.first_name} {rejectingProfile.last_name} — {rejectingProfile.user_email}
+              {rejectingProfile.first_name} {rejectingProfile.last_name} â€” {rejectingProfile.user_email}
             </p>
             <label className="block text-sm font-semibold mb-2">Rejection Reason</label>
             <textarea
@@ -470,7 +470,7 @@ export default function AdminVerification() {
                 }}
                 className="flex-1 bg-destructive text-destructive-foreground py-2.5 rounded-xl text-sm font-bold hover:opacity-90"
               >
-                ❌ Reject
+                âŒ Reject
               </button>
             </div>
           </div>

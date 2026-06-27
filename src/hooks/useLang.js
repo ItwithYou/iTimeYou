@@ -123,10 +123,23 @@ const translations = {
   }
 };
 
-const CAT_KEYS = ['culture', 'stay', 'food', 'experience', 'home', 'nature'];
-const CAT_ICONS = { culture: '🏛️', stay: '🏠', food: '🍜', experience: '🎭', home: '🏡', nature: '🌿' };
+const PERSONAL_CATS = [
+  { key: 'all', icon: 'ðŸŒ ', en: 'All', lo: 'àº—àº±àº‡à» àº»àº”', descEn: 'View all posts', descLo: 'à»€àºšàº´à»ˆàº‡à»‚àºžàºªàº—àº±àº‡à» àº»àº”' },
+  { key: 'talking', icon: 'ðŸ’¬', en: 'Talk', lo: 'àº¥àº»àº¡àº àº±àº™', descEn: 'Chat & share ideas', descLo: 'àº¥àº»àº¡àº àº±àº™ & à» àº¥àº àº›à»ˆàº½àº™' },
+  { key: 'home', icon: 'ðŸ ¡', en: 'Home', lo: 'à»€àº®àº·àº­àº™', descEn: 'Find a place to stay', descLo: 'àºŠàº­àº àº«àº²àº—àºµà»ˆàºžàº±àº ' },
+  { key: 'food', icon: 'ðŸ ½ï¸ ', en: 'Eat at Home', lo: 'àº àº´àº™à»€àº‚àº»à»‰àº²à»€àº®àº·àº­àº™', descEn: 'Share home cooked meals', descLo: 'à» àºšà»ˆàº‡àº›àº±àº™àº­àº²àº«àº²àº™à»€àº®àº·àº­àº™' },
+  { key: 'guide', icon: 'ðŸ—ºï¸ ', en: 'Guide', lo: 'àºžàº²àº—à»ˆàº½àº§', descEn: 'Local guides and tours', descLo: 'àºžàº²àº—à»ˆàº½àº§àº—à»‰àº­àº‡àº–àº´à»ˆàº™' }
+];
 
-export { CAT_KEYS, CAT_ICONS };
+const BUSINESS_CATS = [
+  { key: 'tours', icon: 'ðŸšŒ', en: 'Tours', lo: 'àº—àº»àº§', descEn: 'Professional tour packages', descLo: 'à» àºžàº±àº à»€àº àºˆàº—àº»àº§àº¡àº·àº­àº²àºŠàºµàºš' },
+  { key: 'hotels', icon: 'ðŸ ¥', en: 'Hotels', lo: 'à»‚àº®àº‡à» àº®àº¡', descEn: 'Book hotel rooms', descLo: 'àºˆàº­àº‡àº«à»‰àº­àº‡àºžàº±àº à»‚àº®àº‡à» àº®àº¡' },
+  { key: 'flights', icon: 'âœˆï¸ ', en: 'Flights', lo: 'àº›àºµà»‰àº àº»àº™', descEn: 'Flight tickets', descLo: 'àº›àºµà»‰àº àº»àº™à»‚àº”àº àºªàº²àº™' },
+  { key: 'restaurants', icon: 'ðŸ ´', en: 'Restaurants', lo: 'àº®à»‰àº²àº™àº­àº²àº«àº²àº™', descEn: 'Dining and food', descLo: 'àº®à»‰àº²àº™àº­àº²àº«àº²àº™ & à»€àº„àº·à»ˆàº­àº‡àº”àº·à»ˆàº¡' },
+  { key: 'seminars', icon: 'ðŸ“ˆ', en: 'Seminars', lo: 'àºªàº³àº¡àº°àº™àº²', descEn: 'Business events & seminars', descLo: 'àº‡àº²àº™àºªàº³àº¡àº°àº™àº² & àº—àº¸àº¥àº°àº àº´àº”' }
+];
+
+export { PERSONAL_CATS, BUSINESS_CATS };
 
 export default function useLang() {
   const [lang, setLangState] = useState(() => {

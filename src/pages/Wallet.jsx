@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
-import { base44 } from '@/api/base44Client';
+import { firebaseClient } from '@/api/firebaseClient';
 import { ArrowUp, ArrowDown, Send, ArrowDownLeft, Shield, ChevronRight, ExternalLink, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import WalletActionModal from '../components/wallet/WalletActionModal';
@@ -10,11 +10,11 @@ import { getTotalLakBalance } from '../utils/wallet';
 import { formatTimestampDMY } from '../utils/dateUtils';
 
 const typeConfig = {
-  topup:    { icon: '⬆️', color: 'text-success', sign: '+' },
-  received: { icon: '📥', color: 'text-success', sign: '+' },
-  withdraw: { icon: '⬇️', color: 'text-destructive', sign: '' },
-  payment:  { icon: '🏠', color: 'text-destructive', sign: '' },
-  send:     { icon: '📤', color: 'text-destructive', sign: '' },
+  topup:    { icon: 'â¬†ï¸', color: 'text-success', sign: '+' },
+  received: { icon: 'ðŸ“¥', color: 'text-success', sign: '+' },
+  withdraw: { icon: 'â¬‡ï¸', color: 'text-destructive', sign: '' },
+  payment:  { icon: 'ðŸ ', color: 'text-destructive', sign: '' },
+  send:     { icon: 'ðŸ“¤', color: 'text-destructive', sign: '' },
 };
 
 const statusLabelMap = {
@@ -49,13 +49,13 @@ export default function Wallet() {
 
   const loadTx = async () => {
     if (currentUser) {
-      const mine = await base44.entities.WalletTransaction.filter({ user_email: currentUser.email }, '-created_date', 30);
+      const mine = await firebaseClient.entities.WalletTransaction.filter({ user_email: currentUser.email }, '-created_date', 30);
       setTransactions(mine);
       if (currentUser.role === 'admin') {
         const [allTx, allBookings, allProfiles] = await Promise.all([
-          base44.entities.WalletTransaction.list('-created_date', 100),
-          base44.entities.Booking.list('-created_date', 100),
-          base44.entities.UserProfile.list('-created_date', 200),
+          firebaseClient.entities.WalletTransaction.list('-created_date', 100),
+          firebaseClient.entities.Booking.list('-created_date', 100),
+          firebaseClient.entities.UserProfile.list('-created_date', 200),
         ]);
         setAllTransactions(allTx);
         setBookings(allBookings);
@@ -70,7 +70,7 @@ export default function Wallet() {
 
   const loadExchangeRates = async () => {
     try {
-      const items = await base44.entities.ExchangeRateSettings.list('-updated_date', 1);
+      const items = await firebaseClient.entities.ExchangeRateSettings.list('-updated_date', 1);
       const item = items[0];
       if (item) {
         setExchangeRates({
@@ -121,7 +121,7 @@ export default function Wallet() {
     { icon: ArrowDown, label: t.withdraw, key: 'withdraw' },
     { icon: Send, label: t.send, key: 'send' },
     { icon: ArrowDownLeft, label: t.receive, key: 'receive' },
-    { icon: RefreshCw, label: lang === 'lo' ? 'ແລກປ່ຽນ' : 'Exchange', key: 'exchange' },
+    { icon: RefreshCw, label: lang === 'lo' ? 'à»àº¥àºàº›à»ˆàº½àº™' : 'Exchange', key: 'exchange' },
   ];
 
   return (
@@ -133,7 +133,7 @@ export default function Wallet() {
         <Link to={`/profile/${profile?.id}`} className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-4 group hover:bg-amber-100 transition-colors">
           <Shield size={22} className="text-amber-600 flex-shrink-0" />
           <div className="flex-1">
-            <p className="text-sm font-semibold text-amber-800">{lang === 'lo' ? 'ຢືນຢັນຕົວຕົນເພື່ອໃຊ້ງານ' : 'Verify identity to use wallet'}</p>
+            <p className="text-sm font-semibold text-amber-800">{lang === 'lo' ? 'àº¢àº·àº™àº¢àº±àº™àº•àº»àº§àº•àº»àº™à»€àºžàº·à»ˆàº­à»ƒàºŠà»‰àº‡àº²àº™' : 'Verify identity to use wallet'}</p>
             <p className="text-xs text-amber-600">{t.needsVerify}</p>
           </div>
           <ChevronRight size={16} className="text-amber-500" />
@@ -166,7 +166,7 @@ export default function Wallet() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/50">{t.balance}</p>
           </div>
 
-          {/* Big balance number — premium tabular font */}
+          {/* Big balance number â€” premium tabular font */}
           <div className="flex items-end gap-2">
             <span className="wallet-num bg-gradient-to-r from-white via-white to-amber-100 bg-clip-text text-[44px] font-extrabold leading-none text-transparent break-all">
               {totalLak.toLocaleString()}
@@ -180,7 +180,7 @@ export default function Wallet() {
             <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-white/85">
               {profile?.first_name} {profile?.last_name}
             </p>
-            <p className="wallet-num text-[12px] tracking-[0.28em] text-white/35">•••• 2026</p>
+            <p className="wallet-num text-[12px] tracking-[0.28em] text-white/35">â€¢â€¢â€¢â€¢ 2026</p>
           </div>
 
           {/* Currency pills */}
@@ -219,13 +219,13 @@ export default function Wallet() {
       {/* Exchange rates strip */}
       <div className="mb-5 flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-sm">
         <div className="min-w-0">
-          <p className="text-xs font-bold text-foreground">{lang === 'lo' ? 'ອັດຕາແລກປ່ຽນ' : 'Exchange Rates'}</p>
+          <p className="text-xs font-bold text-foreground">{lang === 'lo' ? 'àº­àº±àº”àº•àº²à»àº¥àºàº›à»ˆàº½àº™' : 'Exchange Rates'}</p>
           {ratesLoaded ? (
             <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
-              USD {exchangeRates.usdBuy.toLocaleString()} · USDT {exchangeRates.usdtBuy.toLocaleString()}
+              USD {exchangeRates.usdBuy.toLocaleString()} Â· USDT {exchangeRates.usdtBuy.toLocaleString()}
             </p>
           ) : (
-            <p className="mt-0.5 text-[11px] text-muted-foreground">{lang === 'lo' ? 'ກຳລັງໂຫລດ...' : 'Loading...'}</p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">{lang === 'lo' ? 'àºàº³àº¥àº±àº‡à»‚àº«àº¥àº”...' : 'Loading...'}</p>
           )}
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
@@ -241,9 +241,9 @@ export default function Wallet() {
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-3 mb-5">
         {[
-          { label: lang === 'lo' ? 'ການໄຫຼເຂົ້າ' : 'Money In', value: `+$${transactions.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0)}`, color: 'text-success' },
-          { label: lang === 'lo' ? 'ການໄຫຼອອກ' : 'Money Out', value: `-$${Math.abs(transactions.filter(t => t.amount < 0).reduce((s, t) => s + t.amount, 0))}`, color: 'text-destructive' },
-          { label: lang === 'lo' ? 'ທຸລະກຳ' : 'Transactions', value: transactions.length, color: 'text-foreground' },
+          { label: lang === 'lo' ? 'àºàº²àº™à»„àº«àº¼à»€àº‚àº»à»‰àº²' : 'Money In', value: `+$${transactions.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0)}`, color: 'text-success' },
+          { label: lang === 'lo' ? 'àºàº²àº™à»„àº«àº¼àº­àº­àº' : 'Money Out', value: `-$${Math.abs(transactions.filter(t => t.amount < 0).reduce((s, t) => s + t.amount, 0))}`, color: 'text-destructive' },
+          { label: lang === 'lo' ? 'àº—àº¸àº¥àº°àºàº³' : 'Transactions', value: transactions.length, color: 'text-foreground' },
         ].map(stat => (
           <div key={stat.label} className="bg-card rounded-2xl p-3 text-center border border-border shadow-sm">
             <p className={`wallet-num font-bold text-[13px] sm:text-[14px] tracking-[-0.02em] leading-tight break-all ${stat.color}`}>{stat.value}</p>
@@ -260,7 +260,7 @@ export default function Wallet() {
         {transactions.length > 0 ? (
           <div className="divide-y divide-border">
             {transactions.map(tx => {
-              const cfg = typeConfig[tx.type] || { icon: '💱', color: 'text-foreground', sign: '' };
+              const cfg = typeConfig[tx.type] || { icon: 'ðŸ’±', color: 'text-foreground', sign: '' };
               return (
                 <div key={tx.id} className="flex items-center gap-3 px-4 py-3.5">
                   <div className="w-10 h-10 bg-muted rounded-xl flex items-center justify-center text-lg flex-shrink-0">
@@ -287,7 +287,7 @@ export default function Wallet() {
           </div>
         ) : (
           <div className="text-center py-12 text-muted-foreground">
-            <p className="text-3xl mb-2">💳</p>
+            <p className="text-3xl mb-2">ðŸ’³</p>
             <p className="text-sm">No transactions yet</p>
           </div>
         )}

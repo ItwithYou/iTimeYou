@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
-import { base44 } from '@/api/base44Client';
+import { firebaseClient } from '@/api/firebaseClient';
 import { MessageCircle, Shield, Clock, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -17,8 +17,8 @@ export default function HelpCenter() {
 
   const loadAdmins = async () => {
     try {
-      const allProfiles = await base44.entities.UserProfile.list('-created_date', 100);
-      const adminEmails = await base44.entities.User.list();
+      const allProfiles = await firebaseClient.entities.UserProfile.list('-created_date', 100);
+      const adminEmails = await firebaseClient.entities.User.list();
       const admins = adminEmails.filter(u => u.role === 'admin').map(u => u.email);
       const adminProfiles = allProfiles.filter(p => admins.includes(p.user_email));
       setAdminProfiles(adminProfiles);
@@ -34,7 +34,7 @@ export default function HelpCenter() {
 
     try {
       // Check if conversation already exists
-      const existing = await base44.entities.Conversation.list('-updated_date', 50);
+      const existing = await firebaseClient.entities.Conversation.list('-updated_date', 50);
       const found = existing.find(
         (c) =>
           c.participants?.includes(currentUser.email) &&
@@ -45,37 +45,37 @@ export default function HelpCenter() {
       if (found) {
         convId = found.id;
       } else {
-        const conv = await base44.entities.Conversation.create({
+        const conv = await firebaseClient.entities.Conversation.create({
           participants: [currentUser.email, adminEmail],
           last_message: '',
         });
         convId = conv.id;
 
         // Send initial message
-        await base44.entities.Message.create({
+        await firebaseClient.entities.Message.create({
           conversation_id: conv.id,
           sender_email: currentUser.email,
-          text: lang === 'lo' ? 'ສະບາຍດີ, ຂ້ອຍຕ້ອງການຄວາມຊ່ວຍເຫຼືອ' : 'Hello, I need some help',
+          text: lang === 'lo' ? 'àºªàº°àºšàº²àºàº”àºµ, àº‚à»‰àº­àºàº•à»‰àº­àº‡àºàº²àº™àº„àº§àº²àº¡àºŠà»ˆàº§àºà»€àº«àº¼àº·àº­' : 'Hello, I need some help',
         });
 
-        await base44.entities.Conversation.update(conv.id, {
-          last_message: lang === 'lo' ? 'ສະບາຍດີ, ຂ້ອຍຕ້ອງການຄວາມຊ່ວຍເຫຼືອ' : 'Hello, I need some help',
+        await firebaseClient.entities.Conversation.update(conv.id, {
+          last_message: lang === 'lo' ? 'àºªàº°àºšàº²àºàº”àºµ, àº‚à»‰àº­àºàº•à»‰àº­àº‡àºàº²àº™àº„àº§àº²àº¡àºŠà»ˆàº§àºà»€àº«àº¼àº·àº­' : 'Hello, I need some help',
           last_message_time: new Date().toISOString(),
         });
 
         // Notify admin
-        await base44.entities.Notification.create({
+        await firebaseClient.entities.Notification.create({
           user_email: adminEmail,
-          type: '💬',
+          type: 'ðŸ’¬',
           text: `New help request from ${currentUser.email}`,
-          text_lao: `ຄຳຖາມຊ່ວຍເຫຼືອໃໝ່ຈາກ ${currentUser.email}`,
+          text_lao: `àº„àº³àº–àº²àº¡àºŠà»ˆàº§àºà»€àº«àº¼àº·àº­à»ƒà»à»ˆàºˆàº²àº ${currentUser.email}`,
         });
       }
 
-      toast.success(lang === 'lo' ? 'ເປີດການສົນທະນາກັບແອັດມິນ' : 'Chat started with admin');
+      toast.success(lang === 'lo' ? 'à»€àº›àºµàº”àºàº²àº™àºªàº»àº™àº—àº°àº™àº²àºàº±àºšà»àº­àº±àº”àº¡àº´àº™' : 'Chat started with admin');
       navigate(`/messages?conv=${convId}`);
     } catch (error) {
-      toast.error(lang === 'lo' ? 'ບໍ່ສາມາດເປີດການສົນທະນາໄດ້' : 'Failed to start chat');
+      toast.error(lang === 'lo' ? 'àºšà»à»ˆàºªàº²àº¡àº²àº”à»€àº›àºµàº”àºàº²àº™àºªàº»àº™àº—àº°àº™àº²à»„àº”à»‰' : 'Failed to start chat');
       console.error('Error starting chat:', error);
     }
   };
@@ -99,9 +99,9 @@ export default function HelpCenter() {
           <ArrowLeft size={20} />
         </button>
         <div>
-          <h1 className="text-2xl font-bold">{lang === 'lo' ? 'ສູນຊ່ວຍເຫຼືອ' : 'Help Center'}</h1>
+          <h1 className="text-2xl font-bold">{lang === 'lo' ? 'àºªàº¹àº™àºŠà»ˆàº§àºà»€àº«àº¼àº·àº­' : 'Help Center'}</h1>
           <p className="text-sm text-muted-foreground">
-            {lang === 'lo' ? 'ຕິດຕໍ່ແອັດມິນເພື່ອຂໍຄວາມຊ່ວຍເຫຼືອ' : 'Contact admin for support'}
+            {lang === 'lo' ? 'àº•àº´àº”àº•à»à»ˆà»àº­àº±àº”àº¡àº´àº™à»€àºžàº·à»ˆàº­àº‚à»àº„àº§àº²àº¡àºŠà»ˆàº§àºà»€àº«àº¼àº·àº­' : 'Contact admin for support'}
           </p>
         </div>
       </div>
@@ -113,11 +113,11 @@ export default function HelpCenter() {
             <MessageCircle size={32} className="text-primary" />
           </div>
           <h2 className="text-xl font-bold mb-2">
-            {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມຫາແອັດມິນ' : 'Chat with Admin'}
+            {lang === 'lo' ? 'àºªàº»à»ˆàº‡àº‚à»à»‰àº„àº§àº²àº¡àº«àº²à»àº­àº±àº”àº¡àº´àº™' : 'Chat with Admin'}
           </h2>
           <p className="text-sm text-muted-foreground">
             {lang === 'lo'
-              ? 'ແອັດມິນຈະຕອບກັບມາໃນໄວໆນີ້'
+              ? 'à»àº­àº±àº”àº¡àº´àº™àºˆàº°àº•àº­àºšàºàº±àºšàº¡àº²à»ƒàº™à»„àº§à»†àº™àºµà»‰'
               : 'Our admin team will respond as soon as possible'}
           </p>
         </div>
@@ -140,13 +140,13 @@ export default function HelpCenter() {
                     {admin.first_name} {admin.last_name}
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    {lang === 'lo' ? 'ແອັດມິນ' : 'Administrator'}
+                    {lang === 'lo' ? 'à»àº­àº±àº”àº¡àº´àº™' : 'Administrator'}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary text-primary-foreground">
                     <MessageCircle size={12} />
-                    {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມ' : 'Message'}
+                    {lang === 'lo' ? 'àºªàº»à»ˆàº‡àº‚à»à»‰àº„àº§àº²àº¡' : 'Message'}
                   </span>
                 </div>
               </button>
@@ -156,7 +156,7 @@ export default function HelpCenter() {
           <div className="text-center py-8 text-muted-foreground">
             <Shield size={40} className="mx-auto mb-3 opacity-30" />
             <p className="text-sm">
-              {lang === 'lo' ? 'ບໍ່ມີແອັດມິນໃນລະບົບ' : 'No admins available'}
+              {lang === 'lo' ? 'àºšà»à»ˆàº¡àºµà»àº­àº±àº”àº¡àº´àº™à»ƒàº™àº¥àº°àºšàº»àºš' : 'No admins available'}
             </p>
           </div>
         )}
@@ -166,36 +166,36 @@ export default function HelpCenter() {
       <div className="mt-6 bg-card rounded-2xl border border-border p-6 shadow-sm">
         <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
           <Clock size={18} />
-          {lang === 'lo' ? 'ຄຳຖາມທີ່ພົບເລື້ອຍ' : 'FAQ'}
+          {lang === 'lo' ? 'àº„àº³àº–àº²àº¡àº—àºµà»ˆàºžàº»àºšà»€àº¥àº·à»‰àº­àº' : 'FAQ'}
         </h3>
         <div className="space-y-4 text-sm">
           <div>
             <p className="font-semibold mb-1">
-              {lang === 'lo' ? 'ຈະຕິດຕໍ່ແອັດມິນໄດ້ແນວໃດ?' : 'How do I contact admin?'}
+              {lang === 'lo' ? 'àºˆàº°àº•àº´àº”àº•à»à»ˆà»àº­àº±àº”àº¡àº´àº™à»„àº”à»‰à»àº™àº§à»ƒàº”?' : 'How do I contact admin?'}
             </p>
             <p className="text-muted-foreground">
               {lang === 'lo'
-                ? 'ກົດປຸ່ມ "ສົ່ງຂໍ້ຄວາມ" ຂ້າງເທິງ ແລ້ວລໍຖ້າແອັດມິນຕອບ'
+                ? 'àºàº»àº”àº›àº¸à»ˆàº¡ "àºªàº»à»ˆàº‡àº‚à»à»‰àº„àº§àº²àº¡" àº‚à»‰àº²àº‡à»€àº—àº´àº‡ à»àº¥à»‰àº§àº¥à»àº–à»‰àº²à»àº­àº±àº”àº¡àº´àº™àº•àº­àºš'
                 : 'Click the "Message" button above and wait for admin to respond'}
             </p>
           </div>
           <div>
             <p className="font-semibold mb-1">
-              {lang === 'lo' ? 'ເວລາຕອບສະໜອງແມ່ນເທົ່າໃດ?' : 'Response time?'}
+              {lang === 'lo' ? 'à»€àº§àº¥àº²àº•àº­àºšàºªàº°à»œàº­àº‡à»àº¡à»ˆàº™à»€àº—àº»à»ˆàº²à»ƒàº”?' : 'Response time?'}
             </p>
             <p className="text-muted-foreground">
               {lang === 'lo'
-                ? 'ສ່ວນຫຼາຍຈະຕອບພາຍໃນ 24 ຊົ່ວໂມງ'
+                ? 'àºªà»ˆàº§àº™àº«àº¼àº²àºàºˆàº°àº•àº­àºšàºžàº²àºà»ƒàº™ 24 àºŠàº»à»ˆàº§à»‚àº¡àº‡'
                 : 'Usually within 24 hours'}
             </p>
           </div>
           <div>
             <p className="font-semibold mb-1">
-              {lang === 'lo' ? 'ຈະກວດສອບການຈອງໄດ້ແນວໃດ?' : 'How to check bookings?'}
+              {lang === 'lo' ? 'àºˆàº°àºàº§àº”àºªàº­àºšàºàº²àº™àºˆàº­àº‡à»„àº”à»‰à»àº™àº§à»ƒàº”?' : 'How to check bookings?'}
             </p>
             <p className="text-muted-foreground">
               {lang === 'lo'
-                ? 'ໄປທີ່ໜ້າ "ການຈອງ" ໃນເມນູ'
+                ? 'à»„àº›àº—àºµà»ˆà»œà»‰àº² "àºàº²àº™àºˆàº­àº‡" à»ƒàº™à»€àº¡àº™àº¹'
                 : 'Go to "Bookings" page from the menu'}
             </p>
           </div>

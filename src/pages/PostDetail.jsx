@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { firebaseClient } from '@/api/firebaseClient';
 import { useOutletContext } from 'react-router-dom';
 import PostCard from '../components/PostCard';
 import { ArrowLeft } from 'lucide-react';
@@ -19,11 +19,11 @@ export default function PostDetail() {
   useEffect(() => {
     const loadPost = async () => {
       try {
-        const posts = await base44.entities.Post.filter({ id });
+        const posts = await firebaseClient.entities.Post.filter({ id });
         if (posts.length > 0) {
           setPost(posts[0]);
           if (posts[0].author_email) {
-            const profiles = await base44.entities.UserProfile.filter({ user_email: posts[0].author_email });
+            const profiles = await firebaseClient.entities.UserProfile.filter({ user_email: posts[0].author_email });
             if (profiles.length > 0) {
               setAuthorProfile(profiles[0]);
             }
@@ -48,7 +48,7 @@ export default function PostDetail() {
         >
           <ArrowLeft size={20} />
         </button>
-        <h1 className="font-bold text-lg">{lang === 'lo' ? 'ໂພສ' : 'Post'}</h1>
+        <h1 className="font-bold text-lg">{lang === 'lo' ? 'à»‚àºžàºª' : 'Post'}</h1>
       </div>
 
       {/* Content */}
@@ -67,7 +67,7 @@ export default function PostDetail() {
           />
         ) : (
           <div className="text-center py-20 text-muted-foreground">
-            {lang === 'lo' ? 'ບໍ່ພົບໂພສນີ້' : 'Post not found'}
+            {lang === 'lo' ? 'àºšà»à»ˆàºžàº»àºšà»‚àºžàºªàº™àºµà»‰' : 'Post not found'}
           </div>
         )}
       </div>

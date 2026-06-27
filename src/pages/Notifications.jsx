@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useAppContext } from '../lib/AppContext';
-import { base44 } from '@/api/base44Client';
+import { firebaseClient } from '@/api/firebaseClient';
 import { formatTimestampDMY } from '../utils/dateUtils';
 
 export default function Notifications() {
@@ -9,9 +9,9 @@ export default function Notifications() {
 
   useEffect(() => {
     if (!currentUser) return;
-    const load = () => base44.entities.Notification.filter({ user_email: currentUser.email }, '-created_date', 30).then(setNotifications);
+    const load = () => firebaseClient.entities.Notification.filter({ user_email: currentUser.email }, '-created_date', 30).then(setNotifications);
     load();
-    const unsub = base44.entities.Notification.subscribe(() => {
+    const unsub = firebaseClient.entities.Notification.subscribe(() => {
       load();
     });
     return unsub;
@@ -19,7 +19,7 @@ export default function Notifications() {
 
   const markAllRead = async () => {
     const unread = notifications.filter(n => !n.is_read);
-    await Promise.all(unread.map(n => base44.entities.Notification.update(n.id, { is_read: true })));
+    await Promise.all(unread.map(n => firebaseClient.entities.Notification.update(n.id, { is_read: true })));
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
   };
 
@@ -54,7 +54,7 @@ export default function Notifications() {
         ))}
         {notifications.length === 0 && (
           <div className="text-center py-16 text-muted-foreground">
-            <p className="text-4xl mb-3">🔔</p>
+            <p className="text-4xl mb-3">ðŸ””</p>
             <p>No notifications yet</p>
           </div>
         )}

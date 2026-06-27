@@ -1,15 +1,15 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Compass, Calendar, Wallet, MessageCircle, Bell, ShieldCheck, HelpCircle } from 'lucide-react';
 import LangToggle from './LangToggle';
 import ThemeToggle from './ThemeToggle';
-import { base44 } from '@/api/base44Client';
+import { firebaseClient } from '@/api/firebaseClient';
 
 export default function Navbar({ profile, currentUser, t, lang, setLang }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
 
-  const handleLogout = () => base44.auth.logout();
+  const handleLogout = () => firebaseClient.auth.logout();
 
   const navItems = [
   { to: '/feed', icon: Home, label: t.feed },
@@ -20,7 +20,7 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
   { to: '/notifications', icon: Bell, label: t.notifications }];
 
   const secondaryNavItems = [
-  { to: '/help', icon: HelpCircle, label: lang === 'lo' ? 'ສູນຊ່ວຍເຫຼືອ' : 'Help Center' }];
+  { to: '/help', icon: HelpCircle, label: lang === 'lo' ? 'àºªàº¹àº™àºŠà»ˆàº§àºà»€àº«àº¼àº·àº­' : 'Help Center' }];
 
 
 
@@ -80,7 +80,7 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
               </Link>
             ) : (
               <button onClick={() => window.dispatchEvent(new Event('open-login'))} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity">
-                {lang === 'lo' ? 'ເຂົ້າສູ່ລະບົບ' : 'Login'}
+                {lang === 'lo' ? 'à»€àº‚àº»à»‰àº²àºªàº¹à»ˆàº¥àº°àºšàº»àºš' : 'Login'}
               </button>
             )}
 
@@ -119,7 +119,7 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
             </Link>
           ) : (
             <button onClick={() => window.dispatchEvent(new Event('open-login'))} className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold">
-              {lang === 'lo' ? 'ເຂົ້າ' : 'Login'}
+              {lang === 'lo' ? 'à»€àº‚àº»à»‰àº²' : 'Login'}
             </button>
           )}
         </div>

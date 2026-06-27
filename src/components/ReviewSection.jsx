@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+﻿import { useState, useEffect } from 'react';
+import { firebaseClient } from '@/api/firebaseClient';
 import StarRating from './StarRating';
 import { toast } from 'sonner';
 import moment from 'moment';
@@ -16,7 +16,7 @@ export default function ReviewSection({ targetProfile, currentUser, t, lang, onR
   }, [targetProfile.id]);
 
   const loadReviews = async () => {
-    const data = await base44.entities.Review.filter({ target_profile_id: targetProfile.id }, '-created_date', 20);
+    const data = await firebaseClient.entities.Review.filter({ target_profile_id: targetProfile.id }, '-created_date', 20);
     setReviews(data);
     if (currentUser) {
       setAlreadyReviewed(data.some(r => r.reviewer_email === currentUser.email));
@@ -28,7 +28,7 @@ export default function ReviewSection({ targetProfile, currentUser, t, lang, onR
     if (alreadyReviewed) { toast.error(t.alreadyReviewed); return; }
     setSubmitting(true);
 
-    await base44.entities.Review.create({
+    await firebaseClient.entities.Review.create({
       reviewer_email: currentUser.email,
       reviewer_name: currentUser.full_name || currentUser.email,
       target_profile_id: targetProfile.id,
@@ -42,7 +42,7 @@ export default function ReviewSection({ targetProfile, currentUser, t, lang, onR
     const newRatingSum = (targetProfile.rating_sum || 0) + myRating;
     const newTrustStars = Math.round((newRatingSum / newTotalRatings) * 10) / 10;
 
-    await base44.entities.UserProfile.update(targetProfile.id, {
+    await firebaseClient.entities.UserProfile.update(targetProfile.id, {
       total_ratings: newTotalRatings,
       rating_sum: newRatingSum,
       trust_stars: newTrustStars,
@@ -82,7 +82,7 @@ export default function ReviewSection({ targetProfile, currentUser, t, lang, onR
           </button>
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground mb-4">✅ {t.alreadyReviewed}</p>
+        <p className="text-sm text-muted-foreground mb-4">âœ… {t.alreadyReviewed}</p>
       )}
 
       {reviews.length > 0 && (

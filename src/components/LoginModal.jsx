@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
-import { base44, auth } from '@/api/base44Client';
+﻿import { useState, useEffect } from 'react';
+import { firebaseClient, auth } from '@/api/firebaseClient';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Phone, User, MessageSquare, X } from 'lucide-react';
-import { toast } from 'sonner';
+import { ArrowLeft, Phone, User, X } from 'lucide-react';
 
 function friendlyError(err) {
   console.error('Auth error:', err?.code, err?.message, err);
@@ -22,13 +21,13 @@ function friendlyError(err) {
 }
 
 const COUNTRY_CODES = [
-  { code: '+856', label: '🇱🇦' },
-  { code: '+66', label: '🇹🇭' },
-  { code: '+84', label: '🇻🇳' },
-  { code: '+855', label: '🇰🇭' },
-  { code: '+86', label: '🇨🇳' },
-  { code: '+1', label: '🇺🇸' },
-  { code: '+44', label: '🇬🇧' },
+  { code: '+856', label: 'ðŸ‡±ðŸ‡¦' },
+  { code: '+66', label: 'ðŸ‡¹ðŸ‡­' },
+  { code: '+84', label: 'ðŸ‡»ðŸ‡³' },
+  { code: '+855', label: 'ðŸ‡°ðŸ‡­' },
+  { code: '+86', label: 'ðŸ‡¨ðŸ‡³' },
+  { code: '+1', label: 'ðŸ‡ºðŸ‡¸' },
+  { code: '+44', label: 'ðŸ‡¬ðŸ‡§' },
 ];
 
 export default function LoginModal({ isOpen, onClose }) {
@@ -68,7 +67,7 @@ export default function LoginModal({ isOpen, onClose }) {
   const handleGoogle = async () => {
     setError(''); setLoading(true);
     try { 
-      await base44.auth.loginWithGoogle(); 
+      await firebaseClient.auth.loginWithGoogle(); 
       go();
     } catch (err) { 
       setError(friendlyError(err)); 
@@ -81,8 +80,8 @@ export default function LoginModal({ isOpen, onClose }) {
     setError(''); setLoading(true);
     try {
       const fullNumber = phoneNumber.startsWith('+') ? phoneNumber : `${countryCode}${phoneNumber.replace(/^0+/, '')}`;
-      const appVerifier = base44.auth.setupRecaptcha('recaptcha-container');
-      const confResult = await base44.auth.loginWithPhone(fullNumber, appVerifier);
+      const appVerifier = firebaseClient.auth.setupRecaptcha('recaptcha-container');
+      const confResult = await firebaseClient.auth.loginWithPhone(fullNumber, appVerifier);
       setConfirmationResult(confResult);
       setStep('otp');
     } catch (err) {
@@ -101,10 +100,10 @@ export default function LoginModal({ isOpen, onClose }) {
     e.preventDefault();
     setError(''); setLoading(true);
     try {
-      const userObj = await base44.auth.confirmOTP(confirmationResult, otp);
+      const userObj = await firebaseClient.auth.confirmOTP(confirmationResult, otp);
       
       // Check if user has a name, if not, prompt for it
-      const dbUser = await base44.entities.User.get(userObj.id);
+      const dbUser = await firebaseClient.entities.User.get(userObj.id);
       if (!dbUser?.full_name || dbUser.full_name === 'User' || dbUser.full_name.includes('@')) {
         setStep('username');
         setLoading(false);
@@ -122,8 +121,8 @@ export default function LoginModal({ isOpen, onClose }) {
     if (!fullName.trim()) { setError('Please enter a name'); return; }
     setError(''); setLoading(true);
     try {
-      await base44.auth.updateMe({ full_name: fullName.trim() });
-      await base44.entities.User.update(auth.currentUser.uid, { full_name: fullName.trim() });
+      await firebaseClient.auth.updateMe({ full_name: fullName.trim() });
+      await firebaseClient.entities.User.update(auth.currentUser.uid, { full_name: fullName.trim() });
       go();
     } catch (err) {
       setError(friendlyError(err));

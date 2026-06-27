@@ -1,6 +1,6 @@
-import { Outlet, useLocation, Navigate } from 'react-router-dom';
+﻿import { Outlet, useLocation, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { firebaseClient } from '@/api/firebaseClient';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import BottomNav from './BottomNav';
@@ -43,7 +43,7 @@ export default function Layout() {
   useEffect(() => {
     const loadExchangeRates = async () => {
       try {
-        const items = await base44.entities.ExchangeRateSettings.list('-updated_date', 1);
+        const items = await firebaseClient.entities.ExchangeRateSettings.list('-updated_date', 1);
         const item = items[0];
         if (item) {
           setExchangeRates({
@@ -67,16 +67,16 @@ export default function Layout() {
       localStorage.setItem('demo_transferred_to_admin_v2', 'true');
       
       try {
-        const posts = await base44.entities.Post.filter({ author_name: 'Premium User' });
+        const posts = await firebaseClient.entities.Post.filter({ author_name: 'Premium User' });
         for (const p of posts) {
-          await base44.entities.Post.update(p.id, {
+          await firebaseClient.entities.Post.update(p.id, {
             author_email: 'norecord88@gmail.com',
             author_name: 'iTimeYou Admin',
           });
         }
-        const listings = await base44.entities.Listing.filter({ host_name: 'Premium Host' });
+        const listings = await firebaseClient.entities.Listing.filter({ host_name: 'Premium Host' });
         for (const l of listings) {
-          await base44.entities.Listing.update(l.id, {
+          await firebaseClient.entities.Listing.update(l.id, {
             host_email: 'norecord88@gmail.com',
             host_name: 'iTimeYou Admin',
           });
@@ -107,7 +107,7 @@ export default function Layout() {
 
     const sendActivity = () => {
       if (document.visibilityState === 'visible') {
-        base44.functions.invoke('updateUserActivity', {});
+        firebaseClient.functions.invoke('updateUserActivity', {});
       }
     };
 
@@ -147,14 +147,14 @@ export default function Layout() {
             <span className="text-4xl font-black text-white tracking-tight">iTimeYou</span>
           </div>
           
-          <p className="text-white/60 text-xs tracking-widest mb-1 lao-text font-semibold">ສັງຄົມ · ທ່ຽວ · ວັດທະນະທໍາ · ທີ່ພັກ</p>
-          <p className="text-white/50 text-xs tracking-widest mb-6">SOCIAL · TRAVEL · CULTURE · STAY</p>
+          <p className="text-white/60 text-xs tracking-widest mb-1 lao-text font-semibold">àºªàº±àº‡àº„àº»àº¡ Â· àº—à»ˆàº½àº§ Â· àº§àº±àº”àº—àº°àº™àº°àº—à»àº² Â· àº—àºµà»ˆàºžàº±àº</p>
+          <p className="text-white/50 text-xs tracking-widest mb-6">SOCIAL Â· TRAVEL Â· CULTURE Â· STAY</p>
           
           {/* Loading bar */}
           <div className="w-48 h-px bg-[#0ADBB9]/30 mb-6 mx-auto" />
           
           {/* Loading text */}
-          <p className="text-white/70 text-sm mb-2 lao-text font-medium">ກຳລັງໂຫຼດ...</p>
+          <p className="text-white/70 text-sm mb-2 lao-text font-medium">àºàº³àº¥àº±àº‡à»‚àº«àº¼àº”...</p>
           <p className="text-white/50 text-xs mb-4">Loading...</p>
           
           {/* Dots */}
@@ -178,7 +178,7 @@ export default function Layout() {
         <Navbar profile={profile} currentUser={currentUser} t={t} lang={lang} setLang={setLang} />
         <MobileHeader t={t} lang={lang} />
         <main className="pb-20 md:pb-0">
-          {/* Persistent tab pages — hidden via CSS, stay mounted to preserve state/scroll */}
+          {/* Persistent tab pages â€” hidden via CSS, stay mounted to preserve state/scroll */}
           {TAB_PAGES.map(({ path, PageComponent }) =>
             visitedPaths.has(path) ? (
               <div key={path} className={location.pathname === path ? 'block' : 'hidden'}>

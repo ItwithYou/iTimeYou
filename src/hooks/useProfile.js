@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+﻿import { useState, useEffect } from 'react';
+import { firebaseClient } from '@/api/firebaseClient';
 
 export default function useProfile() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -8,10 +8,10 @@ export default function useProfile() {
 
   const loadProfile = async () => {
     try {
-      const user = await base44.auth.me();
+      const user = await firebaseClient.auth.me();
       setCurrentUser(user);
 
-      const profiles = await base44.entities.UserProfile.filter({ user_email: user.email });
+      const profiles = await firebaseClient.entities.UserProfile.filter({ user_email: user.email });
       if (profiles.length > 0) {
         setProfile(profiles[0]);
       } else {
@@ -20,7 +20,7 @@ export default function useProfile() {
         const inferredGender = emailValue.includes('female') || emailValue.includes('girl') || emailValue.includes('woman') ? 'female' : emailValue.includes('male') || emailValue.includes('boy') || emailValue.includes('man') ? 'male' : 'other';
         const displayNameStyle = inferredGender === 'female' ? 'ms' : inferredGender === 'male' ? 'mr' : 'mx';
         const avatarSeed = `${inferredGender}-${encodeURIComponent(user.email)}`;
-        const newProfile = await base44.entities.UserProfile.create({
+        const newProfile = await firebaseClient.entities.UserProfile.create({
           user_email: user.email,
           first_name: user.full_name?.split(' ')[0] || 'User',
           last_name: user.full_name?.split(' ').slice(1).join(' ') || '',
@@ -38,7 +38,7 @@ export default function useProfile() {
         setProfile(newProfile);
       }
     } catch (err) {
-      // Not authenticated yet, or transient error — the router will redirect to /login.
+      // Not authenticated yet, or transient error â€” the router will redirect to /login.
       console.warn('useProfile:', err?.message || err);
       setCurrentUser(null);
       setProfile(null);
@@ -54,7 +54,7 @@ export default function useProfile() {
   const refreshProfile = async () => {
     if (!currentUser) return;
     try {
-      const profiles = await base44.entities.UserProfile.filter({ user_email: currentUser.email });
+      const profiles = await firebaseClient.entities.UserProfile.filter({ user_email: currentUser.email });
       if (profiles.length > 0) setProfile(profiles[0]);
     } catch (err) {
       console.warn('refreshProfile:', err?.message || err);
