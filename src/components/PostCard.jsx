@@ -174,7 +174,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
   const displayPhotoUrl = (post.photo_urls && post.photo_urls.length > 0) ? post.photo_urls[0] : (post.photo_url || '');
   const safeDisplayPhotoUrl = displayPhotoUrl?.trim();
   const shareText = `${post.service_type ? `${post.service_type} · ` : ''}${post.text || ''}`.trim();
-  const shareUrl = post.service_location_map_url || window.location.href;
+  const shareUrl = `${window.location.origin}/post/${post.id}`;
 
   const handleShare = async () => {
     if (navigator.share) {

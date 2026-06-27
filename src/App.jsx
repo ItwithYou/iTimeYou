@@ -15,6 +15,7 @@ const Notifications = React.lazy(() => import('./pages/Notifications'));
 const PasswordSettings = React.lazy(() => import('./pages/PasswordSettings'));
 const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
 const HelpCenter = React.lazy(() => import('./pages/HelpCenter'));
+const PostDetail = React.lazy(() => import('./pages/PostDetail'));
 
 const LazyFallback = () => (
   <div className="flex items-center justify-center min-h-[40vh]">
@@ -69,6 +70,7 @@ const AuthenticatedApp = () => {
 
           {/* Public detail pages */}
           <Route path="/listing/:id" element={<ListingDetail />} />
+          <Route path="/post/:id" element={<PostDetail />} />
           <Route path="/profile/:id" element={<Profile />} />
           <Route path="/help" element={<HelpCenter />} />
           <Route path="/reset-password" element={<ResetPassword />} />
