@@ -73,27 +73,26 @@ export default function Home() {
       </section>
 
       {/* Category Navigation (Premium Minimalist Design) */}
-      <section className="py-6 sm:py-8 bg-card/40 backdrop-blur-xl relative z-10 -mt-10 mx-4 sm:mx-8 rounded-2xl sm:rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-border/50 max-w-4xl xl:mx-auto overflow-hidden">
+      <section className="py-6 sm:py-8 bg-card/40 backdrop-blur-xl relative z-10 -mt-10 mx-2 sm:mx-8 rounded-2xl sm:rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-border/50 max-w-4xl xl:mx-auto overflow-hidden">
         {/* Subtle glass reflection effect */}
         <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent dark:from-white/5 opacity-50 pointer-events-none" />
         
-        <div className="flex flex-wrap justify-center gap-6 sm:gap-10 px-6 relative z-10">
+        <div className="flex justify-between sm:justify-center sm:gap-10 px-2 sm:px-6 relative z-10 w-full">
           {BUSINESS_CATS.filter(c => c.key !== 'all').map((cat) => {
             const Icon = iconMap[cat.key] || Globe;
             return (
               <Link
                 key={cat.key}
                 to={`/explore?cat=${cat.key}`}
-                className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0 relative pb-2"
+                className="flex flex-col items-center gap-1.5 sm:gap-2.5 group cursor-pointer flex-shrink-0 relative pb-2"
               >
-                <div className="w-[52px] h-[52px] rounded-full bg-gradient-to-br from-[#faf8f5] to-[#f0e8df] border border-[#e2d5c5] shadow-sm group-hover:shadow-md text-[#8B7355] flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1">
+                <div className="w-[42px] h-[42px] sm:w-[52px] sm:h-[52px] rounded-full bg-gradient-to-br from-[#faf8f5] to-[#f0e8df] border border-[#e2d5c5] shadow-sm group-hover:shadow-md text-[#8B7355] flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1">
                   <Icon
-                    size={22}
-                    className="transition-colors duration-300"
+                    className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] transition-colors duration-300"
                     strokeWidth={1.5}
                   />
                 </div>
-                <span className="text-[11px] font-semibold text-muted-foreground group-hover:text-[#8B7355] transition-colors duration-300 text-center whitespace-nowrap tracking-wide">
+                <span className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground group-hover:text-[#8B7355] transition-colors duration-300 text-center whitespace-nowrap tracking-wide">
                   {lang === 'lo' ? cat.lo : cat.en}
                 </span>
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-[#8B7355] group-hover:w-full transition-all duration-300 rounded-t-full opacity-0 group-hover:opacity-100" />
