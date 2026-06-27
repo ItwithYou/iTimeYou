@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import PhotoGrid from './PhotoGrid';
 import BookServiceModal from './BookServiceModal';
+import { toast } from 'sonner';
 
 import { base44 } from '@/api/base44Client';
 import { CAT_ICONS } from '../hooks/useLang';
