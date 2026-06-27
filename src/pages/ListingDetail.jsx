@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useOutletContext, useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useAppContext } from '../lib/AppContext';
 import MobileDatePicker from '../components/MobileDatePicker';
 import { base44 } from '@/api/base44Client';
 import { Star, MapPin, Users, Bed, Bath, Check, MessageCircle, User } from 'lucide-react';
@@ -15,7 +16,7 @@ import { startOrGetConversation } from '../utils/messaging';
 
 export default function ListingDetail() {
   const { id } = useParams();
-  const { profile, currentUser, t, lang } = useOutletContext();
+  const { profile, currentUser, t, lang } = useAppContext();
   const navigate = useNavigate();
   const [listing, setListing] = useState(null);
   const [host, setHost] = useState(null);

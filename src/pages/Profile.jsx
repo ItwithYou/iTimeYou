@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { useOutletContext, useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
 import MobileSelect from '../components/MobileSelect';
 import StarRating from '../components/StarRating';
@@ -7,7 +8,6 @@ import TrustBadge from '../components/TrustBadge';
 import ListingCard from '../components/ListingCard';
 import PostCard from '../components/PostCard';
 import { MapPin, Calendar, Camera, Shield, Trash2, MessageCircle, KeyRound, BadgeCheck, Building2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import VerificationModal from '../components/VerificationModal';
 import ProVerificationModal from '../components/ProVerificationModal';
@@ -16,8 +16,7 @@ import ImageLightbox from '../components/ImageLightbox';
 
 export default function Profile() {
   const { id } = useParams();
-  const outletContext = useOutletContext();
-  const { profile: myProfile, currentUser, t, lang, refreshProfile } = outletContext || {};
+  const { profile: myProfile, currentUser, t, lang, refreshProfile } = useAppContext();
   const [viewProfile, setViewProfile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [listings, setListings] = useState([]);

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
 import { formatTimestampDMY } from '../utils/dateUtils';
 
 export default function Notifications() {
-  const { currentUser, t, lang } = useOutletContext();
+  const { currentUser, t, lang } = useAppContext();
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {

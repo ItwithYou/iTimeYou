@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { Check, X, KeyRound } from 'lucide-react';
@@ -7,7 +7,7 @@ import ImageLightbox from '../components/ImageLightbox';
 import { formatDateDMY } from '../utils/dateUtils';
 
 export default function AdminVerification() {
-  const { currentUser, lang } = useOutletContext();
+  const { currentUser, lang } = useAppContext();
   const [profiles, setProfiles] = useState([]);
   const [activeTab, setActiveTab] = useState('requests');
   const [lightboxSrc, setLightboxSrc] = useState(null);
