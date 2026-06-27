@@ -69,30 +69,28 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Category pills */}
-      <section className="py-5 bg-card relative z-10 -mt-6 mx-0 sm:mx-4 rounded-t-2xl sm:rounded-2xl shadow-[0_-6px_20px_rgba(0,0,0,0.06)] border border-border/40">
-        <div className="flex justify-center flex-wrap gap-2 sm:gap-6 px-2 sm:px-4 max-w-3xl mx-auto">
+      {/* Category Navigation (Premium Minimalist Design) */}
+      <section className="py-6 bg-background relative z-10 -mt-6 mx-0 sm:mx-4 rounded-t-3xl sm:rounded-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.04)] border border-border/40">
+        <div className="flex justify-center sm:justify-center overflow-x-auto no-scrollbar gap-6 sm:gap-10 px-6 max-w-4xl mx-auto hide-scroll-bar">
           {categories.map((cat, i) => {
-            const { Icon, gradient } = cat;
+            const { Icon } = cat;
             return (
               <Link
                 key={cat.key}
                 to={`/explore?cat=${cat.key}`}
-                className="flex flex-col items-center gap-1.5 group cursor-pointer w-12 sm:w-16"
+                className="flex flex-col items-center gap-2 group cursor-pointer flex-shrink-0 relative pb-2"
               >
-                <div
-                  className={`w-10 h-10 sm:w-13 sm:h-13 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-sm group-hover:scale-105 group-hover:shadow-md transition-all duration-200 relative overflow-hidden`}
-                >
-                  <div className="absolute inset-0 bg-white/15 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-xl" />
+                <div className="w-12 h-12 rounded-full bg-muted/30 group-hover:bg-primary/5 flex items-center justify-center transition-all duration-300">
                   <Icon
-                    size={18}
-                    className="relative z-10 text-white drop-shadow group-hover:-translate-y-px transition-transform duration-200"
-                    strokeWidth={1.8}
+                    size={22}
+                    className="text-muted-foreground group-hover:text-primary transition-colors duration-300"
+                    strokeWidth={1.5}
                   />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-medium text-muted-foreground group-hover:text-primary transition-colors text-center leading-tight">
+                <span className="text-[11px] font-semibold text-muted-foreground group-hover:text-foreground transition-colors duration-300 text-center whitespace-nowrap">
                   {t.categories[i]}
                 </span>
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300 rounded-t-full opacity-0 group-hover:opacity-100" />
               </Link>
             );
           })}
