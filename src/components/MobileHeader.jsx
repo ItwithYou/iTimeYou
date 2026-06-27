@@ -1,5 +1,4 @@
-import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const CHILD_ROUTES = ['/listing/', '/notifications', '/profile/'];
 

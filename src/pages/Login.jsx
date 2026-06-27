@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 function friendlyError(err) {
   // Surface the real cause in the console for diagnostics.
-  // eslint-disable-next-line no-console
+   
   console.error('Auth error:', err?.code, err?.message, err);
   const code = err?.code || '';
   const msg = err?.message || '';

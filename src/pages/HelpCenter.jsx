@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
-import { MessageCircle, Shield, Clock, CheckCircle, ArrowLeft } from 'lucide-react';
+import { MessageCircle, Shield, Clock, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function HelpCenter() {
