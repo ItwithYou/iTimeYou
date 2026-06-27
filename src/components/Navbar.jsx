@@ -4,6 +4,7 @@ import { Home, Compass, Calendar, Wallet, MessageCircle, Bell, ShieldCheck, Help
 import LangToggle from './LangToggle';
 import ThemeToggle from './ThemeToggle';
 import { firebaseClient } from '@/api/firebaseClient';
+import CreateDropdownButton from './CreateDropdownButton';
 
 export default function Navbar({ profile, currentUser, t, lang, setLang }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -27,10 +28,13 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
   return (
     <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border shadow-sm" role="navigation" aria-label="Top navigation" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
-        {/* Logo */}
-        <Link to="/" className="flex items-center flex-shrink-0" aria-label="iTimeYou Home">
-          <span className="text-xl font-black text-primary tracking-tight">iTimeYou</span>
-        </Link>
+        {/* Logo and Premium Button */}
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Link to="/" className="flex items-center flex-shrink-0" aria-label="iTimeYou Home">
+            <span className="text-xl font-black text-primary tracking-tight">iTimeYou</span>
+          </Link>
+          <CreateDropdownButton lang={lang} />
+        </div>
 
         {/* Desktop search */}
         

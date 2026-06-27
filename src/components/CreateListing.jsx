@@ -17,8 +17,8 @@ const AMENITIES_LIST = [
   { key: 'TV', label: 'TV', labelLo: 'ທີວີ' },
 ];
 
-export default function CreateListing({ profile, currentUser, lang, t, onPosted }) {
-  const [open, setOpen] = useState(false);
+export default function CreateListing({ profile, currentUser, lang, t, onPosted, defaultOpen }) {
+  const [open, setOpen] = useState(defaultOpen || false);
   const [title, setTitle] = useState('');
   const [titleLao, setTitleLao] = useState('');
   const [description, setDescription] = useState('');
@@ -158,9 +158,11 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-gradient-to-r from-tiffany/5 to-deep-green/5">
         <h3 className="font-bold text-sm">{lang === 'lo' ? 'ສ້າງລາຍການທີ່ພັກ' : 'Create Accommodation Listing'}</h3>
-        <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground p-1 rounded-lg hover:bg-muted">
-          <X size={16} />
-        </button>
+        {!defaultOpen && (
+          <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground p-1 rounded-lg hover:bg-muted">
+            <X size={16} />
+          </button>
+        )}
       </div>
 
       <div className="p-4 space-y-4 text-sm">

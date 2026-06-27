@@ -16,6 +16,7 @@ const PasswordSettings = React.lazy(() => import('./pages/PasswordSettings'));
 const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
 const HelpCenter = React.lazy(() => import('./pages/HelpCenter'));
 const PostDetail = React.lazy(() => import('./pages/PostDetail'));
+const CreatePost = React.lazy(() => import('./pages/CreatePost'));
 
 const LazyFallback = () => (
   <div className="flex items-center justify-center min-h-[40vh]">
@@ -79,6 +80,7 @@ const AuthenticatedApp = () => {
           <Route path="/notifications" element={<RequireAuth><Notifications /></RequireAuth>} />
           <Route path="/profile/:id/password" element={<RequireAuth><PasswordSettings /></RequireAuth>} />
           <Route path="/admin/verification" element={<RequireAuth><AdminVerification /></RequireAuth>} />
+          <Route path="/create" element={<RequireAuth><CreatePost /></RequireAuth>} />
 
           <Route path="*" element={<PageNotFound />} />
         </Route>

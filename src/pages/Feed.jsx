@@ -249,12 +249,7 @@ export default function Feed() {
         <div className="lg:col-span-3 space-y-4">
           <CategoryTabs activeType="personal" activeCat={filterCat} onSelectCat={setFilterCat} lang={lang} />
           
-          <CreateServicePost
-              profile={profile}
-              currentUser={currentUser}
-              lang={lang}
-              t={t}
-              onPosted={loadPosts} />
+          {/* CreateServicePost moved to dedicated /create page */}
             
           {/* Filter tabs */}
           <div className="space-y-3 mb-4">
