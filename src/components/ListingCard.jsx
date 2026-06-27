@@ -207,7 +207,6 @@ export default function ListingCard({ listing, t, lang }) {
                    {convertAndFormatPrice(listing.price, listing.currency, preferredCurrency, exchangeRates)}
                  </span>
                </div>
-               <span className="text-muted-foreground text-[9px] uppercase font-bold tracking-widest mt-1 opacity-70">{t.perNight || '/night'}</span>
              </div>
              <Link to={`/listing/${listing.id}`} className="bg-primary text-primary-foreground px-4 py-2 rounded-xl text-sm font-semibold shadow-sm hover:opacity-90 transition-opacity">
                {lang === 'lo' ? 'ຈອງ' : 'Book'}
