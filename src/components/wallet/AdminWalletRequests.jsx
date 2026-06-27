@@ -167,7 +167,7 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
 
       const currency = tx.currency || 'USD';
       const balanceField = getCurrencyBalanceField(currency);
-      const targetBalance = targetProfile[balanceField] || 0;
+      const targetBalance = Number(targetProfile[balanceField]) || 0;
 
     if (tx.request_kind === 'topup' || tx.request_kind === 'receive') {
       await base44.entities.UserProfile.update(targetProfile.id, {
@@ -199,8 +199,9 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
         const receiver = receiverProfiles[0];
         if (receiver) {
           const receiverBalanceField = getCurrencyBalanceField(currency);
+          const receiverBalance = Number(receiver[receiverBalanceField]) || 0;
           await base44.entities.UserProfile.update(receiver.id, {
-            [receiverBalanceField]: (receiver[receiverBalanceField] || 0) + Math.abs(tx.amount),
+            [receiverBalanceField]: receiverBalance + Math.abs(tx.amount),
             wallet_currency: currency,
           });
           await base44.entities.WalletTransaction.create({

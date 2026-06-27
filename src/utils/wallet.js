@@ -6,9 +6,9 @@ export const DEFAULT_EXCHANGE_RATES = {
 };
 
 export function getTotalLakBalance(profile, exchangeRates = DEFAULT_EXCHANGE_RATES) {
-  const lak = profile?.wallet_balance_lak || 0;
-  const usd = profile?.wallet_balance_usd || 0;
-  const usdt = profile?.wallet_balance_usdt || 0;
+  const lak = Number(profile?.wallet_balance_lak) || 0;
+  const usd = Number(profile?.wallet_balance_usd) || 0;
+  const usdt = Number(profile?.wallet_balance_usdt) || 0;
   const usdRate = exchangeRates?.usdBuy || DEFAULT_EXCHANGE_RATES.usdBuy;
   const usdtRate = exchangeRates?.usdtBuy || usdRate;
 
@@ -34,9 +34,9 @@ export function deductCrossCurrencyBalance(profile, amount, currency, exchangeRa
   if (totalLak < amountLak) return null;
 
   let remainingLak = amountLak;
-  let nextLak = profile?.wallet_balance_lak || 0;
-  let nextUsd = profile?.wallet_balance_usd || 0;
-  let nextUsdt = profile?.wallet_balance_usdt || 0;
+  let nextLak = Number(profile?.wallet_balance_lak) || 0;
+  let nextUsd = Number(profile?.wallet_balance_usd) || 0;
+  let nextUsdt = Number(profile?.wallet_balance_usdt) || 0;
 
   const takeLak = Math.min(nextLak, remainingLak);
   nextLak -= takeLak;
@@ -69,7 +69,7 @@ export function exchangeWalletBalance(profile, fromCurrency, toCurrency, amount,
 
   const fromField = fromCurrency === 'LAK' ? 'wallet_balance_lak' : fromCurrency === 'USDT' ? 'wallet_balance_usdt' : 'wallet_balance_usd';
   const toField = toCurrency === 'LAK' ? 'wallet_balance_lak' : toCurrency === 'USDT' ? 'wallet_balance_usdt' : 'wallet_balance_usd';
-  const currentFromBalance = profile?.[fromField] || 0;
+  const currentFromBalance = Number(profile?.[fromField]) || 0;
 
   if (!amount || amount <= 0 || currentFromBalance < amount) return null;
 
@@ -77,22 +77,22 @@ export function exchangeWalletBalance(profile, fromCurrency, toCurrency, amount,
   const convertedAmount = convertFromLak(amountLak, toCurrency, exchangeRates);
 
   const nextLak = toField === 'wallet_balance_lak'
-    ? (profile?.wallet_balance_lak || 0) + convertedAmount
+    ? (Number(profile?.wallet_balance_lak) || 0) + convertedAmount
     : fromField === 'wallet_balance_lak'
     ? currentFromBalance - amount
-    : (profile?.wallet_balance_lak || 0);
+    : (Number(profile?.wallet_balance_lak) || 0);
 
   const nextUsd = toField === 'wallet_balance_usd'
-    ? (profile?.wallet_balance_usd || 0) + convertedAmount
+    ? (Number(profile?.wallet_balance_usd) || 0) + convertedAmount
     : fromField === 'wallet_balance_usd'
     ? currentFromBalance - amount
-    : (profile?.wallet_balance_usd || 0);
+    : (Number(profile?.wallet_balance_usd) || 0);
 
   const nextUsdt = toField === 'wallet_balance_usdt'
-    ? (profile?.wallet_balance_usdt || 0) + convertedAmount
+    ? (Number(profile?.wallet_balance_usdt) || 0) + convertedAmount
     : fromField === 'wallet_balance_usdt'
     ? currentFromBalance - amount
-    : (profile?.wallet_balance_usdt || 0);
+    : (Number(profile?.wallet_balance_usdt) || 0);
 
   return {
     wallet_balance_lak: Number(nextLak.toFixed(6)),
