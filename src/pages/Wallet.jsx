@@ -141,11 +141,11 @@ export default function Wallet() {
       )}
 
       {/* Premium wallet card */}
-      <div className="relative mb-4 overflow-hidden rounded-[26px] p-6 text-white shadow-[0_24px_60px_-12px_rgba(4,51,44,0.45)] bg-gradient-to-br from-[#0e8273] via-[#0a5f54] to-[#06352f]">
+      <div className="relative mb-6 overflow-hidden rounded-[28px] p-6 text-white shadow-2xl bg-gradient-to-tr from-slate-900 via-slate-800 to-emerald-950 border border-white/10">
         {/* decorative glows */}
-        <div className="pointer-events-none absolute -top-16 -right-12 h-52 w-52 rounded-full bg-[#23e8cc]/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 -left-10 h-52 w-52 rounded-full bg-amber-300/10 blur-3xl" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.12),transparent_38%)]" />
+        <div className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full bg-emerald-500/20 blur-[80px]" />
+        <div className="pointer-events-none absolute -bottom-20 -left-10 h-64 w-64 rounded-full bg-blue-500/20 blur-[80px]" />
+        <div className="pointer-events-none absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/noise-lines.png')] opacity-10 mix-blend-overlay" />
 
         <div className="relative">
           {/* Top row: brand + chip */}
@@ -189,17 +189,18 @@ export default function Wallet() {
       </div>
 
       {/* Actions */}
-      <div className="mb-4 grid grid-cols-5 gap-2">
+      <div className="mb-6 flex justify-between px-1">
         {actions.map((btn) => (
           <button
             key={btn.key}
             onClick={() => { if (requireVerified()) setActionType(btn.key); }}
-            className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card py-3 shadow-sm transition-all hover:border-primary/40 hover:shadow-md active:scale-95"
+            className="group flex flex-col items-center gap-2.5"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <btn.icon size={18} />
+            <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-[18px] bg-card border border-border shadow-sm transition-all duration-200 group-hover:shadow-md group-hover:-translate-y-1 group-active:scale-95 group-active:translate-y-0 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <btn.icon size={20} className="text-emerald-600 relative z-10" />
             </div>
-            <span className="text-[10px] font-semibold text-foreground leading-tight text-center">{btn.label}</span>
+            <span className="text-[10px] sm:text-[11px] font-semibold text-foreground/80 leading-tight text-center tracking-wide">{btn.label}</span>
           </button>
         ))}
       </div>
