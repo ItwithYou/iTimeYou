@@ -1,26 +1,29 @@
 export default function LangToggle({ lang, setLang }) {
+  const isLao = lang === 'lo';
+
   return (
-    <div className="flex gap-0.5 bg-muted rounded-full p-0.5 border border-border">
-      <button
-        onClick={() => setLang('en')}
-        className={`px-2.5 py-1 rounded-full text-xs font-bold transition-all ${
-          lang === 'en'
-            ? 'bg-gradient-to-r from-tiffany to-deep-green text-white shadow-sm'
-            : 'text-muted-foreground hover:text-foreground'
-        }`}
-      >
-        EN
-      </button>
-      <button
-        onClick={() => setLang('lo')}
-        className={`px-2.5 py-1 rounded-full text-xs font-bold transition-all font-lao ${
-          lang === 'lo'
-            ? 'bg-gradient-to-r from-tiffany to-deep-green text-white shadow-sm'
-            : 'text-muted-foreground hover:text-foreground'
-        }`}
-      >
-        ລາວ
-      </button>
-    </div>
+    <button
+      onClick={() => setLang(isLao ? 'en' : 'lo')}
+      title={isLao ? 'Switch to English' : 'ປ່ຽນເປັນພາສາລາວ'}
+      className="
+        relative flex items-center gap-1.5
+        bg-muted border border-border
+        rounded-full px-3 py-1
+        text-xs font-bold
+        hover:border-primary/50 hover:bg-primary/5
+        transition-all duration-200 select-none
+      "
+    >
+      {/* Animated dot indicator */}
+      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+      {/* Show current lang label + hint of other */}
+      <span className="text-foreground tracking-wide">
+        {isLao ? 'ລາວ' : 'EN'}
+      </span>
+      <span className="text-muted-foreground/50">·</span>
+      <span className="text-muted-foreground/60 font-medium">
+        {isLao ? 'EN' : 'ລາວ'}
+      </span>
+    </button>
   );
 }
