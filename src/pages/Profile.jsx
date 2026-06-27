@@ -111,7 +111,7 @@ export default function Profile() {
       location: editData.location || '',
       gender: editData.gender || '',
       birthdate: editData.birthdate || '',
-      preferred_currency: editData.preferred_currency || 'LAK',
+      wallet_currency: editData.preferred_currency || 'LAK',
     };
     try {
       await base44.entities.UserProfile.update(viewProfile.id, payload);
