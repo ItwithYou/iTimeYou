@@ -44,10 +44,10 @@ export default function Feed() {
   // Automated one-time seeder for premium demo data — Yakuci admin posts
   useEffect(() => {
     const seedData = async () => {
-      if (localStorage.getItem('seeded_yakuci_v2')) return;
-      localStorage.setItem('seeded_yakuci_v2', 'true');
+      if (localStorage.getItem('seeded_yakuci_v3')) return;
+      localStorage.setItem('seeded_yakuci_v3', 'true');
 
-      // Clean up old corrupted demo posts from previous seeders
+      // Clean up old demo posts
       try {
         const oldPosts = await base44.entities.Post.list('-created_date', 200);
         const toDelete = oldPosts.filter(p =>
@@ -67,78 +67,78 @@ export default function Feed() {
       const DEMO_POSTS = [
         {
           category: 'culture',
-          text: 'Stunning morning views at the golden stupa in Vientiane. The heritage here is incredibly well-preserved! 🙏✨',
-          text_en: 'Stunning morning views at the golden stupa in Vientiane. The heritage here is incredibly well-preserved! 🙏✨',
-          text_lo: 'ທັດສະນີຍະພາບຍາມເຊົ້າທີ່ງົດງາມຂອງທາດຫຼວງທອງໃນນະຄອນຫຼວງວຽງຈັນ. ມໍລະດົກທາງວັດທະນະທຳທີ່ນີ້ຖືກຮັກສາໄວ້ຢ່າງດີ! 🙏✨',
+          text: 'ປີໃໝ່ມົ້ງ 2026! ເທດສະການທີ່ສວຍງາມທີ່ສຸດ — ເຕັ້ນລຳ, ເກມໂຍນລູກບານ, ແລະ ຊຸດມົ້ງດັ້ງເດີມ. ມາສະເຫຼີມສະຫຼອງນຳກັນ! 🎊🌸',
+          text_en: 'Hmong New Year 2026! The most beautiful festival — traditional dances, ball-tossing games, and stunning Hmong costumes. Come celebrate with us! 🎊🌸',
+          text_lo: 'ປີໃໝ່ມົ້ງ 2026! ເທດສະການທີ່ສວຍງາມທີ່ສຸດ — ເຕັ້ນລຳ, ເກມໂຍນລູກບານ, ແລະ ຊຸດມົ້ງດັ້ງເດີມ. ມາສະເຫຼີມສະຫຼອງນຳກັນ! 🎊🌸',
           photo_urls: [
-            'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
-            'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800&q=80',
-            'https://images.unsplash.com/photo-1540122995631-7c74c31c2cf5?w=800&q=80',
-            'https://images.unsplash.com/photo-1504214208698-ea446f65c935?w=800&q=80',
-            'https://images.unsplash.com/photo-1493780474015-ba834fd0ce2f?w=800&q=80'
+            'https://images.unsplash.com/photo-1596489481283-36cb9eb070d6?w=800&q=80',
+            'https://images.unsplash.com/photo-1628174542289-4b68ce46b1eb?w=800&q=80',
+            'https://images.unsplash.com/photo-1582236371720-3351ec8f26db?w=800&q=80',
+            'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&q=80',
+            'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80'
           ],
-          photo_url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
+          photo_url: 'https://images.unsplash.com/photo-1596489481283-36cb9eb070d6?w=800&q=80',
           service_price: 0,
         },
         {
-          category: 'nature',
-          text: 'Hidden jungle waterfalls that take your breath away. The hike was tough but absolutely worth every step! 🌿💦',
-          text_en: 'Hidden jungle waterfalls that take your breath away. The hike was tough but absolutely worth every step! 🌿💦',
-          text_lo: 'ນ້ຳຕົກໃນປ່າເລິກທີ່ເຮັດໃຫ້ຫາຍໃຈບໍ່ທັນ. ການຍ່າງປ່າແມ່ນໜັກແຕ່ຄຸ້ມຄ່າທຸກບາດກ້າວ! 🌿💦',
+          category: 'food',
+          text: 'ເຊີນມາກິນເຂົ້ານຳຄອບຄົວລາວແທ້ໆ! ລາບ, ຕຳໝາກຫຸ່ງ, ປີ້ງໄກ່, ເຂົ້າໜຽວ — ອາຫານເຮັດສົດໆຈາກສວນຫຼັງບ້ານ. ປະສົບການທີ່ອົບອຸ່ນ ແລະ ເປັນກັນເອງ 🏡🍚',
+          text_en: 'Join a real Lao family dinner at home! Laab, papaya salad, grilled chicken, sticky rice — all freshly made from the backyard garden. A warm and authentic home-hosted experience 🏡🍚',
+          text_lo: 'ເຊີນມາກິນເຂົ້ານຳຄອບຄົວລາວແທ້ໆ! ລາບ, ຕຳໝາກຫຸ່ງ, ປີ້ງໄກ່, ເຂົ້າໜຽວ — ອາຫານເຮັດສົດໆຈາກສວນຫຼັງບ້ານ. ປະສົບການທີ່ອົບອຸ່ນ ແລະ ເປັນກັນເອງ 🏡🍚',
           photo_urls: [
+            'https://images.unsplash.com/photo-1559314809-0d155014e29e?w=800&q=80',
+            'https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?w=800&q=80',
+            'https://images.unsplash.com/photo-1547592180-85f173990554?w=800&q=80',
+            'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&q=80',
+            'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80'
+          ],
+          photo_url: 'https://images.unsplash.com/photo-1559314809-0d155014e29e?w=800&q=80',
+          service_price: 15, service_type: 'Family Dinner', service_location: 'Vientiane Home', service_currency: 'USD',
+        },
+        {
+          category: 'experience',
+          text: 'ນັດລົມກັບຜູ້ຊ່ຽວຊານດ້ານວັດທະນະທຳລາວ! ຮຽນຮູ້ກ່ຽວກັບປະເພນີບາສີ, ການຖັກແສ່ວ, ແລະ ປະຫວັດສາດຊົນເຜົ່າ. ຈອງເວລາ 1 ຊົ່ວໂມງ ເພື່ອສົນທະນາສ່ວນຕົວ 🎓🇱🇦',
+          text_en: 'Book a 1-on-1 session with a Lao cultural expert! Learn about Baci traditions, silk weaving heritage, and ethnic group history. 1-hour private consultation available 🎓🇱🇦',
+          text_lo: 'ນັດລົມກັບຜູ້ຊ່ຽວຊານດ້ານວັດທະນະທຳລາວ! ຮຽນຮູ້ກ່ຽວກັບປະເພນີບາສີ, ການຖັກແສ່ວ, ແລະ ປະຫວັດສາດຊົນເຜົ່າ. ຈອງເວລາ 1 ຊົ່ວໂມງ ເພື່ອສົນທະນາສ່ວນຕົວ 🎓🇱🇦',
+          photo_urls: [
+            'https://images.unsplash.com/photo-1615568153396-1c0b115682b7?w=800&q=80',
+            'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80',
+            'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
+            'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80',
+            'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80'
+          ],
+          photo_url: 'https://images.unsplash.com/photo-1615568153396-1c0b115682b7?w=800&q=80',
+          service_price: 25, service_type: 'Expert Session', service_location: 'Online / Vientiane', service_currency: 'USD',
+        },
+        {
+          category: 'nature',
+          text: 'ທຳມະຊາດຂອງລາວງາມຫຼາຍ! ນ້ຳຕົກຕາດກວາງຊີ ນ້ຳໃສສີຟ້າທີ່ບໍ່ເຄີຍເຫັນມາກ່ອນ. ການເດີນປ່າຍາກແຕ່ຄຸ້ມຄ່າ — ທຳມະຊາດລາວບໍ່ມີບ່ອນໃດທຽບໄດ້ ⛰️💚',
+          text_en: 'Lao nature is unmatched! Kuang Si Falls with crystal-clear turquoise water like nowhere else. The trek is challenging but so worth it — nothing compares to Lao wilderness ⛰️💚',
+          text_lo: 'ທຳມະຊາດຂອງລາວງາມຫຼາຍ! ນ້ຳຕົກຕາດກວາງຊີ ນ້ຳໃສສີຟ້າທີ່ບໍ່ເຄີຍເຫັນມາກ່ອນ. ການເດີນປ່າຍາກແຕ່ຄຸ້ມຄ່າ — ທຳມະຊາດລາວບໍ່ມີບ່ອນໃດທຽບໄດ້ ⛰️💚',
+          photo_urls: [
+            'https://images.unsplash.com/photo-1596489370076-2f7881c12cc8?w=800&q=80',
+            'https://images.unsplash.com/photo-1561081734-7db3e1345d3f?w=800&q=80',
             'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800&q=80',
             'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80',
-            'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=800&q=80',
-            'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
-            'https://images.unsplash.com/photo-1446329813274-7c9036bd9a1f?w=800&q=80'
+            'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=800&q=80'
           ],
-          photo_url: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800&q=80',
+          photo_url: 'https://images.unsplash.com/photo-1596489370076-2f7881c12cc8?w=800&q=80',
           service_price: 0,
         },
         {
           category: 'stay',
-          text: 'Luxury riverside villa available now. Private infinity pool overlooking the Mekong — your perfect weekend escape! 🌊🏨',
-          text_en: 'Luxury riverside villa available now. Private infinity pool overlooking the Mekong — your perfect weekend escape! 🌊🏨',
-          text_lo: 'ວິນລ້າລະດັບຫ້ອງດາວຫ້າຕິດແມ່ນ້ຳຂອງ. ສະລອຍນ້ຳສ່ວນຕົວແບບ infinity ເບິ່ງເຫັນແມ່ນ້ຳຂອງ — ສະຖານທີ່ພັກຜ່ອນທີ່ສົມບູນແບບ! 🌊🏨',
+          text: 'ເຮືອນພັກແບບລາວດັ້ງເດີມຕິດແມ່ນ້ຳຂອງ ຢູ່ຫຼວງພະບາງ. ຕື່ນມາຕອນເຊົ້າຟັງສຽງນ້ຳ, ເບິ່ງຂະບວນຕັກບາດ, ແລະ ກິນເຂົ້າເຊົ້າແບບລາວ ☀️🏘️',
+          text_en: 'Traditional Lao riverside guesthouse in Luang Prabang. Wake up to the sound of the Mekong, watch the morning alms giving, and enjoy an authentic Lao breakfast ☀️🏘️',
+          text_lo: 'ເຮືອນພັກແບບລາວດັ້ງເດີມຕິດແມ່ນ້ຳຂອງ ຢູ່ຫຼວງພະບາງ. ຕື່ນມາຕອນເຊົ້າຟັງສຽງນ້ຳ, ເບິ່ງຂະບວນຕັກບາດ, ແລະ ກິນເຂົ້າເຊົ້າແບບລາວ ☀️🏘️',
           photo_urls: [
-            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
-            'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&q=80',
+            'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80',
             'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80',
             'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80',
-            'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&q=80'
+            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
+            'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&q=80'
           ],
-          photo_url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
-          service_price: 250, service_type: 'Luxury Villa', service_location: 'Luang Prabang', service_currency: 'USD',
-        },
-        {
-          category: 'food',
-          text: 'The best Khao Soi in town! Rich, spicy, and absolutely packed with flavor. A must-try Lao experience. 🍜🌶️',
-          text_en: 'The best Khao Soi in town! Rich, spicy, and absolutely packed with flavor. A must-try Lao experience. 🍜🌶️',
-          text_lo: 'ເຂົ້າຊອຍທີ່ແຊບທີ່ສຸດໃນເມືອງ! ເຂັ້ມຂຸ້ນ, ເຜັດ, ແລະ ເຕັມໄປດ້ວຍລົດຊາດ. ຕ້ອງລອງເມື່ອມາລາວ! 🍜🌶️',
-          photo_urls: [
-            'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80',
-            'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=800&q=80',
-            'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80',
-            'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=800&q=80',
-            'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=800&q=80'
-          ],
-          photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80',
-          service_price: 5, service_type: 'Local Cuisine', service_location: 'Night Market', service_currency: 'USD',
-        },
-        {
-          category: 'experience',
-          text: 'Sunset cruise down the Mekong river. Includes a traditional dinner and drinks on board — pure magic! 🛥️🍷',
-          text_en: 'Sunset cruise down the Mekong river. Includes a traditional dinner and drinks on board — pure magic! 🛥️🍷',
-          text_lo: 'ລ່ອງເຮືອຊົມພະອາທິດຕົກດິນລົງແມ່ນ້ຳຂອງ. ລວມອາຫານຄ່ຳແບບດັ້ງເດີມ ແລະ ເຄື່ອງດື່ມເທິງເຮືອ — ມະຫັດສະຈັນແທ້ໆ! 🛥️🍷',
-          photo_urls: [
-            'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
-            'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
-            'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
-            'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80',
-            'https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=800&q=80'
-          ],
-          photo_url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
-          service_price: 60, service_type: 'River Cruise', service_location: 'Mekong River', service_currency: 'USD',
+          photo_url: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80',
+          service_price: 45, service_type: 'Lao Guesthouse', service_location: 'Luang Prabang', service_currency: 'USD/night',
         },
       ];
 

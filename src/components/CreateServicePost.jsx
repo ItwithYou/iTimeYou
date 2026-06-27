@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { X, Image, Clock, Calendar, DollarSign, Loader2, MapPin, LocateFixed } from 'lucide-react';
 import MobileSelect from './MobileSelect';
+import PhotoGrid from './PhotoGrid';
 import { toast } from 'sonner';
 import { getTodayISO, getNowDatetimeLocal, isDateInPast, isDateTimeInPast, formatDateDMY, formatDateTimeDMY } from '../utils/dateUtils';
 
@@ -282,29 +283,10 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
           />
         </div>
 
-        {/* Photo previews */}
+        {/* Photo previews - Facebook style grid */}
         {photoPreviews.length > 0 && (
-          <div className="ml-12 flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-            {photoPreviews.map((preview, i) => (
-              <div key={i} className="relative flex-shrink-0">
-                <img src={preview} alt="" className="h-24 w-24 rounded-xl border border-border object-cover" />
-                <button
-                  onClick={() => removePhoto(i)}
-                  className="absolute -top-1.5 -right-1.5 bg-black/70 text-white rounded-full w-5 h-5 flex items-center justify-center"
-                >
-                  <X size={10} />
-                </button>
-              </div>
-            ))}
-            {photoFiles.length < 10 && (
-              <button
-                type="button"
-                onClick={() => photoInputRef.current?.click()}
-                className="h-24 w-24 rounded-xl border-2 border-dashed border-border flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors flex-shrink-0"
-              >
-                <span className="text-2xl">+</span>
-              </button>
-            )}
+          <div className="mx-4 mb-4 rounded-xl overflow-hidden border border-border">
+            <PhotoGrid photos={photoPreviews} onRemove={removePhoto} />
           </div>
         )}
 

@@ -60,10 +60,10 @@ function Lightbox({ photos, startIndex, onClose }) {
   );
 }
 
-function Tile({ src, onClick, className = '', overlay }) {
+function Tile({ src, onClick, className = '', overlay, onRemove, index }) {
   return (
     <div
-      className={`relative overflow-hidden ${className}`}
+      className={`relative group overflow-hidden ${className}`}
       onClick={onClick}
       onTouchEnd={(e) => { e.stopPropagation(); onClick?.(); }}
       style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
@@ -78,15 +78,23 @@ function Tile({ src, onClick, className = '', overlay }) {
         onError={(e) => { e.target.style.display = 'none'; }}
       />
       {overlay && (
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center pointer-events-none">
           <span className="text-white text-2xl font-bold">+{overlay}</span>
         </div>
+      )}
+      {onRemove && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onRemove(index); }}
+          className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center hover:bg-black/80 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <X size={14} />
+        </button>
       )}
     </div>
   );
 }
 
-export default function PhotoGrid({ photos }) {
+export default function PhotoGrid({ photos, onRemove }) {
   const [lightboxIdx, setLightboxIdx] = useState(null);
 
   if (!photos || photos.length === 0) return null;
@@ -100,35 +108,35 @@ export default function PhotoGrid({ photos }) {
       {/* 1 photo — full width */}
       {count === 1 && (
         <div className="max-h-96 overflow-hidden">
-          <Tile src={photos[0]} onClick={() => open(0)} className="aspect-video" />
+          <Tile src={photos[0]} index={0} onRemove={onRemove} onClick={() => open(0)} className="aspect-video" />
         </div>
       )}
 
       {/* 2 photos — side by side */}
       {count === 2 && (
         <div className="grid grid-cols-2 gap-0.5 max-h-72 overflow-hidden">
-          <Tile src={photos[0]} onClick={() => open(0)} className="aspect-square" />
-          <Tile src={photos[1]} onClick={() => open(1)} className="aspect-square" />
+          <Tile src={photos[0]} index={0} onRemove={onRemove} onClick={() => open(0)} className="aspect-square" />
+          <Tile src={photos[1]} index={1} onRemove={onRemove} onClick={() => open(1)} className="aspect-square" />
         </div>
       )}
 
       {/* 3 photos — 1 big left + 2 stacked right */}
       {count === 3 && (
         <div className="grid grid-cols-2 grid-rows-2 gap-0.5 h-72 overflow-hidden">
-          <Tile src={photos[0]} onClick={() => open(0)} className="row-span-2" />
-          <Tile src={photos[1]} onClick={() => open(1)} />
-          <Tile src={photos[2]} onClick={() => open(2)} />
+          <Tile src={photos[0]} index={0} onRemove={onRemove} onClick={() => open(0)} className="row-span-2" />
+          <Tile src={photos[1]} index={1} onRemove={onRemove} onClick={() => open(1)} />
+          <Tile src={photos[2]} index={2} onRemove={onRemove} onClick={() => open(2)} />
         </div>
       )}
 
       {/* 4 photos — 1 big top + 3 equal bottom */}
       {count === 4 && (
         <div className="grid grid-rows-2 gap-0.5 h-80 overflow-hidden">
-          <Tile src={photos[0]} onClick={() => open(0)} />
+          <Tile src={photos[0]} index={0} onRemove={onRemove} onClick={() => open(0)} />
           <div className="grid grid-cols-3 gap-0.5">
-            <Tile src={photos[1]} onClick={() => open(1)} />
-            <Tile src={photos[2]} onClick={() => open(2)} />
-            <Tile src={photos[3]} onClick={() => open(3)} />
+            <Tile src={photos[1]} index={1} onRemove={onRemove} onClick={() => open(1)} />
+            <Tile src={photos[2]} index={2} onRemove={onRemove} onClick={() => open(2)} />
+            <Tile src={photos[3]} index={3} onRemove={onRemove} onClick={() => open(3)} />
           </div>
         </div>
       )}
@@ -137,14 +145,16 @@ export default function PhotoGrid({ photos }) {
       {count >= 5 && (
         <div className="grid grid-rows-2 gap-0.5 h-80 overflow-hidden">
           <div className="grid grid-cols-2 gap-0.5">
-            <Tile src={photos[0]} onClick={() => open(0)} />
-            <Tile src={photos[1]} onClick={() => open(1)} />
+            <Tile src={photos[0]} index={0} onRemove={onRemove} onClick={() => open(0)} />
+            <Tile src={photos[1]} index={1} onRemove={onRemove} onClick={() => open(1)} />
           </div>
           <div className="grid grid-cols-3 gap-0.5">
-            <Tile src={photos[2]} onClick={() => open(2)} />
-            <Tile src={photos[3]} onClick={() => open(3)} />
+            <Tile src={photos[2]} index={2} onRemove={onRemove} onClick={() => open(2)} />
+            <Tile src={photos[3]} index={3} onRemove={onRemove} onClick={() => open(3)} />
             <Tile
               src={photos[4]}
+              index={4}
+              onRemove={onRemove}
               onClick={() => open(4)}
               overlay={remaining > 0 ? remaining : undefined}
             />
