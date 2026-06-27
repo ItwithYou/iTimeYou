@@ -3,7 +3,7 @@ import { ArrowRightLeft, X } from 'lucide-react';
 import MobileSelect from '../MobileSelect';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { DEFAULT_EXCHANGE_RATES, convertFromLak, convertToLak, exchangeWalletBalance } from '../../utils/wallet';
+import { convertFromLak, convertToLak, exchangeWalletBalance } from '../../utils/wallet';
 
 const BANKS = ['BCEL', 'LDB'];
 const CURRENCIES = ['LAK', 'USD', 'USDT'];
@@ -24,7 +24,7 @@ function FileUploadButton({ label, accept, onChange }) {
   );
 }
 
-export default function WalletActionModal({ type, currentUser, profile, lang, onClose, onSubmitted }) {
+export default function WalletActionModal({ type, currentUser, profile, lang, exchangeRates, onClose, onSubmitted }) {
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState(profile?.wallet_currency || 'USD');
   const [accountNumber, setAccountNumber] = useState('');
@@ -48,13 +48,13 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
   const exchangePreview = useMemo(() => {
     const numericAmount = Number(amount);
     if (type !== 'exchange' || !numericAmount || numericAmount <= 0 || currency === exchangeToCurrency) return null;
-    const amountLak = convertToLak(numericAmount, currency, DEFAULT_EXCHANGE_RATES);
-    const receivedAmount = convertFromLak(amountLak, exchangeToCurrency, DEFAULT_EXCHANGE_RATES);
+    const amountLak = convertToLak(numericAmount, currency, exchangeRates);
+    const receivedAmount = convertFromLak(amountLak, exchangeToCurrency, exchangeRates);
     return {
       amountLak,
       receivedAmount,
     };
-  }, [amount, currency, exchangeToCurrency, type]);
+  }, [amount, currency, exchangeToCurrency, type, exchangeRates]);
 
   useEffect(() => {
     const loadAccountSettings = async () => {
@@ -132,7 +132,7 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
       .then(async () => {
         if (type === 'exchange') {
           const numericAmount = Number(amount);
-          const nextBalances = exchangeWalletBalance(profile, currency, exchangeToCurrency, numericAmount, DEFAULT_EXCHANGE_RATES);
+          const nextBalances = exchangeWalletBalance(profile, currency, exchangeToCurrency, numericAmount, exchangeRates);
           if (!nextBalances) {
             toast.error(lang === 'lo' ? 'ຍອດເງິນບໍ່ພໍ' : 'Insufficient balance');
             return;

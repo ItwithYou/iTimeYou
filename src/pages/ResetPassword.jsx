@@ -18,21 +18,36 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState('');
+  const [oobCode, setOobCode] = useState('');
 
   useEffect(() => {
     const tokenParam = searchParams.get('token');
     const emailParam = searchParams.get('email');
+    const oobParam = searchParams.get('oobCode');
     
-    if (tokenParam && emailParam) {
+    if (oobParam) {
+      setOobCode(oobParam);
+      setMode('reset');
+      verifyOobCode(oobParam);
+    } else if (tokenParam && emailParam) {
       setToken(tokenParam);
       setEmail(emailParam);
       setMode('reset');
-      // Verify token
       verifyToken(tokenParam, emailParam);
     } else {
       setMode('request');
     }
   }, [searchParams]);
+
+  const verifyOobCode = async (code) => {
+    try {
+      await base44.auth.verifyResetCode(code);
+      setVerified(true);
+    } catch (err) {
+      setError(err.message || 'Invalid or expired reset link');
+      setVerified(false);
+    }
+  };
 
   const verifyToken = async (tokenParam, emailParam) => {
     try {
@@ -80,12 +95,10 @@ export default function ResetPassword() {
     setLoading(true);
     
     try {
-      const res = await base44.functions.invoke('sendPasswordResetEmail', { email });
-      
-      if (res.data.success) {
-        toast.success('Password reset email sent! Please check your inbox.');
-        setEmail('');
-      }
+      // Use Firebase native reset password mail sender
+      await base44.auth.resetPassword(email);
+      toast.success('Password reset email sent! Please check your inbox.');
+      setEmail('');
     } catch (error) {
       toast.error(error.message || 'Failed to send reset email');
     } finally {
@@ -109,13 +122,14 @@ export default function ResetPassword() {
     setLoading(true);
     
     try {
-      // Update the user's password
-      await base44.auth.updateMe({ password });
-      
-      // Mark the reset token as used
-      const resets = await base44.entities.PasswordReset.filter({ token });
-      if (resets.length > 0) {
-        await base44.entities.PasswordReset.update(resets[0].id, { used: true });
+      if (oobCode) {
+        await base44.auth.confirmReset(oobCode, password);
+      } else {
+        await base44.auth.updateMe({ password });
+        const resets = await base44.entities.PasswordReset.filter({ token });
+        if (resets.length > 0) {
+          await base44.entities.PasswordReset.update(resets[0].id, { used: true });
+        }
       }
       
       toast.success('Password reset successfully! Redirecting to login...');

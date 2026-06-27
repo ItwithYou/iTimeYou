@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
@@ -214,18 +214,41 @@ export default function Wallet() {
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-3 gap-3 mb-5">
-        {[
-          { label: lang === 'lo' ? 'ການໄຫຼເຂົ້າ' : 'Money In', value: `+$${transactions.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0)}`, color: 'text-success' },
-          { label: lang === 'lo' ? 'ການໄຫຼອອກ' : 'Money Out', value: `-$${Math.abs(transactions.filter(t => t.amount < 0).reduce((s, t) => s + t.amount, 0))}`, color: 'text-destructive' },
-          { label: lang === 'lo' ? 'ທຸລະກຳ' : 'Transactions', value: transactions.length, color: 'text-foreground' },
-        ].map(stat => (
-          <div key={stat.label} className="bg-card rounded-2xl p-3 text-center border border-border shadow-sm">
-            <p className={`font-semibold text-[13px] sm:text-[14px] tracking-[-0.02em] leading-tight break-all ${stat.color}`}>{stat.value}</p>
-            <p className="text-xs text-muted-foreground mt-1 leading-tight">{stat.label}</p>
+      {(() => {
+        const getTransactionAmountInUsd = (tx) => {
+          const amount = tx.amount || 0;
+          const currency = tx.currency || 'USD';
+          if (currency === 'USD') return amount;
+          if (currency === 'USDT') return amount;
+          if (currency === 'LAK' && usdReferenceRate > 0) {
+            return amount / usdReferenceRate;
+          }
+          return amount;
+        };
+
+        const moneyInUsd = transactions
+          .filter(t => t.amount > 0 && (t.status === 'completed' || t.status === 'approved'))
+          .reduce((s, t) => s + getTransactionAmountInUsd(t), 0);
+
+        const moneyOutUsd = transactions
+          .filter(t => t.amount < 0 && (t.status === 'completed' || t.status === 'approved'))
+          .reduce((s, t) => s + getTransactionAmountInUsd(t), 0);
+
+        return (
+          <div className="grid grid-cols-3 gap-3 mb-5">
+            {[
+              { label: lang === 'lo' ? 'ການໄຫຼເຂົ້າ' : 'Money In', value: `+$${moneyInUsd.toFixed(2)}`, color: 'text-success' },
+              { label: lang === 'lo' ? 'ການໄຫຼອອກ' : 'Money Out', value: `-$${Math.abs(moneyOutUsd).toFixed(2)}`, color: 'text-destructive' },
+              { label: lang === 'lo' ? 'ທຸລະກຳ' : 'Transactions', value: transactions.length, color: 'text-foreground' },
+            ].map(stat => (
+              <div key={stat.label} className="bg-card rounded-2xl p-3 text-center border border-border shadow-sm">
+                <p className={`font-semibold text-[13px] sm:text-[14px] tracking-[-0.02em] leading-tight break-all ${stat.color}`}>{stat.value}</p>
+                <p className="text-xs text-muted-foreground mt-1 leading-tight">{stat.label}</p>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        );
+      })()}
 
       {/* Transaction list */}
       <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
@@ -274,6 +297,7 @@ export default function Wallet() {
           currentUser={currentUser}
           profile={profile}
           lang={lang}
+          exchangeRates={exchangeRates}
           onClose={() => setActionType('')}
           onSubmitted={() => { refreshProfile(); loadTx(); }}
         />

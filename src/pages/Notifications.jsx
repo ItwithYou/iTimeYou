@@ -13,9 +13,8 @@ export default function Notifications() {
   }, [currentUser]);
 
   const markAllRead = async () => {
-    for (const n of notifications.filter(n => !n.is_read)) {
-      await base44.entities.Notification.update(n.id, { is_read: true });
-    }
+    const unread = notifications.filter(n => !n.is_read);
+    await Promise.all(unread.map(n => base44.entities.Notification.update(n.id, { is_read: true })));
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
   };
 

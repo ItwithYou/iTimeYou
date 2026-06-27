@@ -15,7 +15,8 @@ import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword,
   createUserWithEmailAndPassword, signOut,
   GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail,
-  updateProfile, updatePassword
+  updateProfile, updatePassword,
+  confirmPasswordReset, verifyPasswordResetCode
 } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
@@ -223,6 +224,12 @@ const authModule = {
   },
   async resetPassword(email) {
     return sendPasswordResetEmail(auth, email);
+  },
+  async confirmReset(oobCode, newPassword) {
+    return confirmPasswordReset(auth, oobCode, newPassword);
+  },
+  async verifyResetCode(oobCode) {
+    return verifyPasswordResetCode(auth, oobCode);
   },
   logout() {
     signOut(auth).finally(() => { window.location.href = '/login'; });

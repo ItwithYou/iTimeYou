@@ -20,6 +20,7 @@ const adminTabs = [
   { key: 'appeals', label: 'Appeals' },
   { key: 'rates', label: 'Rates' },
   { key: 'account', label: 'Account' },
+  { key: 'stays', label: 'Stays Payout' },
 ];
 
 const statusStyles = {
@@ -111,6 +112,9 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
   const pendingWithdraws = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'withdraw');
   const pendingSends = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'send');
   const pendingReceives = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'receive');
+  const pendingStays = useMemo(() => {
+    return bookings?.filter((b) => b.guest_confirmed_completed && !b.admin_payout_approved) || [];
+  }, [bookings]);
 
   const serviceAppeals = useMemo(() => {
     const completedBookings = bookings?.filter((b) => b.status === 'completed' && b.appeal_status !== 'none') || [];
@@ -233,6 +237,55 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
       text_lao: `ຄຳຂໍ ${tx.request_kind} ຂອງທ່ານຖືກປະຕິເສດ${reason ? `: ${reason}` : ''}`,
     });
     onUpdated?.();
+  };
+
+  const approveStayPayout = async (booking) => {
+    try {
+      const targetProfiles = await base44.entities.UserProfile.filter({ user_email: booking.host_email });
+      const hostProfile = targetProfiles[0];
+      if (!hostProfile) {
+        toast.error('Host profile not found');
+        return;
+      }
+
+      const balanceField = getCurrencyBalanceField(booking.currency || 'USD');
+      const hostBalance = hostProfile[balanceField] || 0;
+
+      await base44.entities.UserProfile.update(hostProfile.id, {
+        [balanceField]: hostBalance + Math.abs(booking.total || 0),
+        wallet_currency: booking.currency || 'USD'
+      });
+
+      await base44.entities.Booking.update(booking.id, {
+        admin_payout_approved: true,
+        status: 'completed'
+      });
+
+      await base44.entities.WalletTransaction.create({
+        user_email: booking.host_email,
+        description: `Payout for stay booking ${booking.id}`,
+        description_lao: `ຮັບເງິນຄ່າທີ່ພັກ ${booking.id}`,
+        amount: Math.abs(booking.total || 0),
+        currency: booking.currency || 'USD',
+        type: 'received',
+        status: 'completed',
+        request_kind: 'booking_release',
+        counterparty_email: booking.guest_email
+      });
+
+      await base44.entities.Notification.create({
+        user_email: booking.host_email,
+        type: '💸',
+        text: `Payout for stay booking ${booking.id} has been released to your wallet`,
+        text_lao: `ເງິນຄ່າທີ່ພັກ ${booking.id} ໄດ້ເຂົ້າກະເປົາແລ້ວ`
+      });
+
+      toast.success(lang === 'lo' ? 'ອະນຸມັດ ແລະ ໂອນເງິນໃຫ້ເຈົ້າພາບແລ້ວ' : 'Payout approved and paid to host');
+      onUpdated?.();
+    } catch (err) {
+      toast.error('Failed to approve payout');
+      console.error(err);
+    }
   };
 
   const currentList = activeTab === 'topup'
@@ -440,6 +493,39 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
             {savingAccount ? '...' : 'Save Account'}
           </button>
         </div>
+      ) : activeTab === 'stays' ? (
+        pendingStays.length === 0 ? (
+          <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground">No stay payouts pending</div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {pendingStays.map((booking) => (
+              <div key={booking.id} className="bg-card rounded-2xl border border-border p-4 shadow-sm space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-bold text-sm">Stay ID: {booking.id}</p>
+                    <p className="text-xs text-muted-foreground">Guest: {booking.guest_email}</p>
+                    <p className="text-xs text-muted-foreground">Host: {booking.host_email}</p>
+                    <p className="text-lg font-black tracking-tight text-primary">
+                      {booking.total} {booking.currency || 'USD'}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Nights: {booking.nights}</p>
+                    <p className="text-xs text-muted-foreground">Check-in: {booking.check_in}</p>
+                    <p className="text-xs text-muted-foreground">Check-out: {booking.check_out}</p>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full text-xs font-semibold border bg-blue-100 text-blue-700 border-blue-200">
+                    Ready for Payout
+                  </span>
+                </div>
+                <button
+                  onClick={() => approveStayPayout(booking)}
+                  className="w-full bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-semibold"
+                >
+                  Approve Host Payout
+                </button>
+              </div>
+            ))}
+          </div>
+        )
       ) : activeTab !== 'transactions' ? (
         currentList.length === 0 ? (
           <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground">No requests</div>

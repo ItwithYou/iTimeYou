@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { Lock, Eye, EyeOff, Check, X } from 'lucide-react';
+import { Lock, Eye, EyeOff, Check } from 'lucide-react';
 
 export default function PasswordSettings() {
   const { profile, currentUser, t, lang } = useAppContext();
