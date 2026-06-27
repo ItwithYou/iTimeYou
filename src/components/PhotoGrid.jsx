@@ -119,12 +119,16 @@ export default function PhotoGrid({ photos, onRemove }) {
         </div>
       )}
 
-      {/* 3 photos — 1 big left + 2 stacked right */}
+      {/* 3 photos — 1 big top + 2 equal bottom */}
       {count === 3 && (
-        <div className="grid grid-cols-2 grid-rows-2 gap-0.5 h-72 overflow-hidden">
-          <Tile src={photos[0]} index={0} onRemove={onRemove} onClick={() => open(0)} className="row-span-2" />
-          <Tile src={photos[1]} index={1} onRemove={onRemove} onClick={() => open(1)} />
-          <Tile src={photos[2]} index={2} onRemove={onRemove} onClick={() => open(2)} />
+        <div className="flex flex-col gap-0.5 h-80 sm:h-96 overflow-hidden rounded-xl">
+          <div className="flex-[2] min-h-0">
+            <Tile src={photos[0]} index={0} onRemove={onRemove} onClick={() => open(0)} className="h-full w-full" />
+          </div>
+          <div className="flex-1 grid grid-cols-2 gap-0.5 min-h-0">
+            <Tile src={photos[1]} index={1} onRemove={onRemove} onClick={() => open(1)} className="h-full w-full" />
+            <Tile src={photos[2]} index={2} onRemove={onRemove} onClick={() => open(2)} className="h-full w-full" />
+          </div>
         </div>
       )}
 
