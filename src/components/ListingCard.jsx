@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { CAT_ICONS } from '../hooks/useLang';
 import ImageLightbox from './ImageLightbox';
 import useProfile from '../hooks/useProfile';
+import { DEMO_TRANSLATIONS } from '../lib/demoTranslations';
 
 export default function ListingCard({ listing, t, lang }) {
   const { currentUser } = useProfile();
@@ -174,7 +175,7 @@ export default function ListingCard({ listing, t, lang }) {
         <Link to={`/listing/${listing.id}`} className="block p-4">
           <div className="flex justify-between items-start mb-1.5">
             <h3 className="font-bold text-sm leading-tight flex-1 mr-2 text-foreground">
-              {lang === 'lo' && listing.title_lao ? listing.title_lao : listing.title}
+              {(lang === 'lo' && DEMO_TRANSLATIONS[listing.title]) ? DEMO_TRANSLATIONS[listing.title] : (lang === 'lo' && listing.title_lao ? listing.title_lao : listing.title)}
             </h3>
             <div className="flex items-center gap-1 text-amber-500 text-sm whitespace-nowrap flex-shrink-0">
               <Star size={13} className="fill-amber-400" />

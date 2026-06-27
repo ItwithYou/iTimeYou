@@ -37,6 +37,36 @@ export default function Layout() {
 
   // Track visited tab paths for persistent mounting
   const [visitedPaths, setVisitedPaths] = useState(() => new Set([location.pathname]));
+
+  // One-time migration to transfer demo data to Admin
+  useEffect(() => {
+    const migrateDemoToAdmin = async () => {
+      if (localStorage.getItem('demo_transferred_to_admin_v2')) return;
+      localStorage.setItem('demo_transferred_to_admin_v2', 'true');
+      
+      try {
+        const posts = await base44.entities.Post.filter({ author_name: 'Premium User' });
+        for (const p of posts) {
+          await base44.entities.Post.update(p.id, {
+            author_email: 'norecord88@gmail.com',
+            author_name: 'iTimeYou Admin',
+          });
+        }
+        const listings = await base44.entities.Listing.filter({ host_name: 'Premium Host' });
+        for (const l of listings) {
+          await base44.entities.Listing.update(l.id, {
+            host_email: 'norecord88@gmail.com',
+            host_name: 'iTimeYou Admin',
+          });
+        }
+        console.log("Demo data transferred to Admin successfully");
+      } catch (err) {
+        console.error("Migration failed", err);
+      }
+    };
+    migrateDemoToAdmin();
+  }, []);
+
   useEffect(() => {
     if (TAB_PATHS.includes(location.pathname)) {
       setVisitedPaths(prev => {

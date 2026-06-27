@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { DEFAULT_EXCHANGE_RATES, deductCrossCurrencyBalance } from '../utils/wallet';
 import moment from 'moment';
 import { getTodayISO } from '../utils/dateUtils';
+import { DEMO_TRANSLATIONS } from '../lib/demoTranslations';
 
 export default function ListingDetail() {
   const { id } = useParams();
@@ -118,7 +119,7 @@ export default function ListingDetail() {
         <div className="lg:col-span-2 space-y-6">
           <div>
             <h1 className="text-2xl font-bold mb-2">
-              {isLao && listing.title_lao ? listing.title_lao : listing.title}
+              {(lang === 'lo' && DEMO_TRANSLATIONS[listing.title]) ? DEMO_TRANSLATIONS[listing.title] : (lang === 'lo' && listing.title_lao ? listing.title_lao : listing.title)}
             </h1>
             <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1 text-gold font-semibold">
@@ -168,8 +169,8 @@ export default function ListingDetail() {
 
           <div className="py-4 border-b border-border">
             <h2 className="font-semibold text-lg mb-2">{t.about}</h2>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              {isLao && listing.description_lao ? listing.description_lao : listing.description}
+            <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap">
+              {(lang === 'lo' && DEMO_TRANSLATIONS[listing.description]) ? DEMO_TRANSLATIONS[listing.description] : (lang === 'lo' && listing.description_lao ? listing.description_lao : listing.description)}
             </p>
           </div>
 

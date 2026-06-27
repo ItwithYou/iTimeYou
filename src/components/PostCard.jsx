@@ -290,7 +290,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
           </div>
         </div>
       ) : (
-        <div className="px-4 pb-3 text-sm leading-relaxed text-foreground">{post.text}</div>
+        <div className="px-4 pb-3 text-sm leading-relaxed text-foreground whitespace-pre-wrap">{postText}</div>
       )}
 
       {/* Photos */}
