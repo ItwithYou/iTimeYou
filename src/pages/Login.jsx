@@ -35,8 +35,8 @@ export default function Login() {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => { 
       if (u) {
-        // Only redirect if they aren't in the middle of the 'username' step
-        if (step !== 'username') navigate('/feed'); 
+        // Only auto-redirect if on the initial screen (covers already-logged-in and Google Auth reload)
+        if (step === 'initial') navigate('/feed'); 
       }
     });
     return unsub;
@@ -81,7 +81,7 @@ export default function Login() {
       const userObj = await base44.auth.confirmOTP(confirmationResult, otp);
       
       // Check if user has a name, if not, prompt for it
-      const dbUser = await base44.entities.User.get(userObj.uid);
+      const dbUser = await base44.entities.User.get(userObj.id);
       if (!dbUser?.full_name || dbUser.full_name === 'User' || dbUser.full_name.includes('@')) {
         setStep('username');
         setLoading(false);
