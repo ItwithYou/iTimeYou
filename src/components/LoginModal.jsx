@@ -69,6 +69,7 @@ export default function LoginModal({ isOpen, onClose }) {
     setError(''); setLoading(true);
     try { 
       await base44.auth.loginWithGoogle(); 
+      go();
     } catch (err) { 
       setError(friendlyError(err)); 
       setLoading(false);

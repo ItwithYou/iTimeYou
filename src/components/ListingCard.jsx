@@ -159,7 +159,7 @@ export default function ListingCard({ listing, t, lang }) {
         </div>
       ) : (
         <div className="px-4 pb-3 text-sm leading-relaxed text-foreground">
-           {listing.description}
+           {lang === 'lo' && listing.description_lao ? listing.description_lao : listing.description}
            {(listing.guests > 0 || listing.beds > 0) && (
              <div className="mt-2 text-xs text-muted-foreground font-medium flex items-center gap-2">
                {listing.guests > 0 && <span>{listing.guests} {t.guests}</span>}
