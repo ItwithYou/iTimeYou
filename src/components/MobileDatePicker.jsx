@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getTodayISO, formatDateDMY } from '../utils/dateUtils';
 
@@ -106,34 +106,31 @@ export default function MobileDatePicker({ value, onChange, placeholder = 'Selec
   const displayValue = value ? formatDateDMY(value) : '';
 
   return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="w-full border border-border rounded-lg px-3 py-2 text-sm text-left flex items-center gap-2 outline-none focus:border-primary bg-background hover:border-primary/50 transition-colors"
-      >
-        <CalendarIcon size={14} className="text-muted-foreground flex-shrink-0" />
-        <span className={value ? 'text-foreground' : 'text-muted-foreground'}>
-          {displayValue || placeholder}
-        </span>
-      </button>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="w-full border border-border rounded-lg px-3 py-2 text-sm text-left flex items-center gap-2 outline-none focus:border-primary bg-background hover:border-primary/50 transition-colors"
+        >
+          <CalendarIcon size={14} className="text-muted-foreground flex-shrink-0" />
+          <span className={value ? 'text-foreground' : 'text-muted-foreground'}>
+            {displayValue || placeholder}
+          </span>
+        </button>
+      </PopoverTrigger>
 
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="bottom" className="rounded-t-3xl pb-8">
-          <SheetHeader className="mb-4">
-            <SheetTitle>{label || placeholder}</SheetTitle>
-          </SheetHeader>
-          <CalendarGrid
-            value={value}
-            min={min}
-            max={max}
-            onChange={(date) => {
-              onChange(date);
-              setOpen(false);
-            }}
-          />
-        </SheetContent>
-      </Sheet>
-    </>
+      <PopoverContent className="w-auto p-4 rounded-2xl" align="start">
+        {label && <div className="font-bold text-sm mb-4">{label}</div>}
+        <CalendarGrid
+          value={value}
+          min={min}
+          max={max}
+          onChange={(date) => {
+            onChange(date);
+            setOpen(false);
+          }}
+        />
+      </PopoverContent>
+    </Popover>
   );
 }
