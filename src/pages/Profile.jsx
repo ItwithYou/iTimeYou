@@ -28,6 +28,7 @@ export default function Profile() {
   const [showProModal, setShowProModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [photoLightbox, setPhotoLightbox] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
   const photoUploadRef = useRef(null);
 
   const isOwn = viewProfile?.user_email === currentUser?.email;
@@ -77,11 +78,23 @@ export default function Profile() {
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    await base44.entities.UserProfile.update(viewProfile.id, { photo_url: file_url });
-    loadProfile();
-    refreshProfile();
-    toast.success(lang === 'lo' ? 'ອັບເດດຮູບແລ້ວ ✅' : 'Photo updated ✅');
+    setIsUploading(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      await base44.entities.UserProfile.update(viewProfile.id, { photo_url: file_url });
+      
+      // Optimistic update for immediate smoothness
+      setViewProfile(prev => ({ ...prev, photo_url: file_url }));
+      
+      loadProfile();
+      refreshProfile();
+      toast.success(lang === 'lo' ? 'ອັບເດດຮູບແລ້ວ ✅' : 'Photo updated ✅');
+    } catch (err) {
+      console.error(err);
+      toast.error('Upload failed. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const saveEdit = async () => {
@@ -144,12 +157,19 @@ export default function Profile() {
 
         {/* Content Section */}
         <div className="px-6 sm:px-10 pb-10 text-center relative -mt-16 sm:-mt-20">
-          <div className="relative inline-block">
+          <div className="relative inline-block group">
             <img
               src={viewProfile.photo_url || viewProfile.avatar_url || ''}
               alt=""
-              onClick={() => setPhotoLightbox(viewProfile.photo_url || viewProfile.avatar_url || '')}
-              className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-[6px] border-card shadow-xl object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-300 relative z-10 bg-muted" />
+              onClick={() => !isUploading && setPhotoLightbox(viewProfile.photo_url || viewProfile.avatar_url || '')}
+              className={`w-32 h-32 sm:w-40 sm:h-40 rounded-full border-[6px] border-card shadow-xl object-cover relative z-10 bg-muted transition-transform duration-300 ${isUploading ? 'opacity-50' : 'cursor-pointer hover:scale-[1.02]'}`} />
+            
+            {isUploading && (
+              <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/40 rounded-full backdrop-blur-[2px] border-[6px] border-card">
+                 <div className="w-8 h-8 sm:w-10 sm:h-10 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+              </div>
+            )}
+
             {viewProfile.is_verified &&
               <span className="absolute bottom-3 right-3 flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-emerald-500 border-4 border-card text-white text-sm sm:text-base font-bold z-20 shadow-md">✓</span>
             }
@@ -207,8 +227,8 @@ export default function Profile() {
               <button onClick={() => setEditing(!editing)} className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:scale-[1.02] transition-all select-none shadow-primary/20">
                 <BadgeCheck size={16} /> {t.editProfile}
               </button>
-              <button type="button" onClick={() => photoUploadRef.current?.click()} className="flex items-center gap-2 bg-primary/10 text-primary px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-primary hover:text-primary-foreground transition-all select-none border border-primary/20">
-                <Camera size={16} /> {lang === 'lo' ? 'ຮູບ' : 'Photo'}
+              <button type="button" disabled={isUploading} onClick={() => photoUploadRef.current?.click()} className="flex items-center gap-2 bg-primary/10 text-primary px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-primary hover:text-primary-foreground transition-all select-none border border-primary/20 disabled:opacity-50 disabled:pointer-events-none">
+                <Camera size={16} className={isUploading ? "animate-pulse" : ""} /> {isUploading ? (lang === 'lo' ? 'ກຳລັງອັບໂຫຼດ...' : 'Uploading...') : (lang === 'lo' ? 'ຮູບ' : 'Photo')}
               </button>
               <input ref={photoUploadRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
               <button onClick={() => navigate(`/profile/${viewProfile.id}/password`)} className="flex items-center gap-2 border border-border bg-card px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-muted transition-all select-none shadow-sm">
