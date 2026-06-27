@@ -29,6 +29,7 @@ export default function Profile() {
   const [showProModal, setShowProModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [photoLightbox, setPhotoLightbox] = useState(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const photoUploadRef = useRef(null);
 
   const isOwn = viewProfile?.user_email === currentUser?.email;
@@ -78,11 +79,25 @@ export default function Profile() {
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    await base44.entities.UserProfile.update(viewProfile.id, { photo_url: file_url });
-    loadProfile();
-    refreshProfile();
-    toast.success(lang === 'lo' ? 'ອັບເດດຮູບແລ້ວ ✅' : 'Photo updated ✅');
+    
+    // Smooth immediate UI update
+    const tempUrl = URL.createObjectURL(file);
+    setViewProfile(prev => ({ ...prev, photo_url: tempUrl }));
+    setIsUploadingPhoto(true);
+
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      await base44.entities.UserProfile.update(viewProfile.id, { photo_url: file_url });
+      loadProfile();
+      refreshProfile();
+      toast.success(lang === 'lo' ? 'ອັບເດດຮູບແລ້ວ ✅' : 'Photo updated ✅');
+    } catch (err) {
+      toast.error(lang === 'lo' ? 'ອັບໂຫຼດບໍ່ສຳເລັດ' : 'Upload failed');
+    } finally {
+      setIsUploadingPhoto(false);
+      // Clean up object URL
+      URL.revokeObjectURL(tempUrl);
+    }
   };
 
   const saveEdit = async () => {
@@ -126,90 +141,107 @@ export default function Profile() {
 
   return (
     <div className="max-w-3xl mx-auto pb-8">
-      {/* Cover */}
-      <div className="h-16" />
+      {/* Premium Cover */}
+      <div className="h-48 sm:rounded-t-[32px] bg-gradient-to-tr from-primary/90 via-primary to-primary/50 relative overflow-hidden shadow-sm">
+         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay" />
+      </div>
 
-      {/* Info */}
-      <div className="mx-auto max-w-sm rounded-[28px] border border-border bg-card px-6 pt-10 pb-6 text-center shadow-sm">
-        <div className="-mt-20 mb-3 flex justify-center">
+      {/* Info Card */}
+      <div className="mx-4 sm:mx-8 -mt-16 bg-card rounded-[32px] px-6 sm:px-10 pb-8 pt-4 shadow-xl border border-border/50 relative z-10 backdrop-blur-sm">
+        <div className="flex flex-col sm:flex-row items-center sm:items-end sm:justify-between gap-4 -mt-16 sm:-mt-20 mb-6">
+          {/* Avatar Area */}
           <div className="relative">
             <img
               src={viewProfile.photo_url || viewProfile.avatar_url || ''}
               alt=""
               onClick={() => setPhotoLightbox(viewProfile.photo_url || viewProfile.avatar_url || '')}
-              className="w-24 h-24 rounded-full border-4 border-card shadow-lg object-cover cursor-pointer hover:opacity-90 transition-opacity" />
+              className={`w-32 h-32 rounded-full border-[6px] border-card shadow-xl object-cover cursor-pointer hover:scale-105 transition-transform bg-muted ${isUploadingPhoto ? 'opacity-60' : ''}`} />
             {viewProfile.is_verified &&
-            <span className="absolute bottom-1 right-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 border-4 border-card text-white text-sm font-bold">✓</span>
+              <span className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 border-[3px] border-card text-white text-sm font-bold shadow-sm">✓</span>
             }
           </div>
-        </div>
-        <h1 className="text-2xl font-bold tracking-tight">{viewProfile.first_name} {viewProfile.last_name}</h1>
-        <div className="flex items-center justify-center gap-2 mt-2">
-          <StarRating rating={viewProfile.trust_stars || 0} size={18} />
-        </div>
-        <div className="mt-1">
-          <TrustBadge stars={viewProfile.trust_stars || 0} lang={lang} />
-        </div>
-        <div className="mt-3 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
-          {viewProfile.location &&
-          <span className="flex items-center gap-1"><MapPin size={14} /> {viewProfile.location}</span>
-          }
-          <span className="flex items-center gap-1"><Calendar size={14} /> {t.joined} {new Date(viewProfile.created_date).getFullYear()}</span>
+          
+          {/* Action Buttons */}
+          {isOwn && (
+            <div className="flex gap-3 flex-wrap justify-center sm:justify-end w-full sm:w-auto">
+              <button onClick={() => setEditing(!editing)} className="bg-primary/10 text-primary px-5 py-2.5 rounded-full text-sm font-bold hover:bg-primary/20 transition-colors shadow-sm">
+                {t.editProfile || 'Edit Profile'}
+              </button>
+              <button type="button" disabled={isUploadingPhoto} onClick={() => photoUploadRef.current?.click()} className="bg-foreground text-background px-5 py-2.5 rounded-full text-sm font-bold shadow-lg hover:opacity-90 transition-opacity disabled:opacity-70">
+                {isUploadingPhoto ? (
+                  <><div className="w-4 h-4 rounded-full border-[3px] border-background border-t-transparent animate-spin inline-block mr-1.5 align-middle mb-[2px]" /> {lang === 'lo' ? 'ກຳລັງອັບໂຫຼດ...' : 'Uploading...'}</>
+                ) : (
+                  <><Camera size={16} className="inline mr-1.5 mb-[2px]" /> {lang === 'lo' ? 'ປ່ຽນຮູບ' : 'Update Photo'}</>
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="mt-3 flex justify-center gap-2 flex-wrap">
-          {viewProfile.is_pro ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 text-blue-700 px-3 py-1 text-xs font-bold border border-blue-200">
-              <BadgeCheck size={13} /> Pro
-            </span>
-          ) : viewProfile.is_verified ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-700 px-3 py-1 text-xs font-bold border border-emerald-200">
-              <Shield size={13} /> Verified
-            </span>
-          ) : null}
-          <TrustBadge stars={viewProfile.trust_stars || 0} lang={lang} />
+        {/* Profile Details */}
+        <div className="text-center sm:text-left">
+          <h1 className="text-3xl font-black tracking-tight text-foreground">{viewProfile.first_name} {viewProfile.last_name}</h1>
+          <div className="mt-2.5 flex flex-wrap items-center justify-center sm:justify-start gap-3">
+             <div className="flex items-center gap-1.5 bg-amber-100/60 text-amber-700 px-3 py-1 rounded-full text-sm font-bold shadow-sm">
+               <StarRating rating={viewProfile.trust_stars || 0} size={14} />
+               <span>{viewProfile.trust_stars ? viewProfile.trust_stars.toFixed(1) : '5.0'}</span>
+             </div>
+             {viewProfile.is_pro ? (
+               <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 text-blue-700 px-3 py-1 text-sm font-bold border border-blue-100 shadow-sm">
+                 <BadgeCheck size={14} /> Pro
+               </span>
+             ) : viewProfile.is_verified ? (
+               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 text-emerald-700 px-3 py-1 text-sm font-bold border border-emerald-100 shadow-sm">
+                 <Shield size={14} /> Verified
+               </span>
+             ) : null}
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center justify-center sm:justify-start gap-5 text-sm text-muted-foreground font-medium">
+            {viewProfile.location && (
+              <span className="flex items-center gap-1.5"><MapPin size={16} className="text-primary/70" /> {viewProfile.location}</span>
+            )}
+            <span className="flex items-center gap-1.5"><Calendar size={16} className="text-primary/70" /> Joined {new Date(viewProfile.created_date).getFullYear()}</span>
+          </div>
+          
+          <p className="text-base text-foreground/80 mt-5 font-medium leading-relaxed max-w-2xl">
+            {lang === 'lo' ? viewProfile.bio_lao || viewProfile.bio : viewProfile.bio}
+          </p>
         </div>
 
-        <div className="mt-5 border-t border-border pt-5">
-          <div className="grid grid-cols-3 gap-3 max-w-md mx-auto">
-            <div className="text-center">
-              <p className="text-3xl font-black tracking-tight text-foreground">{(viewProfile.friends || []).length}</p>
-              <p className="mt-1 text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Follower'}</p>
+        {/* Premium Stats Grid */}
+        <div className="mt-8 border-t border-border/50 pt-8">
+          <div className="grid grid-cols-3 gap-4 sm:gap-6 max-w-2xl mx-auto sm:mx-0">
+            <div className="text-center p-4 rounded-2xl bg-muted/40 hover:bg-muted/60 transition-colors">
+              <p className="text-3xl font-black text-primary">{(viewProfile.friends || []).length}</p>
+              <p className="mt-1 text-xs font-bold text-muted-foreground uppercase tracking-wider">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Followers'}</p>
             </div>
-            <div className="text-center">
-              <p className="text-3xl font-black tracking-tight text-foreground">{posts.filter((post) => post.author_email === viewProfile.user_email && post.service_price > 0).length}</p>
-              <p className="mt-1 text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ໃຫ້ບໍລິການ' : 'Provide Service'}</p>
+            <div className="text-center p-4 rounded-2xl bg-muted/40 hover:bg-muted/60 transition-colors">
+              <p className="text-3xl font-black text-primary">{posts.filter((post) => post.author_email === viewProfile.user_email && post.service_price > 0).length}</p>
+              <p className="mt-1 text-xs font-bold text-muted-foreground uppercase tracking-wider">{lang === 'lo' ? 'ບໍລິການ' : 'Services'}</p>
             </div>
-            <div className="text-center">
-              <p className="text-lg font-black tracking-tight text-foreground capitalize">{viewProfile.gender || '-'}</p>
-              <p className="mt-1 text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ເພດ' : 'Gender'}</p>
+            <div className="text-center p-4 rounded-2xl bg-muted/40 hover:bg-muted/60 transition-colors">
+              <p className="text-3xl font-black text-primary capitalize">{viewProfile.gender || '-'}</p>
+              <p className="mt-1 text-xs font-bold text-muted-foreground uppercase tracking-wider">{lang === 'lo' ? 'ເພດ' : 'Gender'}</p>
             </div>
           </div>
         </div>
-        <p className="text-sm text-muted-foreground mt-3 font-medium tracking-wide">
-          {lang === 'lo' ? viewProfile.bio_lao || viewProfile.bio : viewProfile.bio}
-        </p>
 
-        {isOwn &&
-        <div className="flex gap-2 justify-center mt-4 flex-wrap">
-            <button onClick={() => setEditing(!editing)} className="border border-border px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-muted transition-colors select-none">
-              ✏️ {t.editProfile}
-            </button>
-            <button type="button" onClick={() => photoUploadRef.current?.click()} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold active:opacity-90 select-none min-h-[44px]">
-              <Camera size={14} className="inline mr-1" /> {lang === 'lo' ? 'ຮູບ' : 'Photo'}
-            </button>
+        {/* Secondary Account Actions */}
+        {isOwn && (
+          <div className="mt-8 pt-6 border-t border-border/50 flex flex-wrap justify-center sm:justify-end gap-2 sm:gap-4">
             <input ref={photoUploadRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
-            <button onClick={() => navigate(`/profile/${viewProfile.id}/password`)} className="flex items-center gap-1.5 border border-border px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-muted transition-colors select-none">
-              <KeyRound size={14} /> {lang === 'lo' ? 'ລະຫັດຜ່ານ' : 'Password'}
+            <button onClick={() => navigate(`/profile/${viewProfile.id}/password`)} className="flex items-center gap-2 text-muted-foreground hover:text-foreground px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors bg-card hover:bg-muted/50 border border-transparent hover:border-border/50">
+              <KeyRound size={16} /> {lang === 'lo' ? 'ລະຫັດຜ່ານ' : 'Password'}
             </button>
-            <button onClick={() => base44.auth.logout()} className="px-4 py-1.5 text-sm font-semibold rounded-2xl flex items-center gap-1.5 border border-border hover:bg-muted transition-colors select-none">
+            <button onClick={() => base44.auth.logout()} className="flex items-center gap-2 text-muted-foreground hover:text-foreground px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors bg-card hover:bg-muted/50 border border-transparent hover:border-border/50">
               🚪 {lang === 'lo' ? 'ອອກຈາກລະບົບ' : 'Logout'}
             </button>
-            <button onClick={() => setShowDeleteConfirm(true)} className="flex items-center gap-1.5 border border-destructive/50 text-destructive px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-destructive/5 transition-colors select-none">
-              <Trash2 size={13} /> {lang === 'lo' ? 'ລຶບບັນຊີ' : 'Delete Account'}
+            <button onClick={() => setShowDeleteConfirm(true)} className="flex items-center gap-2 text-destructive/70 hover:text-destructive px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors bg-card hover:bg-destructive/10 border border-transparent hover:border-destructive/20">
+              <Trash2 size={16} /> {lang === 'lo' ? 'ລຶບບັນຊີ' : 'Delete Account'}
             </button>
           </div>
-        }
+        )}
       </div>
 
       {/* Edit panel */}
