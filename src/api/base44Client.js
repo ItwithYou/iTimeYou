@@ -20,12 +20,13 @@ import {
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBctt9A4ErSCw_uX0ddU7qbT0uWNZv9lRY",
+  apiKey: "AIzaSyDQl2T85WMrJY1cD40-TudCL8ryI6yYkxw",
   authDomain: "itimeyou-88.firebaseapp.com",
   projectId: "itimeyou-88",
   storageBucket: "itimeyou-88.firebasestorage.app",
   messagingSenderId: "410299185915",
-  appId: "1:410299185915:web:56a91d5d6f9d535638ce5e"
+  appId: "1:410299185915:web:951e92d98ed6339938ce5e",
+  measurementId: "G-WEKG4XXTDL"
 };
 
 const app = initializeApp(firebaseConfig);

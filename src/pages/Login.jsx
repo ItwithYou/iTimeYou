@@ -4,8 +4,15 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
 function friendlyError(err) {
+  // Surface the real cause in the console for diagnostics.
+  // eslint-disable-next-line no-console
+  console.error('Auth error:', err?.code, err?.message, err);
   const code = err?.code || '';
   const msg = err?.message || '';
+  if (code.includes('api-key-not-valid') || code.includes('invalid-api-key') || msg.includes('API key not valid'))
+    return 'App is misconfigured (invalid Firebase API key). Please contact the site owner.';
+  if (code.includes('configuration-not-found'))
+    return 'Sign-in is not configured yet. Enable it in Firebase → Authentication.';
   if (code.includes('unauthorized-domain'))
     return 'This website domain is not authorized in Firebase. Add it under Authentication → Settings → Authorized domains.';
   if (code.includes('operation-not-allowed'))
@@ -26,7 +33,10 @@ function friendlyError(err) {
     return 'Too many attempts. Please wait a moment and try again.';
   if (code.includes('network-request-failed'))
     return 'Network error. Check your internet connection.';
-  return msg.replace('Firebase:', '').replace(/\(auth.*\)\.?/, '').trim() || 'Something went wrong. Please try again.';
+  const cleaned = msg.replace('Firebase:', '').replace(/\(auth.*\)\.?/, '').trim();
+  // Never show a bare "Error" — fall back to the code so issues stay diagnosable.
+  if (!cleaned || cleaned.toLowerCase() === 'error') return code || 'Something went wrong. Please try again.';
+  return cleaned;
 }
 
 export default function Login() {
