@@ -57,3 +57,15 @@ export const convertAndFormatPrice = (amount, originalCurrency, preferredCurrenc
 
   return `${amount} ${toCurrency}${suffix}`;
 };
+
+export const translateSuffix = (suffix, lang) => {
+  if (lang !== 'lo' || !suffix) return suffix;
+  const s = suffix.toUpperCase();
+  if (s === 'NIGHT') return 'ຄືນ';
+  if (s === 'HOUR') return 'ຊົ່ວໂມງ';
+  if (s === 'DAY') return 'ມື້';
+  if (s === 'MONTH') return 'ເດືອນ';
+  if (s === 'SERVICE') return 'ບໍລິການ';
+  if (s === 'PERSON' || s === 'PAX') return 'ຄົນ';
+  return suffix;
+};

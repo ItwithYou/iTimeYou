@@ -8,7 +8,7 @@ import PhotoGrid from './PhotoGrid';
 import useProfile from '../hooks/useProfile';
 import { coverImage } from '../utils/img';
 import { useAppContext } from '../lib/AppContext';
-import { convertAndFormatPrice } from '../utils/currencyUtils';
+import { convertAndFormatPrice, translateSuffix } from '../utils/currencyUtils';
 import moment from 'moment';
 
 export default function ListingCard({ listing, t, lang }) {
@@ -210,7 +210,7 @@ export default function ListingCard({ listing, t, lang }) {
                      return (
                        <>
                          {pricePart}
-                         {suffixPart && <span className="text-[10px] sm:text-[12px] opacity-70 ml-0.5 font-bold uppercase tracking-widest">/{suffixPart}</span>}
+                         {suffixPart && <span className="text-[10px] sm:text-[12px] opacity-70 ml-0.5 font-bold uppercase tracking-widest">/{translateSuffix(suffixPart, lang)}</span>}
                        </>
                      );
                    })()}

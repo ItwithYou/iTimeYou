@@ -10,7 +10,7 @@ import { CAT_ICONS } from '../hooks/useLang';
 import moment from 'moment';
 import { formatTimestampDMY } from '../utils/dateUtils';
 import { formatServiceWhen } from '../utils/dateUtils';
-import { convertAndFormatPrice } from '../utils/currencyUtils';
+import { convertAndFormatPrice, translateSuffix } from '../utils/currencyUtils';
 
 export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, authorProfile: initialAuthorProfile }) {
   const { profile, currentUser, refreshProfile, exchangeRates, preferredCurrency } = useAppContext();
@@ -383,7 +383,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
                      return (
                        <>
                          {pricePart}
-                         {suffixPart && <span className="text-[9px] sm:text-[10px] opacity-70 ml-0.5 font-bold uppercase tracking-widest">/{suffixPart}</span>}
+                         {suffixPart && <span className="text-[9px] sm:text-[10px] opacity-70 ml-0.5 font-bold uppercase tracking-widest">/{translateSuffix(suffixPart, lang)}</span>}
                        </>
                      );
                    })()}
@@ -425,7 +425,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
                   return (
                     <>
                       {pricePart}
-                      {suffixPart && <span className="text-[9px] sm:text-[10px] opacity-70 ml-0.5 font-bold uppercase tracking-widest">/{suffixPart}</span>}
+                      {suffixPart && <span className="text-[9px] sm:text-[10px] opacity-70 ml-0.5 font-bold uppercase tracking-widest">/{translateSuffix(suffixPart, lang)}</span>}
                     </>
                   );
                 })()}
