@@ -25,34 +25,6 @@ export default function CategoryTabs({ activeType, activeCat, onSelectCat, lang 
 
   return (
     <div className="w-full mb-6">
-      <div className="flex justify-center mb-6">
-        <div className="flex bg-muted/30 p-1 rounded-full border border-border/50 shadow-sm relative">
-          {/* Animated Background Pill */}
-          <div
-            className={`absolute top-1 bottom-1 w-[50%] bg-primary rounded-full transition-all duration-300 ease-out z-0`}
-            style={{
-              left: activeType === 'personal' ? '4px' : 'calc(50% - 4px)',
-            }}
-          />
-          
-          <button
-            onClick={() => { if (activeType !== 'personal') navigate('/feed'); }}
-            className={`px-8 py-2 rounded-full text-sm font-bold transition-all relative z-10 ${
-              activeType === 'personal' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {lang === 'lo' ? 'ສ່ວນຕົວ (Personal)' : 'Personal'}
-          </button>
-          <button
-            onClick={() => { if (activeType !== 'business') navigate('/explore'); }}
-            className={`px-8 py-2 rounded-full text-sm font-bold transition-all relative z-10 ${
-              activeType === 'business' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {lang === 'lo' ? 'ທຸລະກິດ (Business)' : 'Business'}
-          </button>
-        </div>
-      </div>
 
       <div className="flex flex-nowrap overflow-x-auto hide-scrollbar gap-6 sm:gap-8 px-4 md:px-0 mx-auto w-fit py-2 pb-4">
         {categories.map(cat => {
