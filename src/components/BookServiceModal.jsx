@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import { X, Clock, Calendar, DollarSign, Wallet, MapPin } from 'lucide-react';
 import { DEFAULT_EXCHANGE_RATES, deductCrossCurrencyBalance, getTotalLakBalance } from '../utils/wallet';
 import { formatServiceWhen } from '../utils/dateUtils';
-import { startOrGetConversation } from '../utils/messaging';
 
 export default function BookServiceModal({ post, profile, currentUser, lang, onClose, onBooked }) {
   const [loading, setLoading] = useState(false);
