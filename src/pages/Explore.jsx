@@ -8,6 +8,7 @@ import ListingCard from '../components/ListingCard';
 import CreateListing from '../components/CreateListing';
 import { BUSINESS_CATS } from '../hooks/useLang';
 import { Search } from 'lucide-react';
+import CategoryTabs from '../components/CategoryTabs';
 
 export default function Explore() {
   const { t, lang, profile, currentUser } = useAppContext();
@@ -26,8 +27,8 @@ export default function Explore() {
   // Automated one-time seeder for premium listings
   useEffect(() => {
     const seedData = async () => {
-      if (localStorage.getItem('seeded_explore_data_v6') || !currentUser) return;
-      localStorage.setItem('seeded_explore_data_v6', 'true');
+      if (localStorage.getItem('seeded_explore_data_v7') || !currentUser) return;
+      localStorage.setItem('seeded_explore_data_v7', 'true');
       
       try {
         const existing = await firebaseClient.entities.Listing.list();
@@ -86,47 +87,40 @@ export default function Explore() {
       };
 
       const LISTINGS = [
-        // CULTURE
-        { category: 'culture', title: 'Golden Stupa Temple Tour', title_lao: 'ທົວພະທາດຫຼວງສີທອງ', description: 'Experience the stunning morning views at the golden stupa in Vientiane. Guided tours available daily.', description_lao: 'ສຳຜັດກັບບັນຍາກາດຍາມເຊົ້າທີ່ງົດງາມຂອງພະທາດຫຼວງວຽງຈັນ. ມີທົວນຳທ່ຽວທຸກມື້.', price: 25, currency: 'USD', location: 'Vientiane', image_urls: getImages('culture', 0) },
-        { category: 'culture', title: 'Traditional Baci Ceremony', title_lao: 'ພິທີບາສີສູ່ຂວັນ', description: 'A beautiful way to welcome guests and wish them good fortune. Authentic setup included.', description_lao: 'ວິທີທີ່ສວຍງາມໃນການຕ້ອນຮັບແຂກ ແລະ ອວຍພອນໃຫ້ໂຊກດີ.', price: 150, currency: 'USD', location: 'Luang Prabang', image_urls: getImages('culture', 1) },
-        { category: 'culture', title: 'Ancient Temples Photography Tour', title_lao: 'ທົວຖ່າຍຮູບວັດບູຮານ', description: 'Explore the ancient temples of Luang Prabang with a professional photographer.', description_lao: 'ສຳຫຼວດວັດບູຮານຂອງຫຼວງພະບາງກັບຊ່າງພາບມືອາຊີບ.', price: 45, currency: 'USD', location: 'Luang Prabang', image_urls: getImages('culture', 2) },
-        { category: 'culture', title: 'Alms Giving Morning Experience', title_lao: 'ປະສົບການຕັກບາດຍາມເຊົ້າ', description: 'A deeply spiritual and peaceful experience in the old town at dawn.', description_lao: 'ປະສົບການທາງວິນຍານທີ່ສະຫງົບໃນເມືອງເກົ່າຍາມເຊົ້າ.', price: 15, currency: 'USD', location: 'Luang Prabang', image_urls: getImages('culture', 3) },
-        { category: 'culture', title: 'Silk Weaving Masterclass', title_lao: 'ຮຽນຕ່ຳຫູກຜ້າໄໝ', description: 'Learn beautiful traditional Lao silk weaving. The patterns tell stories passed down for generations!', description_lao: 'ຮຽນຕ່ຳຫູກຜ້າໄໝລາວທີ່ສວຍງາມ.', price: 35, currency: 'USD', location: 'Vientiane', image_urls: getImages('culture', 4) },
+        // TOURS
+        { category: 'tours', title: 'Golden Stupa Temple Tour', title_lao: 'ທົວພະທາດຫຼວງສີທອງ', description: 'Experience the stunning morning views at the golden stupa in Vientiane. Guided tours available daily.', description_lao: 'ສຳຜັດກັບບັນຍາກາດຍາມເຊົ້າທີ່ງົດງາມຂອງພະທາດຫຼວງວຽງຈັນ. ມີທົວນຳທ່ຽວທຸກມື້.', price: 25, currency: 'USD', location: 'Vientiane', image_urls: getImages('tours', 0) },
+        { category: 'tours', title: 'Traditional Baci Ceremony', title_lao: 'ພິທີບາສີສູ່ຂວັນ', description: 'A beautiful way to welcome guests and wish them good fortune. Authentic setup included.', description_lao: 'ວິທີທີ່ສວຍງາມໃນການຕ້ອນຮັບແຂກ ແລະ ອວຍພອນໃຫ້ໂຊກດີ.', price: 150, currency: 'USD', location: 'Luang Prabang', image_urls: getImages('tours', 1) },
+        { category: 'tours', title: 'Ancient Temples Photography Tour', title_lao: 'ທົວຖ່າຍຮູບວັດບູຮານ', description: 'Explore the ancient temples of Luang Prabang with a professional photographer.', description_lao: 'ສຳຫຼວດວັດບູຮານຂອງຫຼວງພະບາງກັບຊ່າງພາບມືອາຊີບ.', price: 45, currency: 'USD', location: 'Luang Prabang', image_urls: getImages('tours', 2) },
+        { category: 'tours', title: 'Mekong Golden Sunset Tour', title_lao: 'ທົວເບິ່ງຕາເວັນຕົກດິນ', description: 'A peaceful boat tour to watch the sunset over the calm waters of the Mekong.', description_lao: 'ທົວເຮືອເພື່ອຊົມຕາເວັນຕົກ.', price: 20, currency: 'USD', location: 'Vientiane', image_urls: getImages('tours', 3) },
+        { category: 'tours', title: 'Sunrise Hot Air Balloon', title_lao: 'ບອນລູນຍາມເຊົ້າ', description: 'Ride at sunrise over the karst mountains. A breathtaking, once-in-a-lifetime view!', description_lao: 'ຂີ່ບອນລູນເບິ່ງວິວພູເຂົາ.', price: 120, currency: 'USD', location: 'Vang Vieng', image_urls: getImages('tours', 4) },
 
-        // STAY
-        { category: 'stay', title: 'Luxury Riverside Villa', title_lao: 'ເຮືອນວິນລາແຄມນ້ຳ', description: 'Features a private infinity pool overlooking the Mekong. Perfect for weekends.', description_lao: 'ມີສະລອຍນ້ຳສ່ວນຕົວເບິ່ງເຫັນແມ່ນ້ຳຂອງ. ເໝາະສຳລັບທ້າຍອາທິດ.', price: 250, currency: 'USD/night', location: 'Luang Prabang', image_urls: getImages('stay', 0) },
-        { category: 'stay', title: 'Vientiane Boutique Hotel', title_lao: 'ໂຮງແຮມບູຕິກວຽງຈັນ', description: 'Cozy boutique hotel in the heart of Vientiane. Walking distance to all major cafes.', description_lao: 'ໂຮງແຮມທີ່ອົບອຸ່ນໃນໃຈກາງເມືອງວຽງຈັນ.', price: 85, currency: 'USD/night', location: 'Vientiane', image_urls: getImages('stay', 1) },
-        { category: 'stay', title: 'Eco-Lodge Retreat', title_lao: 'ທີ່ພັກແບບອະນຸລັກທຳມະຊາດ', description: 'Surrounded by lush jungle and rice paddies. Perfect for a digital detox retreat.', description_lao: 'ອ້ອມຮອບໄປດ້ວຍປ່າໄມ້ ແລະ ທົ່ງນາ. ເໝາະສຳລັບການພັກຜ່ອນ.', price: 120, currency: 'USD/night', location: 'Vang Vieng', image_urls: getImages('stay', 2) },
-        { category: 'stay', title: 'Panoramic Penthouse', title_lao: 'ຫ້ອງແຖວຫຼັງຄາກວ້າງ', description: 'Modern apartment with panoramic city views, full kitchen and high-speed internet.', description_lao: 'ອາພາດເມັນທັນສະໄໝພ້ອມວິວເມືອງ.', price: 150, currency: 'USD/night', location: 'Vientiane', image_urls: getImages('stay', 3) },
-        { category: 'stay', title: 'Traditional Wooden Guesthouse', title_lao: 'ເຮືອນພັກໄມ້ແບບດັ້ງເດີມ', description: 'Experience authentic local living with premium modern comforts.', description_lao: 'ສຳຜັດກັບການດຳລົງຊີວິດແບບທ້ອງຖິ່ນ.', price: 65, currency: 'USD/night', location: 'Luang Prabang', image_urls: getImages('stay', 4) },
+        // HOTELS
+        { category: 'hotels', title: 'Luxury Riverside Villa', title_lao: 'ເຮືອນວິນລາແຄມນ້ຳ', description: 'Features a private infinity pool overlooking the Mekong. Perfect for weekends.', description_lao: 'ມີສະລອຍນ້ຳສ່ວນຕົວເບິ່ງເຫັນແມ່ນ້ຳຂອງ. ເໝາະສຳລັບທ້າຍອາທິດ.', price: 250, currency: 'USD/night', location: 'Luang Prabang', image_urls: getImages('hotels', 0) },
+        { category: 'hotels', title: 'Vientiane Boutique Hotel', title_lao: 'ໂຮງແຮມບູຕິກວຽງຈັນ', description: 'Cozy boutique hotel in the heart of Vientiane. Walking distance to all major cafes.', description_lao: 'ໂຮງແຮມທີ່ອົບອຸ່ນໃນໃຈກາງເມືອງວຽງຈັນ.', price: 85, currency: 'USD/night', location: 'Vientiane', image_urls: getImages('hotels', 1) },
+        { category: 'hotels', title: 'Eco-Lodge Retreat', title_lao: 'ທີ່ພັກແບບອະນຸລັກທຳມະຊາດ', description: 'Surrounded by lush jungle and rice paddies. Perfect for a digital detox retreat.', description_lao: 'ອ້ອມຮອບໄປດ້ວຍປ່າໄມ້ ແລະ ທົ່ງນາ. ເໝາະສຳລັບການພັກຜ່ອນ.', price: 120, currency: 'USD/night', location: 'Vang Vieng', image_urls: getImages('hotels', 2) },
+        { category: 'hotels', title: 'Panoramic Penthouse', title_lao: 'ຫ້ອງແຖວຫຼັງຄາກວ້າງ', description: 'Modern apartment with panoramic city views, full kitchen and high-speed internet.', description_lao: 'ອາພາດເມັນທັນສະໄໝພ້ອມວິວເມືອງ.', price: 150, currency: 'USD/night', location: 'Vientiane', image_urls: getImages('hotels', 3) },
+        { category: 'hotels', title: 'Traditional Wooden Guesthouse', title_lao: 'ເຮືອນພັກໄມ້ແບບດັ້ງເດີມ', description: 'Experience authentic local living with premium modern comforts.', description_lao: 'ສຳຜັດກັບການດຳລົງຊີວິດແບບທ້ອງຖິ່ນ.', price: 65, currency: 'USD/night', location: 'Luang Prabang', image_urls: getImages('hotels', 4) },
 
-        // FOOD
-        { category: 'food', title: 'The Best Khao Soi', title_lao: 'ເຂົ້າຊອຍທີ່ແຊບທີ່ສຸດ', description: 'Rich, spicy, and absolutely packed with flavor. You have to try this local favorite.', description_lao: 'ເຂັ້ມຂຸ້ນ, ເຜັດ ແລະ ແຊບຫຼາຍ.', price: 5, currency: 'USD', location: 'Night Market', image_urls: getImages('food', 0) },
-        { category: 'food', title: 'Authentic Papaya Salad (Tum Mak Hoong)', title_lao: 'ຕຳໝາກຫຸ່ງ', description: 'Freshly made with sticky rice. The ultimate comfort food!', description_lao: 'ເຮັດສົດໆໃໝ່ໆກັບເຂົ້າໜຽວ. ອາຫານແຊບໆ!', price: 4, currency: 'USD', location: 'Vientiane', image_urls: getImages('food', 1) },
-        { category: 'food', title: 'Riverside High-Tea Experience', title_lao: 'ດື່ມຊາຍາມບ່າຍແຄມນ້ຳ', description: 'A perfect blend of French pastries and local flavors overlooking the river.', description_lao: 'ລົດຊາດທ້ອງຖິ່ນແຄມແມ່ນ້ຳ.', price: 35, currency: 'USD', location: 'Riverside Lounge', image_urls: getImages('food', 2) },
-        { category: 'food', title: 'Lao BBQ (Muu Kra Tha) Feast', title_lao: 'ຊຸດປີ້ງຊິ້ນ (ໝູກະທະ)', description: 'Nothing beats grilling under the stars. Premium meat sets available.', description_lao: 'ບໍ່ມີຫຍັງດີກວ່າການປີ້ງພາຍໃຕ້ດວງດາວ.', price: 20, currency: 'USD', location: 'Vientiane', image_urls: getImages('food', 3) },
-        { category: 'food', title: 'Tropical Fruit & Coconut Bar', title_lao: 'ບາໝາກໄມ້ ແລະ ນ້ຳໝາກພ້າວ', description: 'Fresh tropical fruit platter and coconut water to beat the afternoon heat.', description_lao: 'ໝາກໄມ້ສົດ ແລະ ນ້ຳໝາກພ້າວ.', price: 8, currency: 'USD', location: 'Luang Prabang', image_urls: getImages('food', 4) },
+        // RESTAURANTS
+        { category: 'restaurants', title: 'The Best Khao Soi', title_lao: 'ເຂົ້າຊອຍທີ່ແຊບທີ່ສຸດ', description: 'Rich, spicy, and absolutely packed with flavor. You have to try this local favorite.', description_lao: 'ເຂັ້ມຂຸ້ນ, ເຜັດ ແລະ ແຊບຫຼາຍ.', price: 5, currency: 'USD', location: 'Night Market', image_urls: getImages('restaurants', 0) },
+        { category: 'restaurants', title: 'Authentic Papaya Salad (Tum Mak Hoong)', title_lao: 'ຕຳໝາກຫຸ່ງ', description: 'Freshly made with sticky rice. The ultimate comfort food!', description_lao: 'ເຮັດສົດໆໃໝ່ໆກັບເຂົ້າໜຽວ. ອາຫານແຊບໆ!', price: 4, currency: 'USD', location: 'Vientiane', image_urls: getImages('restaurants', 1) },
+        { category: 'restaurants', title: 'Riverside High-Tea Experience', title_lao: 'ດື່ມຊາຍາມບ່າຍແຄມນ້ຳ', description: 'A perfect blend of French pastries and local flavors overlooking the river.', description_lao: 'ລົດຊາດທ້ອງຖິ່ນແຄມແມ່ນ້ຳ.', price: 35, currency: 'USD', location: 'Riverside Lounge', image_urls: getImages('restaurants', 2) },
+        { category: 'restaurants', title: 'Lao BBQ (Muu Kra Tha) Feast', title_lao: 'ຊຸດປີ້ງຊິ້ນ (ໝູກະທະ)', description: 'Nothing beats grilling under the stars. Premium meat sets available.', description_lao: 'ບໍ່ມີຫຍັງດີກວ່າການປີ້ງພາຍໃຕ້ດວງດາວ.', price: 20, currency: 'USD', location: 'Vientiane', image_urls: getImages('restaurants', 3) },
+        { category: 'restaurants', title: 'Tropical Fruit & Coconut Bar', title_lao: 'ບາໝາກໄມ້ ແລະ ນ້ຳໝາກພ້າວ', description: 'Fresh tropical fruit platter and coconut water to beat the afternoon heat.', description_lao: 'ໝາກໄມ້ສົດ ແລະ ນ້ຳໝາກພ້າວ.', price: 8, currency: 'USD', location: 'Luang Prabang', image_urls: getImages('restaurants', 4) },
 
-        // EXPERIENCE
-        { category: 'experience', title: 'Sunrise Hot Air Balloon', title_lao: 'ບອນລູນຍາມເຊົ້າ', description: 'Ride at sunrise over the karst mountains. A breathtaking, once-in-a-lifetime view!', description_lao: 'ຂີ່ບອນລູນເບິ່ງວິວພູເຂົາ.', price: 120, currency: 'USD', location: 'Vang Vieng', image_urls: getImages('experience', 0) },
-        { category: 'experience', title: 'Guided Jungle Trekking', title_lao: 'ຍ່າງປ່າ', description: 'Trek through pristine jungle. Spot rare birds and discover hidden waterfalls!', description_lao: 'ຍ່າງປ່າຊອກຫານ້ຳຕົກຕາດ.', price: 45, currency: 'USD', location: 'Nam Ha NPA', image_urls: getImages('experience', 1) },
-        { category: 'experience', title: 'Mekong Sunset Cruise', title_lao: 'ລ່ອງເຮືອເບິ່ງຕາເວັນຕົກ', description: 'Includes a traditional dinner and drinks on board down the Mekong river.', description_lao: 'ລວມມີອາຫານແລງ ແລະ ເຄື່ອງດື່ມເທິງເຮືອ.', price: 60, currency: 'USD', location: 'Mekong River', image_urls: getImages('experience', 2) },
-        { category: 'experience', title: 'Traditional Pottery Masterclass', title_lao: 'ຮຽນເຮັດເຄື່ອງປັ້ນດິນເຜົາ', description: 'Learn how to craft and fire your own clay bowls hands-on!', description_lao: 'ຮຽນວິທີການເຮັດເຄື່ອງປັ້ນດິນເຜົາດ້ວຍຕົນເອງ.', price: 30, currency: 'USD', location: 'Artisan Village', image_urls: getImages('experience', 3) },
-        { category: 'experience', title: 'Kuang Si Falls Swimming Tour', title_lao: 'ທົວລອຍນ້ຳຕາດກວາງຊີ', description: 'Swim in the turquoise tiers of Kuang Si. Transport and lunch included.', description_lao: 'ລອຍນ້ຳທີ່ຕາດກວາງຊີ.', price: 25, currency: 'USD', location: 'Luang Prabang', image_urls: getImages('experience', 4) },
+        // FLIGHTS
+        { category: 'flights', title: 'Vientiane to Luang Prabang', title_lao: 'ວຽງຈັນ ຫາ ຫຼວງພະບາງ', description: 'Direct flight, includes 20kg baggage.', description_lao: 'ບິນກົງ, ລວມນ້ຳໜັກກະເປົາ 20kg.', price: 45, currency: 'USD', location: 'Vientiane', image_urls: getImages('flights', 0) },
+        { category: 'flights', title: 'Vientiane to Pakse', title_lao: 'ວຽງຈັນ ຫາ ປາກເຊ', description: 'Round trip ticket for business class.', description_lao: 'ປີ້ໄປກັບຊັ້ນທຸລະກິດ.', price: 120, currency: 'USD', location: 'Vientiane', image_urls: getImages('flights', 1) },
+        { category: 'flights', title: 'Luang Prabang to Hanoi', title_lao: 'ຫຼວງພະບາງ ຫາ ຮ່າໂນ້ຍ', description: 'International flight connection.', description_lao: 'ຖ້ຽວບິນສາກົນ.', price: 90, currency: 'USD', location: 'Luang Prabang', image_urls: getImages('flights', 2) },
+        { category: 'flights', title: 'Vientiane to Bangkok', title_lao: 'ວຽງຈັນ ຫາ ບາງກອກ', description: 'Daily flights with budget airlines.', description_lao: 'ຖ້ຽວບິນທຸກມື້.', price: 55, currency: 'USD', location: 'Vientiane', image_urls: getImages('flights', 3) },
+        { category: 'flights', title: 'Pakse to Siem Reap', title_lao: 'ປາກເຊ ຫາ ຊຽມຣຽບ', description: 'Explore the Angkor Wat with direct connections.', description_lao: 'ສຳຫຼວດນະຄອນວັດດ້ວຍຖ້ຽວບິນກົງ.', price: 150, currency: 'USD', location: 'Pakse', image_urls: getImages('flights', 4) },
 
-        // HOME
-        { category: 'home', title: 'Fully Furnished 3-BR Villa', title_lao: 'ວິນລາ 3 ຫ້ອງນອນ', description: 'Beautiful villa with a private garden. Ready to move in!', description_lao: 'ວິນລາທີ່ສວຍງາມພ້ອມສວນສ່ວນຕົວ.', price: 1200, currency: 'USD/mo', location: 'Sisattanak District', image_urls: getImages('home', 0) },
-        { category: 'home', title: 'Minimalist Interior Design', title_lao: 'ອອກແບບພາຍໃນແບບມິນິມໍ', description: 'We transform empty spaces into luxurious, cozy homes.', description_lao: 'ພວກເຮົາປ່ຽນພື້ນທີ່ຫວ່າງເປົ່າໃຫ້ເປັນເຮືອນ.', price: 500, currency: 'USD', location: 'Vientiane', image_urls: getImages('home', 1) },
-        { category: 'home', title: 'Custom Teak Furniture', title_lao: 'ເຟີນີເຈີໄມ້ສັກ', description: 'Premium local woodwork. Solid teak dining tables made to order.', description_lao: 'ເຟີນີເຈີໄມ້ສັກຄຸນນະພາບ.', price: 800, currency: 'USD', location: 'Vientiane', image_urls: getImages('home', 2) },
-        { category: 'home', title: 'Downtown Loft Apartment', title_lao: 'ອາພາດເມັນໃຈກາງເມືອງ', description: 'Spacious loft with floor-to-ceiling windows and incredible natural light.', description_lao: 'ອາພາດເມັນກວ້າງຂວາງ.', price: 900, currency: 'USD/mo', location: 'Chanthabouly', image_urls: getImages('home', 3) },
-        { category: 'home', title: 'Deep-Sanitization Cleaning', title_lao: 'ບໍລິການທຳຄວາມສະອາດ', description: 'Professional home cleaning service. Book us for a sparkling clean home!', description_lao: 'ບໍລິການທຳຄວາມສະອາດເຮືອນມືອາຊີບ.', price: 40, currency: 'USD', location: 'Vientiane', image_urls: getImages('home', 4) },
-
-        // NATURE
-        { category: 'nature', title: 'Karst Mountains Photography', title_lao: 'ຖ່າຍຮູບພູເຂົາຫີນປູນ', description: 'The misty morning views over the limestone karst mountains are surreal.', description_lao: 'ວິວຍາມເຊົ້າທີ່ມີໝອກປົກຄຸມພູເຂົາຫີນປູນ.', price: 50, currency: 'USD', location: 'Vang Vieng', image_urls: getImages('nature', 0) },
-        { category: 'nature', title: 'Hidden Waterfall Hike', title_lao: 'ຍ່າງປ່າຊອກນ້ຳຕົກ', description: 'Discover hidden jungle waterfalls that take your breath away.', description_lao: 'ຄົ້ນພົບນ້ຳຕົກຕາດທີ່ເຊື່ອງຊ້ອນຢູ່ໃນປ່າ.', price: 30, currency: 'USD', location: 'Luang Prabang', image_urls: getImages('nature', 1) },
-        { category: 'nature', title: 'Mekong Golden Sunset Tour', title_lao: 'ທົວເບິ່ງຕາເວັນຕົກດິນ', description: 'A peaceful boat tour to watch the sunset over the calm waters of the Mekong.', description_lao: 'ທົວເຮືອເພື່ອຊົມຕາເວັນຕົກ.', price: 20, currency: 'USD', location: 'Vientiane', image_urls: getImages('nature', 2) },
-        { category: 'nature', title: 'Wild Orchid Spotting', title_lao: 'ເບິ່ງດອກກ້ວຍໄມ້ປ່າ', description: 'Incredible bio-diversity in the national protected areas.', description_lao: 'ເບິ່ງຄວາມຫຼາກຫຼາຍທາງຊີວະພາບໃນເຂດປ່າສະຫງວນ.', price: 45, currency: 'USD', location: 'Nam Et-Phou Louey', image_urls: getImages('nature', 3) },
-        { category: 'nature', title: 'Cave River Paddling', title_lao: 'ພາຍເຮືອໃນຖ້ຳ', description: 'Paddle through quiet cave rivers with huge glowing stalactites!', description_lao: 'ພາຍເຮືອໃນຖ້ຳທີ່ມີຫີນຍ້ອຍ.', price: 35, currency: 'USD', location: 'Kong Lor', image_urls: getImages('nature', 4) },
+        // SEMINARS
+        { category: 'seminars', title: 'Lao Business Networking 2026', title_lao: 'ງານເຄືອຂ່າຍທຸລະກິດລາວ 2026', description: 'Connect with top entrepreneurs in Vientiane. Dinner included.', description_lao: 'ເຊື່ອມຕໍ່ກັບຜູ້ປະກອບການຊັ້ນນຳໃນວຽງຈັນ.', price: 50, currency: 'USD', location: 'Vientiane', image_urls: getImages('seminars', 0) },
+        { category: 'seminars', title: 'Digital Marketing Masterclass', title_lao: 'ຮຽນການຕະຫຼາດດິຈິຕອນ', description: 'Learn how to grow your brand online with experts.', description_lao: 'ຮຽນຮູ້ວິທີການສ້າງແບຣນອອນລາຍ.', price: 200, currency: 'USD', location: 'Online', image_urls: getImages('seminars', 1) },
+        { category: 'seminars', title: 'Real Estate Investment Summit', title_lao: 'ງານສຳມະນາອະສັງຫາລິມະຊັບ', description: 'Top strategies for investing in Lao property.', description_lao: 'ຍຸດທະສາດການລົງທຶນອະສັງຫາລິມະຊັບ.', price: 120, currency: 'USD', location: 'Vientiane', image_urls: getImages('seminars', 2) },
+        { category: 'seminars', title: 'Tourism & Hospitality Workshop', title_lao: 'ງານອົບຮົມການທ່ອງທ່ຽວ', description: 'Improve your service quality for international guests.', description_lao: 'ປັບປຸງຄຸນນະພາບການບໍລິການ.', price: 30, currency: 'USD', location: 'Luang Prabang', image_urls: getImages('seminars', 3) },
+        { category: 'seminars', title: 'Tech Startup Pitch Night', title_lao: 'ງານນຳສະເໜີທຸລະກິດເຕັກໂນໂລຊີ', description: 'Watch local startups pitch their ideas to investors.', description_lao: 'ເບິ່ງການນຳສະເໜີໄອເດຍທຸລະກິດ.', price: 15, currency: 'USD', location: 'Vientiane', image_urls: getImages('seminars', 4) },
       ];
 
       for (const p of LISTINGS) {
@@ -171,7 +165,7 @@ export default function Explore() {
         l.amenities?.some(a => a.toLowerCase().includes(q))
       );
     }
-    if (cat) {
+    if (cat && cat !== 'all') {
       result = result.filter(l => l.category === cat);
     }
     if (sort === 'price_low') result.sort((a, b) => a.price - b.price);
@@ -255,23 +249,9 @@ export default function Explore() {
       </div>
 
       {/* Category filters */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        {BUSINESS_CATS.map(cat => (
-          <button
-            key={cat.key}
-            onClick={() => handleCatFilter(cat.key)}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-              activeCat === cat.key
-                ? 'bg-primary text-primary-foreground border-primary'
-                : 'border-border text-muted-foreground bg-card hover:border-primary'
-            }`}
-          >
-            {cat.icon} {lang === 'lo' ? cat.lo : cat.en}
-          </button>
-        ))}
-      </div>
+      <CategoryTabs activeType="business" activeCat={activeCat} onSelectCat={handleCatFilter} lang={lang} />
 
-      <p className="text-sm text-muted-foreground mb-4">
+      <p className="text-sm text-muted-foreground mb-4 mt-2">
         {filtered.length} {t.resultsFound}
       </p>
 

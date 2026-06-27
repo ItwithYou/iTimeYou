@@ -10,6 +10,7 @@ import StarRating from '../components/StarRating';
 import TrustBadge from '../components/TrustBadge';
 import { PERSONAL_CATS } from '../hooks/useLang';
 import CreateServicePost from '../components/CreateServicePost';
+import CategoryTabs from '../components/CategoryTabs';
 
 export default function Feed() {
   const { profile, currentUser, t, lang } = useAppContext();
@@ -43,8 +44,8 @@ export default function Feed() {
   // Automated one-time seeder for premium demo data — Yakuci admin posts
   useEffect(() => {
     const seedData = async () => {
-      if (localStorage.getItem('seeded_yakuci_v9')) return;
-      localStorage.setItem('seeded_yakuci_v9', 'true');
+      if (localStorage.getItem('seeded_yakuci_v10')) return;
+      localStorage.setItem('seeded_yakuci_v10', 'true');
 
       // Clean up old demo posts
       try {
@@ -65,79 +66,19 @@ export default function Feed() {
 
       const DEMO_POSTS = [
         {
-          category: 'culture',
-          text: 'ປີໃໝ່ມົ້ງ 2026! ເທດສະການທີ່ສວຍງາມທີ່ສຸດ — ເຕັ້ນລຳ, ເກມໂຍນລູກບານ, ແລະ ຊຸດມົ້ງດັ້ງເດີມ. ມາສະເຫຼີມສະຫຼອງນຳກັນ! 🎊🌸',
-          text_en: 'Hmong New Year 2026! The most beautiful festival — traditional dances, ball-tossing games, and stunning Hmong costumes. Come celebrate with us! 🎊🌸',
-          text_lo: 'ປີໃໝ່ມົ້ງ 2026! ເທດສະການທີ່ສວຍງາມທີ່ສຸດ — ເຕັ້ນລຳ, ເກມໂຍນລູກບານ, ແລະ ຊຸດມົ້ງດັ້ງເດີມ. ມາສະເຫຼີມສະຫຼອງນຳກັນ! 🎊🌸',
+          category: 'talking',
+          text: 'ສະບາຍດີ! ມີໃຜຢາກຝຶກພາສາອັງກິດບໍ່? ຂ້ອຍເປັນຄູສອນພາສາອັງກິດ ຮັບລົມກັນເປັນພາສາອັງກິດເພື່ອຝຶກການເວົ້າ. ມາລົມກັນ! 💬✨',
+          text_en: 'Hello! Anyone wants to practice English? I am an English teacher offering conversation practice. Let us talk! 💬✨',
+          text_lo: 'ສະບາຍດີ! ມີໃຜຢາກຝຶກພາສາອັງກິດບໍ່? ຂ້ອຍເປັນຄູສອນພາສາອັງກິດ ຮັບລົມກັນເປັນພາສາອັງກິດເພື່ອຝຶກການເວົ້າ. ມາລົມກັນ! 💬✨',
           photo_urls: [
-            'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
-            'https://images.unsplash.com/photo-1596489481283-36cb9eb070d6?w=800&q=80',
-            'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80',
-            'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
-            'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80'
+            'https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80'
           ],
-          photo_url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
-          service_price: 0,
-        },
-        {
-          category: 'food',
-          text: 'ເຊີນມາກິນເຂົ້ານຳຄອບຄົວລາວແທ້ໆ! ລາບ, ຕຳໝາກຫຸ່ງ, ປີ້ງໄກ່, ເຂົ້າໜຽວ — ອາຫານເຮັດສົດໆຈາກສວນຫຼັງບ້ານ. ປະສົບການທີ່ອົບອຸ່ນ ແລະ ເປັນກັນເອງ 🏡🍚',
-          text_en: 'Join a real Lao family dinner at home! Laab, papaya salad, grilled chicken, sticky rice — all freshly made from the backyard garden. A warm and authentic home-hosted experience 🏡🍚',
-          text_lo: 'ເຊີນມາກິນເຂົ້ານຳຄອບຄົວລາວແທ້ໆ! ລາບ, ຕຳໝາກຫຸ່ງ, ປີ້ງໄກ່, ເຂົ້າໜຽວ — ອາຫານເຮັດສົດໆຈາກສວນຫຼັງບ້ານ. ປະສົບການທີ່ອົບອຸ່ນ ແລະ ເປັນກັນເອງ 🏡🍚',
-          photo_urls: [
-            'https://images.unsplash.com/photo-1559314809-0d155014e29e?w=800&q=80',
-            'https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?w=800&q=80',
-            'https://images.unsplash.com/photo-1547592180-85f173990554?w=800&q=80',
-            'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&q=80',
-            'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80'
-          ],
-          photo_url: 'https://images.unsplash.com/photo-1559314809-0d155014e29e?w=800&q=80',
-          service_price: 15, service_type: 'Family Dinner', service_location: 'Vientiane Home', service_currency: 'USD',
-        },
-        {
-          category: 'experience',
-          text: 'ນັດລົມກັບຜູ້ຊ່ຽວຊານດ້ານວັດທະນະທຳລາວ! ຮຽນຮູ້ກ່ຽວກັບປະເພນີບາສີ, ການຖັກແສ່ວ, ແລະ ປະຫວັດສາດຊົນເຜົ່າ. ຈອງເວລາ 1 ຊົ່ວໂມງ ເພື່ອສົນທະນາສ່ວນຕົວ 🎓🇱🇦',
-          text_en: 'Book a 1-on-1 session with a Lao cultural expert! Learn about Baci traditions, silk weaving heritage, and ethnic group history. 1-hour private consultation available 🎓🇱🇦',
-          text_lo: 'ນັດລົມກັບຜູ້ຊ່ຽວຊານດ້ານວັດທະນະທຳລາວ! ຮຽນຮູ້ກ່ຽວກັບປະເພນີບາສີ, ການຖັກແສ່ວ, ແລະ ປະຫວັດສາດຊົນເຜົ່າ. ຈອງເວລາ 1 ຊົ່ວໂມງ ເພື່ອສົນທະນາສ່ວນຕົວ 🎓🇱🇦',
-          photo_urls: [
-            'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
-            'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800&q=80',
-            'https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8e?w=800&q=80',
-            'https://images.unsplash.com/photo-1534008897995-27a23e859048?w=800&q=80',
-            'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800&q=80'
-          ],
-          photo_url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
-          service_price: 25, service_type: 'Expert Session', service_location: 'Online / Vientiane', service_currency: 'USD',
-        },
-        {
-          category: 'nature',
-          text: 'ທຳມະຊາດຂອງລາວງາມຫຼາຍ! ນ້ຳຕົກຕາດກວາງຊີ ນ້ຳໃສສີຟ້າທີ່ບໍ່ເຄີຍເຫັນມາກ່ອນ. ການເດີນປ່າຍາກແຕ່ຄຸ້ມຄ່າ — ທຳມະຊາດລາວບໍ່ມີບ່ອນໃດທຽບໄດ້ ⛰️💚',
-          text_en: 'Lao nature is unmatched! Kuang Si Falls with crystal-clear turquoise water like nowhere else. The trek is challenging but so worth it — nothing compares to Lao wilderness ⛰️💚',
-          text_lo: 'ທຳມະຊາດຂອງລາວງາມຫຼາຍ! ນ້ຳຕົກຕາດກວາງຊີ ນ້ຳໃສສີຟ້າທີ່ບໍ່ເຄີຍເຫັນມາກ່ອນ. ການເດີນປ່າຍາກແຕ່ຄຸ້ມຄ່າ — ທຳມະຊາດລາວບໍ່ມີບ່ອນໃດທຽບໄດ້ ⛰️💚',
-          photo_urls: [
-            'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&q=80',
-            'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
-            'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800&q=80',
-            'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80',
-            'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=800&q=80'
-          ],
-          photo_url: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&q=80',
-          service_price: 0,
-        },
-        {
-          category: 'stay',
-          text: 'ເຮືອນພັກແບບລາວດັ້ງເດີມຕິດແມ່ນ້ຳຂອງ ຢູ່ຫຼວງພະບາງ. ຕື່ນມາຕອນເຊົ້າຟັງສຽງນ້ຳ, ເບິ່ງຂະບວນຕັກບາດ, ແລະ ກິນເຂົ້າເຊົ້າແບບລາວ ☀️🏘️',
-          text_en: 'Traditional Lao riverside guesthouse in Luang Prabang. Wake up to the sound of the Mekong, watch the morning alms giving, and enjoy an authentic Lao breakfast ☀️🏘️',
-          text_lo: 'ເຮືອນພັກແບບລາວດັ້ງເດີມຕິດແມ່ນ້ຳຂອງ ຢູ່ຫຼວງພະບາງ. ຕື່ນມາຕອນເຊົ້າຟັງສຽງນ້ຳ, ເບິ່ງຂະບວນຕັກບາດ, ແລະ ກິນເຂົ້າເຊົ້າແບບລາວ ☀️🏘️',
-          photo_urls: [
-            'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80',
-            'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80',
-            'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80',
-            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
-            'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&q=80'
-          ],
-          photo_url: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80',
-          service_price: 45, service_type: 'Lao Guesthouse', service_location: 'Luang Prabang', service_currency: 'USD/night',
+          photo_url: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=800&q=80',
+          service_price: 10, service_type: 'Language Practice', service_location: 'Online', service_currency: 'USD/hour',
         },
         {
           category: 'home',
@@ -145,14 +86,46 @@ export default function Feed() {
           text_en: 'Rural forest homestay in Laos! Peaceful, fresh air, and a true taste of authentic countryside living. Your perfect Airbnb-style getaway 🌳🏡',
           text_lo: 'ບ້ານພັກຕາກອາກາດກາງປ່າທຳມະຊາດໃນລາວ! ງຽບສະຫງົບ, ອາກາດສົດຊື່ນ, ແລະ ໄດ້ສຳຜັດກັບວິຖີຊີວິດຊົນນະບົດແບບແທ້ໆ 🌳🏡',
           photo_urls: [
-            'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=800&q=80',
-            'https://images.unsplash.com/photo-1449844908441-8829872d2607?w=800&q=80',
-            'https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=800&q=80',
-            'https://images.unsplash.com/photo-1521401830884-6c03c1c87ebb?w=800&q=80',
-            'https://images.unsplash.com/photo-1542718610-a1d656d1884c?w=800&q=80'
+            'https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1521401830884-6c03c1c87ebb?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1542718610-a1d656d1884c?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80'
           ],
-          photo_url: 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=800&q=80',
+          photo_url: 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=800&q=80',
           service_price: 35, service_type: 'Forest Homestay', service_location: 'Vang Vieng Rural', service_currency: 'USD/night',
+        },
+        {
+          category: 'food',
+          text: 'ເຊີນມາກິນເຂົ້ານຳຄອບຄົວລາວແທ້ໆ! ລາບ, ຕຳໝາກຫຸ່ງ, ປີ້ງໄກ່, ເຂົ້າໜຽວ — ອາຫານເຮັດສົດໆຈາກສວນຫຼັງບ້ານ. ປະສົບການທີ່ອົບອຸ່ນ ແລະ ເປັນກັນເອງ 🏡🍚',
+          text_en: 'Join a real Lao family dinner at home! Laab, papaya salad, grilled chicken, sticky rice — all freshly made from the backyard garden. A warm and authentic home-hosted experience 🏡🍚',
+          text_lo: 'ເຊີນມາກິນເຂົ້ານຳຄອບຄົວລາວແທ້ໆ! ລາບ, ຕຳໝາກຫຸ່ງ, ປີ້ງໄກ່, ເຂົ້າໜຽວ — ອາຫານເຮັດສົດໆຈາກສວນຫຼັງບ້ານ. ປະສົບການທີ່ອົບອຸ່ນ ແລະ ເປັນກັນເອງ 🏡🍚',
+          photo_urls: [
+            'https://images.unsplash.com/photo-1559314809-0d155014e29e?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1548943487-a2e4e43b4859?auto=format&fit=crop&w=800&q=80'
+          ],
+          photo_url: 'https://images.unsplash.com/photo-1559314809-0d155014e29e?auto=format&fit=crop&w=800&q=80',
+          service_price: 15, service_type: 'Family Dinner', service_location: 'Vientiane Home', service_currency: 'USD/person',
+        },
+        {
+          category: 'guide',
+          text: 'ຮັບພາທ່ຽວຫຼວງພະບາງ! ຮູ້ຈັກທຸກມຸມເມືອງເກົ່າ, ວັດວາອາຮາມ, ແລະ ຮ້ານອາຫານລັບໆ ທີ່ນັກທ່ອງທ່ຽວບໍ່ຄ່ອຍຮູ້. ຈອງມື້ນີ້! 🗺️🛵',
+          text_en: 'Local Luang Prabang guide! I know every corner of the old town, hidden temples, and secret local eateries that tourists usually miss. Book today! 🗺️🛵',
+          text_lo: 'ຮັບພາທ່ຽວຫຼວງພະບາງ! ຮູ້ຈັກທຸກມຸມເມືອງເກົ່າ, ວັດວາອາຮາມ, ແລະ ຮ້ານອາຫານລັບໆ ທີ່ນັກທ່ອງທ່ຽວບໍ່ຄ່ອຍຮູ້. ຈອງມື້ນີ້! 🗺️🛵',
+          photo_urls: [
+            'https://images.unsplash.com/photo-1610756055562-b94f6e1f0e42?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1517400508447-f8dd518b86db?auto=format&fit=crop&w=800&q=80'
+          ],
+          photo_url: 'https://images.unsplash.com/photo-1610756055562-b94f6e1f0e42?auto=format&fit=crop&w=800&q=80',
+          service_price: 25, service_type: 'Local Guide', service_location: 'Luang Prabang', service_currency: 'USD/day',
         },
       ];
 
@@ -274,6 +247,8 @@ export default function Feed() {
 
         {/* Main feed */}
         <div className="lg:col-span-3 space-y-4">
+          <CategoryTabs activeType="personal" activeCat={filterCat} onSelectCat={setFilterCat} lang={lang} />
+          
           <CreateServicePost
               profile={profile}
               currentUser={currentUser}
@@ -283,17 +258,7 @@ export default function Feed() {
             
           {/* Filter tabs */}
           <div className="space-y-3 mb-4">
-            {/* Category filters */}
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-              {PERSONAL_CATS.map(cat =>
-                <button
-                  key={cat.key}
-                  onClick={() => setFilterCat(cat.key)}
-                  className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${filterCat === cat.key ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:border-primary/50'}`}>
-                  {cat.icon} {lang === 'lo' ? cat.lo : cat.en}
-                </button>
-              )}
-            </div>
+
 
             {/* Location filters */}
             <div className="flex gap-2 flex-wrap items-center">

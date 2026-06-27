@@ -132,6 +132,7 @@ export const PERSONAL_CATS = [
 ];
 
 export const BUSINESS_CATS = [
+  { key: 'all', icon: '🌍', en: 'All', lo: 'ທັງໝົດ', descEn: 'View all listings', descLo: 'ເບິ່ງລາຍການທັງໝົດ' },
   { key: 'tours', icon: '🚌', en: 'Tours', lo: 'ທົວ', descEn: 'Professional tour packages', descLo: 'ແພັກເກັດທົວມືອາຊີບ' },
   { key: 'hotels', icon: '🏨', en: 'Hotels', lo: 'ໂຮງແຮມ', descEn: 'Book hotel rooms', descLo: 'ຈອງຫ້ອງພັກໂຮງແຮມ' },
   { key: 'flights', icon: '✈️', en: 'Flights', lo: 'ປີ້ຍົນ', descEn: 'Flight tickets', descLo: 'ປີ້ຍົນໂດຍສານ' },
