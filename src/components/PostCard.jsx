@@ -9,6 +9,7 @@ import { base44 } from '@/api/base44Client';
 import { CAT_ICONS } from '../hooks/useLang';
 import moment from 'moment';
 import { formatTimestampDMY } from '../utils/dateUtils';
+import { formatServiceWhen } from '../utils/dateUtils';
 
 export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, authorProfile: initialAuthorProfile }) {
   const { profile, currentUser, refreshProfile } = useAppContext();
@@ -40,11 +41,10 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
   const [commentProfiles, setCommentProfiles] = useState({});
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
-  const [liked, setLiked] = useState(post.likes?.includes(currentUserEmail));
+  const [liked, setLiked] = useState(Array.isArray(post.likes) && post.likes.includes(currentUserEmail));
   const [serviceActive, setServiceActive] = useState(post.service_active !== false);
   const editPhotoInputRef = useRef(null);
   const [likeCount, setLikeCount] = useState(post.like_count || 0);
-  const [commentCount, setCommentCount] = useState(post.comment_count || 0);
   const isOwn = currentUserEmail === post.author_email;
   const canEdit = isOwn || isAdmin;
   const catIndex = ['culture', 'stay', 'food', 'experience', 'home', 'nature'].indexOf(post.category);
@@ -77,24 +77,8 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
     setAuthorProfile(initialAuthorProfile || null);
   }, [initialAuthorProfile]);
 
-  // Auto-heal old posts that were created before the comment_count field existed
-  useEffect(() => {
-    if (post.comment_count === undefined) {
-      base44.entities.Comment.filter({ post_id: post.id }).then(data => {
-        if (data.length > 0) {
-          setCommentCount(data.length);
-          base44.entities.Post.update(post.id, { comment_count: data.length }).catch(console.error);
-        } else {
-          // Set to 0 so we don't keep checking it
-          base44.entities.Post.update(post.id, { comment_count: 0 }).catch(console.error);
-        }
-      }).catch(console.error);
-    }
-  }, [post.id, post.comment_count]);
-
   const toggleLike = async () => {
-    if (!currentUser) { window.dispatchEvent(new Event('open-login')); return; }
-    const currentLikes = post.likes || [];
+    const currentLikes = Array.isArray(post.likes) ? post.likes : [];
     const alreadyLiked = currentLikes.includes(currentUserEmail);
     const newLikes = alreadyLiked
       ? currentLikes.filter(e => e !== currentUserEmail)
@@ -125,7 +109,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
   };
 
   const handleBookOrChat = async () => {
-    if (!currentUser) { window.dispatchEvent(new Event('open-login')); return; }
+    if (!currentUser) { navigate('/login'); return; }
     setShowBookModal(true);
   };
 
@@ -159,11 +143,6 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
       text: commentText,
     });
     setCommentText('');
-
-    const newCount = commentCount + 1;
-    setCommentCount(newCount);
-    base44.entities.Post.update(post.id, { comment_count: newCount });
-
     await loadComments();
   };
 
@@ -199,9 +178,9 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
           className="flex-shrink-0"
         >
           <img
-            src={authorProfile?.photo_url || authorProfile?.avatar_url || post.author_avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author_email}`}
+            src={post.author_avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author_email}`}
             alt=""
-            className="w-12 h-12 rounded-full object-cover border-2 border-primary/20 hover:opacity-80 transition-opacity bg-muted"
+            className="w-12 h-12 rounded-full object-cover border-2 border-primary/20 hover:opacity-80 transition-opacity"
           />
         </button>
         <div className="flex-1 min-w-0">
@@ -211,7 +190,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
             }}
             className="text-sm font-bold truncate hover:text-primary transition-colors block"
           >
-            {authorProfile ? `${authorProfile.first_name || ''} ${authorProfile.last_name || ''}`.trim() || 'User' : post.author_name || 'User'}
+            {post.author_name || 'User'}
           </button>
           <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
             <span>{moment(new Date(post.created_date)).fromNow()}</span>
@@ -291,9 +270,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
           </div>
         </div>
       ) : (
-        <div className="px-4 pb-3 text-sm leading-relaxed text-foreground whitespace-pre-wrap">
-          {lang === 'lo' ? (post.text_lo || post.text) : (post.text_en || post.text)}
-        </div>
+        <div className="px-4 pb-3 text-sm leading-relaxed text-foreground">{post.text}</div>
       )}
 
       {/* Photos */}
@@ -347,7 +324,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
       {/* Stats */}
       <div className="flex gap-4 px-4 py-2 text-xs text-muted-foreground border-t border-border/60 bg-muted/20">
         <span>{likeCount} {t.likes}</span>
-        <span>{Math.max(comments.length, commentCount)} {t.comments}</span>
+        <span>{comments.length || post.comment_count || 0} {t.comments}</span>
       </div>
 
       {/* Service status indicator + toggle */}
@@ -395,11 +372,10 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
       )}
 
       {/* Actions */}
-      <div className="flex border-t border-border" style={{ touchAction: 'manipulation' }}>
+      <div className="flex border-t border-border">
         <button
           onClick={toggleLike}
           className={`flex-1 flex items-center justify-center gap-1.5 py-3.5 text-sm transition-colors active:bg-muted ${liked ? 'text-red-500 font-semibold' : 'text-muted-foreground'}`}
-          style={{ touchAction: 'manipulation', minHeight: '48px' }}
         >
           <Heart size={17} className={liked ? 'fill-red-500' : ''} />
           {t.like}
@@ -407,7 +383,6 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
         <button
           onClick={() => setShowComments(!showComments)}
           className="flex-1 flex items-center justify-center gap-1.5 py-3.5 text-sm text-muted-foreground active:bg-muted transition-colors"
-          style={{ touchAction: 'manipulation', minHeight: '48px' }}
         >
           <MessageCircle size={17} />
           {t.comment}
@@ -415,7 +390,6 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
         <button
           onClick={handleShare}
           className="flex-1 flex items-center justify-center gap-1.5 py-3.5 text-sm text-muted-foreground active:bg-muted transition-colors"
-          style={{ touchAction: 'manipulation', minHeight: '48px' }}
         >
           <Share2 size={17} />
           {t.share}

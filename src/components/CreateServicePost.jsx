@@ -171,48 +171,54 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
       return;
     }
     setPosting(true);
-    let photo_url = '';
-    let photo_urls = [];
-    if (photoFiles.length > 0) {
-      const uploads = await Promise.all(photoFiles.map(f => base44.integrations.Core.UploadFile({ file: f })));
-      photo_urls = uploads.map(u => u.file_url);
-      photo_url = photo_urls[0] || '';
+    try {
+      let photo_url = '';
+      let photo_urls = [];
+      if (photoFiles.length > 0) {
+        const uploads = await Promise.all(photoFiles.map(f => base44.integrations.Core.UploadFile({ file: f })));
+        photo_urls = uploads.map(u => u.file_url).filter(Boolean);
+        photo_url = photo_urls[0] || '';
+      }
+      const serviceTimeSlot = service.timeUnit === 'hours' && timeFrom && timeTo ? `${timeFrom} - ${timeTo}` : '';
+      const serviceLocationMapUrl = getGoogleMapsUrl(location);
+      await base44.entities.Post.create({
+        author_email: currentUser.email,
+        author_name: `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || (currentUser.full_name || 'User'),
+        author_avatar: profile?.photo_url || profile?.avatar_url || '',
+        text: `${text}`,
+        category: service.key === 'talking' || service.key === 'culture' ? 'culture' : service.key === 'food' ? 'food' : service.key === 'room' ? 'stay' : service.key === 'experience' ? 'experience' : service.key === 'nature' ? 'nature' : 'home',
+        photo_url,
+        photo_urls,
+        likes: [],
+        like_count: 0,
+        service_type: lang === 'lo' ? service.lo : service.en,
+        service_type_emoji: service.emoji,
+        service_price: price ? parseFloat(price) : 0,
+        service_currency: currency,
+        service_duration: duration,
+        service_duration_unit: service.timeUnit,
+        service_when: serviceTimeSlot ? `${when} · ${serviceTimeSlot}` : when,
+        service_location: location,
+        service_location_map_url: serviceLocationMapUrl,
+      });
+      setText('');
+      setPhotoFiles([]);
+      setPhotoPreviews([]);
+      setDuration(service.minTime);
+      setWhen('');
+      setTimeFrom('');
+      setTimeTo('');
+      setPrice('');
+      setCurrency(profile?.wallet_currency || 'USD');
+      setOpen(false);
+      toast.success(lang === 'lo' ? 'ໂພສສຳເລັດ ✅' : 'Service posted! ✅');
+      onPosted?.();
+    } catch (err) {
+      console.error('Post failed:', err);
+      toast.error(lang === 'lo' ? 'ໂພສບໍ່ສຳເລັດ ລອງໃໝ່' : 'Could not post. Please try again.');
+    } finally {
+      setPosting(false);
     }
-    const serviceTimeSlot = service.timeUnit === 'hours' && timeFrom && timeTo ? `${timeFrom} - ${timeTo}` : '';
-    const serviceLocationMapUrl = getGoogleMapsUrl(location);
-    await base44.entities.Post.create({
-      author_email: currentUser.email,
-      author_name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim(),
-      author_avatar: profile.photo_url || profile.avatar_url,
-      text: `${text}`,
-      category: service.key === 'talking' || service.key === 'culture' ? 'culture' : service.key === 'food' ? 'food' : service.key === 'room' ? 'stay' : service.key === 'experience' ? 'experience' : service.key === 'nature' ? 'nature' : 'home',
-      photo_url,
-      photo_urls,
-      likes: [],
-      like_count: 0,
-      service_type: lang === 'lo' ? service.lo : service.en,
-      service_type_emoji: service.emoji,
-      service_price: price ? parseFloat(price) : 0,
-      service_currency: currency,
-      service_duration: duration,
-      service_duration_unit: service.timeUnit,
-      service_when: serviceTimeSlot ? `${when} · ${serviceTimeSlot}` : when,
-      service_location: location,
-      service_location_map_url: serviceLocationMapUrl,
-    });
-    setText('');
-    setPhotoFiles([]);
-    setPhotoPreviews([]);
-    setDuration(service.minTime);
-    setWhen('');
-    setTimeFrom('');
-    setTimeTo('');
-    setPrice('');
-    setCurrency(profile?.wallet_currency || 'USD');
-    setOpen(false);
-    setPosting(false);
-    toast.success(lang === 'lo' ? 'ໂພສສຳເລັດ ✅' : 'Service posted! ✅');
-    onPosted?.();
   };
 
   // Guests can read the feed but must log in to post a service.
@@ -222,9 +228,9 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
         <span className="text-sm text-muted-foreground">
           {lang === 'lo' ? 'ເຂົ້າສູ່ລະບົບເພື່ອແບ່ງປັນບໍລິການຂອງທ່ານ' : 'Log in to share your own service'}
         </span>
-        <button onClick={() => window.dispatchEvent(new Event('open-login'))} className="flex-shrink-0 bg-primary text-primary-foreground px-4 py-2 rounded-xl text-xs font-bold hover:opacity-90 transition-opacity">
+        <a href="/login" className="flex-shrink-0 bg-primary text-primary-foreground px-4 py-2 rounded-xl text-xs font-bold hover:opacity-90 transition-opacity">
           {lang === 'lo' ? 'ເຂົ້າສູ່ລະບົບ' : 'Login'}
-        </button>
+        </a>
       </div>
     );
   }

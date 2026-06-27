@@ -10,6 +10,7 @@ import StarRating from '../components/StarRating';
 import TrustBadge from '../components/TrustBadge';
 import { CAT_KEYS, CAT_ICONS } from '../hooks/useLang';
 import CreateServicePost from '../components/CreateServicePost';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 export default function Feed() {
   const { profile, currentUser, t, lang } = useAppContext();
@@ -41,122 +42,6 @@ export default function Feed() {
 
   useEffect(() => { loadPosts(); }, []);
 
-  // Automated one-time seeder for premium demo data — Yakuci admin posts
-  useEffect(() => {
-    const seedData = async () => {
-      if (localStorage.getItem('seeded_yakuci_v2')) return;
-      localStorage.setItem('seeded_yakuci_v2', 'true');
-
-      // Clean up old corrupted demo posts from previous seeders
-      try {
-        const oldPosts = await base44.entities.Post.list('-created_date', 200);
-        const toDelete = oldPosts.filter(p =>
-          p.author_name === 'Premium User' ||
-          p.author_name === 'iTimeYou Admin' ||
-          p.author_name === 'Yakuci' ||
-          (p.author_name && p.author_name.includes('Latdaphone'))
-        );
-        for (const p of toDelete) {
-          try { await base44.entities.Post.delete(p.id); } catch {}
-        }
-      } catch {}
-
-      const ADMIN_EMAIL = 'norecord88@gmail.com';
-      const ADMIN_NAME = 'Yakuci';
-
-      const DEMO_POSTS = [
-        {
-          category: 'culture',
-          text: 'Stunning morning views at the golden stupa in Vientiane. The heritage here is incredibly well-preserved! 🙏✨',
-          text_en: 'Stunning morning views at the golden stupa in Vientiane. The heritage here is incredibly well-preserved! 🙏✨',
-          text_lo: 'ທັດສະນີຍະພາບຍາມເຊົ້າທີ່ງົດງາມຂອງທາດຫຼວງທອງໃນນະຄອນຫຼວງວຽງຈັນ. ມໍລະດົກທາງວັດທະນະທຳທີ່ນີ້ຖືກຮັກສາໄວ້ຢ່າງດີ! 🙏✨',
-          photo_urls: [
-            'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
-            'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800&q=80',
-            'https://images.unsplash.com/photo-1540122995631-7c74c31c2cf5?w=800&q=80',
-            'https://images.unsplash.com/photo-1504214208698-ea446f65c935?w=800&q=80',
-            'https://images.unsplash.com/photo-1493780474015-ba834fd0ce2f?w=800&q=80'
-          ],
-          photo_url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
-          service_price: 0,
-        },
-        {
-          category: 'nature',
-          text: 'Hidden jungle waterfalls that take your breath away. The hike was tough but absolutely worth every step! 🌿💦',
-          text_en: 'Hidden jungle waterfalls that take your breath away. The hike was tough but absolutely worth every step! 🌿💦',
-          text_lo: 'ນ້ຳຕົກໃນປ່າເລິກທີ່ເຮັດໃຫ້ຫາຍໃຈບໍ່ທັນ. ການຍ່າງປ່າແມ່ນໜັກແຕ່ຄຸ້ມຄ່າທຸກບາດກ້າວ! 🌿💦',
-          photo_urls: [
-            'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800&q=80',
-            'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80',
-            'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=800&q=80',
-            'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
-            'https://images.unsplash.com/photo-1446329813274-7c9036bd9a1f?w=800&q=80'
-          ],
-          photo_url: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800&q=80',
-          service_price: 0,
-        },
-        {
-          category: 'stay',
-          text: 'Luxury riverside villa available now. Private infinity pool overlooking the Mekong — your perfect weekend escape! 🌊🏨',
-          text_en: 'Luxury riverside villa available now. Private infinity pool overlooking the Mekong — your perfect weekend escape! 🌊🏨',
-          text_lo: 'ວິນລ້າລະດັບຫ້ອງດາວຫ້າຕິດແມ່ນ້ຳຂອງ. ສະລອຍນ້ຳສ່ວນຕົວແບບ infinity ເບິ່ງເຫັນແມ່ນ້ຳຂອງ — ສະຖານທີ່ພັກຜ່ອນທີ່ສົມບູນແບບ! 🌊🏨',
-          photo_urls: [
-            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
-            'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&q=80',
-            'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80',
-            'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80',
-            'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&q=80'
-          ],
-          photo_url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
-          service_price: 250, service_type: 'Luxury Villa', service_location: 'Luang Prabang', service_currency: 'USD',
-        },
-        {
-          category: 'food',
-          text: 'The best Khao Soi in town! Rich, spicy, and absolutely packed with flavor. A must-try Lao experience. 🍜🌶️',
-          text_en: 'The best Khao Soi in town! Rich, spicy, and absolutely packed with flavor. A must-try Lao experience. 🍜🌶️',
-          text_lo: 'ເຂົ້າຊອຍທີ່ແຊບທີ່ສຸດໃນເມືອງ! ເຂັ້ມຂຸ້ນ, ເຜັດ, ແລະ ເຕັມໄປດ້ວຍລົດຊາດ. ຕ້ອງລອງເມື່ອມາລາວ! 🍜🌶️',
-          photo_urls: [
-            'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80',
-            'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=800&q=80',
-            'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80',
-            'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=800&q=80',
-            'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=800&q=80'
-          ],
-          photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80',
-          service_price: 5, service_type: 'Local Cuisine', service_location: 'Night Market', service_currency: 'USD',
-        },
-        {
-          category: 'experience',
-          text: 'Sunset cruise down the Mekong river. Includes a traditional dinner and drinks on board — pure magic! 🛥️🍷',
-          text_en: 'Sunset cruise down the Mekong river. Includes a traditional dinner and drinks on board — pure magic! 🛥️🍷',
-          text_lo: 'ລ່ອງເຮືອຊົມພະອາທິດຕົກດິນລົງແມ່ນ້ຳຂອງ. ລວມອາຫານຄ່ຳແບບດັ້ງເດີມ ແລະ ເຄື່ອງດື່ມເທິງເຮືອ — ມະຫັດສະຈັນແທ້ໆ! 🛥️🍷',
-          photo_urls: [
-            'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
-            'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
-            'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
-            'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80',
-            'https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=800&q=80'
-          ],
-          photo_url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
-          service_price: 60, service_type: 'River Cruise', service_location: 'Mekong River', service_currency: 'USD',
-        },
-      ];
-
-      for (const p of DEMO_POSTS) {
-        await base44.entities.Post.create({
-          ...p,
-          author_email: ADMIN_EMAIL,
-          author_name: ADMIN_NAME,
-          likes: [],
-          like_count: Math.floor(Math.random() * 50) + 10,
-          comment_count: 0,
-        });
-      }
-      loadPosts();
-    };
-    seedData();
-  }, []);
-
   // Real-time post subscription for instant updates
   useEffect(() => {
     const unsub = base44.entities.Post.subscribe((event) => {
@@ -181,15 +66,18 @@ export default function Feed() {
     if (filterCat !== 'all' && p.category !== filterCat) return false;
     if (filterLocation) {
       const authorProfile = authorProfiles[p.author_email];
-      const matchesAuthorLocation = authorProfile?.location?.toLowerCase().includes(filterLocation.toLowerCase());
-      const matchesService = p.service_type?.toLowerCase().includes(filterLocation.toLowerCase()) ||
-                            p.text?.toLowerCase().includes(filterLocation.toLowerCase()) ||
-                            p.service_location?.toLowerCase().includes(filterLocation.toLowerCase());
-      if (!matchesAuthorLocation && !matchesService) return false;
+      if (!authorProfile?.location || !authorProfile.location.toLowerCase().includes(filterLocation.toLowerCase())) return false;
     }
     if (filterGender) {
       const authorProfile = authorProfiles[p.author_email];
       if (!authorProfile?.gender || authorProfile.gender !== filterGender) return false;
+    }
+    // Search across service type, description, and location
+    if (filterLocation) {
+      const matchesService = p.service_type?.toLowerCase().includes(filterLocation.toLowerCase()) ||
+                            p.text?.toLowerCase().includes(filterLocation.toLowerCase()) ||
+                            p.service_location?.toLowerCase().includes(filterLocation.toLowerCase());
+      if (!matchesService) return false;
     }
     return true;
   });
@@ -325,15 +213,15 @@ export default function Feed() {
           {/* Posts */}
           <div className="space-y-4">
             {filteredPosts.map((post) =>
-              <PostCard
-                key={post.id}
-                post={post}
-                currentUserEmail={currentUser?.email}
-                t={t}
-                lang={lang}
-                authorProfile={authorProfiles[post.author_email] || null}
-                onRefresh={loadPosts} />
-
+              <ErrorBoundary key={post.id}>
+                <PostCard
+                  post={post}
+                  currentUserEmail={currentUser?.email}
+                  t={t}
+                  lang={lang}
+                  authorProfile={authorProfiles[post.author_email] || null}
+                  onRefresh={loadPosts} />
+              </ErrorBoundary>
               )}
             {filteredPosts.length === 0 &&
               <div className="text-center py-14 text-muted-foreground">
