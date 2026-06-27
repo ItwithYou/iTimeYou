@@ -147,6 +147,9 @@
     @apply bg-background text-foreground font-inter;
     overscroll-behavior-y: none;
   }
+  input, textarea, select, button {
+    font-family: inherit;
+  }
   button, a, nav a {
     -webkit-user-select: none;
     user-select: none;

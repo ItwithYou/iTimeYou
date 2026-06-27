@@ -44,6 +44,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
   const [serviceActive, setServiceActive] = useState(post.service_active !== false);
   const editPhotoInputRef = useRef(null);
   const [likeCount, setLikeCount] = useState(post.like_count || 0);
+  const [commentCount, setCommentCount] = useState(post.comment_count || 0);
   const isOwn = currentUserEmail === post.author_email;
   const canEdit = isOwn || isAdmin;
   const catIndex = ['culture', 'stay', 'food', 'experience', 'home', 'nature'].indexOf(post.category);
@@ -142,6 +143,11 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
       text: commentText,
     });
     setCommentText('');
+
+    const newCount = commentCount + 1;
+    setCommentCount(newCount);
+    base44.entities.Post.update(post.id, { comment_count: newCount });
+
     await loadComments();
   };
 
@@ -323,7 +329,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
       {/* Stats */}
       <div className="flex gap-4 px-4 py-2 text-xs text-muted-foreground border-t border-border/60 bg-muted/20">
         <span>{likeCount} {t.likes}</span>
-        <span>{comments.length || post.comment_count || 0} {t.comments}</span>
+        <span>{Math.max(comments.length, commentCount)} {t.comments}</span>
       </div>
 
       {/* Service status indicator + toggle */}
