@@ -17,7 +17,6 @@ export default function Feed() {
   const [authorProfiles, setAuthorProfiles] = useState({});
   const [filterCat, setFilterCat] = useState('all');
   const [filterLocation, setFilterLocation] = useState('');
-  const [filterGender, setFilterGender] = useState('');
 
   const loadPosts = async () => {
     const data = await base44.entities.Post.list('-created_date', 30);
@@ -187,10 +186,6 @@ export default function Feed() {
                             p.service_location?.toLowerCase().includes(filterLocation.toLowerCase());
       if (!matchesAuthorLocation && !matchesService) return false;
     }
-    if (filterGender) {
-      const authorProfile = authorProfiles[p.author_email];
-      if (!authorProfile?.gender || authorProfile.gender !== filterGender) return false;
-    }
     return true;
   });
 
@@ -289,7 +284,7 @@ export default function Feed() {
                 )}
             </div>
 
-            {/* Location and Gender filters */}
+            {/* Location filters */}
             <div className="flex gap-2 flex-wrap items-center">
               <input
                 type="text"
@@ -298,22 +293,9 @@ export default function Feed() {
                 placeholder={lang === 'lo' ? 'ຊອກຫາບໍລິການ...' : 'Search services...'}
                 className="flex-1 min-w-[120px] bg-card border border-border rounded-full px-3 py-1.5 text-xs outline-none focus:border-primary"
               />
-              <MobileSelect
-                value={filterGender}
-                onChange={setFilterGender}
-                options={[
-                  { value: '', label: lang === 'lo' ? 'ເພດ...' : 'Gender...' },
-                  { value: 'male', label: lang === 'lo' ? 'ຊາຍ' : 'Male' },
-                  { value: 'female', label: lang === 'lo' ? 'ຍິງ' : 'Female' },
-                  { value: 'other', label: lang === 'lo' ? 'ອື່ນໆ' : 'Other' },
-                ]}
-                placeholder={lang === 'lo' ? 'ເພດ...' : 'Gender...'}
-                label={lang === 'lo' ? 'ເລືອກເພດ' : 'Filter by Gender'}
-                className="!w-auto !min-w-[100px] !rounded-full !py-1.5 !text-xs"
-              />
-              {(filterLocation || filterGender) && (
+              {filterLocation && (
                 <button
-                  onClick={() => { setFilterLocation(''); setFilterGender(''); }}
+                  onClick={() => { setFilterLocation(''); }}
                   className="px-3 py-1.5 rounded-full text-xs font-semibold bg-muted border border-border hover:bg-destructive/10 hover:border-destructive/50 transition-colors"
                 >
                   ✕

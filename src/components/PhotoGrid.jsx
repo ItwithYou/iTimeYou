@@ -65,7 +65,6 @@ function Tile({ src, onClick, className = '', overlay, onRemove, index }) {
     <div
       className={`relative group overflow-hidden ${className}`}
       onClick={onClick}
-      onTouchEnd={(e) => { e.stopPropagation(); onClick?.(); }}
       style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
       role="button"
       tabIndex={0}
