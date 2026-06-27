@@ -210,11 +210,11 @@ export default function Profile() {
                <span>{viewProfile.trust_stars ? viewProfile.trust_stars.toFixed(1) : '5.0'}</span>
              </div>
              {viewProfile.is_pro ? (
-               <button onClick={() => isOwn && setShowProModal(true)} className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 text-blue-700 px-3 py-1 text-sm font-bold border border-blue-100 shadow-sm cursor-pointer hover:bg-blue-100 transition-colors">
+               <button onClick={() => isOwn && toast.success(lang === 'lo' ? 'ທ່ານເປັນ Pro ແລ້ວ' : 'You are already a Pro')} className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 text-blue-700 px-3 py-1 text-sm font-bold border border-blue-100 shadow-sm cursor-pointer hover:bg-blue-100 transition-colors">
                  <BadgeCheck size={14} /> Pro
                </button>
              ) : viewProfile.is_verified ? (
-               <button onClick={() => isOwn && setShowVerModal(true)} className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 text-emerald-700 px-3 py-1 text-sm font-bold border border-emerald-100 shadow-sm cursor-pointer hover:bg-emerald-100 transition-colors">
+               <button onClick={() => isOwn && toast.success(lang === 'lo' ? 'ທ່ານໄດ້ຢືນຢັນຕົວຕົນແລ້ວ' : 'You are already verified')} className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 text-emerald-700 px-3 py-1 text-sm font-bold border border-emerald-100 shadow-sm cursor-pointer hover:bg-emerald-100 transition-colors">
                  <Shield size={14} /> Verified
                </button>
              ) : isOwn ? (
