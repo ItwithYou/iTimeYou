@@ -292,7 +292,6 @@ export default function Profile() {
               <label className="text-xs font-semibold">{lang === 'lo' ? 'ວັນເກີດ' : 'Birthdate'}</label>
               <input type="date" value={editData.birthdate || ''} onChange={(e) => setEditData({ ...editData, birthdate: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
             </div>
-            </div>
           </div>
           <div>
             <label className="text-xs font-semibold">{lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}</label>
