@@ -204,7 +204,16 @@ export default function ListingCard({ listing, t, lang }) {
              <div className="flex flex-col items-end">
                <div className="bg-gradient-to-tr from-rose-50 to-white border border-rose-100/60 shadow-sm rounded-lg px-2.5 py-1 flex items-center justify-center">
                  <span className="font-serif text-[14px] sm:text-[1.1rem] font-medium text-rose-500 tracking-wide">
-                   {convertAndFormatPrice(listing.price, listing.currency, preferredCurrency, exchangeRates)}
+                   {(() => {
+                     const formatted = convertAndFormatPrice(listing.price, listing.currency, preferredCurrency, exchangeRates);
+                     const [pricePart, suffixPart] = formatted.split('/');
+                     return (
+                       <>
+                         {pricePart}
+                         {suffixPart && <span className="text-[10px] sm:text-[12px] opacity-70 ml-0.5 font-bold uppercase tracking-widest">/{suffixPart}</span>}
+                       </>
+                     );
+                   })()}
                  </span>
                </div>
              </div>

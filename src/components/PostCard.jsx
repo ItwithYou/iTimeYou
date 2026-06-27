@@ -377,7 +377,16 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
             {isOwn && (
               <div className="bg-gradient-to-tr from-rose-50 to-white border border-rose-100/60 shadow-sm rounded-md px-2 py-0.5 flex items-center justify-center">
                  <span className="font-serif text-[12px] sm:text-[14px] font-medium text-rose-500 tracking-wide">
-                   {convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates)}
+                   {(() => {
+                     const formatted = convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates);
+                     const [pricePart, suffixPart] = formatted.split('/');
+                     return (
+                       <>
+                         {pricePart}
+                         {suffixPart && <span className="text-[9px] sm:text-[10px] opacity-70 ml-0.5 font-bold uppercase tracking-widest">/{suffixPart}</span>}
+                       </>
+                     );
+                   })()}
                  </span>
               </div>
             )}
@@ -409,7 +418,18 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
               {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມ / ຈອງ' : 'Message & Book'}
             </div>
             <div className="bg-white/95 text-rose-500 px-2.5 py-1 rounded-lg shadow-sm border border-white/20 flex items-center">
-              <span className="font-serif font-medium text-[12px] sm:text-[14px] tracking-wide">{convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates)}</span>
+              <span className="font-serif font-medium text-[12px] sm:text-[14px] tracking-wide">
+                {(() => {
+                  const formatted = convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates);
+                  const [pricePart, suffixPart] = formatted.split('/');
+                  return (
+                    <>
+                      {pricePart}
+                      {suffixPart && <span className="text-[9px] sm:text-[10px] opacity-70 ml-0.5 font-bold uppercase tracking-widest">/{suffixPart}</span>}
+                    </>
+                  );
+                })()}
+              </span>
             </div>
           </button>
         </div>

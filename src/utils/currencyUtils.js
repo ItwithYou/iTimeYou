@@ -3,7 +3,7 @@ export const convertAndFormatPrice = (amount, originalCurrency, preferredCurrenc
   
   const rawCurrency = (originalCurrency || 'LAK').toUpperCase();
   const suffixMatch = rawCurrency.match(/(\/.*)$/);
-  const suffix = suffixMatch ? suffixMatch[1] : '';
+  const suffix = suffixMatch ? suffixMatch[1] : '/NIGHT';
   const fromCurrency = rawCurrency.replace(/\/.*$/, '').trim();
   const toCurrency = (preferredCurrency || fromCurrency).toUpperCase();
 
