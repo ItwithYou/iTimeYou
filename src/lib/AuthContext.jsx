@@ -8,7 +8,8 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const [authError, setAuthError] = useState(null);
+  // authError stays null — guests are allowed to browse freely.
+  const [authError] = useState(null);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
@@ -22,11 +23,9 @@ export const AuthProvider = ({ children }) => {
           photo_url: firebaseUser.photoURL || '',
         });
         setIsAuthenticated(true);
-        setAuthError(null);
       } else {
         setUser(null);
         setIsAuthenticated(false);
-        setAuthError({ type: 'auth_required', message: 'Authentication required' });
       }
       setIsLoadingAuth(false);
     });
@@ -35,15 +34,23 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     import('firebase/auth').then(({ signOut }) => signOut(auth)).then(() => {
-      window.location.href = '/login';
+      window.location.href = '/';
     });
   };
 
   const navigateToLogin = () => { window.location.href = '/login'; };
+
+  // Helper for gated actions: returns true if allowed, else sends user to /login.
+  const requireAuth = () => {
+    if (isAuthenticated) return true;
+    window.location.href = '/login';
+    return false;
+  };
+
   const checkAppState = () => {};
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isLoadingAuth, authError, logout, navigateToLogin, checkAppState }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, isLoadingAuth, authError, logout, navigateToLogin, requireAuth, checkAppState }}>
       {children}
     </AuthContext.Provider>
   );

@@ -215,6 +215,20 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
     onPosted?.();
   };
 
+  // Guests can read the feed but must log in to post a service.
+  if (!currentUser) {
+    return (
+      <div className="bg-card rounded-2xl p-4 shadow-sm border border-border flex items-center justify-between gap-3">
+        <span className="text-sm text-muted-foreground">
+          {lang === 'lo' ? 'ເຂົ້າສູ່ລະບົບເພື່ອແບ່ງປັນບໍລິການຂອງທ່ານ' : 'Log in to share your own service'}
+        </span>
+        <a href="/login" className="flex-shrink-0 bg-primary text-primary-foreground px-4 py-2 rounded-xl text-xs font-bold hover:opacity-90 transition-opacity">
+          {lang === 'lo' ? 'ເຂົ້າສູ່ລະບົບ' : 'Login'}
+        </a>
+      </div>
+    );
+  }
+
   if (!open) {
     return (
       <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">

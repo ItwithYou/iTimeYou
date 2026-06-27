@@ -1,20 +1,17 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import React, { Suspense } from 'react';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from './components/Layout';
 
 const Login = React.lazy(() => import('./pages/Login'));
-const Bookings = React.lazy(() => import('./pages/Bookings'));
 const AdminVerification = React.lazy(() => import('./pages/AdminVerification'));
 const ListingDetail = React.lazy(() => import('./pages/ListingDetail'));
 const Profile = React.lazy(() => import('./pages/Profile'));
 const Notifications = React.lazy(() => import('./pages/Notifications'));
-const Messages = React.lazy(() => import('./pages/Messages'));
 const PasswordSettings = React.lazy(() => import('./pages/PasswordSettings'));
 const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
 const HelpCenter = React.lazy(() => import('./pages/HelpCenter'));
@@ -25,9 +22,21 @@ const LazyFallback = () => (
   </div>
 );
 
-const AuthenticatedApp = () => {
-  const { isLoadingAuth, authError, navigateToLogin } = useAuth();
+// Guard for non-tab pages that need a real account.
+const RequireAuth = ({ children }) => {
+  const { isAuthenticated, isLoadingAuth } = useAuth();
+  const location = useLocation();
+  if (isLoadingAuth) return <LazyFallback />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+  }
+  return children;
+};
 
+const AuthenticatedApp = () => {
+  const { isLoadingAuth } = useAuth();
+
+  // Brief splash only while Firebase resolves the session.
   if (isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
@@ -36,28 +45,32 @@ const AuthenticatedApp = () => {
     );
   }
 
-  if (authError) {
-    if (authError.type === 'user_not_registered') return <UserNotRegisteredError />;
-    if (authError.type === 'auth_required') { navigateToLogin(); return null; }
-  }
-
+  // Everyone (guests included) can browse. Protected tabs (wallet/bookings/
+  // messages) are gated inside Layout; non-tab pages are gated here.
   return (
     <Suspense fallback={<LazyFallback />}>
       <Routes>
         <Route element={<Layout />}>
+          {/* Public tab pages (rendered by Layout) */}
           <Route path="/" element={null} />
           <Route path="/feed" element={null} />
           <Route path="/explore" element={null} />
+          {/* Login-gated tab pages (gated inside Layout) */}
           <Route path="/wallet" element={null} />
-          <Route path="/bookings" element={<Bookings />} />
-          <Route path="/messages" element={<Messages />} />
+          <Route path="/bookings" element={null} />
+          <Route path="/messages" element={null} />
+
+          {/* Public detail pages */}
           <Route path="/listing/:id" element={<ListingDetail />} />
           <Route path="/profile/:id" element={<Profile />} />
-          <Route path="/profile/:id/password" element={<PasswordSettings />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/admin/verification" element={<AdminVerification />} />
           <Route path="/help" element={<HelpCenter />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
+          {/* Login-gated detail pages */}
+          <Route path="/notifications" element={<RequireAuth><Notifications /></RequireAuth>} />
+          <Route path="/profile/:id/password" element={<RequireAuth><PasswordSettings /></RequireAuth>} />
+          <Route path="/admin/verification" element={<RequireAuth><AdminVerification /></RequireAuth>} />
+
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>

@@ -50,6 +50,7 @@ export default function ListingDetail() {
   const bookingCurrency = 'USD';
 
   const handleBooking = async () => {
+    if (!currentUser) { navigate('/login'); return; }
     if (!checkIn || !checkOut) { toast.error(t.selectDates); return; }
     if (nights <= 0) { toast.error(t.selectDates); return; }
     if (checkIn < getTodayISO()) {

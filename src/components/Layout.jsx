@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, Navigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import Navbar from './Navbar';
@@ -24,6 +24,8 @@ const TAB_PAGES = [
   { path: '/messages', PageComponent: Messages },
 ];
 const TAB_PATHS = TAB_PAGES.map(t => t.path);
+// Tab pages that require a real account. Guests are sent to /login.
+const PROTECTED_TABS = ['/bookings', '/wallet', '/messages'];
 
 export default function Layout() {
   const { lang, setLang, t } = useLang();
@@ -81,7 +83,7 @@ export default function Layout() {
         <div className="text-center">
           {/* Logo */}
           <div className="mb-10">
-            <img src="https://media.base44.com/images/public/69d24b2d55b4f5275f81d6df/5910b1767_image.png" alt="iTimeYou" className="h-16 w-auto mx-auto" />
+            <span className="text-4xl font-black text-white tracking-tight">iTimeYou</span>
           </div>
           
           <p className="text-white/60 text-xs tracking-widest mb-1 lao-text font-semibold">ສັງຄົມ · ບ້ານ · ຈ່າຍ · ລາວ</p>
@@ -103,6 +105,11 @@ export default function Layout() {
         </div>
       </div>
     );
+  }
+
+  // Guests can browse everything except the login-gated tabs.
+  if (!currentUser && PROTECTED_TABS.includes(location.pathname)) {
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
   return (

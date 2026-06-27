@@ -29,7 +29,7 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
         {/* Logo */}
         <Link to="/" className="flex items-center flex-shrink-0" aria-label="iTimeYou Home">
-          <img src="https://media.base44.com/images/public/69d24b2d55b4f5275f81d6df/5910b1767_image.png" alt="iTimeYou" className="h-9 w-auto" />
+          <span className="text-xl font-black text-primary tracking-tight">iTimeYou</span>
         </Link>
 
         {/* Desktop search */}
@@ -67,16 +67,22 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
 
             )}
 
-            <Link to={`/profile/${profile?.id || ''}`} className="flex items-center gap-2">
-              <img
-                src={profile?.photo_url || profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=default`}
-                alt=""
-                className="w-8 h-8 rounded-full border-2 border-border object-cover hover:border-primary transition-colors" />
-              
-              <span className="hidden xl:block text-sm font-semibold text-foreground max-w-[120px] truncate">
-                {profile?.first_name || 'User'}
-              </span>
-            </Link>
+            {currentUser ? (
+              <Link to={`/profile/${profile?.id || ''}`} className="flex items-center gap-2">
+                <img
+                  src={profile?.photo_url || profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=default`}
+                  alt=""
+                  className="w-8 h-8 rounded-full border-2 border-border object-cover hover:border-primary transition-colors" />
+
+                <span className="hidden xl:block text-sm font-semibold text-foreground max-w-[120px] truncate">
+                  {profile?.first_name || 'User'}
+                </span>
+              </Link>
+            ) : (
+              <Link to="/login" className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity">
+                {lang === 'lo' ? 'ເຂົ້າສູ່ລະບົບ' : 'Login'}
+              </Link>
+            )}
 
             {currentUser?.role === 'admin' &&
             <Link to="/admin/verification" className={`flex items-center gap-1 px-2 py-2 rounded-lg text-sm transition-colors ${location.pathname === '/admin/verification' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>
@@ -104,13 +110,18 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
           <Link to="/notifications" className="relative p-2" aria-label="Notifications">
             <Bell size={20} className={location.pathname === '/notifications' ? 'text-primary' : 'text-muted-foreground'} aria-hidden="true" />
           </Link>
-          <Link to={`/profile/${profile?.id || ''}`} aria-label="Your profile">
-            <img
-              src={profile?.photo_url || profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=default`}
-              alt="Profile photo"
-              className="w-8 h-8 rounded-full border-2 border-border object-cover" />
-            
-          </Link>
+          {currentUser ? (
+            <Link to={`/profile/${profile?.id || ''}`} aria-label="Your profile">
+              <img
+                src={profile?.photo_url || profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=default`}
+                alt="Profile photo"
+                className="w-8 h-8 rounded-full border-2 border-border object-cover" />
+            </Link>
+          ) : (
+            <Link to="/login" className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold">
+              {lang === 'lo' ? 'ເຂົ້າ' : 'Login'}
+            </Link>
+          )}
         </div>
       </div>
     </nav>);

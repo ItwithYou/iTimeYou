@@ -38,7 +38,7 @@ export default function Footer({ t, lang }) {
       <div className="max-w-6xl mx-auto px-6 pt-12 pb-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
-            <img src="https://media.base44.com/images/public/69d24b2d55b4f5275f81d6df/5910b1767_image.png" alt="iTimeYou" className="h-8 w-auto mb-3" />
+            <div className="text-2xl font-black text-primary tracking-tight mb-3">iTimeYou</div>
             <p className="text-card/60 text-sm leading-relaxed">{t.heroDesc}</p>
           </div>
           <div>

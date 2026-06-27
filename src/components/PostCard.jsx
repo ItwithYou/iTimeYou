@@ -109,7 +109,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
   };
 
   const handleBookOrChat = async () => {
-    if (!currentUser) return;
+    if (!currentUser) { navigate('/login'); return; }
     setShowBookModal(true);
   };
 
