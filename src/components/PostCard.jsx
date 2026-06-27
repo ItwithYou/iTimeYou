@@ -77,6 +77,21 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
     setAuthorProfile(initialAuthorProfile || null);
   }, [initialAuthorProfile]);
 
+  // Auto-heal old posts that were created before the comment_count field existed
+  useEffect(() => {
+    if (post.comment_count === undefined) {
+      base44.entities.Comment.filter({ post_id: post.id }).then(data => {
+        if (data.length > 0) {
+          setCommentCount(data.length);
+          base44.entities.Post.update(post.id, { comment_count: data.length }).catch(console.error);
+        } else {
+          // Set to 0 so we don't keep checking it
+          base44.entities.Post.update(post.id, { comment_count: 0 }).catch(console.error);
+        }
+      }).catch(console.error);
+    }
+  }, [post.id, post.comment_count]);
+
   const toggleLike = async () => {
     const currentLikes = post.likes || [];
     const alreadyLiked = currentLikes.includes(currentUserEmail);
@@ -183,9 +198,9 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
           className="flex-shrink-0"
         >
           <img
-            src={post.author_avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author_email}`}
+            src={authorProfile?.photo_url || authorProfile?.avatar_url || post.author_avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author_email}`}
             alt=""
-            className="w-12 h-12 rounded-full object-cover border-2 border-primary/20 hover:opacity-80 transition-opacity"
+            className="w-12 h-12 rounded-full object-cover border-2 border-primary/20 hover:opacity-80 transition-opacity bg-muted"
           />
         </button>
         <div className="flex-1 min-w-0">
@@ -195,7 +210,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
             }}
             className="text-sm font-bold truncate hover:text-primary transition-colors block"
           >
-            {post.author_name || 'User'}
+            {authorProfile ? `${authorProfile.first_name || ''} ${authorProfile.last_name || ''}`.trim() || 'User' : post.author_name || 'User'}
           </button>
           <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
             <span>{moment(new Date(post.created_date)).fromNow()}</span>
