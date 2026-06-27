@@ -234,7 +234,7 @@ export default function Explore() {
               key={opt.v}
               onClick={() => { setSortBy(opt.v); filterData(listings, searchQuery, activeCat, opt.v); }}
               className={`flex-1 text-center truncate px-1 py-1 text-[10px] sm:text-xs font-semibold rounded-md transition-all select-none ${
-                sortBy === opt.v ? 'bg-background text-foreground shadow-sm scale-[1.02]' : 'text-muted-foreground hover:text-foreground'
+                sortBy === opt.v ? 'bg-primary text-primary-foreground shadow-md scale-[1.02]' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {opt.label}
