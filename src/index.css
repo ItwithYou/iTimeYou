@@ -206,3 +206,28 @@ input[type="checkbox"], input[type="radio"] { min-width: 22px; min-height: 22px;
 .page-transition {
   animation: page-in 0.22s ease-out both;
 }
+
+/* Mobile GPU acceleration — keep bottom nav and cards in own compositing layers */
+nav[role="navigation"] {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Smooth momentum scrolling on all overflow containers */
+.overflow-y-auto,
+.overflow-x-auto,
+[class*="overflow-"] {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent layout shift jank on images */
+img {
+  content-visibility: auto;
+}
+
+/* Reduce paint area for cards on scroll */
+.bg-card {
+  will-change: auto;
+  transform: translateZ(0);
+}

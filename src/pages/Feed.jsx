@@ -156,15 +156,18 @@ export default function Feed() {
         },
       ];
 
-      for (const p of DEMO_POSTS) {
-        await base44.entities.Post.create({
+      // Create demo posts in parallel batches of 5 (faster, non-blocking)
+      const chunkSize = 5;
+      for (let i = 0; i < DEMO_POSTS.length; i += chunkSize) {
+        const chunk = DEMO_POSTS.slice(i, i + chunkSize);
+        await Promise.all(chunk.map(p => base44.entities.Post.create({
           ...p,
           author_email: ADMIN_EMAIL,
           author_name: ADMIN_NAME,
           likes: [],
-          like_count: Math.floor(Math.random() * 50) + 10,
+          like_count: Math.floor(Math.random() * 40),
           comment_count: 0,
-        });
+        })));
       }
       loadPosts();
     };

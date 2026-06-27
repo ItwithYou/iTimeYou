@@ -187,6 +187,8 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
         author_name: `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || (currentUser.full_name || 'User'),
         author_avatar: profile?.photo_url || profile?.avatar_url || '',
         text: `${text}`,
+        text_lo: lang === 'lo' ? text : '',
+        text_en: lang === 'en' ? text : '',
         category: service.key === 'talking' || service.key === 'culture' ? 'culture' : service.key === 'food' ? 'food' : service.key === 'room' ? 'stay' : service.key === 'experience' ? 'experience' : service.key === 'nature' ? 'nature' : 'home',
         photo_url,
         photo_urls,
@@ -229,9 +231,12 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
         <span className="text-sm text-muted-foreground">
           {lang === 'lo' ? 'ເຂົ້າສູ່ລະບົບເພື່ອແບ່ງປັນບໍລິການຂອງທ່ານ' : 'Log in to share your own service'}
         </span>
-        <a href="/login" className="flex-shrink-0 bg-primary text-primary-foreground px-4 py-2 rounded-xl text-xs font-bold hover:opacity-90 transition-opacity">
+        <button
+          onClick={() => window.dispatchEvent(new Event('open-login'))}
+          className="flex-shrink-0 bg-primary text-primary-foreground px-4 py-2 rounded-xl text-xs font-bold hover:opacity-90 transition-opacity"
+        >
           {lang === 'lo' ? 'ເຂົ້າສູ່ລະບົບ' : 'Login'}
-        </a>
+        </button>
       </div>
     );
   }
