@@ -25,7 +25,7 @@ export default function CreateDropdownButton({ lang }) {
       >
         <ImagePlus size={16} strokeWidth={2} className={open ? "scale-110 transition-transform" : "transition-transform"} />
         <span className="text-[11px] sm:text-xs font-bold tracking-widest uppercase">
-          {lang === 'lo' ? 'ໂພສໃໝ່' : 'POST'}
+          {lang === 'lo' ? 'ໂພສ' : 'POST'}
         </span>
       </button>
 
@@ -44,7 +44,7 @@ export default function CreateDropdownButton({ lang }) {
                 {lang === 'lo' ? 'ສ່ວນບຸກຄົນ' : 'Personal'}
               </span>
               <span className="text-[10px] text-muted-foreground">
-                {lang === 'lo' ? 'ໂພສບໍລິການ' : 'Service'}
+                {lang === 'lo' ? 'ສຳລັບບຸກຄົນ ຫຼື ຮັບຈ້າງທົ່ວໄປ' : 'Individual & Freelance Services'}
               </span>
             </div>
           </Link>
@@ -62,7 +62,7 @@ export default function CreateDropdownButton({ lang }) {
                 {lang === 'lo' ? 'ທຸລະກິດ' : 'Business'}
               </span>
               <span className="text-[10px] text-muted-foreground">
-                {lang === 'lo' ? 'ລົງລາຍການທີ່ພັກ/ທົວ' : 'Listing or Tour'}
+                {lang === 'lo' ? 'ສຳລັບຮ້ານຄ້າ ແລະ ບໍລິສັດ' : 'Shops, Places & Companies'}
               </span>
             </div>
           </Link>
