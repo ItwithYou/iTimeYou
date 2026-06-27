@@ -55,7 +55,7 @@ export default function ListingCard({ listing, t, lang }) {
         <img
           src={safeDisplayImageUrl}
           alt={listing.title}
-          onError={(e) => onImgError(e, listing.category)}
+          onError={(e) => onImgError(e, listing)}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />

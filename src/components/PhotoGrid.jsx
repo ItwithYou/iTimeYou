@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { GRADIENT_IMG } from '../utils/img';
+import { GRADIENT_IMG, reliablePhoto } from '../utils/img';
 
 function Lightbox({ photos, startIndex, onClose }) {
   const [idx, setIdx] = useState(startIndex);
@@ -65,7 +65,7 @@ function Tile({ src, onClick, className = '', overlay }) {
       <img
         src={src}
         alt=""
-        onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = GRADIENT_IMG; }}
+        onError={(e) => { const f = reliablePhoto(src || Math.random()); if (e.currentTarget.src !== f) { e.currentTarget.src = f; } else { e.currentTarget.onerror = null; e.currentTarget.src = GRADIENT_IMG; } }}
         className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-300"
       />
       {overlay && (

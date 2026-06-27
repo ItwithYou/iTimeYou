@@ -111,7 +111,7 @@ export default function ListingDetail() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
       <div className="rounded-2xl overflow-hidden h-64 md:h-96 mb-6">
-        <img src={coverImage(listing)} alt={listing.title} onError={(e) => onImgError(e, listing.category)} className="w-full h-full object-cover" />
+        <img src={coverImage(listing)} alt={listing.title} onError={(e) => onImgError(e, listing)} className="w-full h-full object-cover" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
