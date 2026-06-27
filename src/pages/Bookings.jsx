@@ -266,13 +266,13 @@ export default function Bookings() {
           onClick={() => setServiceTab('incoming_requests')}
           className={`flex-1 py-3.5 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${serviceTab === 'incoming_requests' ? 'bg-card text-primary shadow-sm border border-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          🤝 {lang === 'lo' ? 'ໃຫ້ບໍລິການ (Giving)' : 'Giving Service'}
+          🤝 {lang === 'lo' ? 'ໃຫ້ບໍລິການ' : 'Giving Service'}
         </button>
         <button
           onClick={() => setServiceTab('my_bookings')}
           className={`flex-1 py-3.5 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${serviceTab === 'my_bookings' ? 'bg-card text-primary shadow-sm border border-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          🙋 {lang === 'lo' ? 'ຂໍບໍລິການ (Asking)' : 'Asking Service'}
+          🙋 {lang === 'lo' ? 'ໃຊ້ບໍລິການ' : 'Using Service'}
         </button>
       </div>
 
