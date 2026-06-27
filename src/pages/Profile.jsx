@@ -148,9 +148,12 @@ export default function Profile() {
 
       {/* Info Card */}
       <div className="mx-4 sm:mx-8 -mt-16 bg-card rounded-[32px] px-6 sm:px-10 pb-8 pt-4 shadow-xl border border-border/50 relative z-10 backdrop-blur-sm">
-        <div className="flex flex-col sm:flex-row items-center sm:items-end sm:justify-between gap-4 -mt-16 sm:-mt-20 mb-6">
-          {/* Avatar Area */}
-          <div className="relative shrink-0 mx-auto sm:mx-0">
+        
+        {/* Header Row: Avatar on Left, Buttons on Right */}
+        <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 mb-4">
+          
+          {/* Avatar Area (Pulling up over cover) */}
+          <div className="relative shrink-0 -mt-16 sm:-mt-20">
             <img
               src={viewProfile.photo_url || viewProfile.avatar_url || ''}
               alt=""
@@ -163,7 +166,7 @@ export default function Profile() {
                 type="button"
                 disabled={isUploadingPhoto}
                 onClick={(e) => { e.stopPropagation(); photoUploadRef.current?.click(); }}
-                className="absolute bottom-1 right-1 bg-background text-foreground border border-border p-2.5 rounded-full shadow-lg hover:bg-muted transition-colors z-10 disabled:opacity-70"
+                className="absolute bottom-1 right-1 bg-background text-foreground border border-border p-2 rounded-full shadow-lg hover:bg-muted transition-colors z-10 disabled:opacity-70"
                 title={lang === 'lo' ? 'ປ່ຽນຮູບ' : 'Update Photo'}
               >
                 {isUploadingPhoto ? (
@@ -182,8 +185,8 @@ export default function Profile() {
           
           {/* Action Buttons */}
           {isOwn && (
-            <div className="flex justify-end w-full sm:w-auto mt-2 sm:mt-0">
-              <button onClick={() => setEditing(!editing)} className="bg-background text-foreground border border-border px-6 py-2 rounded-full text-sm font-bold hover:bg-muted transition-colors shadow-sm">
+            <div className="flex justify-end w-full sm:w-auto mt-2 sm:mt-4">
+              <button onClick={() => setEditing(!editing)} className="bg-foreground text-background px-6 py-2 rounded-full text-sm font-bold hover:opacity-90 transition-colors shadow-sm">
                 {t.editProfile || 'Edit Profile'}
               </button>
             </div>
@@ -191,8 +194,8 @@ export default function Profile() {
         </div>
 
         {/* Profile Details */}
-        <div className="text-center sm:text-left mt-2 sm:mt-0">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">{viewProfile.first_name} {viewProfile.last_name}</h1>
+        <div className="text-center sm:text-left mt-2">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">{viewProfile.first_name} {viewProfile.last_name}</h1>
           <div className="mt-2.5 flex flex-wrap items-center justify-center sm:justify-start gap-3">
              <div className="flex items-center gap-1.5 bg-amber-100/60 text-amber-700 px-3 py-1 rounded-full text-sm font-bold shadow-sm">
                <StarRating rating={viewProfile.trust_stars || 0} size={14} />
@@ -221,22 +224,20 @@ export default function Profile() {
           </p>
         </div>
 
-        {/* Premium Stats Grid */}
-        <div className="mt-8 border-t border-border/50 pt-8">
-          <div className="grid grid-cols-3 gap-4 sm:gap-6 max-w-2xl mx-auto sm:mx-0">
-            <div className="text-center p-4 rounded-2xl bg-muted/30 hover:bg-muted/50 transition-colors">
-              <p className="text-2xl font-bold text-primary">{(viewProfile.friends || []).length}</p>
-              <p className="mt-1 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Followers'}</p>
+        {/* Premium Stats Row */}
+        <div className="mt-6 flex flex-wrap items-center justify-center sm:justify-start gap-6 sm:gap-8">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <p className="text-base font-extrabold text-foreground">{(viewProfile.friends || []).length}</p>
+              <p className="text-sm font-medium text-muted-foreground">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Followers'}</p>
             </div>
-            <div className="text-center p-4 rounded-2xl bg-muted/30 hover:bg-muted/50 transition-colors">
-              <p className="text-2xl font-bold text-primary">{posts.filter((post) => post.author_email === viewProfile.user_email && post.service_price > 0).length}</p>
-              <p className="mt-1 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{lang === 'lo' ? 'ບໍລິການ' : 'Services'}</p>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <p className="text-base font-extrabold text-foreground">{posts.filter((post) => post.author_email === viewProfile.user_email && post.service_price > 0).length}</p>
+              <p className="text-sm font-medium text-muted-foreground">{lang === 'lo' ? 'ບໍລິການ' : 'Services'}</p>
             </div>
-            <div className="text-center p-4 rounded-2xl bg-muted/30 hover:bg-muted/50 transition-colors">
-              <p className="text-2xl font-bold text-primary capitalize">{viewProfile.gender || '-'}</p>
-              <p className="mt-1 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{lang === 'lo' ? 'ເພດ' : 'Gender'}</p>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <p className="text-base font-extrabold text-foreground capitalize">{viewProfile.gender || '-'}</p>
+              <p className="text-sm font-medium text-muted-foreground">{lang === 'lo' ? 'ເພດ' : 'Gender'}</p>
             </div>
-          </div>
         </div>
 
         {/* Secondary Account Actions */}
@@ -256,20 +257,20 @@ export default function Profile() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-semibold">{lang === 'lo' ? 'ຊື່' : 'First Name'}</label>
-              <input value={editData.first_name} onChange={(e) => setEditData({ ...editData, first_name: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+              <input value={editData.first_name} onChange={(e) => setEditData({ ...editData, first_name: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
             </div>
             <div>
               <label className="text-xs font-semibold">{lang === 'lo' ? 'ນາມສະກຸນ' : 'Last Name'}</label>
-              <input value={editData.last_name} onChange={(e) => setEditData({ ...editData, last_name: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+              <input value={editData.last_name} onChange={(e) => setEditData({ ...editData, last_name: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
             </div>
           </div>
           <div>
             <label className="text-xs font-semibold">Bio</label>
-            <textarea value={editData.bio} onChange={(e) => setEditData({ ...editData, bio: e.target.value })} rows={2} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary resize-none" />
+            <textarea value={editData.bio} onChange={(e) => setEditData({ ...editData, bio: e.target.value })} rows={2} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary resize-none" />
           </div>
           <div>
             <label className="text-xs font-semibold">{lang === 'lo' ? 'ສະຖານທີ່' : 'Location'}</label>
-            <input value={editData.location} onChange={(e) => setEditData({ ...editData, location: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+            <input value={editData.location} onChange={(e) => setEditData({ ...editData, location: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
           </div>
           <div>
             <label className="text-xs font-semibold">{lang === 'lo' ? 'ເພດ' : 'Gender'}</label>
