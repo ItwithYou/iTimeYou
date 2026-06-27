@@ -73,8 +73,11 @@ export default function Home() {
       </section>
 
       {/* Category Navigation (Premium Minimalist Design) */}
-      <section className="py-6 bg-background relative z-10 -mt-6 mx-0 sm:mx-4 rounded-t-3xl sm:rounded-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.04)] border border-border/40">
-        <div className="flex justify-center sm:justify-center overflow-x-auto no-scrollbar gap-6 sm:gap-10 px-6 max-w-4xl mx-auto hide-scroll-bar">
+      <section className="py-6 sm:py-8 bg-card/40 backdrop-blur-xl relative z-10 -mt-10 mx-4 sm:mx-8 rounded-2xl sm:rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-border/50 max-w-4xl xl:mx-auto overflow-hidden">
+        {/* Subtle glass reflection effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent dark:from-white/5 opacity-50 pointer-events-none" />
+        
+        <div className="flex flex-wrap justify-center gap-6 sm:gap-10 px-6 relative z-10">
           {BUSINESS_CATS.filter(c => c.key !== 'all').map((cat) => {
             const Icon = iconMap[cat.key] || Globe;
             return (
