@@ -157,9 +157,11 @@ export default function Wallet() {
           </div>
 
           {/* Chip + balance label */}
-          <div className="mb-2 flex items-center gap-3">
-            <div className="grid h-9 w-12 place-items-center rounded-[8px] bg-gradient-to-br from-amber-100 via-amber-300 to-amber-500 shadow-inner">
-              <div className="h-4 w-7 rounded-[3px] border border-amber-700/30" />
+          <div className="mb-3 flex items-center gap-3">
+            <div className="flex h-7 items-center justify-center rounded-md bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_2px_10px_rgba(217,119,6,0.3)] ring-1 ring-amber-500/50">
+              <span className="text-[10px] font-extrabold tracking-widest text-amber-950 drop-shadow-[0_1px_0_rgba(255,255,255,0.4)]">
+                iTimeYou
+              </span>
             </div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/50">{t.balance}</p>
           </div>
