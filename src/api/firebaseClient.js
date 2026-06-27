@@ -20,13 +20,13 @@ import {
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || ''
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyDQl2T85WMrJY1cD40-TudCL8ryI6yYkxw',
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'itimeyou-88.firebaseapp.com',
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'itimeyou-88',
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'itimeyou-88.firebasestorage.app',
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '410299185915',
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:410299185915:web:951e92d98ed6339938ce5e',
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || 'G-WEKG4XXTDL'
 };
 
 let app, db, auth, storage;
