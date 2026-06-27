@@ -9,6 +9,7 @@ import StarRating from '../components/StarRating';
 import TrustBadge from '../components/TrustBadge';
 import CategoryTabs from '../components/CategoryTabs';
 import LocationPickerModal from '../components/LocationPickerModal';
+import { getDistanceFromLatLonInKm, extractLatLng } from '../utils/locationUtils';
 import { MapPin } from 'lucide-react';
 
 export default function Feed() {
@@ -18,6 +19,7 @@ export default function Feed() {
   const [filterCat, setFilterCat] = useState('all');
   const [filterLocation, setFilterLocation] = useState('');
   const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
+  const [filterPosition, setFilterPosition] = useState(null);
 
   const loadPosts = async () => {
     const data = await firebaseClient.entities.Post.list('-created_date', 30);
@@ -169,12 +171,31 @@ export default function Feed() {
 
   const filteredPosts = posts.filter((p) => {
     if (filterCat !== 'all' && p.category !== filterCat) return false;
-    if (filterLocation) {
+    
+    if (filterPosition) {
+      const pPos = extractLatLng(p.service_location || p.text);
+      if (pPos) {
+        const dist = getDistanceFromLatLonInKm(filterPosition.lat, filterPosition.lng, pPos.lat, pPos.lng);
+        if (dist <= 10) return true;
+      }
+      // fallback text search if location didn't have coordinates but was within radius conceptually
+      if (filterLocation) {
+        const q = filterLocation.toLowerCase();
+        const authorProfile = authorProfiles[p.author_email];
+        const matchesAuthorLocation = authorProfile?.location?.toLowerCase().includes(q);
+        const matchesService = p.service_type?.toLowerCase().includes(q) ||
+                              p.text?.toLowerCase().includes(q) ||
+                              p.service_location?.toLowerCase().includes(q);
+        return matchesAuthorLocation || matchesService;
+      }
+      return false;
+    } else if (filterLocation) {
+      const q = filterLocation.toLowerCase();
       const authorProfile = authorProfiles[p.author_email];
-      const matchesAuthorLocation = authorProfile?.location?.toLowerCase().includes(filterLocation.toLowerCase());
-      const matchesService = p.service_type?.toLowerCase().includes(filterLocation.toLowerCase()) ||
-                            p.text?.toLowerCase().includes(filterLocation.toLowerCase()) ||
-                            p.service_location?.toLowerCase().includes(filterLocation.toLowerCase());
+      const matchesAuthorLocation = authorProfile?.location?.toLowerCase().includes(q);
+      const matchesService = p.service_type?.toLowerCase().includes(q) ||
+                            p.text?.toLowerCase().includes(q) ||
+                            p.service_location?.toLowerCase().includes(q);
       if (!matchesAuthorLocation && !matchesService) return false;
     }
     return true;
@@ -260,7 +281,7 @@ export default function Feed() {
               <input
                 type="text"
                 value={filterLocation}
-                onChange={(e) => { setFilterLocation(e.target.value); }}
+                onChange={(e) => { setFilterLocation(e.target.value); setFilterPosition(null); }}
                 placeholder={lang === 'lo' ? 'ຊອກຫາບໍລິການ...' : 'Search services...'}
                 className="flex-1 min-w-[120px] bg-transparent py-2 text-sm outline-none placeholder:text-muted-foreground"
               />
@@ -273,7 +294,7 @@ export default function Feed() {
               </button>
               {filterLocation && (
                 <button
-                  onClick={() => { setFilterLocation(''); }}
+                  onClick={() => { setFilterLocation(''); setFilterPosition(null); }}
                   className="px-2 py-1 rounded-full text-xs font-semibold bg-muted hover:bg-destructive/10 hover:text-destructive transition-colors"
                 >
                   ✕
@@ -285,8 +306,9 @@ export default function Feed() {
               isOpen={isLocationPickerOpen} 
               onClose={() => setIsLocationPickerOpen(false)} 
               lang={lang}
-              onSelectLocation={(loc) => {
+              onSelectLocation={(loc, pos) => {
                 setFilterLocation(loc);
+                setFilterPosition(pos);
               }}
             />
           </div>

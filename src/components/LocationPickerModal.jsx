@@ -77,7 +77,7 @@ export default function LocationPickerModal({ isOpen, onClose, onSelectLocation,
 
   const handleConfirm = () => {
     if (locationName) {
-      onSelectLocation(locationName);
+      onSelectLocation(locationName, position);
       onClose();
     }
   };
