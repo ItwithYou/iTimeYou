@@ -222,14 +222,14 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onTouchEnd={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="bg-card w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 border border-border shadow-xl max-h-[90vh] overflow-y-auto overscroll-contain" onMouseDown={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-base">{titleMap[type]}</h3>
-          <button onClick={onClose} className="p-1 rounded-full hover:bg-muted"><X size={18} /></button>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-md p-4" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="bg-card rounded-[24px] w-full sm:max-w-md p-4 sm:p-6 shadow-2xl border border-border flex flex-col max-h-[90vh] sm:max-h-[85vh] overflow-hidden" onMouseDown={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4 flex-shrink-0">
+          <h3 className="font-bold text-[15px] sm:text-lg">{titleMap[type]}</h3>
+          <button onClick={onClose} className="p-1 rounded-full hover:bg-muted transition-colors"><X size={18} /></button>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-4 overflow-y-auto overscroll-contain flex-1 hide-scrollbar pb-2 pr-1">
           <input value={amount} onChange={(e) => setAmount(e.target.value)} type="number" min="0" placeholder={lang === 'lo' ? 'ຈຳນວນເງິນ' : 'Amount'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
           <MobileSelect
             value={currency}
@@ -315,9 +315,11 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
           )}
         </div>
 
-        <button onClick={handleSubmit} disabled={loading} className="w-full mt-4 bg-primary text-primary-foreground py-3 rounded-xl font-semibold text-sm disabled:opacity-50">
-          {loading ? '...' : type === 'exchange' ? (lang === 'lo' ? 'ຢືນຢັນການແລກປ່ຽນ' : 'Confirm Exchange') : (lang === 'lo' ? 'ສົ່ງຄຳຂໍ' : 'Send Request')}
-        </button>
+        <div className="pt-4 mt-2 border-t border-border flex-shrink-0 bg-card">
+          <button onClick={handleSubmit} disabled={loading} className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-semibold text-sm disabled:opacity-50 hover:opacity-90 transition-opacity">
+            {loading ? '...' : type === 'exchange' ? (lang === 'lo' ? 'ຢືນຢັນການແລກປ່ຽນ' : 'Confirm Exchange') : (lang === 'lo' ? 'ສົ່ງຄຳຂໍ' : 'Send Request')}
+          </button>
+        </div>
       </div>
     </div>
   );
