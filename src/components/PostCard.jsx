@@ -368,23 +368,32 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
       {post.service_price > 0 && (
         <div className="px-4 pb-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className={`w-2.5 h-2.5 rounded-full ${serviceActive ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
-            <span className={`text-xs font-semibold ${serviceActive ? 'text-emerald-600' : 'text-red-500'}`}>
+            <span className={`w-2 h-2 rounded-full ${serviceActive ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
+            <span className={`text-[11px] font-semibold ${serviceActive ? 'text-emerald-600' : 'text-red-500'}`}>
               {serviceActive ? (lang === 'lo' ? 'ເປີດບໍລິການ' : 'Service ON') : (lang === 'lo' ? 'ປິດບໍລິການ' : 'Service OFF')}
             </span>
           </div>
-          {isOwn && (
-            <button
-              onClick={async () => {
-                const next = !serviceActive;
-                setServiceActive(next);
-                await base44.entities.Post.update(post.id, { service_active: next });
-              }}
-              className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-all ${serviceActive ? 'border-red-300 text-red-600 hover:bg-red-50 active:bg-red-100' : 'border-emerald-300 text-emerald-600 hover:bg-emerald-50 active:bg-emerald-100'}`}
-            >
-              {serviceActive ? (lang === 'lo' ? 'ປິດ' : 'Turn OFF') : (lang === 'lo' ? 'ເປີດ' : 'Turn ON')}
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {isOwn && (
+              <div className="bg-gradient-to-tr from-amber-50 to-orange-50 border border-amber-200/60 shadow-sm rounded-md px-2 py-0.5 flex items-center justify-center">
+                 <span className="font-serif text-[12px] sm:text-[14px] font-black bg-gradient-to-r from-amber-700 to-amber-900 bg-clip-text text-transparent tracking-tight">
+                   {convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates)}
+                 </span>
+              </div>
+            )}
+            {isOwn && (
+              <button
+                onClick={async () => {
+                  const next = !serviceActive;
+                  setServiceActive(next);
+                  await base44.entities.Post.update(post.id, { service_active: next });
+                }}
+                className={`px-3 py-1 rounded-full text-[10px] font-bold border transition-all ${serviceActive ? 'border-red-300 text-red-600 hover:bg-red-50 active:bg-red-100' : 'border-emerald-300 text-emerald-600 hover:bg-emerald-50 active:bg-emerald-100'}`}
+              >
+                {serviceActive ? (lang === 'lo' ? 'ປິດ' : 'Turn OFF') : (lang === 'lo' ? 'ເປີດ' : 'Turn ON')}
+              </button>
+            )}
+          </div>
         </div>
       )}
 
@@ -399,8 +408,8 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
               <MessageCircle size={16} />
               {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມ / ຈອງ' : 'Message & Book'}
             </div>
-            <div className="bg-white text-deep-green px-3 py-1.5 rounded-lg shadow-sm border border-white/20 flex items-center">
-              <span className="font-serif font-black text-[15px] tracking-tight">{convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates)}</span>
+            <div className="bg-white text-deep-green px-2.5 py-1 rounded-lg shadow-sm border border-white/20 flex items-center">
+              <span className="font-serif font-black text-[12px] sm:text-[14px] tracking-tight">{convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates)}</span>
             </div>
           </button>
         </div>
