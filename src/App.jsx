@@ -99,8 +99,8 @@ function App() {
             <Routes>
               <Route path="/*" element={<AuthenticatedApp />} />
             </Routes>
+            <GlobalLoginModal />
           </Suspense>
-          <GlobalLoginModal />
         </Router>
         <Toaster />
       </QueryClientProvider>
