@@ -7,8 +7,9 @@ import { firebaseClient } from '@/api/firebaseClient';
 import ListingCard from '../components/ListingCard';
 import CreateListing from '../components/CreateListing';
 import { BUSINESS_CATS } from '../hooks/useLang';
-import { Search } from 'lucide-react';
+import { Search, MapPin } from 'lucide-react';
 import CategoryTabs from '../components/CategoryTabs';
+import LocationPickerModal from '../components/LocationPickerModal';
 
 export default function Explore() {
   const { t, lang, profile, currentUser } = useAppContext();
@@ -23,6 +24,7 @@ export default function Explore() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('');
   const [activeCat, setActiveCat] = useState('');
+  const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
 
   // Automated one-time seeder for premium listings
   useEffect(() => {
@@ -226,10 +228,27 @@ export default function Explore() {
             value={searchQuery}
             onChange={e => { setSearchQuery(e.target.value); filterData(listings, e.target.value, activeCat, sortBy); }}
             placeholder={t.searchPlaceholder}
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground min-w-0"
           />
+          <button 
+            onClick={() => setIsLocationPickerOpen(true)}
+            className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex-shrink-0"
+            title={lang === 'lo' ? 'ເລືອກສະຖານທີ່' : 'Select Location on Map'}
+          >
+            <MapPin size={16} />
+          </button>
         </div>
       </div>
+
+      <LocationPickerModal 
+        isOpen={isLocationPickerOpen} 
+        onClose={() => setIsLocationPickerOpen(false)} 
+        lang={lang}
+        onSelectLocation={(loc) => {
+          setSearchQuery(loc);
+          filterData(listings, loc, activeCat, sortBy);
+        }}
+      />
 
       {/* Category filters */}
       <CategoryTabs activeType="business" activeCat={activeCat} onSelectCat={handleCatFilter} lang={lang} />

@@ -11,6 +11,8 @@ import TrustBadge from '../components/TrustBadge';
 import { PERSONAL_CATS } from '../hooks/useLang';
 import CreateServicePost from '../components/CreateServicePost';
 import CategoryTabs from '../components/CategoryTabs';
+import LocationPickerModal from '../components/LocationPickerModal';
+import { MapPin } from 'lucide-react';
 
 export default function Feed() {
   const { profile, currentUser, t, lang } = useAppContext();
@@ -18,6 +20,7 @@ export default function Feed() {
   const [authorProfiles, setAuthorProfiles] = useState({});
   const [filterCat, setFilterCat] = useState('all');
   const [filterLocation, setFilterLocation] = useState('');
+  const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
 
   const loadPosts = async () => {
     const data = await firebaseClient.entities.Post.list('-created_date', 30);
@@ -256,23 +259,39 @@ export default function Feed() {
 
 
             {/* Location filters */}
-            <div className="flex gap-2 flex-wrap items-center">
+            <div className="flex gap-2 flex-wrap items-center bg-card border border-border rounded-full px-3 focus-within:border-primary transition-colors">
               <input
                 type="text"
                 value={filterLocation}
                 onChange={(e) => { setFilterLocation(e.target.value); }}
                 placeholder={lang === 'lo' ? 'ຊອກຫາບໍລິການ...' : 'Search services...'}
-                className="flex-1 min-w-[120px] bg-card border border-border rounded-full px-3 py-1.5 text-xs outline-none focus:border-primary"
+                className="flex-1 min-w-[120px] bg-transparent py-2 text-sm outline-none placeholder:text-muted-foreground"
               />
+              <button 
+                onClick={() => setIsLocationPickerOpen(true)}
+                className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex-shrink-0"
+                title={lang === 'lo' ? 'ເລືອກສະຖານທີ່' : 'Select Location on Map'}
+              >
+                <MapPin size={16} />
+              </button>
               {filterLocation && (
                 <button
                   onClick={() => { setFilterLocation(''); }}
-                  className="px-3 py-1.5 rounded-full text-xs font-semibold bg-muted border border-border hover:bg-destructive/10 hover:border-destructive/50 transition-colors"
+                  className="px-2 py-1 rounded-full text-xs font-semibold bg-muted hover:bg-destructive/10 hover:text-destructive transition-colors"
                 >
                   ✕
                 </button>
               )}
             </div>
+            
+            <LocationPickerModal 
+              isOpen={isLocationPickerOpen} 
+              onClose={() => setIsLocationPickerOpen(false)} 
+              lang={lang}
+              onSelectLocation={(loc) => {
+                setFilterLocation(loc);
+              }}
+            />
           </div>
 
           {/* Posts */}
