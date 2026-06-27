@@ -206,13 +206,13 @@ export default function Wallet() {
           <button
             key={btn.key}
             onClick={() => { if (requireVerified()) setActionType(btn.key); }}
-            className="group flex flex-col items-center gap-2.5"
+            className="group flex flex-col items-center gap-2"
           >
-            <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-[18px] bg-card border border-border shadow-sm transition-all duration-200 group-hover:shadow-md group-hover:-translate-y-1 group-active:scale-95 group-active:translate-y-0 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <btn.icon size={20} className="text-[#0ABAB5] relative z-10" />
+            <div className="flex h-[52px] w-[52px] sm:h-[60px] sm:w-[60px] items-center justify-center rounded-full bg-gradient-to-b from-card to-muted/30 border border-[#0ABAB5]/20 shadow-[0_4px_12px_-4px_rgba(10,186,181,0.15)] transition-all duration-300 group-hover:shadow-[0_8px_16px_-6px_rgba(10,186,181,0.3)] group-hover:-translate-y-1 group-active:scale-95 group-active:translate-y-0 relative overflow-hidden">
+              <div className="absolute inset-0 bg-[#0ABAB5]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <btn.icon size={22} strokeWidth={1.5} className="text-[#0ABAB5] relative z-10 drop-shadow-sm" />
             </div>
-            <span className="text-[10px] sm:text-[11px] font-semibold text-foreground/80 leading-tight text-center tracking-wide">{btn.label}</span>
+            <span className="text-[10px] sm:text-[11px] font-medium text-foreground/70 group-hover:text-foreground leading-tight text-center tracking-wide transition-colors">{btn.label}</span>
           </button>
         ))}
       </div>
