@@ -1,15 +1,15 @@
 import { useState, useRef } from 'react';
-import { Star, MapPin, Heart, MoreHorizontal, Pencil, Trash2, Check, X, Image as ImageIcon } from 'lucide-react';
+import { Star, MapPin, Heart, MoreHorizontal, Pencil, Trash2, Check, X, Image as ImageIcon, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { firebaseClient } from '@/api/firebaseClient';
-import { BUSINESS_CATS } from '../hooks/useLang';
+import moment from 'moment';
+import { BUSINESS_CATS, PERSONAL_CATS } from '../hooks/useLang';
 import ImageLightbox from './ImageLightbox';
 import PhotoGrid from './PhotoGrid';
 import useProfile from '../hooks/useProfile';
 import { coverImage } from '../utils/img';
 import { useAppContext } from '../lib/AppContext';
 import { convertAndFormatPrice, translateSuffix } from '../utils/currencyUtils';
-import moment from 'moment';
 
 export default function ListingCard({ listing, t, lang }) {
   const { currentUser } = useProfile();
@@ -24,14 +24,14 @@ export default function ListingCard({ listing, t, lang }) {
   const [editImageFiles, setEditImageFiles] = useState([]);
   const [editImagePreviews, setEditImagePreviews] = useState([]);
   const editImageInputRef = useRef(null);
-  const catObj = BUSINESS_CATS.find(c => c.key === listing.category);
-  const catLabel = catObj ? (lang === 'lo' ? catObj.lo : catObj.en) : listing.category;
-  const icon = catObj?.icon || 'ðŸ“Œ';
+  const catObj = [...BUSINESS_CATS, ...PERSONAL_CATS].find(c => c.key === listing.category) || BUSINESS_CATS[0];
+  const catLabel = lang === 'lo' ? catObj.lo : catObj.en;
+  const icon = catObj.icon;
   const isAdmin = currentUser?.role === 'admin';
   const safeDisplayImageUrl = (listing.image_urls && listing.image_urls.length > 0) ? listing.image_urls[0] : (listing.image_url || coverImage(listing));
 
   const handleDelete = async () => {
-    if (!window.confirm(lang === 'lo' ? 'àº¥àº¶àºšàº¥àº²àºàºàº²àº™àº™àºµà»‰?' : 'Delete this listing?')) return;
+    if (!window.confirm(lang === 'lo' ? 'ລຶບລາຍການນີ້?' : 'Delete this listing?')) return;
     await firebaseClient.entities.Listing.delete(listing.id);
     window.location.reload();
   };
@@ -86,13 +86,13 @@ export default function ListingCard({ listing, t, lang }) {
           </Link>
           <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
              <span>{moment(new Date(listing.created_date || Date.now())).fromNow()}</span>
-             <span>â€¢</span>
+             <span>•</span>
              <span className="flex items-center gap-1"><MapPin size={10} /> {lang === 'lo' && listing.city_lao ? listing.city_lao : listing.city}, {listing.country}</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
           {listing.category && (
-            <span className="text-xs px-2.5 py-1 rounded-xl bg-gradient-to-r from-primary/10 to-deep-green/10 text-primary font-semibold border border-primary/15 flex-shrink-0">
+            <span className="text-xs px-2.5 py-1 rounded-xl bg-gradient-to-r from-primary/10 to-deep-green/10 text-primary font-semibold border border-primary/15 flex items-center gap-1">
               {icon} {catLabel}
             </span>
           )}
@@ -104,10 +104,10 @@ export default function ListingCard({ listing, t, lang }) {
               {showMenu && (
                 <div className="absolute right-0 top-8 bg-card border border-border rounded-xl shadow-lg z-20 overflow-hidden min-w-[160px]">
                   <button onClick={() => { setEditing(true); setShowMenu(false); }} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm hover:bg-muted transition-colors">
-                    <Pencil size={13} /> {lang === 'lo' ? 'à»àºà»‰à»„àº‚' : 'Edit'}
+                    <Pencil size={13} /> {lang === 'lo' ? 'ແກ້ໄຂ' : 'Edit'}
                   </button>
                   <button onClick={handleDelete} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-destructive hover:bg-destructive/5 transition-colors">
-                    <Trash2 size={13} /> {lang === 'lo' ? 'àº¥àº¶àºš' : 'Delete'}
+                    <Trash2 size={13} /> {lang === 'lo' ? 'ລຶບ' : 'Delete'}
                   </button>
                 </div>
               )}
@@ -122,22 +122,22 @@ export default function ListingCard({ listing, t, lang }) {
           <input
             value={editTitle}
             onChange={e => setEditTitle(e.target.value)}
-            placeholder={lang === 'lo' ? 'àºŠàº·à»ˆàº¥àº²àºàºàº²àº™' : 'Listing title'}
+            placeholder={lang === 'lo' ? 'ຊື່ລາຍການ' : 'Listing title'}
             className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary mb-2"
           />
           <textarea
             value={editDescription}
             onChange={e => setEditDescription(e.target.value)}
-            placeholder={lang === 'lo' ? 'àº¥àº²àºàº¥àº°àº­àº½àº”' : 'Description'}
+            placeholder={lang === 'lo' ? 'ລາຍລະອຽດ' : 'Description'}
             rows={3}
             className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary resize-none mb-2"
           />
           <div className="flex items-center justify-between mb-2 mt-2 border-b border-border pb-2">
              <label className="text-xs font-semibold text-muted-foreground uppercase">
-               {lang === 'lo' ? 'à»€àºžàºµà»ˆàº¡àº®àº¹àºšàºžàº²àºš' : 'Add Photos'}
+               {lang === 'lo' ? 'ເພີ່ມຮູບພາບ' : 'Add Photos'}
              </label>
              <button type="button" onClick={() => editImageInputRef.current?.click()} className="flex items-center gap-1.5 text-xs font-bold text-primary hover:bg-primary/10 px-2 py-1 rounded transition-colors">
-               <ImageIcon size={14} /> {lang === 'lo' ? 'à»€àº¥àº·àº­àºàº®àº¹àºš' : 'Choose'}{editImageFiles.length > 0 ? ` (${editImageFiles.length})` : ''}
+               <ImageIcon size={14} /> {lang === 'lo' ? 'ເລືອກຮູບ' : 'Choose'}{editImageFiles.length > 0 ? ` (${editImageFiles.length})` : ''}
              </button>
           </div>
           <input ref={editImageInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePhotos} />
@@ -163,8 +163,8 @@ export default function ListingCard({ listing, t, lang }) {
            {(listing.guests > 0 || listing.beds > 0) && (
              <div className="mt-2 text-xs text-muted-foreground font-medium flex items-center gap-2">
                {listing.guests > 0 && <span>{listing.guests} {t.guests}</span>}
-               {listing.beds > 0 && <span>â€¢ {listing.beds} {t.beds}</span>}
-               {listing.baths > 0 && <span>â€¢ {listing.baths} {t.bath}</span>}
+               {listing.beds > 0 && <span>• {listing.beds} {t.beds}</span>}
+               {listing.baths > 0 && <span>• {listing.baths} {t.bath}</span>}
              </div>
            )}
         </div>
@@ -175,9 +175,9 @@ export default function ListingCard({ listing, t, lang }) {
         <div className="relative border-y border-border/50">
           <PhotoGrid photos={listing.image_urls?.length > 0 ? listing.image_urls : [coverImage(listing)]} />
           {listing.rating >= 4.8 && (
-            <span className="absolute top-3 left-3 bg-amber-400 text-white px-2.5 py-0.5 rounded-lg text-xs font-bold shadow pointer-events-none">
-              âœ¦ Top
-            </span>
+            <div className="absolute top-2 left-2 bg-background/90 backdrop-blur-sm text-foreground px-2 py-0.5 rounded text-xs font-semibold shadow-sm flex items-center gap-1">
+              {icon} {catLabel}
+            </div>
           )}
         </div>
       )}
@@ -191,7 +191,7 @@ export default function ListingCard({ listing, t, lang }) {
                className="flex items-center gap-1.5 text-sm text-muted-foreground active:text-primary transition-colors font-medium"
              >
                <Heart size={18} className={saved ? 'fill-red-500 text-red-500' : ''} />
-               {saved ? (lang === 'lo' ? 'àºšàº±àº™àº—àº¶àºà»àº¥à»‰àº§' : 'Saved') : (lang === 'lo' ? 'àºšàº±àº™àº—àº¶àº' : 'Save')}
+               {saved ? (lang === 'lo' ? 'ບັນທຶກແລ້ວ' : 'Saved') : (lang === 'lo' ? 'ບັນທຶກ' : 'Save')}
              </button>
              <div className="flex items-center gap-1 text-amber-500 text-sm">
                <Star size={16} className="fill-amber-400" />
@@ -218,7 +218,7 @@ export default function ListingCard({ listing, t, lang }) {
                </div>
              </div>
              <Link to={`/listing/${listing.id}`} className="bg-primary text-primary-foreground px-4 py-2 rounded-xl text-sm font-semibold shadow-sm hover:opacity-90 transition-opacity">
-               {lang === 'lo' ? 'àºˆàº­àº‡' : 'Book'}
+               {lang === 'lo' ? 'ຈອງ' : 'Book'}
              </Link>
           </div>
         </div>

@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { firebaseClient } from '@/api/firebaseClient';
 import { toast } from 'sonner';
 import { Lock, Eye, EyeOff, Check } from 'lucide-react';
@@ -14,12 +14,12 @@ export default function PasswordSetupForm({ onSuccess, onCancel, lang }) {
     e.preventDefault();
     
     if (password.length < 6) {
-      toast.error(lang === 'lo' ? 'àº¥àº°àº«àº±àº”àºœà»ˆàº²àº™àº•à»‰àº­àº‡àº¡àºµàº¢à»ˆàº²àº‡à»œà»‰àº­àº 6 àº•àº»àº§àº­àº±àºàºªàº­àº™' : 'Password must be at least 6 characters');
+      toast.error(lang === 'lo' ? 'ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ຕົວອັກສອນ' : 'Password must be at least 6 characters');
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.error(lang === 'lo' ? 'àº¥àº°àº«àº±àº”àºœà»ˆàº²àº™àºšà»à»ˆàºàº»àº‡àºàº±àº™' : 'Passwords do not match');
+      toast.error(lang === 'lo' ? 'ລະຫັດຜ່ານບໍ່ກົງກັນ' : 'Passwords do not match');
       return;
     }
 
@@ -29,7 +29,7 @@ export default function PasswordSetupForm({ onSuccess, onCancel, lang }) {
       await firebaseClient.auth.updateMe({ password });
       onSuccess();
     } catch (error) {
-      toast.error(error.message || (lang === 'lo' ? 'àºšà»à»ˆàºªàº²àº¡àº²àº”àº•àº±à»‰àº‡àº¥àº°àº«àº±àº”àºœà»ˆàº²àº™à»„àº”à»‰' : 'Failed to set password'));
+      toast.error(error.message || (lang === 'lo' ? 'ບໍ່ສາມາດຕັ້ງລະຫັດຜ່ານໄດ້' : 'Failed to set password'));
     } finally {
       setLoading(false);
     }
@@ -39,14 +39,14 @@ export default function PasswordSetupForm({ onSuccess, onCancel, lang }) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="block text-sm font-semibold mb-1.5">
-          {lang === 'lo' ? 'àº¥àº°àº«àº±àº”àºœà»ˆàº²àº™' : 'Password'}
+          {lang === 'lo' ? 'ລະຫັດຜ່ານ' : 'Password'}
         </label>
         <div className="relative">
           <input
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder={lang === 'lo' ? 'à»ƒàºªà»ˆàº¥àº°àº«àº±àº”àºœà»ˆàº²àº™' : 'Create a password'}
+            placeholder={lang === 'lo' ? 'ໃສ່ລະຫັດຜ່ານ' : 'Create a password'}
             className="w-full border border-border rounded-xl pl-10 pr-10 py-2.5 text-sm outline-none focus:border-primary"
             autoFocus
           />
@@ -63,14 +63,14 @@ export default function PasswordSetupForm({ onSuccess, onCancel, lang }) {
 
       <div>
         <label className="block text-sm font-semibold mb-1.5">
-          {lang === 'lo' ? 'àº¢àº·àº™àº¢àº±àº™àº¥àº°àº«àº±àº”àºœà»ˆàº²àº™' : 'Confirm Password'}
+          {lang === 'lo' ? 'ຢືນຢັນລະຫັດຜ່ານ' : 'Confirm Password'}
         </label>
         <div className="relative">
           <input
             type={showConfirm ? 'text' : 'password'}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder={lang === 'lo' ? 'àº¢àº·àº™àº¢àº±àº™àº¥àº°àº«àº±àº”àºœà»ˆàº²àº™' : 'Confirm your password'}
+            placeholder={lang === 'lo' ? 'ຢືນຢັນລະຫັດຜ່ານ' : 'Confirm your password'}
             className="w-full border border-border rounded-xl pl-10 pr-10 py-2.5 text-sm outline-none focus:border-primary"
           />
           <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -85,7 +85,7 @@ export default function PasswordSetupForm({ onSuccess, onCancel, lang }) {
       </div>
 
       <p className="text-xs text-muted-foreground">
-        {lang === 'lo' ? 'àº¥àº°àº«àº±àº”àºœà»ˆàº²àº™àºˆàº°àº–àº·àºà»€àºàº±àºšà»„àº§à»‰àº¢à»ˆàº²àº‡àº›àº­àº”à»„àºž à»àº¥àº° à»ƒàºŠà»‰àºªàº³àº¥àº±àºšàºàº²àº™à»€àº‚àº»à»‰àº²àºªàº¹à»ˆàº„àº±à»‰àº‡àº•à»à»ˆà»„àº›' : 'Your password will be stored securely and used for future logins'}
+        {lang === 'lo' ? 'ລະຫັດຜ່ານຈະຖືກເກັບໄວ້ຢ່າງປອດໄພ ແລະ ໃຊ້ສຳລັບການເຂົ້າສູ່ຄັ້ງຕໍ່ໄປ' : 'Your password will be stored securely and used for future logins'}
       </p>
 
       <div className="flex gap-3 pt-2">
@@ -94,7 +94,7 @@ export default function PasswordSetupForm({ onSuccess, onCancel, lang }) {
           onClick={onCancel}
           className="flex-1 border border-border py-2.5 rounded-xl font-semibold text-sm hover:bg-muted transition-colors"
         >
-          {lang === 'lo' ? 'àº‚à»‰àº²àº¡' : 'Skip'}
+          {lang === 'lo' ? 'ຂ້າມ' : 'Skip'}
         </button>
         <button
           type="submit"
@@ -105,7 +105,7 @@ export default function PasswordSetupForm({ onSuccess, onCancel, lang }) {
             <div className="w-4 h-4 border-2 border-white/60 border-t-white rounded-full animate-spin" />
           ) : (
             <>
-              <Check size={16} /> {lang === 'lo' ? 'àº•àº±à»‰àº‡àº¥àº°àº«àº±àº”àºœà»ˆàº²àº™' : 'Set Password'}
+              <Check size={16} /> {lang === 'lo' ? 'ຕັ້ງລະຫັດຜ່ານ' : 'Set Password'}
             </>
           )}
         </button>

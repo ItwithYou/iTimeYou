@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { firebaseClient } from '@/api/firebaseClient';
 import { toast } from 'sonner';
 import AdminExchangeRates from './AdminExchangeRates';
@@ -47,9 +47,9 @@ function RequestCard({ tx, lang, onApprove, onReject }) {
           <p className="text-sm font-semibold break-all">{tx.user_email}</p>
           <p className="text-lg font-black tracking-tight text-primary">{Math.abs(tx.amount)} {tx.currency || 'USD'}</p>
           <p className="text-xs text-muted-foreground">{tx.request_kind}</p>
-          {tx.bank_name && <p className="text-xs text-muted-foreground">{tx.bank_name} Â· {tx.account_number}</p>}
+          {tx.bank_name && <p className="text-xs text-muted-foreground">{tx.bank_name} · {tx.account_number}</p>}
           {tx.account_name && <p className="text-xs text-muted-foreground">{tx.account_name}</p>}
-          {tx.counterparty_email && <p className="text-xs text-muted-foreground break-all">{lang === 'lo' ? 'àºœàº¹à»‰àºà»ˆàº½àº§àº‚à»‰àº­àº‡' : 'Counterparty'}: {tx.counterparty_email}</p>}
+          {tx.counterparty_email && <p className="text-xs text-muted-foreground break-all">{lang === 'lo' ? 'ຜູ້ກ່ຽວຂ້ອງ' : 'Counterparty'}: {tx.counterparty_email}</p>}
         </div>
         <StatusBadge status={tx.status} />
       </div>
@@ -83,7 +83,7 @@ function TransactionRow({ tx, lang }) {
         <p className="font-bold text-sm">ID: {tx.id}</p>
         <p className="text-sm font-semibold break-all">{lang === 'lo' && tx.description_lao ? tx.description_lao : tx.description}</p>
         <p className="text-xs text-muted-foreground break-all">{tx.user_email}</p>
-        <p className="text-xs text-muted-foreground">{tx.request_kind || tx.type} Â· {Math.abs(tx.amount)} {tx.currency || 'USD'}</p>
+        <p className="text-xs text-muted-foreground">{tx.request_kind || tx.type} · {Math.abs(tx.amount)} {tx.currency || 'USD'}</p>
         {tx.approved_by_name && <p className="text-xs text-muted-foreground">Approved by: {tx.approved_by_name}</p>}
         {tx.approved_by_email && !tx.approved_by_name && <p className="text-xs text-muted-foreground">Approved by: {tx.approved_by_email}</p>}
         {tx.approved_at && <p className="text-xs text-muted-foreground">Approved time: {formatTimestampDMY(tx.approved_at)}</p>}
@@ -178,7 +178,7 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
 
     if (tx.request_kind === 'withdraw') {
       if (targetBalance < Math.abs(tx.amount)) {
-        toast.error(lang === 'lo' ? 'àºàº­àº”à»€àº‡àº´àº™àºšà»à»ˆàºžà»' : 'Insufficient balance');
+        toast.error(lang === 'lo' ? 'ຍອດເງິນບໍ່ພໍ' : 'Insufficient balance');
         return;
       }
       await firebaseClient.entities.UserProfile.update(targetProfile.id, {
@@ -188,7 +188,7 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
 
     if (tx.request_kind === 'send') {
       if (targetBalance < Math.abs(tx.amount)) {
-        toast.error(lang === 'lo' ? 'àºàº­àº”à»€àº‡àº´àº™àºšà»à»ˆàºžà»' : 'Insufficient balance');
+        toast.error(lang === 'lo' ? 'ຍອດເງິນບໍ່ພໍ' : 'Insufficient balance');
         return;
       }
       await firebaseClient.entities.UserProfile.update(targetProfile.id, {
@@ -207,7 +207,7 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
           await firebaseClient.entities.WalletTransaction.create({
             user_email: receiver.user_email,
             description: `Received from ${tx.user_email}`,
-            description_lao: `àº®àº±àºšàºˆàº²àº ${tx.user_email}`,
+            description_lao: `ຮັບຈາກ ${tx.user_email}`,
             amount: Math.abs(tx.amount),
             currency,
             type: 'received',
@@ -227,9 +227,9 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
     });
       await firebaseClient.entities.Notification.create({
         user_email: tx.user_email,
-        type: 'âœ…',
+        type: '✅',
         text: `Your ${tx.request_kind} request was approved`,
-        text_lao: `àº„àº³àº‚à» ${tx.request_kind} àº‚àº­àº‡àº—à»ˆàº²àº™à»„àº”à»‰àº–àº·àºàº­àº°àº™àº¸àº¡àº±àº”`,
+        text_lao: `ຄຳຂໍ ${tx.request_kind} ຂອງທ່ານໄດ້ຖືກອະນຸມັດ`,
       });
       onUpdated?.();
     } catch (err) {
@@ -260,9 +260,9 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
       });
       await firebaseClient.entities.Notification.create({
         user_email: tx.user_email,
-        type: 'âŒ',
+        type: '❌',
         text: `Your ${tx.request_kind} request was rejected${reason ? `: ${reason}` : ''}`,
-        text_lao: `àº„àº³àº‚à» ${tx.request_kind} àº‚àº­àº‡àº—à»ˆàº²àº™àº–àº·àºàº›àº°àº•àº´à»€àºªàº”${reason ? `: ${reason}` : ''}`,
+        text_lao: `ຄຳຂໍ ${tx.request_kind} ຂອງທ່ານຖືກປະຕິເສດ${reason ? `: ${reason}` : ''}`,
       });
       onUpdated?.();
     } catch (err) {
@@ -298,7 +298,7 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
       await firebaseClient.entities.WalletTransaction.create({
         user_email: booking.host_email,
         description: `Payout for stay booking ${booking.id}`,
-        description_lao: `àº®àº±àºšà»€àº‡àº´àº™àº„à»ˆàº²àº—àºµà»ˆàºžàº±àº ${booking.id}`,
+        description_lao: `ຮັບເງິນຄ່າທີ່ພັກ ${booking.id}`,
         amount: Math.abs(booking.total || 0),
         currency: booking.currency || 'USD',
         type: 'received',
@@ -309,12 +309,12 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
 
       await firebaseClient.entities.Notification.create({
         user_email: booking.host_email,
-        type: 'ðŸ’¸',
+        type: '💸',
         text: `Payout for stay booking ${booking.id} has been released to your wallet`,
-        text_lao: `à»€àº‡àº´àº™àº„à»ˆàº²àº—àºµà»ˆàºžàº±àº ${booking.id} à»„àº”à»‰à»€àº‚àº»à»‰àº²àºàº°à»€àº›àº»àº²à»àº¥à»‰àº§`
+        text_lao: `ເງິນຄ່າທີ່ພັກ ${booking.id} ໄດ້ເຂົ້າກະເປົາແລ້ວ`
       });
 
-      toast.success(lang === 'lo' ? 'àº­àº°àº™àº¸àº¡àº±àº” à»àº¥àº° à»‚àº­àº™à»€àº‡àº´àº™à»ƒàº«à»‰à»€àºˆàº»à»‰àº²àºžàº²àºšà»àº¥à»‰àº§' : 'Payout approved and paid to host');
+      toast.success(lang === 'lo' ? 'ອະນຸມັດ ແລະ ໂອນເງິນໃຫ້ເຈົ້າພາບແລ້ວ' : 'Payout approved and paid to host');
       onUpdated?.();
     } catch (err) {
       toast.error('Failed to approve payout');
@@ -341,15 +341,15 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
     const notifications = [
       firebaseClient.entities.Notification.create({
         user_email: booking.booker_email,
-        type: 'âœ…',
+        type: '✅',
         text: `Your appeal for ${booking.service_type} has been resolved`,
-        text_lao: `àº„àº³àº­àº¸àº—àº­àº™àº‚àº­àº‡àº—à»ˆàº²àº™àºªàº³àº¥àº±àºš ${booking.service_type} à»„àº”à»‰àº–àº·àºà»àºà»‰à»„àº‚à»àº¥à»‰àº§`,
+        text_lao: `ຄຳອຸທອນຂອງທ່ານສຳລັບ ${booking.service_type} ໄດ້ຖືກແກ້ໄຂແລ້ວ`,
       }),
       firebaseClient.entities.Notification.create({
         user_email: booking.poster_email,
-        type: 'â„¹ï¸',
+        type: 'ℹ️',
         text: `An appeal for ${booking.service_type} has been resolved by admin`,
-        text_lao: `àº„àº³àº­àº¸àº—àº­àº™àºªàº³àº¥àº±àºš ${booking.service_type} à»„àº”à»‰àº–àº·àºà»àºà»‰à»„àº‚à»‚àº”àº admin`,
+        text_lao: `ຄຳອຸທອນສຳລັບ ${booking.service_type} ໄດ້ຖືກແກ້ໄຂໂດຍ admin`,
       }),
     ];
 
@@ -357,12 +357,12 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
     onUpdated?.();
     setSelectedAppeal(null);
     setResolutionNotes('');
-    toast.success(lang === 'lo' ? 'à»àºà»‰à»„àº‚àº„àº³àº­àº¸àº—àº­àº™à»àº¥à»‰àº§' : 'Appeal resolved');
+    toast.success(lang === 'lo' ? 'ແກ້ໄຂຄຳອຸທອນແລ້ວ' : 'Appeal resolved');
   };
 
   const saveAccountSettings = async () => {
     if (!accountForm.account_number) {
-      toast.error(lang === 'lo' ? 'àºàº°àº¥àº¸àº™àº²à»ƒàºªà»ˆà»€àº¥àºàºšàº±àº™àºŠàºµ' : 'Please enter account number');
+      toast.error(lang === 'lo' ? 'ກະລຸນາໃສ່ເລກບັນຊີ' : 'Please enter account number');
       return;
     }
 
@@ -391,7 +391,7 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
     });
     setQrFile(null);
     setSavingAccount(false);
-    toast.success(lang === 'lo' ? 'àºšàº±àº™àº—àº¶àºàº‚à»à»‰àº¡àº¹àº™àºšàº±àº™àºŠàºµà»àº¥à»‰àº§' : 'Account details saved');
+    toast.success(lang === 'lo' ? 'ບັນທຶກຂໍ້ມູນບັນຊີແລ້ວ' : 'Account details saved');
   };
 
   return (
@@ -514,7 +514,7 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
           <input value={accountForm.account_name} onChange={(e) => setAccountForm({ ...accountForm, account_name: e.target.value })} placeholder="Account Name" className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
           <input value={accountForm.account_number} onChange={(e) => setAccountForm({ ...accountForm, account_number: e.target.value })} placeholder="Account Number" className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
           <label className="block border-2 border-dashed border-border rounded-xl px-3 py-3 text-sm text-muted-foreground cursor-pointer hover:border-primary">
-            {qrFile ? `âœ… ${qrFile.name}` : (lang === 'lo' ? 'àº­àº±àºšà»‚àº«àº¥àº”àº®àº¹àºš QR' : 'Upload QR Photo')}
+            {qrFile ? `✅ ${qrFile.name}` : (lang === 'lo' ? 'ອັບໂຫລດຮູບ QR' : 'Upload QR Photo')}
             <input type="file" accept="image/*" className="hidden" onChange={(e) => setQrFile(e.target.files[0])} />
           </label>
           <textarea value={accountForm.notes} onChange={(e) => setAccountForm({ ...accountForm, notes: e.target.value })} placeholder="Notes" rows={3} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />

@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRightLeft, X } from 'lucide-react';
 import MobileSelect from '../MobileSelect';
 import { firebaseClient } from '@/api/firebaseClient';
@@ -38,11 +38,11 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
   const [exchangeToCurrency, setExchangeToCurrency] = useState('USD');
 
   const titleMap = {
-    topup: lang === 'lo' ? 'àº„àº³àº‚à»à»€àº•àºµàº¡à»€àº‡àº´àº™' : 'Top Up Request',
-    withdraw: lang === 'lo' ? 'àº„àº³àº‚à»àº–àº­àº™à»€àº‡àº´àº™' : 'Withdraw Request',
-    send: lang === 'lo' ? 'àº„àº³àº‚à»à»‚àº­àº™à»€àº‡àº´àº™' : 'Send Request',
-    receive: lang === 'lo' ? 'àº„àº³àº‚à»àº®àº±àºšà»€àº‡àº´àº™' : 'Receive Request',
-    exchange: lang === 'lo' ? 'à»àº¥àºàº›à»ˆàº½àº™àºªàº°àºàº¸àº™à»€àº‡àº´àº™' : 'Exchange Currency',
+    topup: lang === 'lo' ? 'ຄຳຂໍເຕີມເງິນ' : 'Top Up Request',
+    withdraw: lang === 'lo' ? 'ຄຳຂໍຖອນເງິນ' : 'Withdraw Request',
+    send: lang === 'lo' ? 'ຄຳຂໍໂອນເງິນ' : 'Send Request',
+    receive: lang === 'lo' ? 'ຄຳຂໍຮັບເງິນ' : 'Receive Request',
+    exchange: lang === 'lo' ? 'ແລກປ່ຽນສະກຸນເງິນ' : 'Exchange Currency',
   };
 
   const exchangePreview = useMemo(() => {
@@ -91,32 +91,32 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
 
     const numericAmount = Number(amount);
     if (!numericAmount || numericAmount <= 0) {
-      toast.error(lang === 'lo' ? 'àºàº°àº¥àº¸àº™àº²à»ƒàºªà»ˆàºˆàº³àº™àº§àº™à»€àº‡àº´àº™' : 'Please enter amount');
+      toast.error(lang === 'lo' ? 'ກະລຸນາໃສ່ຈຳນວນເງິນ' : 'Please enter amount');
       return;
     }
     // For top-up the account shown is the admin's receiving account (display only),
     // so we only require the amount + the payment screenshot (the bill).
     if (type === 'topup' && !file) {
-      toast.error(lang === 'lo' ? 'àºàº°àº¥àº¸àº™àº²à»àº™àºšàºªàº°àº¥àº´àºšàºàº²àº™àºˆà»ˆàº²àºà»€àº‡àº´àº™' : 'Please attach your payment screenshot');
+      toast.error(lang === 'lo' ? 'ກະລຸນາແນບສະລິບການຈ່າຍເງິນ' : 'Please attach your payment screenshot');
       return;
     }
     if (type === 'withdraw' && (!accountNumber || !bankName || !accountName)) {
-      toast.error(lang === 'lo' ? 'àºàº°àº¥àº¸àº™àº²à»ƒàºªà»ˆàº‚à»à»‰àº¡àº¹àº™àºšàº±àº™àºŠàºµà»ƒàº«à»‰àº„àº»àºš' : 'Please enter your account details');
+      toast.error(lang === 'lo' ? 'ກະລຸນາໃສ່ຂໍ້ມູນບັນຊີໃຫ້ຄົບ' : 'Please enter your account details');
       return;
     }
     if ((type === 'send' || type === 'receive') && !targetEmail) {
-      toast.error(lang === 'lo' ? 'àºàº°àº¥àº¸àº™àº²à»ƒàºªà»ˆàº­àºµà»€àº¡àº§àºœàº¹à»‰à»ƒàºŠà»‰' : 'Please enter user email');
+      toast.error(lang === 'lo' ? 'ກະລຸນາໃສ່ອີເມວຜູ້ໃຊ້' : 'Please enter user email');
       return;
     }
     if (type === 'exchange' && currency === exchangeToCurrency) {
-      toast.error(lang === 'lo' ? 'à»€àº¥àº·àº­àºàºªàº°àºàº¸àº™à»€àº‡àº´àº™àº›àº²àºàº—àº²àº‡àº­àº·à»ˆàº™' : 'Choose a different target currency');
+      toast.error(lang === 'lo' ? 'ເລືອກສະກຸນເງິນປາຍທາງອື່ນ' : 'Choose a different target currency');
       return;
     }
 
     setLoading(true);
 
     const finishSuccess = () => {
-      toast.success(type === 'exchange' ? (lang === 'lo' ? 'à»àº¥àºàº›à»ˆàº½àº™àºªàº³à»€àº¥àº±àº”' : 'Exchange completed') : (lang === 'lo' ? 'àºªàº»à»ˆàº‡àº„àº³àº‚à»à»àº¥à»‰àº§' : 'Request sent for admin approval'));
+      toast.success(type === 'exchange' ? (lang === 'lo' ? 'ແລກປ່ຽນສຳເລັດ' : 'Exchange completed') : (lang === 'lo' ? 'ສົ່ງຄຳຂໍແລ້ວ' : 'Request sent for admin approval'));
       setLoading(false);
       onSubmitted?.();
       onClose();
@@ -132,7 +132,7 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
           const numericAmount = Number(amount);
           const nextBalances = exchangeWalletBalance(profile, currency, exchangeToCurrency, numericAmount, DEFAULT_EXCHANGE_RATES);
           if (!nextBalances) {
-            toast.error(lang === 'lo' ? 'àºàº­àº”à»€àº‡àº´àº™àºšà»à»ˆàºžà»' : 'Insufficient balance');
+            toast.error(lang === 'lo' ? 'ຍອດເງິນບໍ່ພໍ' : 'Insufficient balance');
             return;
           }
 
@@ -147,7 +147,7 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
             firebaseClient.entities.WalletTransaction.create({
               user_email: currentUser.email,
               description: `Exchange out ${numericAmount} ${currency}`,
-              description_lao: `à»àº¥àºàº­àº­àº ${numericAmount} ${currency}`,
+              description_lao: `ແລກອອກ ${numericAmount} ${currency}`,
               amount: -numericAmount,
               currency,
               type: 'send',
@@ -160,7 +160,7 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
             firebaseClient.entities.WalletTransaction.create({
               user_email: currentUser.email,
               description: `Exchange in ${nextBalances.convertedAmount} ${exchangeToCurrency}`,
-              description_lao: `à»àº¥àºà»€àº‚àº»à»‰àº² ${nextBalances.convertedAmount} ${exchangeToCurrency}`,
+              description_lao: `ແລກເຂົ້າ ${nextBalances.convertedAmount} ${exchangeToCurrency}`,
               amount: nextBalances.convertedAmount,
               currency: exchangeToCurrency,
               type: 'received',
@@ -189,7 +189,7 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
         await firebaseClient.entities.WalletTransaction.create({
           user_email: currentUser.email,
           description: `${type} request`,
-          description_lao: `àº„àº³àº‚à» ${type}`,
+          description_lao: `ຄຳຂໍ ${type}`,
           amount: numericAmount,
           currency,
           type: type === 'receive' ? 'received' : type,
@@ -212,9 +212,9 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
         const admins = await firebaseClient.entities.User.list('-created_date', 200).then((users) => users.filter((user) => user.role === 'admin'));
         await Promise.all(admins.map((admin) => firebaseClient.entities.Notification.create({
           user_email: admin.email,
-          type: 'ðŸ’°',
+          type: '💰',
           text: `${currentUser.email} submitted a ${type} request for ${numericAmount} ${currency}`,
-          text_lao: `${currentUser.email} àºªàº»à»ˆàº‡àº„àº³àº‚à» ${type} àºˆàº³àº™àº§àº™ ${numericAmount} ${currency}`,
+          text_lao: `${currentUser.email} ສົ່ງຄຳຂໍ ${type} ຈຳນວນ ${numericAmount} ${currency}`,
         })));
       })
       .then(finishSuccess)
@@ -230,40 +230,40 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
         </div>
 
         <div className="space-y-4 overflow-y-auto overscroll-contain flex-1 hide-scrollbar pb-2 pr-1">
-          <input value={amount} onChange={(e) => setAmount(e.target.value)} type="number" min="0" placeholder={lang === 'lo' ? 'àºˆàº³àº™àº§àº™à»€àº‡àº´àº™' : 'Amount'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
+          <input value={amount} onChange={(e) => setAmount(e.target.value)} type="number" min="0" placeholder={lang === 'lo' ? 'ຈຳນວນເງິນ' : 'Amount'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
           <MobileSelect
             value={currency}
             onChange={setCurrency}
             options={CURRENCIES}
-            placeholder={lang === 'lo' ? 'àºªàº°àºàº¸àº™à»€àº‡àº´àº™' : 'Currency'}
-            label={lang === 'lo' ? 'à»€àº¥àº·àº­àºàºªàº°àºàº¸àº™à»€àº‡àº´àº™' : 'Select Currency'}
+            placeholder={lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}
+            label={lang === 'lo' ? 'ເລືອກສະກຸນເງິນ' : 'Select Currency'}
           />
 
           {type === 'exchange' && (
             <div className="rounded-2xl border border-border bg-muted/30 p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold">{lang === 'lo' ? 'àºˆàº²àº' : 'From'}</p>
+                <p className="text-sm font-semibold">{lang === 'lo' ? 'ຈາກ' : 'From'}</p>
                 <ArrowRightLeft size={16} className="text-muted-foreground" />
-                <p className="text-sm font-semibold">{lang === 'lo' ? 'à»„àº›àº«àº²' : 'To'}</p>
+                <p className="text-sm font-semibold">{lang === 'lo' ? 'ໄປຫາ' : 'To'}</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-xl border border-border bg-card px-3 py-2">
-                  <p className="text-xs text-muted-foreground mb-1">{lang === 'lo' ? 'àºªàº°àºàº¸àº™àº•àº»à»‰àº™àº—àº²àº‡' : 'Source currency'}</p>
+                  <p className="text-xs text-muted-foreground mb-1">{lang === 'lo' ? 'ສະກຸນຕົ້ນທາງ' : 'Source currency'}</p>
                   <p className="font-semibold text-sm">{currency}</p>
                 </div>
                 <MobileSelect
                   value={exchangeToCurrency}
                   onChange={setExchangeToCurrency}
                   options={CURRENCIES.filter((item) => item !== currency)}
-                  placeholder={lang === 'lo' ? 'àº›àº²àºàº—àº²àº‡' : 'Target'}
-                  label={lang === 'lo' ? 'àºªàº°àºàº¸àº™à»€àº‡àº´àº™àº›àº²àºàº—àº²àº‡' : 'Target Currency'}
+                  placeholder={lang === 'lo' ? 'ປາຍທາງ' : 'Target'}
+                  label={lang === 'lo' ? 'ສະກຸນເງິນປາຍທາງ' : 'Target Currency'}
                 />
               </div>
               {exchangePreview && (
                 <div className="rounded-xl bg-card border border-border px-3 py-3 space-y-1">
-                  <p className="text-xs text-muted-foreground">{lang === 'lo' ? 'àº—à»ˆàº²àº™àºˆàº°à»„àº”à»‰àº®àº±àºš' : 'You will receive'}</p>
+                  <p className="text-xs text-muted-foreground">{lang === 'lo' ? 'ທ່ານຈະໄດ້ຮັບ' : 'You will receive'}</p>
                   <p className="text-lg font-bold text-foreground">{exchangePreview.receivedAmount.toLocaleString()} {exchangeToCurrency}</p>
-                  <p className="text-xs text-muted-foreground">â‰ˆ {exchangePreview.amountLak.toLocaleString()} LAK</p>
+                  <p className="text-xs text-muted-foreground">≈ {exchangePreview.amountLak.toLocaleString()} LAK</p>
                 </div>
               )}
             </div>
@@ -272,7 +272,7 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
           {type === 'topup' && (
             <>
               <div className="rounded-2xl border border-border bg-muted/30 p-3 space-y-2 text-sm">
-                <p className="font-semibold">{lang === 'lo' ? 'àºšàº±àº™àºŠàºµàºªàº³àº¥àº±àºšà»‚àº­àº™à»€àº‡àº´àº™' : 'Transfer Account'}</p>
+                <p className="font-semibold">{lang === 'lo' ? 'ບັນຊີສຳລັບໂອນເງິນ' : 'Transfer Account'}</p>
                 <p>{bankName}</p>
                 {accountSettings?.account_name && <p>{accountSettings.account_name}</p>}
                 <p>{accountNumber || '-'}</p>
@@ -280,7 +280,7 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
                 {accountSettings?.qr_code_url && <img src={accountSettings.qr_code_url} alt="QR code" className="w-40 h-40 object-cover rounded-xl border border-border" />}
               </div>
               <FileUploadButton
-                label={file ? `âœ… ${file.name}` : (lang === 'lo' ? 'à»àº™àºšàºªàº°àº¥àº´àºšàºàº²àº™àºˆà»ˆàº²àº' : 'Attach payment screenshot')}
+                label={file ? `✅ ${file.name}` : (lang === 'lo' ? 'ແນບສະລິບການຈ່າຍ' : 'Attach payment screenshot')}
                 accept="image/*"
                 onChange={(e) => { if (e.target.files[0]) setFile(e.target.files[0]); }}
               />
@@ -293,16 +293,16 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
                 value={bankName}
                 onChange={setBankName}
                 options={BANKS}
-                placeholder={lang === 'lo' ? 'àº—àº°àº™àº²àº„àº²àº™' : 'Bank'}
-                label={lang === 'lo' ? 'à»€àº¥àº·àº­àºàº—àº°àº™àº²àº„àº²àº™' : 'Select Bank'}
+                placeholder={lang === 'lo' ? 'ທະນາຄານ' : 'Bank'}
+                label={lang === 'lo' ? 'ເລືອກທະນາຄານ' : 'Select Bank'}
               />
-              <input value={accountName} onChange={(e) => setAccountName(e.target.value)} placeholder={lang === 'lo' ? 'àºŠàº·à»ˆàºšàº±àº™àºŠàºµ' : 'Account Name'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
-              <input value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} placeholder={lang === 'lo' ? 'à»€àº¥àºàºšàº±àº™àºŠàºµàº‚àº­àº‡àº—à»ˆàº²àº™' : 'Your Account Number'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
+              <input value={accountName} onChange={(e) => setAccountName(e.target.value)} placeholder={lang === 'lo' ? 'ຊື່ບັນຊີ' : 'Account Name'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
+              <input value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} placeholder={lang === 'lo' ? 'ເລກບັນຊີຂອງທ່ານ' : 'Your Account Number'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
               <p className="text-xs text-muted-foreground px-1">
-                {lang === 'lo' ? 'àºªàº³àº¥àº±àºšàºœàº¹à»‰à»ƒàºŠà»‰à»ƒà»à»ˆ àºŠà»ˆàº­àº‡àº™àºµà»‰àºˆàº°à»€àº›àº±àº™àº„à»ˆàº²àº«àº§à»ˆàº²àº‡ à»àº¥àº° àº¥àº°àºšàº»àºšàºˆàº°àºˆàº·à»ˆàº‚à»à»‰àº¡àº¹àº™àºšàº±àº™àºŠàºµàº‚àº­àº‡àº—à»ˆàº²àº™à»„àº§à»‰' : 'For new users this stays blank, and your own account details will be remembered after you submit.'}
+                {lang === 'lo' ? 'ສຳລັບຜູ້ໃຊ້ໃໝ່ ຊ່ອງນີ້ຈະເປັນຄ່າຫວ່າງ ແລະ ລະບົບຈະຈື່ຂໍ້ມູນບັນຊີຂອງທ່ານໄວ້' : 'For new users this stays blank, and your own account details will be remembered after you submit.'}
               </p>
               <FileUploadButton
-                label={accountQrFile ? `âœ… ${accountQrFile.name}` : (lang === 'lo' ? 'à»àº™àºš QR àº‚àº­àº‡àºšàº±àº™àºŠàºµ' : 'Attach your account QR')}
+                label={accountQrFile ? `✅ ${accountQrFile.name}` : (lang === 'lo' ? 'ແນບ QR ຂອງບັນຊີ' : 'Attach your account QR')}
                 accept="image/*"
                 onChange={(e) => { if (e.target.files[0]) setAccountQrFile(e.target.files[0]); }}
               />
@@ -311,13 +311,13 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
           )}
 
           {(type === 'send' || type === 'receive') && (
-            <input value={targetEmail} onChange={(e) => setTargetEmail(e.target.value)} placeholder={lang === 'lo' ? 'àº­àºµà»€àº¡àº§àºœàº¹à»‰à»ƒàºŠà»‰' : 'User email'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
+            <input value={targetEmail} onChange={(e) => setTargetEmail(e.target.value)} placeholder={lang === 'lo' ? 'ອີເມວຜູ້ໃຊ້' : 'User email'} className="w-full border border-border rounded-xl px-3 py-2 text-sm" />
           )}
         </div>
 
         <div className="pt-4 mt-2 border-t border-border flex-shrink-0 bg-card">
           <button onClick={handleSubmit} disabled={loading} className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-semibold text-sm disabled:opacity-50 hover:opacity-90 transition-opacity">
-            {loading ? '...' : type === 'exchange' ? (lang === 'lo' ? 'àº¢àº·àº™àº¢àº±àº™àºàº²àº™à»àº¥àºàº›à»ˆàº½àº™' : 'Confirm Exchange') : (lang === 'lo' ? 'àºªàº»à»ˆàº‡àº„àº³àº‚à»' : 'Send Request')}
+            {loading ? '...' : type === 'exchange' ? (lang === 'lo' ? 'ຢືນຢັນການແລກປ່ຽນ' : 'Confirm Exchange') : (lang === 'lo' ? 'ສົ່ງຄຳຂໍ' : 'Send Request')}
           </button>
         </div>
       </div>

@@ -29,7 +29,7 @@ export default function Bookings() {
       const listingMap = {};
       allListings.forEach(l => { listingMap[l.id] = l; });
 
-      const allPosts = await firebaseClient.entities.Post.list('-created_date', 200);
+      const allPosts = await firebaseClient.entities.ServicePost.list('-created_date', 200);
       const postMap = {};
       allPosts.forEach(p => { postMap[p.id] = p; });
 
@@ -127,7 +127,7 @@ export default function Bookings() {
     });
     await loadServiceBookings();
     setSelectedServiceBooking(null);
-    toast.success(lang === 'lo' ? 'àºªàº»à»ˆàº‡àº„àº³àº‚à»àºàº»àºà»€àº¥àºµàºà»àº¥à»‰àº§' : 'Cancel request sent');
+    toast.success(lang === 'lo' ? 'ສົ່ງຄຳຂໍຍົກເລີກແລ້ວ' : 'Cancel request sent');
   };
 
   const requestComplete = async (booking) => {
@@ -138,7 +138,7 @@ export default function Bookings() {
     });
     await loadServiceBookings();
     setSelectedServiceBooking(null);
-    toast.success(lang === 'lo' ? 'àºªàº»à»ˆàº‡àº„àº³àº‚à»àºªàº³à»€àº¥àº±àº”à»àº¥à»‰àº§ (àº¥à»àº–à»‰àº² Admin àº­àº°àº™àº¸àº¡àº±àº”)' : 'Completion request sent (waiting for admin approval)');
+    toast.success(lang === 'lo' ? 'ສົ່ງຄຳຂໍສຳເລັດແລ້ວ (ລໍຖ້າ Admin ອະນຸມັດ)' : 'Completion request sent (waiting for admin approval)');
   };
 
   const approveCancel = async (booking) => {
@@ -167,7 +167,7 @@ export default function Bookings() {
     await firebaseClient.entities.WalletTransaction.create({
       user_email: bookerEmail,
       description: `Refund for cancelled ${serviceType}`,
-      description_lao: `àº„àº·àº™à»€àº‡àº´àº™àºªàº³àº¥àº±àºš ${serviceType}`,
+      description_lao: `ຄືນເງິນສຳລັບ ${serviceType}`,
       amount: Math.abs(price || 0),
       currency: booking.currency || 'USD',
       type: 'received',
@@ -178,7 +178,7 @@ export default function Bookings() {
 
     await loadServiceBookings();
     setSelectedServiceBooking(null);
-    toast.success(lang === 'lo' ? 'àºàº»àºà»€àº¥àºµàº à»àº¥àº° àº„àº·àº™à»€àº‡àº´àº™àºªàº³à»€àº¥àº±àº”' : 'Cancelled and refunded');
+    toast.success(lang === 'lo' ? 'ຍົກເລີກ ແລະ ຄືນເງິນສຳເລັດ' : 'Cancelled and refunded');
   };
 
   const declineCancel = async (booking) => {
@@ -189,7 +189,7 @@ export default function Bookings() {
     });
     await loadServiceBookings();
     setSelectedServiceBooking(null);
-    toast.success(lang === 'lo' ? 'àºšà»à»ˆàº­àº°àº™àº¸àº¡àº±àº”àº„àº³àº‚à»àºàº»àºà»€àº¥àºµàº' : 'Cancel request declined');
+    toast.success(lang === 'lo' ? 'ບໍ່ອະນຸມັດຄຳຂໍຍົກເລີກ' : 'Cancel request declined');
   };
 
   const markServiceCompleted = async (booking) => {
@@ -221,7 +221,7 @@ export default function Bookings() {
       await firebaseClient.entities.WalletTransaction.create({
         user_email: posterEmail,
         description: `Payout for ${serviceType}`,
-        description_lao: `àº®àº±àºšà»€àº‡àº´àº™àº„à»ˆàº² ${serviceType}`,
+        description_lao: `ຮັບເງິນຄ່າ ${serviceType}`,
         amount: Math.abs(price || 0),
         currency: booking.currency || 'USD',
         type: 'received',
@@ -233,14 +233,14 @@ export default function Bookings() {
 
     await firebaseClient.entities.Notification.create({
       user_email: posterEmail,
-      type: 'ðŸ’¸',
+      type: '💸',
       text: `Payment for ${serviceType} has been released to your wallet`,
-      text_lao: `à»€àº‡àº´àº™àº„à»ˆàº² ${serviceType} à»„àº”à»‰à»€àº‚àº»à»‰àº²àºàº°à»€àº›àº»àº²à»àº¥à»‰àº§`
+      text_lao: `ເງິນຄ່າ ${serviceType} ໄດ້ເຂົ້າກະເປົາແລ້ວ`
     });
 
     await loadServiceBookings();
     setSelectedServiceBooking(null);
-    toast.success(lang === 'lo' ? 'àºªàº³à»€àº¥àº±àº” à»àº¥àº° à»‚àº­àº™à»€àº‡àº´àº™à»ƒàº«à»‰àºœàº¹à»‰à»ƒàº«à»‰àºšà»àº¥àº´àºàº²àº™à»àº¥à»‰àº§' : 'Completed and paid to provider');
+    toast.success(lang === 'lo' ? 'ສຳເລັດ ແລະ ໂອນເງິນໃຫ້ຜູ້ໃຫ້ບໍລິການແລ້ວ' : 'Completed and paid to provider');
   };
 
   const myServiceBookings = serviceBookings.filter((b) => currentUser?.role === 'admin' || b.booker_email === currentUser?.email);
@@ -256,8 +256,8 @@ export default function Bookings() {
       <h1 className="text-2xl font-bold mb-1">{t.bookingsTitle}</h1>
       <p className="text-muted-foreground text-sm mb-5">
         {currentUser?.role === 'admin' ?
-        lang === 'lo' ? 'àº¥àº²àºàºàº²àº™àºˆàº­àº‡àº‚àº­àº‡àºœàº¹à»‰à»ƒàºŠà»‰àº—àº±àº‡à»àº»àº”' : 'All user bookings in one place' :
-        lang === 'lo' ? 'àº¥àº²àºàºàº²àº™àºˆàº­àº‡àº—àº±àº‡à»àº»àº”àº‚àº­àº‡àº—à»ˆàº²àº™' : 'All your reservations in one place'}
+        lang === 'lo' ? 'ລາຍການຈອງຂອງຜູ້ໃຊ້ທັງໝົດ' : 'All user bookings in one place' :
+        lang === 'lo' ? 'ລາຍການຈອງທັງໝົດຂອງທ່ານ' : 'All your reservations in one place'}
       </p>
 
       {/* Giving / Asking Service Main Tabs */}
@@ -266,13 +266,13 @@ export default function Bookings() {
           onClick={() => setServiceTab('incoming_requests')}
           className={`flex-1 py-3.5 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${serviceTab === 'incoming_requests' ? 'bg-card text-primary shadow-sm border border-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          ðŸ¤ {lang === 'lo' ? 'à»ƒàº«à»‰àºšà»àº¥àº´àºàº²àº™' : 'Giving Service'}
+          🤝 {lang === 'lo' ? 'ໃຫ້ບໍລິການ' : 'Giving Service'}
         </button>
         <button
           onClick={() => setServiceTab('my_bookings')}
           className={`flex-1 py-3.5 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${serviceTab === 'my_bookings' ? 'bg-card text-primary shadow-sm border border-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          ðŸ™‹ {lang === 'lo' ? 'à»ƒàºŠà»‰àºšà»àº¥àº´àºàº²àº™' : 'Using Service'}
+          🙋 {lang === 'lo' ? 'ໃຊ້ບໍລິການ' : 'Using Service'}
         </button>
       </div>
 
@@ -282,7 +282,7 @@ export default function Bookings() {
           onClick={() => setTab('pending')}
           className={`pb-3 text-sm font-bold relative transition-colors ${tab === 'pending' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          â³ {lang === 'lo' ? 'àº¥à»àº–à»‰àº²àº”àº³à»€àº™àºµàº™àºàº²àº™' : 'Pending'}
+          ⏳ {lang === 'lo' ? 'ລໍຖ້າດຳເນີນການ' : 'Pending'}
           {pendingBookings.length > 0 && <span className="ml-1.5 text-[10px] bg-amber-500 text-white rounded-full px-2 py-0.5">{pendingBookings.length}</span>}
           {tab === 'pending' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-foreground rounded-t-full" />}
         </button>
@@ -290,7 +290,7 @@ export default function Bookings() {
           onClick={() => setTab('completed')}
           className={`pb-3 text-sm font-bold relative transition-colors ${tab === 'completed' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          âœ… {lang === 'lo' ? 'àºªàº³à»€àº¥àº±àº”à»àº¥à»‰àº§' : 'Completed'}
+          ✅ {lang === 'lo' ? 'ສຳເລັດແລ້ວ' : 'Completed'}
           {completedBookings.length > 0 && <span className="ml-1.5 text-[10px] bg-primary text-white rounded-full px-2 py-0.5">{completedBookings.length}</span>}
           {tab === 'completed' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-foreground rounded-t-full" />}
         </button>
@@ -318,15 +318,15 @@ export default function Bookings() {
                         <img src={b.image} alt={b.service_type} className="w-14 h-14 rounded-xl object-cover shadow-sm border border-border flex-shrink-0" />
                       ) : (
                         <div className="w-14 h-14 bg-muted/50 rounded-xl flex items-center justify-center text-2xl shadow-sm border border-border flex-shrink-0">
-                          {b.booking_kind === 'stay' ? 'ðŸ ' : 'ðŸ›Žï¸'}
+                          {b.booking_kind === 'stay' ? '🏠' : '🛎️'}
                         </div>
                       )}
                       <div>
                         <p className="font-bold text-base line-clamp-1">{b.service_type || 'Service Transaction'}</p>
                         <p className="text-xs text-muted-foreground mt-1">
                           {isIncoming
-                            ? `${lang === 'lo' ? 'àº¥àº¹àºàº„à»‰àº²:' : 'Client:'} ${b.booker_name || b.booker_email}`
-                            : `${lang === 'lo' ? 'àºœàº¹à»‰à»ƒàº«à»‰àºšà»àº¥àº´àºàº²àº™:' : 'Provider:'} ${b.poster_name || b.poster_email}`}
+                            ? `${lang === 'lo' ? 'ລູກຄ້າ:' : 'Client:'} ${b.booker_name || b.booker_email}`
+                            : `${lang === 'lo' ? 'ຜູ້ໃຫ້ບໍລິການ:' : 'Provider:'} ${b.poster_name || b.poster_email}`}
                         </p>
                       </div>
                     </div>
@@ -357,7 +357,7 @@ export default function Bookings() {
                 <div className="bg-muted/30 px-4 sm:px-5 py-3 border-t border-dashed border-border flex items-center justify-between">
                   <span className="text-xs font-semibold text-muted-foreground">{formatTimestampDMY(b.created_date)}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-muted-foreground uppercase">{lang === 'lo' ? 'àº¥àº²àº„àº²àº¥àº§àº¡' : 'TOTAL'}</span>
+                    <span className="text-xs font-bold text-muted-foreground uppercase">{lang === 'lo' ? 'ລາຄາລວມ' : 'TOTAL'}</span>
                     <span className="text-lg font-black text-foreground">{b.price} {b.currency || 'USD'}</span>
                   </div>
                 </div>
@@ -367,13 +367,13 @@ export default function Bookings() {
         </div>
       ) : (
         <div className="text-center py-20 text-muted-foreground bg-muted/20 rounded-3xl border border-border border-dashed">
-          <p className="text-5xl mb-4">{tab === 'pending' ? 'â³' : 'âœ…'}</p>
+          <p className="text-5xl mb-4">{tab === 'pending' ? '⏳' : '✅'}</p>
           <h3 className="text-lg font-bold mb-2">
             {tab === 'pending'
-              ? lang === 'lo' ? 'àºàº±àº‡àºšà»à»ˆàº¡àºµàº—àº¸àº¥àº°àºàº³àº—àºµà»ˆàº¥à»àº–à»‰àº²' : 'No pending transactions'
-              : lang === 'lo' ? 'àºàº±àº‡àºšà»à»ˆàº¡àºµàº—àº¸àº¥àº°àºàº³àº—àºµà»ˆàºªàº³à»€àº¥àº±àº”' : 'No completed transactions'}
+              ? lang === 'lo' ? 'ຍັງບໍ່ມີທຸລະກຳທີ່ລໍຖ້າ' : 'No pending transactions'
+              : lang === 'lo' ? 'ຍັງບໍ່ມີທຸລະກຳທີ່ສຳເລັດ' : 'No completed transactions'}
           </h3>
-          <p className="text-sm mb-6 max-w-sm mx-auto">{lang === 'lo' ? 'àºŠàº­àºàº«àº²àºàº²àº™àºšà»àº¥àº´àºàº²àº™à»ƒàº™ Feed à»€àºžàº·à»ˆàº­à»€àº¥àºµà»ˆàº¡àº•àº»à»‰àº™àº—àº¸àº¥àº°àºàº³à»ƒà»à»ˆ' : 'Browse services in the Feed to start a new transaction'}</p>
+          <p className="text-sm mb-6 max-w-sm mx-auto">{lang === 'lo' ? 'ຊອກຫາການບໍລິການໃນ Feed ເພື່ອເລີ່ມຕົ້ນທຸລະກຳໃໝ່' : 'Browse services in the Feed to start a new transaction'}</p>
           <Link to="/feed" className="inline-block bg-primary text-primary-foreground px-8 py-3 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:opacity-90 hover:scale-105 transition-all">{t.feed}</Link>
         </div>
       )}

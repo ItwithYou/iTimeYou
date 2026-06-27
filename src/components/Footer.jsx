@@ -1,4 +1,4 @@
-﻿import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { firebaseClient } from '@/api/firebaseClient';
 import { toast } from 'sonner';
 
@@ -14,7 +14,7 @@ export default function Footer({ t, lang }) {
     const users = await firebaseClient.entities.User.list('-created_date', 100);
     const admin = users.find(u => u.role === 'admin');
     if (!admin) {
-      toast.error(lang === 'lo' ? 'àºšà»à»ˆàº¡àºµ admin àº¢àº¹à»ˆ' : 'No admin available');
+      toast.error(lang === 'lo' ? 'ບໍ່ມີ admin ຢູ່' : 'No admin available');
       return;
     }
     const existing = await firebaseClient.entities.Conversation.list('-updated_date', 50);
@@ -64,7 +64,7 @@ export default function Footer({ t, lang }) {
           </div>
         </div>
         <div className="border-t border-card/10 pt-4 text-center text-xs text-card/40">
-          Â© 2024 iTimeYou. All rights reserved. | àºªàº°àº«àº‡àº§àº™àº¥àº´àº‚àº°àºªàº´àº”
+          © 2024 iTimeYou. All rights reserved. | ສະຫງວນລິຂະສິດ
         </div>
       </div>
     </footer>

@@ -1,8 +1,9 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { firebaseClient, auth } from '@/api/firebaseClient';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Phone, User, X } from 'lucide-react';
+import { ArrowLeft, Phone, User, MessageSquare, X } from 'lucide-react';
+import { toast } from 'sonner';
 
 function friendlyError(err) {
   console.error('Auth error:', err?.code, err?.message, err);
@@ -21,13 +22,13 @@ function friendlyError(err) {
 }
 
 const COUNTRY_CODES = [
-  { code: '+856', label: 'ðŸ‡±ðŸ‡¦' },
-  { code: '+66', label: 'ðŸ‡¹ðŸ‡­' },
-  { code: '+84', label: 'ðŸ‡»ðŸ‡³' },
-  { code: '+855', label: 'ðŸ‡°ðŸ‡­' },
-  { code: '+86', label: 'ðŸ‡¨ðŸ‡³' },
-  { code: '+1', label: 'ðŸ‡ºðŸ‡¸' },
-  { code: '+44', label: 'ðŸ‡¬ðŸ‡§' },
+  { code: '+856', label: '🇱🇦' },
+  { code: '+66', label: '🇹🇭' },
+  { code: '+84', label: '🇻🇳' },
+  { code: '+855', label: '🇰🇭' },
+  { code: '+86', label: '🇨🇳' },
+  { code: '+1', label: '🇺🇸' },
+  { code: '+44', label: '🇬🇧' },
 ];
 
 export default function LoginModal({ isOpen, onClose }) {

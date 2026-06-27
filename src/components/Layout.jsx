@@ -1,4 +1,4 @@
-﻿import { Outlet, useLocation, Navigate } from 'react-router-dom';
+import { Outlet, useLocation, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { firebaseClient } from '@/api/firebaseClient';
 import Navbar from './Navbar';
@@ -147,14 +147,14 @@ export default function Layout() {
             <span className="text-4xl font-black text-white tracking-tight">iTimeYou</span>
           </div>
           
-          <p className="text-white/60 text-xs tracking-widest mb-1 lao-text font-semibold">àºªàº±àº‡àº„àº»àº¡ Â· àº—à»ˆàº½àº§ Â· àº§àº±àº”àº—àº°àº™àº°àº—à»àº² Â· àº—àºµà»ˆàºžàº±àº</p>
-          <p className="text-white/50 text-xs tracking-widest mb-6">SOCIAL Â· TRAVEL Â· CULTURE Â· STAY</p>
+          <p className="text-white/60 text-xs tracking-widest mb-1 lao-text font-semibold">ສັງຄົມ · ທ່ຽວ · ວັດທະນະທໍາ · ທີ່ພັກ</p>
+          <p className="text-white/50 text-xs tracking-widest mb-6">SOCIAL · TRAVEL · CULTURE · STAY</p>
           
           {/* Loading bar */}
           <div className="w-48 h-px bg-[#0ADBB9]/30 mb-6 mx-auto" />
           
           {/* Loading text */}
-          <p className="text-white/70 text-sm mb-2 lao-text font-medium">àºàº³àº¥àº±àº‡à»‚àº«àº¼àº”...</p>
+          <p className="text-white/70 text-sm mb-2 lao-text font-medium">ກຳລັງໂຫຼດ...</p>
           <p className="text-white/50 text-xs mb-4">Loading...</p>
           
           {/* Dots */}
@@ -178,7 +178,7 @@ export default function Layout() {
         <Navbar profile={profile} currentUser={currentUser} t={t} lang={lang} setLang={setLang} />
         <MobileHeader t={t} lang={lang} />
         <main className="pb-20 md:pb-0">
-          {/* Persistent tab pages â€” hidden via CSS, stay mounted to preserve state/scroll */}
+          {/* Persistent tab pages — hidden via CSS, stay mounted to preserve state/scroll */}
           {TAB_PAGES.map(({ path, PageComponent }) =>
             visitedPaths.has(path) ? (
               <div key={path} className={location.pathname === path ? 'block' : 'hidden'}>

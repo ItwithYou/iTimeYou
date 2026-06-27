@@ -4,22 +4,17 @@ import { X, Image, DollarSign, Loader2, CheckSquare, Square } from 'lucide-react
 import MobileSelect from './MobileSelect';
 import PhotoGrid from './PhotoGrid';
 import { toast } from 'sonner';
+import { BUSINESS_CATS } from '../hooks/useLang';
 
-const BUSINESS_CATS = [
-  { key: 'tours', label: 'Tours', labelLo: 'àº—àº»àº§', priceUnit: 'per package', priceUnitLo: 'àº•à» à»ˆà» àºžàº±àº à»€àº àºˆ' },
-  { key: 'hotels', label: 'Hotels', labelLo: 'à»‚àº®àº‡à» àº®àº¡', priceUnit: 'per night', priceUnitLo: 'àº•à» à»ˆàº„àº·àº™' },
-  { key: 'flights', label: 'Flights', labelLo: 'àº›àºµà»‰àº àº»àº™', priceUnit: 'per ticket', priceUnitLo: 'àº•à» à»ˆàº›àºµà»‰' },
-  { key: 'restaurants', label: 'Restaurants', labelLo: 'àº®à»‰àº²àº™àº­àº²àº«àº²àº™', priceUnit: 'per person', priceUnitLo: 'àº•à» à»ˆàº„àº»àº™' },
-  { key: 'seminars', label: 'Seminars', labelLo: 'àºªàº³àº¡àº°àº™àº²', priceUnit: 'per ticket', priceUnitLo: 'àº•à» à»ˆàº›àºµà»‰' },
-];
+
 
 const AMENITIES_LIST = [
-  { key: 'Wifi', label: 'Wifi', labelLo: 'à»„àº§à»„àºŸ' },
-  { key: 'Air Conditioning', label: 'AC', labelLo: 'à» àº­' },
-  { key: 'Kitchen', label: 'Kitchen', labelLo: 'àº«à»‰àº­àº‡àº„àº»àº§' },
-  { key: 'Pool', label: 'Pool', labelLo: 'àºªàº°àº¥àº­àºàº™à»‰àº³' },
-  { key: 'Parking', label: 'Free Parking', labelLo: 'àºšà»ˆàº­àº™àºˆàº­àº”àº¥àº»àº”' },
-  { key: 'TV', label: 'TV', labelLo: 'àº—àºµàº§àºµ' },
+  { key: 'Wifi', label: 'Wifi', labelLo: 'ໄວໄຟ' },
+  { key: 'Air Conditioning', label: 'AC', labelLo: 'ແອ' },
+  { key: 'Kitchen', label: 'Kitchen', labelLo: 'ຫ້ອງຄົວ' },
+  { key: 'Pool', label: 'Pool', labelLo: 'ສະລອຍນ້ຳ' },
+  { key: 'Parking', label: 'Free Parking', labelLo: 'ບ່ອນຈອດລົດ' },
+  { key: 'TV', label: 'TV', labelLo: 'ທີວີ' },
 ];
 
 export default function CreateListing({ profile, currentUser, lang, t, onPosted }) {
@@ -31,7 +26,7 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
   const [price, setPrice] = useState('');
   const [cleaningFee, setCleaningFee] = useState('0');
   const [serviceFee, setServiceFee] = useState('0');
-  const [category, setCategory] = useState('tours');
+  const [category, setCategory] = useState(BUSINESS_CATS[0]?.key || 'stay');
   const [city, setCity] = useState('');
   const [cityLao, setCityLao] = useState('');
   const [country, setCountry] = useState('Laos');
@@ -49,7 +44,7 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
     if (files.length === 0) return;
     const total = photoFiles.length + files.length;
     if (total > 10) {
-      toast.error(lang === 'lo' ? 'àºªàº¹àº‡àºªàº¸àº” 10 àº®àº¹àºš' : 'Maximum 10 photos');
+      toast.error(lang === 'lo' ? 'ສູງສຸດ 10 ຮູບ' : 'Maximum 10 photos');
       return;
     }
     setPhotoFiles(prev => [...prev, ...files]);
@@ -73,11 +68,11 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
 
   const handlePost = async () => {
     if (!title.trim() || !description.trim() || !price) {
-      toast.error(lang === 'lo' ? 'àºàº°àº¥àº¸àº™àº²àº›à»‰àº­àº™àº‚à»à»‰àº¡àº¹àº™à»ƒàº«à»‰àº„àº»àºš' : 'Please fill in required fields');
+      toast.error(lang === 'lo' ? 'ກະລຸນາປ້ອນຂໍ້ມູນໃຫ້ຄົບ' : 'Please fill in required fields');
       return;
     }
     if (photoFiles.length === 0) {
-      toast.error(lang === 'lo' ? 'àºàº°àº¥àº¸àº™àº²à»àº™àºšàº®àº¹àºšàºžàº²àºš' : 'Please attach a photo');
+      toast.error(lang === 'lo' ? 'ກະລຸນາແນບຮູບພາບ' : 'Please attach a photo');
       return;
     }
 
@@ -99,7 +94,7 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
         service_fee: parseFloat(serviceFee) || 0,
         category,
         city: city.trim() || 'Vientiane',
-        city_lao: cityLao.trim() || city.trim() || 'àº§àº½àº‡àºˆàº±àº™',
+        city_lao: cityLao.trim() || city.trim() || 'ວຽງຈັນ',
         country: country.trim() || 'Laos',
         guests: parseInt(guests) || 1,
         beds: parseInt(beds) || 1,
@@ -117,14 +112,14 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
       setPrice('');
       setCleaningFee('0');
       setServiceFee('0');
-      setCategory('stay');
+      setCategory(BUSINESS_CATS[0]?.key || 'stay');
       setCity('');
       setCityLao('');
       setSelectedAmenities([]);
       setPhotoFiles([]);
       setPhotoPreviews([]);
       setOpen(false);
-      toast.success(lang === 'lo' ? 'àº¥àº»àº‡àº¥àº²àºàºàº²àº™àºªàº³à»€àº¥àº±àº” âœ…' : 'Listing posted! âœ…');
+      toast.success(lang === 'lo' ? 'ລົງລາຍການສຳເລັດ ✅' : 'Listing posted! ✅');
       onPosted?.();
     } catch (err) {
       toast.error(err.message || 'Failed to post listing');
@@ -145,14 +140,14 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
             className="w-9 h-9 rounded-full object-cover flex-shrink-0"
           />
           <span className="text-sm font-semibold text-muted-foreground">
-            {lang === 'lo' ? 'àº•à»‰àº­àº‡àºàº²àº™àº¥àº»àº‡à»‚àºžàºªàº—àºµà»ˆàºžàº±àºà»ƒà»à»ˆàºšà»?' : 'Want to post a new accommodation?'}
+            {lang === 'lo' ? 'ຕ້ອງການລົງໂພສທີ່ພັກໃໝ່ບໍ?' : 'Want to post a new accommodation?'}
           </span>
         </div>
         <button
           onClick={() => setOpen(true)}
           className="bg-gradient-to-r from-tiffany to-deep-green text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:opacity-90 transition-opacity"
         >
-          + {lang === 'lo' ? 'àº¥àº»àº‡àº—àºµà»ˆàºžàº±àº' : 'Add Stay'}
+          + {lang === 'lo' ? 'ລົງທີ່ພັກ' : 'Add Stay'}
         </button>
       </div>
     );
@@ -162,7 +157,7 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
     <div className="bg-card rounded-2xl shadow-lg border border-primary/20 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-gradient-to-r from-tiffany/5 to-deep-green/5">
-        <h3 className="font-bold text-sm">{lang === 'lo' ? 'àºªà»‰àº²àº‡àº¥àº²àºàºàº²àº™àº—àºµà»ˆàºžàº±àº' : 'Create Accommodation Listing'}</h3>
+        <h3 className="font-bold text-sm">{lang === 'lo' ? 'ສ້າງລາຍການທີ່ພັກ' : 'Create Accommodation Listing'}</h3>
         <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground p-1 rounded-lg hover:bg-muted">
           <X size={16} />
         </button>
@@ -173,10 +168,10 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
         <div>
           <div className="flex items-center justify-between mb-2 border-b border-border pb-2">
              <label className="text-xs font-semibold text-muted-foreground uppercase">
-               {lang === 'lo' ? 'àº®àº¹àºšàºžàº²àºšàº—àºµà»ˆàºžàº±àº' : 'Listing Photos'}
+               {lang === 'lo' ? 'ຮູບພາບທີ່ພັກ' : 'Listing Photos'}
              </label>
              <button type="button" onClick={() => photoInputRef.current?.click()} className="flex items-center gap-1.5 text-xs font-bold text-primary hover:bg-primary/10 px-2 py-1 rounded transition-colors">
-               <Image size={14} /> {lang === 'lo' ? 'à»€àºžàºµà»ˆàº¡àº®àº¹àºš' : 'Add Photos'}{photoFiles.length > 0 ? ` (${photoFiles.length})` : ''}
+               <Image size={14} /> {lang === 'lo' ? 'ເພີ່ມຮູບ' : 'Add Photos'}{photoFiles.length > 0 ? ` (${photoFiles.length})` : ''}
              </button>
           </div>
           {photoPreviews.length > 0 ? (
@@ -190,7 +185,7 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
               className="w-full h-28 rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors mb-4 bg-muted/30"
             >
               <Image size={24} className="mb-1" />
-              <span className="text-xs">{lang === 'lo' ? 'àº­àº±àºšà»‚àº«àº¥àº”àº®àº¹àºšàº—àºµà»ˆàºžàº±àº' : 'Upload photos of the space'}</span>
+              <span className="text-xs">{lang === 'lo' ? 'ອັບໂຫລດຮູບທີ່ພັກ' : 'Upload photos of the space'}</span>
             </button>
           )}
           <input ref={photoInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePhotos} />
@@ -204,7 +199,7 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
           </div>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground mb-1">Title (Lao)</label>
-            <input value={titleLao} onChange={e => setTitleLao(e.target.value)} placeholder="àº«à»‰àº­àº‡àºªàº°àº•àº¹àº”àºµà»‚àº­ à»ƒàºà»‰à»ƒàºˆàºàº²àº‡à»€àº¡àº·àº­àº‡" className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/30" />
+            <input value={titleLao} onChange={e => setTitleLao(e.target.value)} placeholder="ຫ້ອງສະຕູດີໂອ ໃກ້ໃຈກາງເມືອງ" className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/30" />
           </div>
         </div>
 
@@ -215,7 +210,7 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
           </div>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground mb-1">Description (Lao)</label>
-            <textarea value={descriptionLao} onChange={e => setDescriptionLao(e.target.value)} rows={3} placeholder="àº¥àº²àºàº¥àº°àº­àº½àº”àº—àºµà»ˆàºžàº±àºà»€àº›àº±àº™àºžàº²àºªàº²àº¥àº²àº§..." className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/30 resize-none" />
+            <textarea value={descriptionLao} onChange={e => setDescriptionLao(e.target.value)} rows={3} placeholder="ລາຍລະອຽດທີ່ພັກເປັນພາສາລາວ..." className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/30 resize-none" />
           </div>
         </div>
 
@@ -226,7 +221,7 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
             <MobileSelect
               value={category}
               onChange={setCategory}
-              options={BUSINESS_CATS.map(c => ({ value: c.key, label: lang === 'lo' ? c.labelLo : c.label }))}
+              options={BUSINESS_CATS.map(c => ({ value: c.key, label: lang === 'lo' ? c.lo : c.en }))}
               placeholder="Category"
               label="Select Category"
             />
@@ -237,7 +232,7 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
           </div>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground mb-1">City (Lao)</label>
-            <input value={cityLao} onChange={e => setCityLao(e.target.value)} placeholder="àº™àº°àº„àº­àº™àº«àº¼àº§àº‡àº§àº½àº‡àºˆàº±àº™" className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/30" />
+            <input value={cityLao} onChange={e => setCityLao(e.target.value)} placeholder="ນະຄອນຫຼວງວຽງຈັນ" className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/30" />
           </div>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground mb-1">Country</label>
@@ -265,7 +260,7 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label className="block text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
-              <DollarSign size={11} /> Price (USD) <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded uppercase ml-auto">{lang === 'lo' ? BUSINESS_CATS.find(c => c.key === category)?.priceUnitLo : BUSINESS_CATS.find(c => c.key === category)?.priceUnit}</span>
+              <DollarSign size={11} /> Price per Night (USD)
             </label>
             <input type="number" min="0" value={price} onChange={e => setPrice(e.target.value)} placeholder="0.00" className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/30" />
           </div>
@@ -320,7 +315,7 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted 
             className="bg-gradient-to-r from-tiffany to-deep-green text-white px-6 py-2.5 rounded-xl text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
           >
             {posting ? <Loader2 size={13} className="animate-spin" /> : null}
-            {posting ? 'Saving...' : (lang === 'lo' ? 'àº¥àº»àº‡àº—àº°àºšàº½àº™' : 'Publish Stay')}
+            {posting ? 'Saving...' : (lang === 'lo' ? 'ລົງທະບຽນ' : 'Publish Stay')}
           </button>
         </div>
       </div>

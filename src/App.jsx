@@ -6,7 +6,6 @@ import React, { Suspense } from 'react';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import Layout from './components/Layout';
-import ErrorBoundary from './components/ErrorBoundary';
 
 const LoginModal = React.lazy(() => import('./components/LoginModal'));
 const AdminVerification = React.lazy(() => import('./pages/AdminVerification'));
@@ -99,12 +98,10 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <Suspense fallback={<LazyFallback />}>
-            <ErrorBoundary fallback={<div className="p-8 text-center"><h1 className="text-xl font-bold">Something went wrong</h1><p className="mt-2 text-muted-foreground">Please refresh the page.</p></div>}>
-              <Routes>
-                <Route path="/*" element={<AuthenticatedApp />} />
-              </Routes>
-              <GlobalLoginModal />
-            </ErrorBoundary>
+            <Routes>
+              <Route path="/*" element={<AuthenticatedApp />} />
+            </Routes>
+            <GlobalLoginModal />
           </Suspense>
         </Router>
         <Toaster />

@@ -1,11 +1,13 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { firebaseClient } from '@/api/firebaseClient';
 import MobileSelect from '../components/MobileSelect';
 import StarRating from '../components/StarRating';
+import TrustBadge from '../components/TrustBadge';
+import VerificationBadge from '../components/VerificationBadge';
 import ListingCard from '../components/ListingCard';
 import PostCard from '../components/PostCard';
-import { Calendar, Camera, Shield, MessageCircle, BadgeCheck, Building2, LogOut, Settings2 } from 'lucide-react';
+import { MapPin, Calendar, Users, Home, Camera, Shield, Trash2, MessageCircle, KeyRound, BadgeCheck, Building2, LogOut, Settings2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import VerificationModal from '../components/VerificationModal';
@@ -90,9 +92,9 @@ export default function Profile() {
       await firebaseClient.entities.UserProfile.update(viewProfile.id, { photo_url: file_url });
       loadProfile();
       refreshProfile();
-      toast.success(lang === 'lo' ? 'àº­àº±àºšà»€àº”àº”àº®àº¹àºšà»àº¥à»‰àº§ âœ…' : 'Photo updated âœ…');
+      toast.success(lang === 'lo' ? 'ອັບເດດຮູບແລ້ວ ✅' : 'Photo updated ✅');
     } catch (err) {
-      toast.error(lang === 'lo' ? 'àº­àº±àºšà»‚àº«àº¼àº”àºšà»à»ˆàºªàº³à»€àº¥àº±àº”' : 'Upload failed');
+      toast.error(lang === 'lo' ? 'ອັບໂຫຼດບໍ່ສຳເລັດ' : 'Upload failed');
     } finally {
       setIsUploadingPhoto(false);
       // Clean up object URL
@@ -118,11 +120,11 @@ export default function Profile() {
       try { await firebaseClient.auth.updateMe({ full_name: `${payload.first_name} ${payload.last_name}`.trim() }); } catch { /* non-fatal */ }
       setViewProfile({ ...viewProfile, ...payload });
       setEditing(false);
-      toast.success(t.profileSaved || 'Profile saved âœ…');
+      toast.success(t.profileSaved || 'Profile saved ✅');
       refreshProfile();
     } catch (e) {
       console.error('saveEdit failed:', e);
-      toast.error(lang === 'lo' ? 'àºšàº±àº™àº—àº¶àºàºšà»à»ˆàºªàº³à»€àº¥àº±àº” àº¥àº­àº‡à»ƒà»à»ˆ' : 'Could not save. Please try again.');
+      toast.error(lang === 'lo' ? 'ບັນທຶກບໍ່ສຳເລັດ ລອງໃໝ່' : 'Could not save. Please try again.');
     }
   };
   const handleCurrencyToggle = async () => {
@@ -135,7 +137,7 @@ export default function Profile() {
     setViewProfile({ ...viewProfile, wallet_currency: nextCurrency });
     try {
       await firebaseClient.entities.UserProfile.update(viewProfile.id, { wallet_currency: nextCurrency });
-      toast.success(lang === 'lo' ? `àº›à»ˆàº½àº™àºªàº°àºàº¸àº™à»€àº‡àº´àº™à»€àº›àº±àº™ ${nextCurrency}` : `Currency set to ${nextCurrency}`);
+      toast.success(lang === 'lo' ? `ປ່ຽນສະກຸນເງິນເປັນ ${nextCurrency}` : `Currency set to ${nextCurrency}`);
       refreshProfile();
     } catch (e) {
       setViewProfile({ ...viewProfile, wallet_currency: current });
@@ -185,7 +187,7 @@ export default function Profile() {
                 disabled={isUploadingPhoto}
                 onClick={(e) => { e.stopPropagation(); photoUploadRef.current?.click(); }}
                 className="absolute bottom-1 right-1 bg-background text-foreground border border-border p-2 rounded-full shadow-lg hover:bg-muted transition-colors z-10 disabled:opacity-70"
-                title={lang === 'lo' ? 'àº›à»ˆàº½àº™àº®àº¹àºš' : 'Update Photo'}
+                title={lang === 'lo' ? 'ປ່ຽນຮູບ' : 'Update Photo'}
               >
                 {isUploadingPhoto ? (
                   <div className="w-4 h-4 rounded-full border-[3px] border-foreground border-t-transparent animate-spin" />
@@ -196,7 +198,7 @@ export default function Profile() {
             )}
             {/* Verification Badge */}
             {viewProfile.is_verified &&
-              <span className={`absolute bottom-2 left-2 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 border-[3px] border-card text-white text-sm font-bold shadow-sm z-10 pointer-events-none`}>âœ“</span>
+              <span className={`absolute bottom-2 left-2 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 border-[3px] border-card text-white text-sm font-bold shadow-sm z-10 pointer-events-none`}>✓</span>
             }
           </div>
 
@@ -208,16 +210,16 @@ export default function Profile() {
                <span>{viewProfile.trust_stars ? viewProfile.trust_stars.toFixed(1) : '5.0'}</span>
              </div>
              {viewProfile.is_pro ? (
-               <button onClick={() => isOwn && toast.success(lang === 'lo' ? 'àº—à»ˆàº²àº™à»€àº›àº±àº™ Pro à»àº¥à»‰àº§' : 'You are already a Pro')} className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 text-blue-700 px-3 py-1 text-sm font-bold border border-blue-100 shadow-sm cursor-pointer hover:bg-blue-100 transition-colors">
+               <button onClick={() => isOwn && toast.success(lang === 'lo' ? 'ທ່ານເປັນ Pro ແລ້ວ' : 'You are already a Pro')} className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 text-blue-700 px-3 py-1 text-sm font-bold border border-blue-100 shadow-sm cursor-pointer hover:bg-blue-100 transition-colors">
                  <BadgeCheck size={14} /> Pro
                </button>
              ) : viewProfile.is_verified ? (
-               <button onClick={() => isOwn && toast.success(lang === 'lo' ? 'àº—à»ˆàº²àº™à»„àº”à»‰àº¢àº·àº™àº¢àº±àº™àº•àº»àº§àº•àº»àº™à»àº¥à»‰àº§' : 'You are already verified')} className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 text-emerald-700 px-3 py-1 text-sm font-bold border border-emerald-100 shadow-sm cursor-pointer hover:bg-emerald-100 transition-colors">
+               <button onClick={() => isOwn && toast.success(lang === 'lo' ? 'ທ່ານໄດ້ຢືນຢັນຕົວຕົນແລ້ວ' : 'You are already verified')} className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 text-emerald-700 px-3 py-1 text-sm font-bold border border-emerald-100 shadow-sm cursor-pointer hover:bg-emerald-100 transition-colors">
                  <Shield size={14} /> Verified
                </button>
              ) : isOwn ? (
                <button onClick={() => setShowVerModal(true)} className="inline-flex items-center gap-1.5 rounded-full bg-muted text-muted-foreground px-3 py-1 text-sm font-bold border border-border shadow-sm cursor-pointer hover:bg-muted/80 transition-colors">
-                 <Shield size={14} /> {lang === 'lo' ? 'àºàº±àº‡àºšà»à»ˆàº¢àº·àº™àº¢àº±àº™' : 'Unverified'}
+                 <Shield size={14} /> {lang === 'lo' ? 'ຍັງບໍ່ຢືນຢັນ' : 'Unverified'}
                </button>
              ) : null}
           </div>
@@ -233,7 +235,7 @@ export default function Profile() {
                    {t.editProfile || 'Edit Profile'}
                  </button>
                  <button onClick={() => firebaseClient.auth.logout()} className="flex items-center gap-1.5 text-xs bg-red-50 text-red-600 border border-red-100 px-4 py-1.5 rounded-full font-bold shadow-sm hover:bg-red-100 transition-colors">
-                   <LogOut size={14} /> {lang === 'lo' ? 'àº­àº­àºàºˆàº²àºàº¥àº°àºšàº»àºš' : 'Logout'}
+                   <LogOut size={14} /> {lang === 'lo' ? 'ອອກຈາກລະບົບ' : 'Logout'}
                  </button>
                  <input ref={photoUploadRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
                </>
@@ -249,26 +251,26 @@ export default function Profile() {
         <div className="mt-6 mx-auto max-w-2xl bg-gradient-to-br from-card/60 to-muted/30 backdrop-blur-md border border-border/60 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-sm flex flex-wrap items-center justify-between sm:justify-around gap-2 sm:gap-4 text-center">
             <div className="flex flex-col items-center gap-0.5 sm:gap-1 min-w-[45px] sm:min-w-[65px]">
               <p className="text-[13px] sm:text-xl font-serif font-semibold text-foreground tracking-tight">{(viewProfile.friends || []).length}</p>
-              <p className="text-[9px] sm:text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'àºœàº¹à»‰àº•àº´àº”àº•àº²àº¡' : 'Followers'}</p>
+              <p className="text-[9px] sm:text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Followers'}</p>
             </div>
             <div className="flex flex-col items-center gap-0.5 sm:gap-1 min-w-[45px] sm:min-w-[65px]">
               <p className="text-[13px] sm:text-xl font-serif font-semibold text-foreground tracking-tight">{posts.filter((post) => post.author_email === viewProfile.user_email && post.service_price > 0).length}</p>
-              <p className="text-[9px] sm:text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'àºšà»àº¥àº´àºàº²àº™' : 'Services'}</p>
+              <p className="text-[9px] sm:text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ບໍລິການ' : 'Services'}</p>
             </div>
             <div className="flex flex-col items-center gap-0.5 sm:gap-1 min-w-[45px] sm:min-w-[65px]">
               <p className="text-[13px] sm:text-xl font-serif font-semibold text-foreground tracking-tight capitalize">{viewProfile.gender || '-'}</p>
-              <p className="text-[9px] sm:text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'à»€àºžàº”' : 'Gender'}</p>
+              <p className="text-[9px] sm:text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ເພດ' : 'Gender'}</p>
             </div>
             <div className="flex flex-col items-center gap-0.5 sm:gap-1 min-w-[45px] sm:min-w-[65px]">
               <p className="text-[13px] sm:text-xl font-serif font-semibold text-foreground tracking-tight">{viewProfile.birthdate ? new Date(viewProfile.birthdate).toLocaleDateString(lang === 'lo' ? 'lo-LA' : 'en-US', { day: 'numeric', month: 'short' }) : '-'}</p>
-              <p className="text-[9px] sm:text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'àº§àº±àº™à»€àºàºµàº”' : 'Birthday'}</p>
+              <p className="text-[9px] sm:text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ວັນເກີດ' : 'Birthday'}</p>
             </div>
             <div className={`relative flex flex-col items-center gap-0.5 sm:gap-1 min-w-[45px] sm:min-w-[65px] ${isOwn ? 'cursor-pointer hover:opacity-70 transition-opacity' : ''}`}>
               <div className="flex items-center gap-0.5 sm:gap-1">
                 <p className="text-[13px] sm:text-xl font-serif font-semibold text-foreground tracking-tight">{viewProfile.wallet_currency || 'LAK'}</p>
                 {isOwn && <Settings2 size={10} className="text-muted-foreground sm:w-3 sm:h-3" />}
               </div>
-              <p className="text-[9px] sm:text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'àºªàº°àºàº¸àº™à»€àº‡àº´àº™' : 'Currency'}</p>
+              <p className="text-[9px] sm:text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}</p>
               {isOwn && (
                 <select
                   value={viewProfile.wallet_currency || 'LAK'}
@@ -277,7 +279,7 @@ export default function Profile() {
                     setViewProfile({ ...viewProfile, wallet_currency: nextCurrency });
                     try {
                       await firebaseClient.entities.UserProfile.update(viewProfile.id, { wallet_currency: nextCurrency });
-                      toast.success(lang === 'lo' ? `àº›à»ˆàº½àº™àºªàº°àºàº¸àº™à»€àº‡àº´àº™à»€àº›àº±àº™ ${nextCurrency}` : `Currency set to ${nextCurrency}`);
+                      toast.success(lang === 'lo' ? `ປ່ຽນສະກຸນເງິນເປັນ ${nextCurrency}` : `Currency set to ${nextCurrency}`);
                       refreshProfile();
                     } catch (err) {
                       toast.error('Failed to update currency');
@@ -300,11 +302,11 @@ export default function Profile() {
       <div className="mx-6 mt-4 bg-card rounded-xl p-5 shadow-sm space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold">{lang === 'lo' ? 'àºŠàº·à»ˆ' : 'First Name'}</label>
+              <label className="text-xs font-semibold">{lang === 'lo' ? 'ຊື່' : 'First Name'}</label>
               <input value={editData.first_name} onChange={(e) => setEditData({ ...editData, first_name: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
             </div>
             <div>
-              <label className="text-xs font-semibold">{lang === 'lo' ? 'àº™àº²àº¡àºªàº°àºàº¸àº™' : 'Last Name'}</label>
+              <label className="text-xs font-semibold">{lang === 'lo' ? 'ນາມສະກຸນ' : 'Last Name'}</label>
               <input value={editData.last_name} onChange={(e) => setEditData({ ...editData, last_name: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
             </div>
           </div>
@@ -313,46 +315,46 @@ export default function Profile() {
             <textarea value={editData.bio} onChange={(e) => setEditData({ ...editData, bio: e.target.value })} rows={2} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary resize-none" />
           </div>
           <div>
-            <label className="text-xs font-semibold">{lang === 'lo' ? 'àºªàº°àº–àº²àº™àº—àºµà»ˆ' : 'Location'}</label>
+            <label className="text-xs font-semibold">{lang === 'lo' ? 'ສະຖານທີ່' : 'Location'}</label>
             <input value={editData.location} onChange={(e) => setEditData({ ...editData, location: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold">{lang === 'lo' ? 'à»€àºžàº”' : 'Gender'}</label>
+              <label className="text-xs font-semibold">{lang === 'lo' ? 'ເພດ' : 'Gender'}</label>
               <MobileSelect
                 value={editData.gender || ''}
                 onChange={(v) => setEditData({ ...editData, gender: v })}
                 options={[
-                  { value: '', label: lang === 'lo' ? 'à»€àº¥àº·àº­àºà»€àºžàº”' : 'Select gender' },
-                  { value: 'male', label: lang === 'lo' ? 'àºŠàº²àº' : 'Male' },
-                  { value: 'female', label: lang === 'lo' ? 'àºàº´àº‡' : 'Female' },
-                  { value: 'other', label: lang === 'lo' ? 'àº­àº·à»ˆàº™à»†' : 'Other' },
+                  { value: '', label: lang === 'lo' ? 'ເລືອກເພດ' : 'Select gender' },
+                  { value: 'male', label: lang === 'lo' ? 'ຊາຍ' : 'Male' },
+                  { value: 'female', label: lang === 'lo' ? 'ຍິງ' : 'Female' },
+                  { value: 'other', label: lang === 'lo' ? 'ອື່ນໆ' : 'Other' },
                 ]}
-                placeholder={lang === 'lo' ? 'à»€àº¥àº·àº­àºà»€àºžàº”' : 'Select gender'}
-                label={lang === 'lo' ? 'à»€àºžàº”' : 'Gender'}
+                placeholder={lang === 'lo' ? 'ເລືອກເພດ' : 'Select gender'}
+                label={lang === 'lo' ? 'ເພດ' : 'Gender'}
               />
             </div>
             <div>
-              <label className="text-xs font-semibold">{lang === 'lo' ? 'àº§àº±àº™à»€àºàºµàº”' : 'Birthdate'}</label>
+              <label className="text-xs font-semibold">{lang === 'lo' ? 'ວັນເກີດ' : 'Birthdate'}</label>
               <input type="date" value={editData.birthdate || ''} onChange={(e) => setEditData({ ...editData, birthdate: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
             </div>
           </div>
           <div>
-            <label className="text-xs font-semibold">{lang === 'lo' ? 'àºªàº°àºàº¸àº™à»€àº‡àº´àº™' : 'Currency'}</label>
+            <label className="text-xs font-semibold">{lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}</label>
             <MobileSelect
               value={editData.preferred_currency || 'LAK'}
               onChange={(v) => setEditData({ ...editData, preferred_currency: v })}
               options={[
-                { value: 'LAK', label: 'LAK (àºàºµàºš)' },
+                { value: 'LAK', label: 'LAK (ກີບ)' },
                 { value: 'USD', label: 'USD ($)' },
-                { value: 'USDT', label: 'USDT (â‚®)' },
+                { value: 'USDT', label: 'USDT (₮)' },
               ]}
-              placeholder={lang === 'lo' ? 'à»€àº¥àº·àº­àºàºªàº°àºàº¸àº™à»€àº‡àº´àº™' : 'Select currency'}
-              label={lang === 'lo' ? 'àºªàº°àºàº¸àº™à»€àº‡àº´àº™' : 'Currency'}
+              placeholder={lang === 'lo' ? 'ເລືອກສະກຸນເງິນ' : 'Select currency'}
+              label={lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}
             />
           </div>
           <button onClick={saveEdit} className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg text-sm font-semibold hover:opacity-90">
-            ðŸ’¾ {t.saveChanges}
+            💾 {t.saveChanges}
           </button>
         </div>
       }
@@ -360,7 +362,7 @@ export default function Profile() {
       {/* Verification */}
       {isOwn && !viewProfile.is_verified && !viewProfile.is_pro && viewProfile.verification_status !== 'pending' &&
       <div className="mx-6 mt-4 bg-card rounded-xl p-5 shadow-sm">
-          <h3 className="font-semibold flex items-center gap-2"><Shield size={18} /> {lang === 'lo' ? 'àºàº²àº™àº¢àº·àº™àº¢àº±àº™àºšàº±àº™àºŠàºµ' : 'Account Verification'}</h3>
+          <h3 className="font-semibold flex items-center gap-2"><Shield size={18} /> {lang === 'lo' ? 'ການຢືນຢັນບັນຊີ' : 'Account Verification'}</h3>
           <p className="text-sm text-muted-foreground mt-1 mb-3">{t.verFeats}</p>
           <button onClick={() => setShowVerModal(true)} className="bg-primary text-primary-foreground px-6 py-3 rounded-lg text-sm font-semibold active:opacity-80 min-h-[48px]">
             {t.verifyNow}
@@ -370,27 +372,27 @@ export default function Profile() {
 
       {isOwn && viewProfile.verification_status === 'pending' &&
       <div className="mx-6 mt-4 bg-amber-50 rounded-xl p-5">
-          <h3 className="font-semibold">â³ {t.verPending}</h3>
-          <p className="text-sm text-muted-foreground mt-1">We're reviewing your documents â€” usually 1-2 business days.</p>
+          <h3 className="font-semibold">⏳ {t.verPending}</h3>
+          <p className="text-sm text-muted-foreground mt-1">We're reviewing your documents — usually 1-2 business days.</p>
         </div>
       }
 
       {isOwn && viewProfile.is_verified && !viewProfile.is_pro && viewProfile.pro_verification_status !== 'pending' && (
         <div className="mx-6 mt-4 bg-blue-50 rounded-xl p-5 shadow-sm border border-blue-100">
-          <h3 className="font-semibold flex items-center gap-2"><Building2 size={18} /> {lang === 'lo' ? 'àºªàº°à»àº±àº Pro' : 'Apply for Pro'}</h3>
+          <h3 className="font-semibold flex items-center gap-2"><Building2 size={18} /> {lang === 'lo' ? 'ສະໝັກ Pro' : 'Apply for Pro'}</h3>
           <p className="text-sm text-muted-foreground mt-1 mb-3">
-            {lang === 'lo' ? 'àºœà»ˆàº²àº™àºàº²àº™àº¢àº·àº™àº¢àº±àº™àºªà»ˆàº§àº™àº•àº»àº§àºà»ˆàº­àº™ à»àº¥à»‰àº§àºˆàº¶à»ˆàº‡àºªàº²àº¡àº²àº”àºªàº°à»àº±àº Pro à»€àºžàº·à»ˆàº­àº¥àº»àº‡à»‚àºžàºªàº—àº¸àº¥àº°àºàº´àº”à»„àº”à»‰' : 'Pass personal verification first, then apply for Pro to post business listings.'}
+            {lang === 'lo' ? 'ຜ່ານການຢືນຢັນສ່ວນຕົວກ່ອນ ແລ້ວຈຶ່ງສາມາດສະໝັກ Pro ເພື່ອລົງໂພສທຸລະກິດໄດ້' : 'Pass personal verification first, then apply for Pro to post business listings.'}
           </p>
           <button onClick={() => setShowProModal(true)} className="bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-semibold active:opacity-80 min-h-[48px]">
-            {lang === 'lo' ? 'àºªàº°à»àº±àº Pro' : 'Apply Pro'}
+            {lang === 'lo' ? 'ສະໝັກ Pro' : 'Apply Pro'}
           </button>
         </div>
       )}
 
       {isOwn && viewProfile.pro_verification_status === 'pending' && (
         <div className="mx-6 mt-4 bg-blue-50 rounded-xl p-5 border border-blue-100">
-          <h3 className="font-semibold text-blue-700">â³ {lang === 'lo' ? 'Pro àºàº³àº¥àº±àº‡àºàº§àº”àºªàº­àºš' : 'Pro verification pending'}</h3>
-          <p className="text-sm text-muted-foreground mt-1">{lang === 'lo' ? 'àºàº³àº¥àº±àº‡àºàº§àº”à»€àº­àºàº°àºªàº²àº™àº—àº¸àº¥àº°àºàº´àº”àº‚àº­àº‡àº—à»ˆàº²àº™' : 'We are reviewing your business documents.'}</p>
+          <h3 className="font-semibold text-blue-700">⏳ {lang === 'lo' ? 'Pro ກຳລັງກວດສອບ' : 'Pro verification pending'}</h3>
+          <p className="text-sm text-muted-foreground mt-1">{lang === 'lo' ? 'ກຳລັງກວດເອກະສານທຸລະກິດຂອງທ່ານ' : 'We are reviewing your business documents.'}</p>
         </div>
       )}
 
@@ -402,7 +404,7 @@ export default function Profile() {
           className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity">
           
             <MessageCircle size={15} />
-            {lang === 'lo' ? 'àºªàº»à»ˆàº‡àº‚à»à»‰àº„àº§àº²àº¡' : 'Send Message'}
+            {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມ' : 'Send Message'}
           </button>
         </div>
       }
@@ -477,24 +479,24 @@ export default function Profile() {
 
       {currentUser?.role === 'admin' && !isOwn && viewProfile.verification_status === 'pending' &&
       <div className="mx-6 mt-6 bg-amber-50 border border-amber-200 rounded-2xl p-5 shadow-sm">
-          <h3 className="font-bold text-sm mb-1 flex items-center gap-2">â³ Pending Verification</h3>
-          <p className="text-xs text-muted-foreground mb-3">{viewProfile.verification_name && `ID Name: ${viewProfile.verification_name}`} {viewProfile.verification_dob && `Â· DOB: ${viewProfile.verification_dob}`}</p>
+          <h3 className="font-bold text-sm mb-1 flex items-center gap-2">⏳ Pending Verification</h3>
+          <p className="text-xs text-muted-foreground mb-3">{viewProfile.verification_name && `ID Name: ${viewProfile.verification_name}`} {viewProfile.verification_dob && `· DOB: ${viewProfile.verification_dob}`}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             {viewProfile.id_document_url &&
           <div>
-                <p className="text-xs font-semibold text-muted-foreground mb-1">ðŸªª ID Document</p>
+                <p className="text-xs font-semibold text-muted-foreground mb-1">🪪 ID Document</p>
                 <img src={viewProfile.id_document_url} alt="ID" className="w-full rounded-xl border border-border object-cover max-h-40 cursor-zoom-in" onClick={() => window.open(viewProfile.id_document_url, '_blank')} />
               </div>
           }
             {viewProfile.selfie_url &&
           <div>
-                <p className="text-xs font-semibold text-muted-foreground mb-1">ðŸ¤³ Selfie with ID</p>
+                <p className="text-xs font-semibold text-muted-foreground mb-1">🤳 Selfie with ID</p>
                 <img src={viewProfile.selfie_url} alt="Selfie" className="w-full rounded-xl border border-border object-cover max-h-40 cursor-zoom-in" onClick={() => window.open(viewProfile.selfie_url, '_blank')} />
               </div>
           }
             {viewProfile.face_selfie_url &&
           <div>
-                <p className="text-xs font-semibold text-muted-foreground mb-1">ðŸ“¸ Face Check Selfie</p>
+                <p className="text-xs font-semibold text-muted-foreground mb-1">📸 Face Check Selfie</p>
                 <img src={viewProfile.face_selfie_url} alt="Face selfie" className="w-full rounded-xl border border-border object-cover max-h-40 cursor-zoom-in" onClick={() => window.open(viewProfile.face_selfie_url, '_blank')} />
               </div>
           }
@@ -503,19 +505,19 @@ export default function Profile() {
             <button
             onClick={async () => {
               await firebaseClient.entities.UserProfile.update(viewProfile.id, { verification_status: 'verified', is_verified: true });
-              await firebaseClient.entities.Notification.create({ user_email: viewProfile.user_email, type: 'âœ…', text: 'Your identity has been verified! You can now use all features.', text_lao: 'àº•àº»àº§àº•àº»àº™àº‚àº­àº‡àº—à»ˆàº²àº™à»„àº”à»‰àº–àº·àºàº¢àº·àº™àº¢àº±àº™à»àº¥à»‰àº§!' });
-              toast.success('Approved âœ…');loadProfile();
+              await firebaseClient.entities.Notification.create({ user_email: viewProfile.user_email, type: '✅', text: 'Your identity has been verified! You can now use all features.', text_lao: 'ຕົວຕົນຂອງທ່ານໄດ້ຖືກຢືນຢັນແລ້ວ!' });
+              toast.success('Approved ✅');loadProfile();
             }}
             className="flex-1 bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity">
-            âœ… Approve</button>
+            ✅ Approve</button>
             <button
             onClick={async () => {
               await firebaseClient.entities.UserProfile.update(viewProfile.id, { verification_status: 'rejected', is_verified: false });
-              await firebaseClient.entities.Notification.create({ user_email: viewProfile.user_email, type: 'âŒ', text: 'Your identity verification was rejected. Please resubmit with clearer documents.', text_lao: 'àºàº²àº™àº¢àº·àº™àº¢àº±àº™àº•àº»àº§àº•àº»àº™àº‚àº­àº‡àº—à»ˆàº²àº™àº–àº·àºàº›àº°àº•àº´à»€àºªàº”.' });
+              await firebaseClient.entities.Notification.create({ user_email: viewProfile.user_email, type: '❌', text: 'Your identity verification was rejected. Please resubmit with clearer documents.', text_lao: 'ການຢືນຢັນຕົວຕົນຂອງທ່ານຖືກປະຕິເສດ.' });
               toast.success('Rejected');loadProfile();
             }}
             className="flex-1 bg-destructive text-destructive-foreground py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity">
-            âŒ Reject</button>
+            ❌ Reject</button>
           </div>
         </div>
       }
@@ -542,10 +544,10 @@ export default function Profile() {
       <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm" onMouseDown={e => { if (e.target === e.currentTarget) setShowDeleteConfirm(false); }} onTouchEnd={e => { if (e.target === e.currentTarget) setShowDeleteConfirm(false); }}>
           <div className="bg-card rounded-t-3xl sm:rounded-2xl w-full sm:max-w-sm p-6 shadow-xl border border-border">
             <div className="text-center mb-4">
-              <div className="text-3xl mb-2">âš ï¸</div>
-              <h3 className="font-bold text-base">{lang === 'lo' ? 'àº¥àº¶àºšàºšàº±àº™àºŠàºµàº‚àº­àº‡àº—à»ˆàº²àº™?' : 'Delete your account?'}</h3>
+              <div className="text-3xl mb-2">⚠️</div>
+              <h3 className="font-bold text-base">{lang === 'lo' ? 'ລຶບບັນຊີຂອງທ່ານ?' : 'Delete your account?'}</h3>
               <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                {lang === 'lo' ? 'àºàº²àº™àº”àº³à»€àº™àºµàº™àºàº²àº™àº™àºµà»‰àºšà»à»ˆàºªàº²àº¡àº²àº”àºà»‰àº­àº™àº„àº·àº™à»„àº”à»‰. àº‚à»à»‰àº¡àº¹àº™àº—àº±àº‡à»àº»àº”àºˆàº°àº–àº·àºàº¥àº¶àºš.' : 'This action cannot be undone. All your data will be permanently deleted.'}
+                {lang === 'lo' ? 'ການດຳເນີນການນີ້ບໍ່ສາມາດຍ້ອນຄືນໄດ້. ຂໍ້ມູນທັງໝົດຈະຖືກລຶບ.' : 'This action cannot be undone. All your data will be permanently deleted.'}
               </p>
             </div>
             <div className="flex flex-col gap-2">
@@ -556,13 +558,13 @@ export default function Profile() {
               }}
               className="w-full bg-destructive text-destructive-foreground py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity select-none">
               
-                {lang === 'lo' ? 'àº¢àº·àº™àº¢àº±àº™àºàº²àº™àº¥àº¶àºš' : 'Yes, Delete My Account'}
+                {lang === 'lo' ? 'ຢືນຢັນການລຶບ' : 'Yes, Delete My Account'}
               </button>
               <button
               onClick={() => setShowDeleteConfirm(false)}
               className="w-full border border-border py-3 rounded-xl font-semibold text-sm hover:bg-muted transition-colors select-none">
               
-                {lang === 'lo' ? 'àºàº»àºà»€àº¥àºµàº' : 'Cancel'}
+                {lang === 'lo' ? 'ຍົກເລີກ' : 'Cancel'}
               </button>
             </div>
           </div>

@@ -49,7 +49,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
   const [likeCount, setLikeCount] = useState(post.like_count || 0);
   const isOwn = currentUserEmail === post.author_email;
   const canEdit = isOwn || isAdmin;
-  const catIndex = ['culture', 'stay', 'food', 'experience', 'home', 'nature'].indexOf(post.category);
+
 
   const loadComments = async () => {
     const data = await firebaseClient.entities.Comment.filter({ post_id: post.id });
@@ -173,7 +173,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
 
   const displayPhotoUrl = (post.photo_urls && post.photo_urls.length > 0) ? post.photo_urls[0] : (post.photo_url || '');
   const safeDisplayPhotoUrl = displayPhotoUrl?.trim();
-  const shareText = `${post.service_type ? `${post.service_type} Â· ` : ''}${post.text || ''}`.trim();
+  const shareText = `${post.service_type ? `${post.service_type} · ` : ''}${post.text || ''}`.trim();
   const shareUrl = `${window.location.origin}/post/${post.id}`;
 
   const handleShare = async () => {
@@ -192,7 +192,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
 
     try {
       await navigator.clipboard.writeText(shareUrl);
-      toast.success(lang === 'lo' ? 'àºà»‹àº­àºšàº›àºµà»‰àº¥àº´à»‰àº‡à»àº¥à»‰àº§!' : 'Link copied to clipboard!');
+      toast.success(lang === 'lo' ? 'ກ໋ອບປີ້ລິ້ງແລ້ວ!' : 'Link copied to clipboard!');
     } catch {
       window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank', 'noopener,noreferrer');
     }
@@ -225,30 +225,27 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
           </button>
           <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
             <span>{moment(new Date(post.created_date)).fromNow()}</span>
-            <span>â€¢</span>
+            <span>•</span>
             <span>{formatTimestampDMY(post.created_date)}</span>
-            {authorProfile && <span>â€¢ {(authorProfile.friends || []).length} {lang === 'lo' ? 'àºœàº¹à»‰àº•àº´àº”àº•àº²àº¡' : 'followers'}</span>}
+            {authorProfile && <span>• {(authorProfile.friends || []).length} {lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'followers'}</span>}
           </div>
         </div>
         <div className="flex flex-col items-end gap-1.5">
           <div className="flex items-center gap-1.5">
             {post.post_type === 'request' ? (
               <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 font-bold border border-amber-200 shadow-sm">
-                {lang === 'lo' ? 'àº•à»‰àº­àº‡àºàº²àº™àºšà»àº¥àº´àºàº²àº™' : 'Looking For'}
+                {lang === 'lo' ? 'ຕ້ອງການບໍລິການ' : 'Looking For'}
               </span>
             ) : (
               <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 font-bold border border-emerald-200 shadow-sm">
-                {lang === 'lo' ? 'à»ƒàº«à»‰àºšà»àº¥àº´àºàº²àº™' : 'Offering'}
+                {lang === 'lo' ? 'ໃຫ້ບໍລິການ' : 'Offering'}
               </span>
             )}
-            {post.category && (() => {
-              const catObj = PERSONAL_CATS.find(c => c.key === post.category);
-              return (
-                <span className="text-xs px-2.5 py-1 rounded-xl bg-gradient-to-r from-primary/10 to-deep-green/10 text-primary font-semibold border border-primary/15 flex-shrink-0">
-                  {catObj ? <>{catObj.icon} {lang === 'lo' ? catObj.lo : catObj.en}</> : post.category}
-                </span>
-              );
-            })()}
+            {post.category && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100/80 text-orange-800 text-xs font-bold border border-orange-200 shadow-sm ml-2.5">
+                {PERSONAL_CATS.find(c => c.key === post.category)?.icon || '📌'} {lang === 'lo' ? (PERSONAL_CATS.find(c => c.key === post.category)?.lo || post.category) : (PERSONAL_CATS.find(c => c.key === post.category)?.en || post.category)}
+              </span>
+            )}
           </div>
           {!isOwn && (
             <button
@@ -256,7 +253,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
               disabled={followLoading}
               className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors ${isFollowing ? 'border-border text-muted-foreground hover:bg-muted' : 'border-primary bg-primary text-primary-foreground hover:opacity-90'} disabled:opacity-50`}
             >
-              {isFollowing ? (lang === 'lo' ? 'àºàº³àº¥àº±àº‡àº•àº´àº”àº•àº²àº¡' : 'Following') : (lang === 'lo' ? 'àº•àº´àº”àº•àº²àº¡' : 'Follow')}
+              {isFollowing ? (lang === 'lo' ? 'ກຳລັງຕິດຕາມ' : 'Following') : (lang === 'lo' ? 'ຕິດຕາມ' : 'Follow')}
             </button>
           )}
         </div>
@@ -268,10 +265,10 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
             {showMenu && (
               <div className="absolute right-0 top-8 bg-card border border-border rounded-xl shadow-lg z-20 overflow-hidden min-w-[160px]">
                 <button onClick={() => { setEditing(true); setShowMenu(false); }} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm hover:bg-muted transition-colors">
-                  <Pencil size={13} /> {lang === 'lo' ? 'à»àºà»‰à»„àº‚' : 'Edit'}
+                  <Pencil size={13} /> {lang === 'lo' ? 'ແກ້ໄຂ' : 'Edit'}
                 </button>
                 <button onClick={() => { setShowMenu(false); handleDelete(); }} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-destructive hover:bg-destructive/5 transition-colors">
-                  <Trash2 size={13} /> {lang === 'lo' ? 'àº¥àº¶àºš' : 'Delete'}
+                  <Trash2 size={13} /> {lang === 'lo' ? 'ລຶບ' : 'Delete'}
                 </button>
                 {isAdmin && !isOwn && (
                   <div className="border-t border-border px-3 py-1.5 text-xs text-muted-foreground italic">{lang === 'lo' ? '(Admin)' : '(Admin)'}</div>
@@ -293,10 +290,10 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
           />
           <div className="flex items-center justify-between mb-2 mt-2 border-b border-border pb-2">
              <label className="text-xs font-semibold text-muted-foreground uppercase">
-               {lang === 'lo' ? 'à»€àºžàºµà»ˆàº¡àº®àº¹àºšàºžàº²àºš' : 'Add Photos'}
+               {lang === 'lo' ? 'ເພີ່ມຮູບພາບ' : 'Add Photos'}
              </label>
              <button type="button" onClick={() => editPhotoInputRef.current?.click()} className="flex items-center gap-1.5 text-xs font-bold text-primary hover:bg-primary/10 px-2 py-1 rounded transition-colors">
-               <ImageIcon size={14} /> {lang === 'lo' ? 'à»€àº¥àº·àº­àºàº®àº¹àºš' : 'Choose'}{editPhotoFiles.length > 0 ? ` (${editPhotoFiles.length})` : ''}
+               <ImageIcon size={14} /> {lang === 'lo' ? 'ເລືອກຮູບ' : 'Choose'}{editPhotoFiles.length > 0 ? ` (${editPhotoFiles.length})` : ''}
              </button>
           </div>
           <input ref={editPhotoInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePhotos} />
@@ -334,7 +331,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
             <PhotoGrid photos={allPhotos} />
             {allPhotos.length > 1 && (
               <span className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full backdrop-blur-sm z-10">
-                {allPhotos.length} ðŸ“·
+                {allPhotos.length} 📷
               </span>
             )}
           </div>
@@ -351,7 +348,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
               className="inline-flex items-center gap-1.5 text-xs text-primary font-semibold bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors border border-primary/20"
             >
               <MapPin size={14} />
-              {post.service_location.startsWith('http') ? (lang === 'lo' ? 'à»€àºšàº´à»ˆàº‡à»àºœàº™àº—àºµà»ˆ' : 'View Map') : post.service_location}
+              {post.service_location.startsWith('http') ? (lang === 'lo' ? 'ເບິ່ງແຜນທີ່' : 'View Map') : post.service_location}
             </a>
           ) : post.service_location.startsWith('http') ? (
             <a
@@ -361,7 +358,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
               className="inline-flex items-center gap-1.5 text-xs text-primary font-semibold bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors border border-primary/20"
             >
               <MapPin size={14} />
-              {lang === 'lo' ? 'à»€àºšàº´à»ˆàº‡à»àºœàº™àº—àºµà»ˆ' : 'View Map'}
+              {lang === 'lo' ? 'ເບິ່ງແຜນທີ່' : 'View Map'}
             </a>
           ) : (
             <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-full font-medium border border-border">
@@ -394,7 +391,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
           <div className="flex items-center gap-2">
             <span className={`w-2 h-2 rounded-full ${serviceActive ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
             <span className={`text-[11px] font-semibold ${serviceActive ? 'text-emerald-600' : 'text-red-500'}`}>
-              {serviceActive ? (lang === 'lo' ? 'à»€àº›àºµàº”àºšà»àº¥àº´àºàº²àº™' : 'Service ON') : (lang === 'lo' ? 'àº›àº´àº”àºšà»àº¥àº´àºàº²àº™' : 'Service OFF')}
+              {serviceActive ? (lang === 'lo' ? 'ເປີດບໍລິການ' : 'Service ON') : (lang === 'lo' ? 'ປິດບໍລິການ' : 'Service OFF')}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -423,7 +420,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
                 }}
                 className={`px-3 py-1 rounded-full text-[10px] font-bold border transition-all ${serviceActive ? 'border-red-300 text-red-600 hover:bg-red-50 active:bg-red-100' : 'border-emerald-300 text-emerald-600 hover:bg-emerald-50 active:bg-emerald-100'}`}
               >
-                {serviceActive ? (lang === 'lo' ? 'àº›àº´àº”' : 'Turn OFF') : (lang === 'lo' ? 'à»€àº›àºµàº”' : 'Turn ON')}
+                {serviceActive ? (lang === 'lo' ? 'ປິດ' : 'Turn OFF') : (lang === 'lo' ? 'ເປີດ' : 'Turn ON')}
               </button>
             )}
           </div>
@@ -439,7 +436,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
           >
             <div className="flex items-center gap-2 font-bold">
               <MessageCircle size={16} />
-              {lang === 'lo' ? 'àºªàº»à»ˆàº‡àº‚à»à»‰àº„àº§àº²àº¡ / àºˆàº­àº‡' : 'Message & Book'}
+              {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມ / ຈອງ' : 'Message & Book'}
             </div>
             <div className="bg-white/95 text-rose-500 px-2.5 py-1 rounded-lg shadow-sm border border-white/20 flex items-center whitespace-nowrap">
               <span className="font-serif font-medium text-[11px] sm:text-[14px] tracking-wide flex items-baseline">
@@ -461,7 +458,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
       {post.service_price > 0 && currentUserEmail !== post.author_email && !serviceActive && (
         <div className="px-4 pb-3">
           <div className="w-full flex items-center justify-center gap-2 bg-muted text-muted-foreground py-3 rounded-xl text-sm font-semibold">
-            {lang === 'lo' ? 'àºšà»àº¥àº´àºàº²àº™àº™àºµà»‰àº›àº´àº”à»àº¥à»‰àº§' : 'This service is currently closed'}
+            {lang === 'lo' ? 'ບໍລິການນີ້ປິດແລ້ວ' : 'This service is currently closed'}
           </div>
         </div>
       )}

@@ -1,4 +1,4 @@
-﻿import { firebaseClient } from '@/api/firebaseClient';
+import { firebaseClient } from '@/api/firebaseClient';
 
 export async function startOrGetConversation(currentUserEmail, targetUserEmail) {
   if (!currentUserEmail || !targetUserEmail || currentUserEmail === targetUserEmail) {

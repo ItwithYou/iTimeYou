@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { firebaseClient } from '@/api/firebaseClient';
 import { useOutletContext } from 'react-router-dom';
@@ -48,7 +48,7 @@ export default function PostDetail() {
         >
           <ArrowLeft size={20} />
         </button>
-        <h1 className="font-bold text-lg">{lang === 'lo' ? 'à»‚àºžàºª' : 'Post'}</h1>
+        <h1 className="font-bold text-lg">{lang === 'lo' ? 'ໂພສ' : 'Post'}</h1>
       </div>
 
       {/* Content */}
@@ -67,7 +67,7 @@ export default function PostDetail() {
           />
         ) : (
           <div className="text-center py-20 text-muted-foreground">
-            {lang === 'lo' ? 'àºšà»à»ˆàºžàº»àºšà»‚àºžàºªàº™àºµà»‰' : 'Post not found'}
+            {lang === 'lo' ? 'ບໍ່ພົບໂພສນີ້' : 'Post not found'}
           </div>
         )}
       </div>

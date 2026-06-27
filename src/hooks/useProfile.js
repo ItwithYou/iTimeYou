@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { firebaseClient } from '@/api/firebaseClient';
 
 export default function useProfile() {
@@ -38,7 +38,7 @@ export default function useProfile() {
         setProfile(newProfile);
       }
     } catch (err) {
-      // Not authenticated yet, or transient error â€” the router will redirect to /login.
+      // Not authenticated yet, or transient error — the router will redirect to /login.
       console.warn('useProfile:', err?.message || err);
       setCurrentUser(null);
       setProfile(null);

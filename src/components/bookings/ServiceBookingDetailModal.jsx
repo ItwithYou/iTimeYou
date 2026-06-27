@@ -1,4 +1,4 @@
-﻿import { X, Calendar, Clock, MapPin, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
+import { X, Calendar, Clock, MapPin, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { firebaseClient } from '@/api/firebaseClient';
@@ -35,7 +35,7 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
 
   const isBooker = booking.booker_email === currentUser?.email;
   const isPoster = booking.poster_email === currentUser?.email;
-  const serviceStart = booking.service_when ? moment(booking.service_when.split('Â·')[0].trim()) : null;
+  const serviceStart = booking.service_when ? moment(booking.service_when.split('·')[0].trim()) : null;
   // Allow cancel if: user is booker, not already cancelled, no pending request, and service hasn't started yet
   const canRequestCancel = isBooker && booking.status !== 'cancelled' && booking.status !== 'completed' && booking.cancel_request_status !== 'requested' && (!serviceStart || serviceStart.isAfter(moment()));
   const canRequestComplete = isBooker && booking.status !== 'cancelled' && booking.status !== 'completed' && booking.complete_request_status !== 'requested';
@@ -47,7 +47,7 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
     <div className="fixed inset-0 z-[150] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onTouchEnd={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="bg-card w-full sm:max-w-lg rounded-2xl p-5 border border-border shadow-2xl max-h-[85vh] overflow-y-auto overscroll-contain hide-scrollbar relative" onMouseDown={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}>
         <div className="sticky top-[-20px] pt-4 pb-3 mb-4 bg-card z-10 flex items-center justify-between border-b border-border">
-          <h3 className="font-bold text-base">{lang === 'lo' ? 'àº¥àº²àºàº¥àº°àº­àº½àº”àºàº²àº™àºˆàº­àº‡' : 'Booking Details'}</h3>
+          <h3 className="font-bold text-base">{lang === 'lo' ? 'ລາຍລະອຽດການຈອງ' : 'Booking Details'}</h3>
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted bg-muted/50"><X size={18} /></button>
         </div>
 
@@ -59,7 +59,7 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
                 <img src={postData.images[0]} alt="Service" className="w-14 h-14 rounded-xl object-cover shadow-sm border border-white/20" />
               ) : (
                 <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center text-3xl shadow-sm">
-                  ðŸ›Žï¸
+                  🛎️
                 </div>
               )}
               <div>
@@ -72,7 +72,7 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
               className="flex items-center justify-between w-full hover:opacity-80 transition-opacity"
             >
               <span className="text-xs font-semibold text-muted-foreground">
-                {lang === 'lo' ? 'àºœàº¹à»‰à»ƒàº«à»‰àºšà»àº¥àº´àºàº²àº™' : 'Service Provider'}
+                {lang === 'lo' ? 'ຜູ້ໃຫ້ບໍລິການ' : 'Service Provider'}
               </span>
               <div className="flex items-center gap-2">
                 {posterProfile?.photo_url && <img src={posterProfile.photo_url} alt="" className="w-7 h-7 rounded-full object-cover" />}
@@ -90,7 +90,7 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
               className="w-full text-left bg-muted/50 rounded-xl p-3 border border-border hover:border-primary/50 transition-colors"
             >
               <p className="text-xs font-semibold text-muted-foreground mb-1">
-                {lang === 'lo' ? 'àºˆàº­àº‡à»‚àº”àº' : 'Booked by'}
+                {lang === 'lo' ? 'ຈອງໂດຍ' : 'Booked by'}
               </p>
               <div className="flex items-center gap-2">
                 {bookerProfile?.photo_url && <img src={bookerProfile.photo_url} alt="" className="w-7 h-7 rounded-full object-cover" />}
@@ -108,7 +108,7 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
               <Calendar size={18} className="text-primary" />
               <div>
                 <p className="text-xs font-semibold text-muted-foreground">
-                  {lang === 'lo' ? 'àº§àº±àº™ à»àº¥àº° à»€àº§àº¥àº²' : 'Date & Time'}
+                  {lang === 'lo' ? 'ວັນ ແລະ ເວລາ' : 'Date & Time'}
                 </p>
                 <p className="text-sm font-medium">{formatServiceWhen(booking.service_when)}</p>
               </div>
@@ -121,7 +121,7 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
               <Clock size={18} className="text-primary" />
               <div>
                 <p className="text-xs font-semibold text-muted-foreground">
-                  {lang === 'lo' ? 'à»„àº¥àºàº°à»€àº§àº¥àº²' : 'Duration'}
+                  {lang === 'lo' ? 'ໄລຍະເວລາ' : 'Duration'}
                 </p>
                 <p className="text-sm font-medium">{booking.service_duration} {booking.service_duration_unit || 'hours'}</p>
               </div>
@@ -140,18 +140,18 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
                 <MapPin size={18} className="text-primary group-hover:text-primary/80" />
                 <div className="flex-1">
                   <p className="text-xs font-semibold text-muted-foreground">
-                    {lang === 'lo' ? 'àºªàº°àº–àº²àº™àº—àºµà»ˆ' : 'Location'}
+                    {lang === 'lo' ? 'ສະຖານທີ່' : 'Location'}
                   </p>
                   <p className="text-sm font-medium text-primary underline underline-offset-2">{booking.service_location}</p>
                 </div>
-                <span className="text-xs text-muted-foreground">â†—</span>
+                <span className="text-xs text-muted-foreground">↗</span>
               </a>
             ) : (
               <div className="flex items-center gap-3 p-3 bg-card rounded-xl border border-border">
                 <MapPin size={18} className="text-primary" />
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground">
-                    {lang === 'lo' ? 'àºªàº°àº–àº²àº™àº—àºµà»ˆ' : 'Location'}
+                    {lang === 'lo' ? 'ສະຖານທີ່' : 'Location'}
                   </p>
                   <p className="text-sm font-medium">{booking.service_location}</p>
                 </div>
@@ -163,7 +163,7 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
           <div className="bg-gradient-to-r from-success/10 to-emerald-100/50 rounded-xl p-4 border border-success/20">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-muted-foreground">
-                {lang === 'lo' ? 'àº¥àº²àº„àº²' : 'Total Price'}
+                {lang === 'lo' ? 'ລາຄາ' : 'Total Price'}
               </span>
               <span className="text-xl font-bold text-success">
                 {booking.price} {booking.currency || 'USD'}
@@ -174,11 +174,11 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
           {/* Booking Metadata */}
           <div className="border-t border-border pt-3 space-y-2">
             <p className="text-xs text-muted-foreground">
-              {lang === 'lo' ? 'àºªà»‰àº²àº‡à»€àº¡àº·à»ˆàº­' : 'Created'}: {formatTimestampDMY(booking.created_date)}
+              {lang === 'lo' ? 'ສ້າງເມື່ອ' : 'Created'}: {formatTimestampDMY(booking.created_date)}
             </p>
             {booking.wallet_transaction_id && (
               <p className="text-xs text-muted-foreground">
-                {lang === 'lo' ? 'àºàº²àº™àºˆà»ˆàº²àºà»€àº‡àº´àº™' : 'Payment'}: âœ… {lang === 'lo' ? 'àºªàº³à»€àº¥àº±àº”' : 'Completed'}
+                {lang === 'lo' ? 'ການຈ່າຍເງິນ' : 'Payment'}: ✅ {lang === 'lo' ? 'ສຳເລັດ' : 'Completed'}
               </p>
             )}
           </div>
@@ -188,7 +188,7 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
             <div className="rounded-2xl border border-primary/30 bg-primary/10 p-4 space-y-2">
               <p className="flex items-center gap-2 font-semibold text-primary">
                 <CheckCircle2 size={16} />
-                {lang === 'lo' ? 'àº¥àº¹àºàº„à»‰àº²à»„àº”à»‰àº®àº±àºšàºàº²àº™àºšà»àº¥àº´àºàº²àº™à»àº¥à»‰àº§ (àº¥à»àº–à»‰àº² Admin à»‚àº­àº™à»€àº‡àº´àº™)' : 'Customer received service (Waiting for Admin to release payment)'}
+                {lang === 'lo' ? 'ລູກຄ້າໄດ້ຮັບການບໍລິການແລ້ວ (ລໍຖ້າ Admin ໂອນເງິນ)' : 'Customer received service (Waiting for Admin to release payment)'}
               </p>
             </div>
           )}
@@ -198,16 +198,16 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
             <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 space-y-2">
               <p className="flex items-center gap-2 font-semibold text-amber-800">
                 <AlertCircle size={16} />
-                {lang === 'lo' ? 'àº¡àºµàº„àº³àº‚à»àºàº»àºà»€àº¥àºµàº' : 'Cancellation Requested'}
+                {lang === 'lo' ? 'ມີຄຳຂໍຍົກເລີກ' : 'Cancellation Requested'}
               </p>
               <div className="text-xs text-amber-700 space-y-1">
-                <p><span className="font-semibold">{lang === 'lo' ? 'àº‚à»à»‚àº”àº:' : 'Requested by:'}</span> {booking.cancel_requested_by}</p>
+                <p><span className="font-semibold">{lang === 'lo' ? 'ຂໍໂດຍ:' : 'Requested by:'}</span> {booking.cancel_requested_by}</p>
                 {booking.cancel_requested_at && (
-                  <p><span className="font-semibold">{lang === 'lo' ? 'à»€àº§àº¥àº²:' : 'Time:'}</span> {formatTimestampDMY(booking.cancel_requested_at)}</p>
+                  <p><span className="font-semibold">{lang === 'lo' ? 'ເວລາ:' : 'Time:'}</span> {formatTimestampDMY(booking.cancel_requested_at)}</p>
                 )}
                 {booking.cancel_note && (
                   <div className="mt-2 p-2 bg-amber-100/50 rounded-lg">
-                    <p className="font-semibold mb-1">{lang === 'lo' ? 'à»€àº«àº”àºœàº»àº™:' : 'Reason:'}</p>
+                    <p className="font-semibold mb-1">{lang === 'lo' ? 'ເຫດຜົນ:' : 'Reason:'}</p>
                     <p>{booking.cancel_note}</p>
                   </div>
                 )}
@@ -219,11 +219,11 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3">
               <p className="flex items-center gap-2 font-semibold text-emerald-800">
                 <CheckCircle2 size={14} />
-                {lang === 'lo' ? 'àºàº²àº™àºàº»àºà»€àº¥àºµàºà»„àº”à»‰àº®àº±àºšàºàº²àº™àº­àº°àº™àº¸àº¡àº±àº”' : 'Cancellation Approved'}
+                {lang === 'lo' ? 'ການຍົກເລີກໄດ້ຮັບການອະນຸມັດ' : 'Cancellation Approved'}
               </p>
               {booking.cancel_resolved_by && (
                 <p className="text-xs text-emerald-700 mt-1">
-                  {lang === 'lo' ? 'àº­àº°àº™àº¸àº¡àº±àº”à»‚àº”àº' : 'Approved by'}: {booking.cancel_resolved_by}
+                  {lang === 'lo' ? 'ອະນຸມັດໂດຍ' : 'Approved by'}: {booking.cancel_resolved_by}
                 </p>
               )}
             </div>
@@ -233,10 +233,10 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
             <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-3">
               <p className="flex items-center gap-2 font-semibold text-destructive">
                 <XCircle size={14} />
-                {lang === 'lo' ? 'àºàº²àº™àºàº»àºà»€àº¥àºµàºàº–àº·àºàº›àº°àº•àº´à»€àºªàº”' : 'Cancellation Declined'}
+                {lang === 'lo' ? 'ການຍົກເລີກຖືກປະຕິເສດ' : 'Cancellation Declined'}
               </p>
               <p className="text-xs text-destructive mt-1">
-                {lang === 'lo' ? 'àº­àºµàºàºà»ˆàº²àºàºšà»à»ˆàº­àº°àº™àº¸àº¡àº±àº”. àºàº°àº¥àº¸àº™àº²àºªàº»àº™àº—àº°àº™àº²àºàº±àº™ àº«àº¼àº· àº•àº´àº”àº•à»à»ˆ admin.' : 'The other side did not approve. Please discuss together or contact admin.'}
+                {lang === 'lo' ? 'ອີກຝ່າຍບໍ່ອະນຸມັດ. ກະລຸນາສົນທະນາກັນ ຫຼື ຕິດຕໍ່ admin.' : 'The other side did not approve. Please discuss together or contact admin.'}
               </p>
             </div>
           )}
@@ -256,31 +256,31 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
         <div className="mt-5 space-y-2">
           {canRequestComplete && (
             <button onClick={() => onRequestComplete(booking)} className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-semibold text-sm shadow-sm hover:opacity-90 transition-opacity">
-              {lang === 'lo' ? 'à»„àº”à»‰àº®àº±àºšàºàº²àº™àºšà»àº¥àº´àºàº²àº™à»àº¥à»‰àº§ (Got Service)' : 'Got Service'}
+              {lang === 'lo' ? 'ໄດ້ຮັບການບໍລິການແລ້ວ (Got Service)' : 'Got Service'}
             </button>
           )}
           {canRequestCancel && (
             <button onClick={() => onRequestCancel(booking)} className="w-full bg-destructive text-destructive-foreground py-3 rounded-xl font-semibold text-sm">
-              {lang === 'lo' ? 'àºªàº»à»ˆàº‡àº„àº³àº‚à»àºàº»àºà»€àº¥àºµàº' : 'Send Cancel Request'}
+              {lang === 'lo' ? 'ສົ່ງຄຳຂໍຍົກເລີກ' : 'Send Cancel Request'}
             </button>
           )}
           {canResolve && (
             <div className="grid grid-cols-2 gap-2">
               <button onClick={() => onApproveCancel(booking)} className="bg-primary text-primary-foreground py-3 rounded-xl font-semibold text-sm">
-                {lang === 'lo' ? 'àº­àº°àº™àº¸àº¡àº±àº”' : 'Approve'}
+                {lang === 'lo' ? 'ອະນຸມັດ' : 'Approve'}
               </button>
               <button onClick={() => onDeclineCancel(booking)} className="border border-border py-3 rounded-xl font-semibold text-sm">
-                {lang === 'lo' ? 'àºšà»à»ˆàº­àº°àº™àº¸àº¡àº±àº”' : 'Decline'}
+                {lang === 'lo' ? 'ບໍ່ອະນຸມັດ' : 'Decline'}
               </button>
             </div>
           )}
           {canMarkCompleted && (
             <button onClick={() => onMarkCompleted(booking)} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm">
-              {lang === 'lo' ? 'à»àº²àºà»€àº›àº±àº™àºªàº³à»€àº¥àº±àº” à»àº¥àº° à»‚àº­àº™à»€àº‡àº´àº™' : 'Mark completed and release payment'}
+              {lang === 'lo' ? 'ໝາຍເປັນສຳເລັດ ແລະ ໂອນເງິນ' : 'Mark completed and release payment'}
             </button>
           )}
           <button onClick={onClose} className="w-full border border-border py-3 rounded-xl font-semibold text-sm">
-            {lang === 'lo' ? 'àº›àº´àº”' : 'Close'}
+            {lang === 'lo' ? 'ປິດ' : 'Close'}
           </button>
 
           {canAppeal && (
@@ -288,7 +288,7 @@ export default function ServiceBookingDetailModal({ booking, currentUser, lang, 
               onClick={() => setShowAppealModal(true)}
               className="w-full mt-2 bg-amber-500 text-white py-3 rounded-xl font-semibold text-sm hover:opacity-90"
             >
-              {lang === 'lo' ? 'àº­àº¸àº—àº­àº™àºàº²àº™àºšà»àº¥àº´àºàº²àº™' : 'Appeal Service'}
+              {lang === 'lo' ? 'ອຸທອນການບໍລິການ' : 'Appeal Service'}
             </button>
           )}
         </div>

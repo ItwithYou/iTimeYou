@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppContext } from '../lib/AppContext';
 import { firebaseClient } from '@/api/firebaseClient';
 import { formatTimestampDMY } from '../utils/dateUtils';
@@ -54,7 +54,7 @@ export default function Notifications() {
         ))}
         {notifications.length === 0 && (
           <div className="text-center py-16 text-muted-foreground">
-            <p className="text-4xl mb-3">ðŸ””</p>
+            <p className="text-4xl mb-3">🔔</p>
             <p>No notifications yet</p>
           </div>
         )}

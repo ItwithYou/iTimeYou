@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { firebaseClient } from '@/api/firebaseClient';
 import StarRating from './StarRating';
 import { toast } from 'sonner';
@@ -82,7 +82,7 @@ export default function ReviewSection({ targetProfile, currentUser, t, lang, onR
           </button>
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground mb-4">âœ… {t.alreadyReviewed}</p>
+        <p className="text-sm text-muted-foreground mb-4">✅ {t.alreadyReviewed}</p>
       )}
 
       {reviews.length > 0 && (

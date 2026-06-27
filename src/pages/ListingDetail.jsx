@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useOutletContext, useParams, Link, useNavigate } from 'react-router-dom';
-import { coverImage } from '../utils/img';
+import { coverImage, onImgError } from '../utils/img';
 import MobileDatePicker from '../components/MobileDatePicker';
 import { firebaseClient } from '@/api/firebaseClient';
 import { Star, MapPin, Users, Bed, Bath, Check, MessageCircle, User } from 'lucide-react';
@@ -58,11 +58,11 @@ export default function ListingDetail() {
     if (!checkIn || !checkOut) { toast.error(t.selectDates); return; }
     if (nights <= 0) { toast.error(t.selectDates); return; }
     if (checkIn < getTodayISO()) {
-      toast.error(lang === 'lo' ? 'àºšà»à»ˆàºªàº²àº¡àº²àº”à»€àº¥àº·àº­àºàº§àº±àº™à»€àºŠàº±àºàº­àº´àº™àº—àºµà»ˆàºœà»ˆàº²àº™àº¡àº²à»àº¥à»‰àº§' : 'Check-in date cannot be in the past');
+      toast.error(lang === 'lo' ? 'ບໍ່ສາມາດເລືອກວັນເຊັກອິນທີ່ຜ່ານມາແລ້ວ' : 'Check-in date cannot be in the past');
       return;
     }
     if (checkOut <= checkIn) {
-      toast.error(lang === 'lo' ? 'àº§àº±àº™à»€àºŠàº±àºà»€àº­àº»à»‰àº²àº•à»‰àº­àº‡àº«àº¼àº±àº‡àº§àº±àº™à»€àºŠàº±àºàº­àº´àº™' : 'Check-out must be after check-in');
+      toast.error(lang === 'lo' ? 'ວັນເຊັກເອົ້າຕ້ອງຫຼັງວັນເຊັກອິນ' : 'Check-out must be after check-in');
       return;
     }
     if (!profile?.is_verified && !profile?.is_pro) {
@@ -128,7 +128,7 @@ export default function ListingDetail() {
         <PhotoGrid photos={listing.image_urls?.length > 0 ? listing.image_urls : [coverImage(listing)]} />
         {listing.image_urls?.length > 1 && (
           <span className="absolute top-4 right-4 bg-black/60 text-white text-xs font-semibold px-2.5 py-1 rounded-full backdrop-blur-sm z-10 shadow-lg border border-white/10">
-            {listing.image_urls.length} ðŸ“·
+            {listing.image_urls.length} 📷
           </span>
         )}
       </div>
@@ -143,18 +143,17 @@ export default function ListingDetail() {
             <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1 text-gold font-semibold">
                 <Star size={14} className="fill-gold" />
-                {(listing.rating || 0).toFixed(1)} Â· {listing.review_count || 0} {t.reviews}
+                {(listing.rating || 0).toFixed(1)} · {listing.review_count || 0} {t.reviews}
               </span>
               <span className="flex items-center gap-1">
                 <MapPin size={14} />
                 {isLao && listing.city_lao ? listing.city_lao : listing.city}, {listing.country}
               </span>
-              <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-semibold">
-                {(() => {
-                  const catObj = BUSINESS_CATS.find(c => c.key === listing.category);
-                  return catObj ? <>{catObj.icon} {isLao ? catObj.lo : catObj.en}</> : listing.category;
-                })()}
-              </span>
+              {listing.category && (
+                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-semibold capitalize">
+                  {BUSINESS_CATS.find(c => c.key === listing.category)?.icon || '📌'} {lang === 'lo' ? (BUSINESS_CATS.find(c => c.key === listing.category)?.lo || listing.category) : (BUSINESS_CATS.find(c => c.key === listing.category)?.en || listing.category)}
+                </span>
+              )}
             </div>
           </div>
 
@@ -171,7 +170,7 @@ export default function ListingDetail() {
                   <div className="flex items-center gap-2">
                     <StarRating rating={host.trust_stars || 0} size={12} />
                     <TrustBadge stars={host.trust_stars || 0} lang={lang} />
-                    {host.is_verified && <span className="text-xs text-emerald-600">âœ…</span>}
+                    {host.is_verified && <span className="text-xs text-emerald-600">✅</span>}
                   </div>
                 </div>
               </Link>
@@ -279,7 +278,7 @@ export default function ListingDetail() {
                 <div className="mb-4">
                   <label className="text-xs font-semibold text-muted-foreground">{t.guests}</label>
                   <div className="flex items-center gap-3 mt-1.5">
-                    <button onClick={() => setGuestCount(g => Math.max(1, g - 1))} className="w-9 h-9 rounded-xl border border-border flex items-center justify-center text-lg font-bold hover:bg-muted transition-colors select-none">âˆ’</button>
+                    <button onClick={() => setGuestCount(g => Math.max(1, g - 1))} className="w-9 h-9 rounded-xl border border-border flex items-center justify-center text-lg font-bold hover:bg-muted transition-colors select-none">−</button>
                     <span className="flex-1 text-center font-bold text-sm border border-border rounded-xl py-2 bg-muted/40">{guestCount} {t.guests}</span>
                     <button onClick={() => setGuestCount(g => Math.min(listing.guests || 20, g + 1))} className="w-9 h-9 rounded-xl border border-border flex items-center justify-center text-lg font-bold hover:bg-muted transition-colors select-none">+</button>
                   </div>
@@ -287,7 +286,7 @@ export default function ListingDetail() {
                 {nights > 0 && (
                   <div className="border-t border-border pt-3 space-y-2 mb-4">
                     <div className="flex justify-between text-sm">
-                      <span>${listing.price} Ã— {nights} {t.nights}</span>
+                      <span>${listing.price} × {nights} {t.nights}</span>
                       <span>${subtotal}</span>
                     </div>
                     {listing.cleaning_fee > 0 && (
@@ -312,13 +311,13 @@ export default function ListingDetail() {
                   className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-70"
                 >
                   {isBooking && <div className="w-4 h-4 rounded-full border-[3px] border-primary-foreground border-t-transparent animate-spin" />}
-                  {isBooking ? (lang === 'lo' ? 'àºàº³àº¥àº±àº‡àº”àº³à»€àº™àºµàº™àºàº²àº™...' : 'Processing...') : t.requestBook}
+                  {isBooking ? (lang === 'lo' ? 'ກຳລັງດຳເນີນການ...' : 'Processing...') : t.requestBook}
                 </button>
-                <p className="text-center text-xs text-muted-foreground mt-2">ðŸ’° {t.payViaWallet}</p>
+                <p className="text-center text-xs text-muted-foreground mt-2">💰 {t.payViaWallet}</p>
               </>
             ) : (
               <div className="text-center py-6">
-                <div className="text-3xl mb-2">âœ…</div>
+                <div className="text-3xl mb-2">✅</div>
                 <h3 className="font-bold text-success mb-1">{t.bookingRequested}</h3>
                 <p className="text-sm text-muted-foreground mb-4">{t.paidVia}: ${total}</p>
                 <Link to="/bookings" className="block w-full bg-primary text-primary-foreground py-2.5 rounded-lg text-sm font-semibold text-center hover:opacity-90">

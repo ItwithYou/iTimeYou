@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Star, X } from 'lucide-react';
 import { firebaseClient } from '@/api/firebaseClient';
 import { toast } from 'sonner';
@@ -16,7 +16,7 @@ export default function ReviewBookingModal({ booking, currentUser, lang, onClose
 
   const handleSubmit = async () => {
     if (rating === 0) {
-      toast.error(lang === 'lo' ? 'àºàº°àº¥àº¸àº™àº²à»ƒàº«à»‰àº„àº°à»àº™àº™' : 'Please select a rating');
+      toast.error(lang === 'lo' ? 'ກະລຸນາໃຫ້ຄະແນນ' : 'Please select a rating');
       return;
     }
 
@@ -67,11 +67,11 @@ export default function ReviewBookingModal({ booking, currentUser, lang, onClose
         });
       }
 
-      toast.success(lang === 'lo' ? 'àº‚àº­àºšà»ƒàºˆàºªàº³àº¥àº±àºšàº„àº³àº•àº´àºŠàº»àº¡!' : 'Thank you for your review!');
+      toast.success(lang === 'lo' ? 'ຂອບໃຈສຳລັບຄຳຕິຊົມ!' : 'Thank you for your review!');
       onReviewSubmitted?.();
       onClose();
     } catch (error) {
-      toast.error(error.message || (lang === 'lo' ? 'àºšà»à»ˆàºªàº²àº¡àº²àº”àºªàº»à»ˆàº‡àº„àº³àº•àº´àºŠàº»àº¡à»„àº”à»‰' : 'Failed to submit review'));
+      toast.error(error.message || (lang === 'lo' ? 'ບໍ່ສາມາດສົ່ງຄຳຕິຊົມໄດ້' : 'Failed to submit review'));
     } finally {
       setLoading(false);
     }
@@ -81,7 +81,7 @@ export default function ReviewBookingModal({ booking, currentUser, lang, onClose
     <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onTouchEnd={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="bg-card w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 border border-border shadow-2xl max-h-[90vh] overflow-y-auto overscroll-contain" onMouseDown={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-lg">{lang === 'lo' ? 'à»ƒàº«à»‰àº„àº°à»àº™àº™ à»àº¥àº° àº„àº³àº•àº´àºŠàº»àº¡' : 'Leave a Review'}</h3>
+          <h3 className="font-bold text-lg">{lang === 'lo' ? 'ໃຫ້ຄະແນນ ແລະ ຄຳຕິຊົມ' : 'Leave a Review'}</h3>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-muted transition-colors">
             <X size={20} />
           </button>
@@ -91,17 +91,17 @@ export default function ReviewBookingModal({ booking, currentUser, lang, onClose
           {/* Booking info */}
           <div className="bg-muted/50 rounded-xl p-4 border border-border">
             <p className="text-xs font-semibold text-muted-foreground mb-1">
-              {lang === 'lo' ? 'àºàº²àº™àºˆàº­àº‡àº‚àº­àº‡àº—à»ˆàº²àº™' : 'Your Booking'}
+              {lang === 'lo' ? 'ການຈອງຂອງທ່ານ' : 'Your Booking'}
             </p>
             <p className="text-sm font-medium">
-              {lang === 'lo' ? 'à»€àºŠàº±àºàº­àº­àº:' : 'Check-out:'} {new Date(booking.check_out).toLocaleDateString()}
+              {lang === 'lo' ? 'ເຊັກອອກ:' : 'Check-out:'} {new Date(booking.check_out).toLocaleDateString()}
             </p>
           </div>
 
           {/* Star rating */}
           <div>
             <label className="block text-sm font-semibold mb-3">
-              {lang === 'lo' ? 'à»ƒàº«à»‰àº„àº°à»àº™àº™àº”àº²àº§' : 'How was your stay?'}
+              {lang === 'lo' ? 'ໃຫ້ຄະແນນດາວ' : 'How was your stay?'}
             </label>
             <div className="flex gap-2 justify-center">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -124,24 +124,24 @@ export default function ReviewBookingModal({ booking, currentUser, lang, onClose
               ))}
             </div>
             <p className="text-center text-sm mt-3 font-semibold text-muted-foreground">
-              {rating === 5 && (lang === 'lo' ? 'àº”àºµà»€àº¥àºµàº”! â­' : 'Excellent! â­')}
-              {rating === 4 && (lang === 'lo' ? 'àº”àºµàº«àº¼àº²àº' : 'Very Good')}
-              {rating === 3 && (lang === 'lo' ? 'àºžà»à»ƒàºŠà»‰' : 'Good')}
-              {rating === 2 && (lang === 'lo' ? 'àºšà»à»ˆàº„à»ˆàº­àºàº”àºµ' : 'Fair')}
-              {rating === 1 && (lang === 'lo' ? 'àºšà»à»ˆàº”àºµ' : 'Poor')}
-              {rating === 0 && (lang === 'lo' ? 'à»€àº¥àº·àº­àºàºˆàº³àº™àº§àº™àº”àº²àº§' : 'Select a rating')}
+              {rating === 5 && (lang === 'lo' ? 'ດີເລີດ! ⭐' : 'Excellent! ⭐')}
+              {rating === 4 && (lang === 'lo' ? 'ດີຫຼາຍ' : 'Very Good')}
+              {rating === 3 && (lang === 'lo' ? 'ພໍໃຊ້' : 'Good')}
+              {rating === 2 && (lang === 'lo' ? 'ບໍ່ຄ່ອຍດີ' : 'Fair')}
+              {rating === 1 && (lang === 'lo' ? 'ບໍ່ດີ' : 'Poor')}
+              {rating === 0 && (lang === 'lo' ? 'ເລືອກຈຳນວນດາວ' : 'Select a rating')}
             </p>
           </div>
 
           {/* Review text */}
           <div>
             <label className="block text-sm font-semibold mb-2">
-              {lang === 'lo' ? 'àº‚àº½àº™àº„àº³àº•àº´àºŠàº»àº¡ (àºšà»à»ˆàºšàº±àº‡àº„àº±àºš)' : 'Write a review (optional)'}
+              {lang === 'lo' ? 'ຂຽນຄຳຕິຊົມ (ບໍ່ບັງຄັບ)' : 'Write a review (optional)'}
             </label>
             <textarea
               value={reviewText}
               onChange={(e) => setReviewText(e.target.value)}
-              placeholder={lang === 'lo' ? 'àºšàº­àºà»€àº®àº»àº²àºà»ˆàº½àº§àºàº±àºšàº›àº°àºªàº»àºšàºàº²àº™àº‚àº­àº‡àº—à»ˆàº²àº™...' : 'Tell us about your experience...'}
+              placeholder={lang === 'lo' ? 'ບອກເຮົາກ່ຽວກັບປະສົບການຂອງທ່ານ...' : 'Tell us about your experience...'}
               rows={4}
               className="w-full border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary resize-none"
             />
@@ -156,10 +156,10 @@ export default function ReviewBookingModal({ booking, currentUser, lang, onClose
             {loading ? (
               <div className="flex items-center justify-center gap-2">
                 <div className="w-4 h-4 border-2 border-white/60 border-t-white rounded-full animate-spin" />
-                {lang === 'lo' ? 'àºàº³àº¥àº±àº‡àºªàº»à»ˆàº‡...' : 'Submitting...'}
+                {lang === 'lo' ? 'ກຳລັງສົ່ງ...' : 'Submitting...'}
               </div>
             ) : (
-              lang === 'lo' ? 'àºªàº»à»ˆàº‡àº„àº³àº•àº´àºŠàº»àº¡' : 'Submit Review'
+              lang === 'lo' ? 'ສົ່ງຄຳຕິຊົມ' : 'Submit Review'
             )}
           </button>
         </div>

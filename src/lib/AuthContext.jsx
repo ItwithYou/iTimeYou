@@ -1,4 +1,4 @@
-﻿import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { auth } from '@/api/firebaseClient';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  // authError stays null â€” guests are allowed to browse freely.
+  // authError stays null — guests are allowed to browse freely.
   const [authError] = useState(null);
 
   useEffect(() => {
