@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Plus, User, Building2 } from 'lucide-react';
+import { ImagePlus, User, Building2, Camera } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function CreateDropdownButton({ lang }) {
@@ -20,10 +20,13 @@ export default function CreateDropdownButton({ lang }) {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setOpen(!open)}
-        className="ml-2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-[#d4af37] to-[#8a6b1c] text-white flex items-center justify-center shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95"
+        className="ml-2 sm:ml-4 px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full bg-gradient-to-r from-[#d4af37] to-[#8a6b1c] text-white flex items-center gap-1.5 shadow-md shadow-[#d4af37]/20 hover:shadow-lg hover:shadow-[#d4af37]/40 transition-all hover:scale-105 active:scale-95 border border-[#eed077]/30"
         aria-label="Create Post"
       >
-        <Plus size={18} strokeWidth={2.5} className={open ? "rotate-45 transition-transform" : "transition-transform"} />
+        <ImagePlus size={16} strokeWidth={2.5} className={open ? "scale-110 transition-transform" : "transition-transform"} />
+        <span className="text-[11px] sm:text-xs font-bold tracking-wide">
+          {lang === 'lo' ? 'ໂພສໃໝ່' : 'Post'}
+        </span>
       </button>
 
       {open && (
