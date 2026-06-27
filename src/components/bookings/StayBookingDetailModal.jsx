@@ -38,20 +38,24 @@ export default function StayBookingDetailModal({ booking, currentUser, lang, onC
   const canMarkCompleted = currentUser?.role === 'admin' && booking.status !== 'completed' && booking.status !== 'cancelled';
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onTouchEnd={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="bg-card w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl p-5 border border-border shadow-xl max-h-[90vh] overflow-y-auto overscroll-contain" onMouseDown={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
+    <div className="fixed inset-0 z-[150] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onTouchEnd={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="bg-card w-full sm:max-w-lg rounded-2xl p-5 border border-border shadow-2xl max-h-[85vh] overflow-y-auto overscroll-contain hide-scrollbar relative" onMouseDown={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}>
+        <div className="sticky top-[-20px] pt-4 pb-3 mb-4 bg-card z-10 flex items-center justify-between border-b border-border">
           <h3 className="font-bold text-base">{lang === 'lo' ? 'ລາຍລະອຽດການຈອງທີ່ພັກ' : 'Stay Booking Details'}</h3>
-          <button onClick={onClose} className="p-1 rounded-full hover:bg-muted"><X size={18} /></button>
+          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted bg-muted/50"><X size={18} /></button>
         </div>
 
         <div className="space-y-4 text-sm">
           {/* Listing Info */}
           <div className="bg-gradient-to-r from-tiffany/10 to-deep-green/10 rounded-2xl p-4 border border-primary/20">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-2xl shadow-sm">
-                🏠
-              </div>
+              {listing?.images?.[0] ? (
+                <img src={listing.images[0]} alt="Stay" className="w-14 h-14 rounded-xl object-cover shadow-sm border border-white/20" />
+              ) : (
+                <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center text-3xl shadow-sm">
+                  🏠
+                </div>
+              )}
               <div className="min-w-0 flex-1">
                 <p className="font-bold text-base truncate">{listing ? (lang === 'lo' && listing.title_lao ? listing.title_lao : listing.title) : 'Stay Accommodation'}</p>
                 <p className="text-xs text-muted-foreground">{listing ? `${listing.city}, ${listing.country}` : 'Laos'}</p>
