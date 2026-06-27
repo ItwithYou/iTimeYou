@@ -132,7 +132,7 @@ export default function ResetPassword() {
         }
       }
       
-      toast.success('Password reset successfully! Redirecting to login...');
+      toast.success('Password reset successfully! Redirecting...');
       setTimeout(() => {
         base44.auth.logout();
       }, 2000);

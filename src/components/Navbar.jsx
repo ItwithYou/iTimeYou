@@ -79,9 +79,9 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
                 </span>
               </Link>
             ) : (
-              <Link to="/login" className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity">
+              <button onClick={() => window.dispatchEvent(new Event('open-login'))} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity">
                 {lang === 'lo' ? 'ເຂົ້າສູ່ລະບົບ' : 'Login'}
-              </Link>
+              </button>
             )}
 
             {currentUser?.role === 'admin' &&
@@ -118,9 +118,9 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
                 className="w-8 h-8 rounded-full border-2 border-border object-cover" />
             </Link>
           ) : (
-            <Link to="/login" className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold">
+            <button onClick={() => window.dispatchEvent(new Event('open-login'))} className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold">
               {lang === 'lo' ? 'ເຂົ້າ' : 'Login'}
-            </Link>
+            </button>
           )}
         </div>
       </div>

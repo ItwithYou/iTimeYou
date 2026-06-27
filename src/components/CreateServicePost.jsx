@@ -222,9 +222,9 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
         <span className="text-sm text-muted-foreground">
           {lang === 'lo' ? 'ເຂົ້າສູ່ລະບົບເພື່ອແບ່ງປັນບໍລິການຂອງທ່ານ' : 'Log in to share your own service'}
         </span>
-        <a href="/login" className="flex-shrink-0 bg-primary text-primary-foreground px-4 py-2 rounded-xl text-xs font-bold hover:opacity-90 transition-opacity">
+        <button onClick={() => window.dispatchEvent(new Event('open-login'))} className="flex-shrink-0 bg-primary text-primary-foreground px-4 py-2 rounded-xl text-xs font-bold hover:opacity-90 transition-opacity">
           {lang === 'lo' ? 'ເຂົ້າສູ່ລະບົບ' : 'Login'}
-        </a>
+        </button>
       </div>
     );
   }
