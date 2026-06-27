@@ -227,6 +227,21 @@ export default function Explore() {
 
       {/* Search & Filters */}
       <div className="bg-card rounded-xl p-3 shadow-sm border border-border mb-4">
+        {/* Sort Options - Thin, small, center, one line */}
+        <div className="flex justify-center items-center gap-1.5 mb-2.5 w-full">
+          {[{ v: '', label: lang === 'lo' ? 'ຫຼ້າສຸດ' : 'Recent' }, { v: 'price_low', label: lang === 'lo' ? 'ລາຄາຕໍ່າ' : 'Low Price' }, { v: 'price_high', label: lang === 'lo' ? 'ລາຄາສູງ' : 'High Price' }, { v: 'rating', label: lang === 'lo' ? 'ຄະແນນສູງສຸດ' : 'Top Rated' }].map(opt => (
+            <button
+              key={opt.v}
+              onClick={() => { setSortBy(opt.v); filterData(listings, searchQuery, activeCat, opt.v); }}
+              className={`flex-1 text-center truncate px-1 py-1 rounded-md border text-[10px] sm:text-xs font-bold transition-all select-none ${
+                sortBy === opt.v ? 'bg-primary text-primary-foreground border-primary shadow-sm' : 'border-border text-muted-foreground bg-muted/30 hover:border-primary/60'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
         <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2 border border-border focus-within:border-primary transition-colors">
           <Search size={16} className="text-muted-foreground flex-shrink-0" />
           <input
@@ -236,19 +251,6 @@ export default function Explore() {
             placeholder={t.searchPlaceholder}
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
-        </div>
-        <div className="flex flex-wrap gap-2 mt-3">
-          {[{ v: '', label: lang === 'lo' ? '🕐 ຫຼ້າສຸດ' : '🕐 Recent' }, { v: 'price_low', label: lang === 'lo' ? '💲 ລາຄາຕໍ່າ' : '💲 Low Price' }, { v: 'price_high', label: lang === 'lo' ? '💲 ລາຄາສູງ' : '💲 High Price' }, { v: 'rating', label: lang === 'lo' ? '⭐ ຄະແນນສູງສຸດ' : '⭐ Top Rated' }].map(opt => (
-            <button
-              key={opt.v}
-              onClick={() => { setSortBy(opt.v); filterData(listings, searchQuery, activeCat, opt.v); }}
-              className={`flex-shrink-0 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all select-none ${
-                sortBy === opt.v ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:border-primary/60'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
         </div>
       </div>
 
