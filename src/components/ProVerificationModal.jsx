@@ -43,7 +43,7 @@ export default function ProVerificationModal({ profile, lang, onClose, onSubmitt
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="bg-card rounded-t-3xl sm:rounded-2xl w-full sm:max-w-lg p-6 shadow-xl border border-border" onMouseDown={e => e.stopPropagation()}>
+      <div className="bg-card rounded-t-3xl sm:rounded-2xl w-full sm:max-w-lg p-6 shadow-xl border border-border max-h-[75vh] md:max-h-[85vh] overflow-y-auto" onMouseDown={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold">{lang === 'lo' ? 'ສະໝັກ Pro' : 'Apply for Pro'}</h2>
           <button onClick={onClose} className="p-1 hover:bg-muted rounded-full"><X size={20} /></button>

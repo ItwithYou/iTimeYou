@@ -27,15 +27,15 @@ export default function BottomNav({ t, lang }) {
               aria-label={item.label}
               className="flex flex-col items-center justify-center flex-1 py-2 gap-0.5 transition-all"
             >
-              <div className={`p-1.5 rounded-xl transition-all ${active ? 'bg-primary/10' : ''}`}>
+              <div className={`p-1 rounded-xl transition-all ${active ? 'bg-primary/10' : ''}`}>
                 <item.icon
-                  size={22}
+                  size={20}
                   className={`transition-colors ${active ? 'text-primary' : 'text-muted-foreground'}`}
                   strokeWidth={active ? 2.5 : 1.8}
                   aria-hidden="true"
                 />
               </div>
-              <span className={`text-[10px] font-medium transition-colors leading-none ${active ? 'text-primary' : 'text-muted-foreground'}`}>
+              <span className={`text-[9px] font-medium transition-colors leading-none ${active ? 'text-primary' : 'text-muted-foreground'}`}>
                 {item.label}
               </span>
             </Link>
