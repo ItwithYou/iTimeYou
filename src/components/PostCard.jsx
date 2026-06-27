@@ -323,13 +323,23 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
               href={post.service_location_map_url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-primary underline underline-offset-2"
+              className="inline-flex items-center gap-1.5 text-xs text-primary font-semibold bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors border border-primary/20"
             >
               <MapPin size={14} />
-              {post.service_location}
+              {post.service_location.startsWith('http') ? (lang === 'lo' ? 'ເບິ່ງແຜນທີ່' : 'View Map') : post.service_location}
+            </a>
+          ) : post.service_location.startsWith('http') ? (
+            <a
+              href={post.service_location}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs text-primary font-semibold bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors border border-primary/20"
+            >
+              <MapPin size={14} />
+              {lang === 'lo' ? 'ເບິ່ງແຜນທີ່' : 'View Map'}
             </a>
           ) : (
-            <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-full font-medium border border-border">
               <MapPin size={14} />
               {post.service_location}
             </div>
