@@ -141,47 +141,63 @@ export default function Wallet() {
       )}
 
       {/* Premium wallet card */}
-      <div className="relative mb-6 overflow-hidden rounded-[28px] p-6 text-white shadow-2xl bg-gradient-to-tr from-slate-900 via-slate-800 to-emerald-950 border border-white/10">
-        {/* decorative glows */}
-        <div className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full bg-emerald-500/20 blur-[80px]" />
-        <div className="pointer-events-none absolute -bottom-20 -left-10 h-64 w-64 rounded-full bg-blue-500/20 blur-[80px]" />
-        <div className="pointer-events-none absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/noise-lines.png')] opacity-10 mix-blend-overlay" />
+      <div className="relative mb-6 overflow-hidden rounded-[30px] p-6 text-white shadow-[0_30px_80px_-24px_rgba(2,30,26,0.85)] bg-gradient-to-br from-[#0d4339] via-[#0a2e2a] to-[#05201d]">
+        {/* gold inner hairline + glows */}
+        <div className="pointer-events-none absolute inset-0 rounded-[30px] ring-1 ring-inset ring-amber-200/15" />
+        <div className="pointer-events-none absolute -top-24 -right-16 h-64 w-64 rounded-full bg-emerald-400/25 blur-[90px]" />
+        <div className="pointer-events-none absolute -bottom-24 -left-12 h-64 w-64 rounded-full bg-amber-300/10 blur-[90px]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.14),transparent_42%)]" />
 
         <div className="relative">
-          {/* Top row: brand + chip */}
-          <div className="mb-7 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              {/* EMV-style chip */}
-              <div className="grid h-8 w-10 place-items-center rounded-md bg-gradient-to-br from-amber-200 to-amber-400 shadow-inner">
-                <div className="h-3.5 w-5 rounded-[3px] border border-amber-700/30" />
-              </div>
-              <span className="text-[15px] font-extrabold tracking-tight">iTimeYou</span>
+          {/* Brand row */}
+          <div className="mb-8 flex items-center justify-between">
+            <span className="text-[19px] font-black tracking-tight">
+              <span className="text-amber-300">i</span>TimeYou
+            </span>
+            <span className="rounded-full border border-amber-200/30 bg-amber-200/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.24em] text-amber-200">
+              Premium
+            </span>
+          </div>
+
+          {/* Chip + balance label */}
+          <div className="mb-2 flex items-center gap-3">
+            <div className="grid h-9 w-12 place-items-center rounded-[8px] bg-gradient-to-br from-amber-100 via-amber-300 to-amber-500 shadow-inner">
+              <div className="h-4 w-7 rounded-[3px] border border-amber-700/30" />
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/55">Wallet</span>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/50">{t.balance}</p>
           </div>
 
-          {/* Balance */}
-          <p className="text-[12px] font-medium uppercase tracking-[0.18em] text-white/55">{t.balance}</p>
-          <div className="mt-1.5 flex items-end gap-2">
-            <p className="text-[36px] font-bold leading-none tracking-tight break-all">{totalLak.toLocaleString()}</p>
-            <span className="pb-1.5 text-sm font-semibold text-white/65">LAK</span>
+          {/* Big balance number — premium tabular font */}
+          <div className="flex items-end gap-2">
+            <span className="wallet-num bg-gradient-to-r from-white via-white to-amber-100 bg-clip-text text-[44px] font-extrabold leading-none text-transparent break-all">
+              {totalLak.toLocaleString()}
+            </span>
+            <span className="pb-2 text-sm font-bold text-amber-200/80">LAK</span>
           </div>
 
-          {/* Owner */}
-          <p className="mt-5 mb-6 text-[15px] font-semibold tracking-wide text-white/90">
-            {profile?.first_name} {profile?.last_name}
+          {/* Savings motivation */}
+          <p className="mt-2.5 text-[11px] font-medium text-emerald-200/75">
+            {lang === 'lo' ? '✨ ເກັບອອມເພີ່ມຂຶ້ນທຸກໆມື້' : '✨ Keep growing your savings'}
           </p>
 
+          {/* Owner + masked number */}
+          <div className="mt-6 flex items-center justify-between">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-white/85">
+              {profile?.first_name} {profile?.last_name}
+            </p>
+            <p className="wallet-num text-[12px] tracking-[0.28em] text-white/35">•••• 2026</p>
+          </div>
+
           {/* Currency pills */}
-          <div className="mb-2 grid grid-cols-3 gap-2.5">
+          <div className="mt-5 grid grid-cols-3 gap-2.5">
             {[
               { code: 'LAK', val: lakBalance },
               { code: 'USD', val: usdBalance },
               { code: 'USDT', val: usdtBalance },
             ].map((c) => (
-              <div key={c.code} className="min-w-0 rounded-2xl border border-white/15 bg-white/10 px-3.5 py-3 backdrop-blur-sm">
-                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/55">{c.code}</p>
-                <p className="mt-1 break-all text-[13px] font-semibold leading-tight text-white/95">{(c.val || 0).toLocaleString()}</p>
+              <div key={c.code} className="min-w-0 rounded-2xl border border-white/12 bg-white/[0.07] px-3.5 py-3 backdrop-blur-sm">
+                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-amber-200/70">{c.code}</p>
+                <p className="wallet-num mt-1 break-all text-[14px] font-bold leading-tight text-white">{(c.val || 0).toLocaleString()}</p>
               </div>
             ))}
           </div>
@@ -235,7 +251,7 @@ export default function Wallet() {
           { label: lang === 'lo' ? 'ທຸລະກຳ' : 'Transactions', value: transactions.length, color: 'text-foreground' },
         ].map(stat => (
           <div key={stat.label} className="bg-card rounded-2xl p-3 text-center border border-border shadow-sm">
-            <p className={`font-semibold text-[13px] sm:text-[14px] tracking-[-0.02em] leading-tight break-all ${stat.color}`}>{stat.value}</p>
+            <p className={`wallet-num font-bold text-[13px] sm:text-[14px] tracking-[-0.02em] leading-tight break-all ${stat.color}`}>{stat.value}</p>
             <p className="text-xs text-muted-foreground mt-1 leading-tight">{stat.label}</p>
           </div>
         ))}
@@ -267,7 +283,7 @@ export default function Wallet() {
                       <p className="text-xs text-destructive mt-1">Reason: {tx.reject_reason}</p>
                     )}
                   </div>
-                  <span className={`font-bold text-sm flex-shrink-0 ${cfg.color}`}>
+                  <span className={`wallet-num font-bold text-sm flex-shrink-0 ${cfg.color}`}>
                     {tx.amount > 0 ? '+' : ''}{Math.abs(tx.amount)} {tx.currency || 'USD'}
                   </span>
                 </div>
