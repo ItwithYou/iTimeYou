@@ -44,7 +44,7 @@ export default function CreateDropdownButton({ lang }) {
                 {lang === 'lo' ? 'ສ່ວນບຸກຄົນ' : 'Personal'}
               </span>
               <span className="text-[10px] text-muted-foreground">
-                {lang === 'lo' ? 'ໂພສບໍລິການ ຫຼື ຄຳຮ້ອງຂໍ' : 'Service or Request'}
+                {lang === 'lo' ? 'ໂພສບໍລິການ ຫຼື ຄໍາຮ້ອງຂໍ' : 'Service or Request'}
               </span>
             </div>
           </Link>
