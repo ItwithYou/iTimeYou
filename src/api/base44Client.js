@@ -16,7 +16,8 @@ import {
   createUserWithEmailAndPassword, signOut,
   GoogleAuthProvider, signInWithRedirect, getRedirectResult, sendPasswordResetEmail,
   updateProfile, updatePassword,
-  confirmPasswordReset, verifyPasswordResetCode
+  confirmPasswordReset, verifyPasswordResetCode,
+  RecaptchaVerifier, signInWithPhoneNumber
 } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
@@ -212,6 +213,23 @@ const authModule = {
   },
   async login({ email, password }) {
     const cred = await signInWithEmailAndPassword(auth, email, password);
+    await ensureUserDir(cred.user);
+    return mapUser(cred.user);
+  },
+  setupRecaptcha(containerId) {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
+        size: 'invisible'
+      });
+    }
+    return window.recaptchaVerifier;
+  },
+  async loginWithPhone(phoneNumber, appVerifier) {
+    return signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+  },
+  async confirmOTP(confirmationResult, code, fullName) {
+    const cred = await confirmationResult.confirm(code);
+    if (fullName) await updateProfile(cred.user, { displayName: fullName });
     await ensureUserDir(cred.user);
     return mapUser(cred.user);
   },

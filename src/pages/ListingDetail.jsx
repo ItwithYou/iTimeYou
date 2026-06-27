@@ -11,6 +11,7 @@ import { DEFAULT_EXCHANGE_RATES, deductCrossCurrencyBalance } from '../utils/wal
 import moment from 'moment';
 import { getTodayISO } from '../utils/dateUtils';
 import { DEMO_TRANSLATIONS } from '../lib/demoTranslations';
+import { startOrGetConversation } from '../utils/messaging';
 
 export default function ListingDetail() {
   const { id } = useParams();
@@ -102,8 +103,21 @@ export default function ListingDetail() {
       request_kind: 'booking_release',
       counterparty_email: listing.host_email,
     });
+    
     setBooked(true);
-    toast.success(t.bookingRequested);
+    toast.success(t.bookSuccess);
+  };
+
+  const handleMessageHost = async () => {
+    if (!currentUser) { navigate('/login'); return; }
+    if (listing?.host_email) {
+      const convId = await startOrGetConversation(currentUser.email, listing.host_email);
+      if (convId) {
+        navigate(`/messages?conv=${convId}`);
+      } else {
+        toast.error('Unable to start conversation');
+      }
+    }
   };
 
   const isLao = lang === 'lo';
@@ -153,10 +167,10 @@ export default function ListingDetail() {
                   </div>
                 </div>
               </Link>
-              <Link to="/messages" className="flex items-center gap-1 border border-border px-3 py-1.5 rounded-lg text-sm hover:bg-muted transition-colors">
+              <button onClick={handleMessageHost} className="flex items-center gap-1 border border-border px-3 py-1.5 rounded-lg text-sm hover:bg-muted transition-colors">
                 <MessageCircle size={14} />
                 {t.message}
-              </Link>
+              </button>
             </div>
           )}
 

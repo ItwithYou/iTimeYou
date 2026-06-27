@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { X, Clock, Calendar, DollarSign, Wallet, MapPin } from 'lucide-react';
 import { DEFAULT_EXCHANGE_RATES, deductCrossCurrencyBalance, getTotalLakBalance } from '../utils/wallet';
 import { formatServiceWhen } from '../utils/dateUtils';
+import { startOrGetConversation } from '../utils/messaging';
 
 export default function BookServiceModal({ post, profile, currentUser, lang, onClose, onBooked }) {
   const [loading, setLoading] = useState(false);
@@ -49,6 +50,20 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
     return options;
   }, [isHourlyService, post.service_when]);
   const [selectedSlot, setSelectedSlot] = useState('');
+
+  const handleMessage = async () => {
+    if (post?.author_email) {
+      setLoading(true);
+      const convId = await startOrGetConversation(currentUser.email, post.author_email);
+      setLoading(false);
+      if (convId) {
+        onClose();
+        navigate(`/messages?conv=${convId}`);
+      } else {
+        toast.error('Unable to start conversation');
+      }
+    }
+  };
 
   const handleBook = async () => {
     if (!profile?.is_verified) {
@@ -257,7 +272,10 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
         >
           {loading ? '...' : canAfford ? `${lang === 'lo' ? 'ຈ່າຍ & ຈອງ' : 'Pay & Book'} — ${price} ${currency}` : `${lang === 'lo' ? 'ໄປໜ້າເຕີມເງິນ' : 'Go to Top Up'}`}
         </button>
-        <button onClick={onClose} className="w-full border border-border py-2.5 rounded-xl text-sm font-semibold mt-2 hover:bg-muted transition-colors">
+        <button onClick={handleMessage} disabled={loading} className="w-full border border-primary text-primary py-2.5 rounded-xl font-semibold text-sm hover:bg-primary/5 transition-colors mt-3">
+          {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມຫາຜູ້ໃຫ້ບໍລິການ' : 'Message Provider'}
+        </button>
+        <button onClick={onClose} disabled={loading} className="w-full border border-border py-2.5 rounded-xl text-sm font-semibold mt-2 hover:bg-muted transition-colors">
           {lang === 'lo' ? 'ຍົກເລີກ' : 'Cancel'}
         </button>
       </div>

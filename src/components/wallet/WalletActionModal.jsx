@@ -94,8 +94,8 @@ export default function WalletActionModal({ type, currentUser, profile, lang, ex
       toast.error(lang === 'lo' ? 'ກະລຸນາໃສ່ຈຳນວນເງິນ' : 'Please enter amount');
       return;
     }
-    if (type === 'topup' && (!accountNumber || !bankName)) {
-      toast.error(lang === 'lo' ? 'ກະລຸນາໃສ່ເລກບັນຊີ ແລະ ທະນາຄານ' : 'Please enter account number and bank');
+    if (type === 'topup' && !bankName) {
+      toast.error(lang === 'lo' ? 'ກະລຸນາເລືອກທະນາຄານ' : 'Please select a bank');
       return;
     }
     if (type === 'topup' && !file) {
