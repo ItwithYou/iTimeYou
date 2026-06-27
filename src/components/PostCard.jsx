@@ -35,8 +35,10 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
   const [showMenu, setShowMenu] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(post.text);
-  const [editPhotoUrl, setEditPhotoUrl] = useState(post.photo_url || '');
-  const [editPhotoFile, setEditPhotoFile] = useState(null);
+  const [editPhotoUrls, setEditPhotoUrls] = useState(post.photo_urls || (post.photo_url ? [post.photo_url] : []));
+  const [editPhotoFiles, setEditPhotoFiles] = useState([]);
+  const [editPhotoPreviews, setEditPhotoPreviews] = useState([]);
+  const editPhotoInputRef = useRef(null);
   const [comments, setComments] = useState([]);
   const [commentProfiles, setCommentProfiles] = useState({});
   const [showComments, setShowComments] = useState(false);
@@ -95,15 +97,38 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
     onRefresh?.();
   };
 
+  const handlePhotos = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setEditPhotoFiles(prev => [...prev, ...files]);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (ev) => setEditPhotoPreviews(prev => [...prev, ev.target.result]);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removePhoto = (index) => {
+    setEditPhotoFiles(prev => prev.filter((_, i) => i !== index));
+    setEditPhotoPreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleEdit = async () => {
-    let nextPhotoUrl = editPhotoUrl;
-    if (editPhotoFile) {
-      const upload = await base44.integrations.Core.UploadFile({ file: editPhotoFile });
-      nextPhotoUrl = upload.file_url;
+    let nextPhotoUrls = [...editPhotoUrls];
+    if (editPhotoFiles.length > 0) {
+      const uploads = await Promise.all(editPhotoFiles.map(f => base44.integrations.Core.UploadFile({ file: f })));
+      const newUrls = uploads.map(u => u.file_url).filter(Boolean);
+      nextPhotoUrls = [...nextPhotoUrls, ...newUrls];
     }
-    await base44.entities.Post.update(post.id, { text: editText, photo_url: nextPhotoUrl });
-    setEditPhotoUrl(nextPhotoUrl);
-    setEditPhotoFile(null);
+    
+    await base44.entities.Post.update(post.id, { 
+      text: editText, 
+      photo_urls: nextPhotoUrls,
+      photo_url: nextPhotoUrls[0] || post.photo_url 
+    });
+    setEditPhotoUrls(nextPhotoUrls);
+    setEditPhotoFiles([]);
+    setEditPhotoPreviews([]);
     setEditing(false);
     onRefresh?.();
   };
@@ -146,7 +171,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
     await loadComments();
   };
 
-  const displayPhotoUrl = editPhotoFile ? URL.createObjectURL(editPhotoFile) : (editPhotoUrl || post.photo_url || '');
+  const displayPhotoUrl = (post.photo_urls && post.photo_urls.length > 0) ? post.photo_urls[0] : (post.photo_url || '');
   const safeDisplayPhotoUrl = displayPhotoUrl?.trim();
   const shareText = `${post.service_type ? `${post.service_type} · ` : ''}${post.text || ''}`.trim();
   const shareUrl = post.service_location_map_url || window.location.href;
@@ -246,25 +271,27 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
             rows={3}
             className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary resize-none"
           />
-          <input
-            value={editPhotoUrl}
-            onChange={e => setEditPhotoUrl(e.target.value)}
-            placeholder={lang === 'lo' ? 'ລິ້ງຮູບພາບ' : 'Photo URL'}
-            className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary mt-2"
-          />
-          <button type="button" onClick={() => editPhotoInputRef.current?.click()} className="mt-2 flex items-center gap-2 w-fit text-xs font-semibold text-primary min-h-[44px] px-2">
-            <ImageIcon size={14} />
-            {lang === 'lo' ? 'ເລືອກຮູບຈາກຄອມ' : 'Choose photo from desktop'}
-          </button>
-          <input ref={editPhotoInputRef} type="file" accept="image/*" className="hidden" onChange={e => setEditPhotoFile(e.target.files?.[0] || null)} />
-          {safeDisplayPhotoUrl && (
-            <img src={safeDisplayPhotoUrl} alt="" className="mt-2 w-full max-h-52 object-cover rounded-xl border border-border" />
+          <div className="flex items-center justify-between mb-2 mt-2 border-b border-border pb-2">
+             <label className="text-xs font-semibold text-muted-foreground uppercase">
+               {lang === 'lo' ? 'ເພີ່ມຮູບພາບ' : 'Add Photos'}
+             </label>
+             <button type="button" onClick={() => editPhotoInputRef.current?.click()} className="flex items-center gap-1.5 text-xs font-bold text-primary hover:bg-primary/10 px-2 py-1 rounded transition-colors">
+               <ImageIcon size={14} /> {lang === 'lo' ? 'ເລືອກຮູບ' : 'Choose'}{editPhotoFiles.length > 0 ? ` (${editPhotoFiles.length})` : ''}
+             </button>
+          </div>
+          <input ref={editPhotoInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePhotos} />
+          
+          {editPhotoPreviews.length > 0 && (
+            <div className="mb-3 rounded-xl overflow-hidden border border-border">
+              <PhotoGrid photos={editPhotoPreviews} onRemove={removePhoto} />
+            </div>
           )}
+
           <div className="flex gap-2 mt-2">
             <button onClick={handleEdit} className="flex items-center gap-1 bg-primary text-primary-foreground px-4 py-1.5 rounded-lg text-xs font-semibold hover:opacity-90">
               <Check size={12} /> Save
             </button>
-            <button onClick={() => { setEditing(false); setEditText(post.text); setEditPhotoUrl(post.photo_url || ''); setEditPhotoFile(null); }} className="flex items-center gap-1 border border-border px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-muted">
+            <button onClick={() => { setEditing(false); setEditText(post.text); setEditPhotoUrls(post.photo_urls || []); setEditPhotoFiles([]); setEditPhotoPreviews([]); }} className="flex items-center gap-1 border border-border px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-muted">
               <X size={12} /> Cancel
             </button>
           </div>

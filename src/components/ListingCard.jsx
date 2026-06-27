@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { CAT_ICONS } from '../hooks/useLang';
 import ImageLightbox from './ImageLightbox';
+import PhotoGrid from './PhotoGrid';
 import useProfile from '../hooks/useProfile';
-import { coverImage, onImgError } from '../utils/img';
+import { coverImage } from '../utils/img';
 
 export default function ListingCard({ listing, t, lang }) {
   const { currentUser } = useProfile();
@@ -15,8 +16,9 @@ export default function ListingCard({ listing, t, lang }) {
   const [editing, setEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(listing.title || '');
   const [editDescription, setEditDescription] = useState(listing.description || '');
-  const [editImageUrl, setEditImageUrl] = useState(listing.image_url || '');
-  const [editImageFile, setEditImageFile] = useState(null);
+  const [editImageUrls, setEditImageUrls] = useState(listing.image_urls || (listing.image_url ? [listing.image_url] : []));
+  const [editImageFiles, setEditImageFiles] = useState([]);
+  const [editImagePreviews, setEditImagePreviews] = useState([]);
   const editImageInputRef = useRef(null);
   const catIndex = ['culture', 'stay', 'food', 'experience', 'home', 'nature'].indexOf(listing.category);
   const catLabel = t.categories[catIndex] || listing.category;
@@ -31,19 +33,39 @@ export default function ListingCard({ listing, t, lang }) {
     window.location.reload();
   };
 
+  const handlePhotos = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setEditImageFiles(prev => [...prev, ...files]);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (ev) => setEditImagePreviews(prev => [...prev, ev.target.result]);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removePhoto = (index) => {
+    setEditImageFiles(prev => prev.filter((_, i) => i !== index));
+    setEditImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleEdit = async () => {
-    let nextImageUrl = editImageUrl;
-    if (editImageFile) {
-      const upload = await base44.integrations.Core.UploadFile({ file: editImageFile });
-      nextImageUrl = upload.file_url;
+    let nextImageUrls = [...editImageUrls];
+    if (editImageFiles.length > 0) {
+      const uploads = await Promise.all(editImageFiles.map(f => base44.integrations.Core.UploadFile({ file: f })));
+      const newUrls = uploads.map(u => u.file_url).filter(Boolean);
+      nextImageUrls = [...nextImageUrls, ...newUrls];
     }
+    
     await base44.entities.Listing.update(listing.id, {
       title: editTitle,
       description: editDescription,
-      image_url: nextImageUrl,
+      image_urls: nextImageUrls,
+      image_url: nextImageUrls[0] || listing.image_url,
     });
-    setEditImageUrl(nextImageUrl);
-    setEditImageFile(null);
+    setEditImageUrls(nextImageUrls);
+    setEditImageFiles([]);
+    setEditImagePreviews([]);
     setEditing(false);
     window.location.reload();
   };
@@ -51,14 +73,8 @@ export default function ListingCard({ listing, t, lang }) {
   return (
     <div className="group relative bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-border">
       {/* Image */}
-      <div className="h-52 overflow-hidden relative cursor-pointer" onClick={() => setShowLightbox(true)}>
-        <img
-          src={safeDisplayImageUrl}
-          alt={listing.title}
-          onError={(e) => onImgError(e, listing)}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          loading="lazy"
-        />
+      <div className="h-52 overflow-hidden relative cursor-pointer">
+        <PhotoGrid photos={listing.image_urls?.length > 0 ? listing.image_urls : [coverImage(listing)]} />
         {/* Save button */}
         <button
           onClick={(e) => { e.stopPropagation(); setSaved(!saved); }}
@@ -114,25 +130,27 @@ export default function ListingCard({ listing, t, lang }) {
             rows={3}
             className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary resize-none mb-2"
           />
-          <input
-            value={editImageUrl}
-            onChange={e => setEditImageUrl(e.target.value)}
-            placeholder={lang === 'lo' ? 'ລິ້ງຮູບພາບ' : 'Image URL'}
-            className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary mb-2"
-          />
-          <button type="button" onClick={() => editImageInputRef.current?.click()} className="mb-2 flex items-center gap-2 w-fit text-xs font-semibold text-primary min-h-[44px] px-2">
-            <ImageIcon size={14} />
-            {lang === 'lo' ? 'ເລືອກຮູບຈາກຄອມ' : 'Choose photo from desktop'}
-          </button>
-          <input ref={editImageInputRef} type="file" accept="image/*" className="hidden" onChange={e => setEditImageFile(e.target.files?.[0] || null)} />
-          {safeDisplayImageUrl && (
-            <img src={safeDisplayImageUrl} alt="" className="w-full max-h-52 object-cover rounded-xl border border-border mb-3" />
+          <div className="flex items-center justify-between mb-2 mt-2 border-b border-border pb-2">
+             <label className="text-xs font-semibold text-muted-foreground uppercase">
+               {lang === 'lo' ? 'ເພີ່ມຮູບພາບ' : 'Add Photos'}
+             </label>
+             <button type="button" onClick={() => editImageInputRef.current?.click()} className="flex items-center gap-1.5 text-xs font-bold text-primary hover:bg-primary/10 px-2 py-1 rounded transition-colors">
+               <ImageIcon size={14} /> {lang === 'lo' ? 'ເລືອກຮູບ' : 'Choose'}{editImageFiles.length > 0 ? ` (${editImageFiles.length})` : ''}
+             </button>
+          </div>
+          <input ref={editImageInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePhotos} />
+          
+          {editImagePreviews.length > 0 && (
+            <div className="mb-3 rounded-xl overflow-hidden border border-border">
+              <PhotoGrid photos={editImagePreviews} onRemove={removePhoto} />
+            </div>
           )}
+
           <div className="flex gap-2">
             <button onClick={handleEdit} className="flex items-center gap-1 bg-primary text-primary-foreground px-4 py-1.5 rounded-lg text-xs font-semibold hover:opacity-90">
               <Check size={12} /> Save
             </button>
-            <button onClick={() => { setEditing(false); setEditTitle(listing.title || ''); setEditDescription(listing.description || ''); setEditImageUrl(listing.image_url || ''); setEditImageFile(null); }} className="flex items-center gap-1 border border-border px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-muted">
+            <button onClick={() => { setEditing(false); setEditTitle(listing.title || ''); setEditDescription(listing.description || ''); setEditImageUrls(listing.image_urls || []); setEditImageFiles([]); setEditImagePreviews([]); }} className="flex items-center gap-1 border border-border px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-muted">
               <X size={12} /> Cancel
             </button>
           </div>
