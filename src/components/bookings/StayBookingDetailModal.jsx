@@ -1,8 +1,8 @@
-import { X, Calendar, Users, Home, AlertCircle, CheckCircle2, DollarSign } from 'lucide-react';
+import { X, Calendar, Users, Home, AlertCircle, CheckCircle2, DollarSign, XCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import BookingCompletionCard from './BookingCompletionCard';
+import moment from 'moment';
 import { formatTimestampDMY, formatDateDMY } from '../../utils/dateUtils';
 
 const statusConfig = {
@@ -11,7 +11,7 @@ const statusConfig = {
   cancelled: { label: 'Cancelled', cls: 'bg-red-100 text-red-700 border-red-200',             icon: AlertCircle },
 };
 
-export default function StayBookingDetailModal({ booking, currentUser, lang, onClose, onUpdated }) {
+export default function StayBookingDetailModal({ booking, currentUser, lang, onClose, onRequestCancel, onRequestComplete, onApproveCancel, onDeclineCancel, onMarkCompleted }) {
   const navigate = useNavigate();
   const [hostProfile, setHostProfile] = useState(null);
   const [guestProfile, setGuestProfile] = useState(null);
@@ -31,6 +31,11 @@ export default function StayBookingDetailModal({ booking, currentUser, lang, onC
 
   const isGuest = booking.guest_email === currentUser?.email;
   const isHost = booking.host_email === currentUser?.email;
+  const serviceStart = booking.check_in ? moment(booking.check_in) : null;
+  const canRequestCancel = isGuest && booking.status !== 'cancelled' && booking.status !== 'completed' && booking.cancel_request_status !== 'requested' && (!serviceStart || serviceStart.isAfter(moment()));
+  const canRequestComplete = isGuest && booking.status !== 'cancelled' && booking.status !== 'completed' && booking.complete_request_status !== 'requested';
+  const canResolve = (isGuest || isHost || currentUser?.role === 'admin') && booking.cancel_request_status === 'requested' && booking.cancel_requested_by !== currentUser?.email;
+  const canMarkCompleted = currentUser?.role === 'admin' && booking.status !== 'completed' && booking.status !== 'cancelled';
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onTouchEnd={e => { if (e.target === e.currentTarget) onClose(); }}>
@@ -125,29 +130,48 @@ export default function StayBookingDetailModal({ booking, currentUser, lang, onC
             </div>
           </div>
 
-          {/* Completion Status / Confirmation Card */}
-          {booking.guest_confirmed_completed ? (
-            <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 space-y-1">
-              <p className="flex items-center gap-2 font-semibold text-blue-800">
+          {/* Completion Status */}
+          {booking.complete_request_status === 'requested' && booking.status !== 'completed' && (
+            <div className="rounded-2xl border border-primary/30 bg-primary/10 p-4 space-y-2">
+              <p className="flex items-center gap-2 font-semibold text-primary">
                 <CheckCircle2 size={16} />
-                {lang === 'lo' ? 'ຢືນຢັນການພັກເຊົາແລ້ວ' : 'Guest Confirmed Stay Completed'}
-              </p>
-              <p className="text-xs text-blue-700">
-                {booking.admin_payout_approved
-                  ? (lang === 'lo' ? 'Admin ອະນຸມັດຈ່າຍເງິນໃຫ້ເຈົ້າພາບແລ້ວ' : 'Admin has released payout to the host.')
-                  : (lang === 'lo' ? 'ກຳລັງລໍຖ້າ Admin ອະນຸມັດຈ່າຍເງິນໃຫ້ເຈົ້າພາບ' : 'Waiting for admin approval to release host payout.')
-                }
+                {lang === 'lo' ? 'ລູກຄ້າໄດ້ຮັບການບໍລິການແລ້ວ (ລໍຖ້າ Admin ໂອນເງິນ)' : 'Customer received service (Waiting for Admin to release payment)'}
               </p>
             </div>
-          ) : (
-            isGuest && (
-              <BookingCompletionCard
-                booking={booking}
-                currentUser={currentUser}
-                lang={lang}
-                onUpdated={onUpdated}
-              />
-            )
+          )}
+
+          {/* Cancellation Status */}
+          {booking.cancel_request_status === 'requested' && (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 space-y-2">
+              <p className="flex items-center gap-2 font-semibold text-amber-800">
+                <AlertCircle size={16} />
+                {lang === 'lo' ? 'ມີຄຳຂໍຍົກເລີກ' : 'Cancellation Requested'}
+              </p>
+              <div className="text-xs text-amber-700 space-y-1">
+                <p><span className="font-semibold">{lang === 'lo' ? 'ຂໍໂດຍ:' : 'Requested by:'}</span> {booking.cancel_requested_by}</p>
+                {booking.cancel_requested_at && (
+                  <p><span className="font-semibold">{lang === 'lo' ? 'ເວລາ:' : 'Time:'}</span> {formatTimestampDMY(booking.cancel_requested_at)}</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {booking.cancel_request_status === 'approved' && (
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3">
+              <p className="flex items-center gap-2 font-semibold text-emerald-800">
+                <CheckCircle2 size={14} />
+                {lang === 'lo' ? 'ການຍົກເລີກໄດ້ຮັບການອະນຸມັດ' : 'Cancellation Approved'}
+              </p>
+            </div>
+          )}
+
+          {booking.cancel_request_status === 'declined' && (
+            <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-3">
+              <p className="flex items-center gap-2 font-semibold text-destructive">
+                <XCircle size={14} />
+                {lang === 'lo' ? 'ການຍົກເລີກຖືກປະຕິເສດ' : 'Cancellation Declined'}
+              </p>
+            </div>
           )}
 
           {/* Metadata */}
@@ -157,7 +181,32 @@ export default function StayBookingDetailModal({ booking, currentUser, lang, onC
           </div>
         </div>
 
-        <div className="mt-5">
+        <div className="mt-5 space-y-2">
+          {canRequestComplete && (
+            <button onClick={() => onRequestComplete(booking)} className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-semibold text-sm shadow-sm hover:opacity-90 transition-opacity">
+              {lang === 'lo' ? 'ໄດ້ຮັບການບໍລິການແລ້ວ (Got Service)' : 'Got Service'}
+            </button>
+          )}
+          {canRequestCancel && (
+            <button onClick={() => onRequestCancel(booking)} className="w-full bg-destructive text-destructive-foreground py-3 rounded-xl font-semibold text-sm">
+              {lang === 'lo' ? 'ສົ່ງຄຳຂໍຍົກເລີກ' : 'Send Cancel Request'}
+            </button>
+          )}
+          {canResolve && (
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => onApproveCancel(booking)} className="bg-primary text-primary-foreground py-3 rounded-xl font-semibold text-sm">
+                {lang === 'lo' ? 'ອະນຸມັດ' : 'Approve'}
+              </button>
+              <button onClick={() => onDeclineCancel(booking)} className="border border-border py-3 rounded-xl font-semibold text-sm">
+                {lang === 'lo' ? 'ບໍ່ອະນຸມັດ' : 'Decline'}
+              </button>
+            </div>
+          )}
+          {canMarkCompleted && (
+            <button onClick={() => onMarkCompleted(booking)} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm">
+              {lang === 'lo' ? 'ໝາຍເປັນສຳເລັດ ແລະ ໂອນເງິນ' : 'Mark completed and release payment'}
+            </button>
+          )}
           <button onClick={onClose} className="w-full border border-border py-3 rounded-xl font-semibold text-sm">
             {lang === 'lo' ? 'ປິດ' : 'Close'}
           </button>

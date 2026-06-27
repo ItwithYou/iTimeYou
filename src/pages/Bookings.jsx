@@ -111,8 +111,10 @@ export default function Bookings() {
     };
   }, []);
 
+  const getEntity = (b) => b.booking_kind === 'stay' ? base44.entities.Booking : base44.entities.ServiceBooking;
+
   const requestCancel = async (booking) => {
-    await base44.entities.ServiceBooking.update(booking.id, {
+    await getEntity(booking).update(booking.id, {
       cancel_request_status: 'requested',
       cancel_requested_by: currentUser.email,
       cancel_requested_at: new Date().toISOString()
@@ -123,7 +125,7 @@ export default function Bookings() {
   };
 
   const requestComplete = async (booking) => {
-    await base44.entities.ServiceBooking.update(booking.id, {
+    await getEntity(booking).update(booking.id, {
       complete_request_status: 'requested',
       complete_requested_by: currentUser.email,
       complete_requested_at: new Date().toISOString()
@@ -134,7 +136,7 @@ export default function Bookings() {
   };
 
   const approveCancel = async (booking) => {
-    await base44.entities.ServiceBooking.update(booking.id, {
+    await getEntity(booking).update(booking.id, {
       status: 'cancelled',
       cancel_request_status: 'approved',
       cancel_resolved_by: currentUser.email,
@@ -142,25 +144,30 @@ export default function Bookings() {
       refund_done: true
     });
 
-    const profiles = await base44.entities.UserProfile.filter({ user_email: booking.booker_email });
+    const bookerEmail = booking.booking_kind === 'stay' ? booking.guest_email : booking.booker_email;
+    const posterEmail = booking.booking_kind === 'stay' ? booking.host_email : booking.poster_email;
+    const price = booking.booking_kind === 'stay' ? booking.total : booking.price;
+    const serviceType = booking.service_type || 'Stay';
+
+    const profiles = await base44.entities.UserProfile.filter({ user_email: bookerEmail });
     const bookerProfile = profiles[0];
     if (bookerProfile) {
       const balanceField = booking.currency === 'LAK' ? 'wallet_balance_lak' : booking.currency === 'USDT' ? 'wallet_balance_usdt' : 'wallet_balance_usd';
       await base44.entities.UserProfile.update(bookerProfile.id, {
-        [balanceField]: (bookerProfile[balanceField] || 0) + Math.abs(booking.price || 0)
+        [balanceField]: (bookerProfile[balanceField] || 0) + Math.abs(price || 0)
       });
     }
 
     await base44.entities.WalletTransaction.create({
-      user_email: booking.booker_email,
-      description: `Refund for cancelled ${booking.service_type}`,
-      description_lao: `ຄືນເງິນສຳລັບ ${booking.service_type}`,
-      amount: Math.abs(booking.price || 0),
+      user_email: bookerEmail,
+      description: `Refund for cancelled ${serviceType}`,
+      description_lao: `ຄືນເງິນສຳລັບ ${serviceType}`,
+      amount: Math.abs(price || 0),
       currency: booking.currency || 'USD',
       type: 'received',
       status: 'completed',
       request_kind: 'receive',
-      counterparty_email: booking.poster_email
+      counterparty_email: posterEmail
     });
 
     await loadServiceBookings();
@@ -169,7 +176,7 @@ export default function Bookings() {
   };
 
   const declineCancel = async (booking) => {
-    await base44.entities.ServiceBooking.update(booking.id, {
+    await getEntity(booking).update(booking.id, {
       cancel_request_status: 'declined',
       cancel_resolved_by: currentUser.email,
       cancel_resolved_at: new Date().toISOString()
@@ -182,40 +189,47 @@ export default function Bookings() {
   const markServiceCompleted = async (booking) => {
     if (booking.status === 'completed') return;
 
-    await base44.entities.ServiceBooking.update(booking.id, {
+    await getEntity(booking).update(booking.id, {
       status: 'completed',
       complete_request_status: 'approved',
       complete_resolved_by: currentUser.email,
-      complete_resolved_at: new Date().toISOString()
+      complete_resolved_at: new Date().toISOString(),
+      guest_confirmed_completed: booking.booking_kind === 'stay' ? true : undefined,
+      admin_payout_approved: booking.booking_kind === 'stay' ? true : undefined
     });
 
-    const providerProfiles = await base44.entities.UserProfile.filter({ user_email: booking.poster_email });
+    const bookerEmail = booking.booking_kind === 'stay' ? booking.guest_email : booking.booker_email;
+    const posterEmail = booking.booking_kind === 'stay' ? booking.host_email : booking.poster_email;
+    const price = booking.booking_kind === 'stay' ? booking.total : booking.price;
+    const serviceType = booking.service_type || 'Stay';
+
+    const providerProfiles = await base44.entities.UserProfile.filter({ user_email: posterEmail });
     const providerProfile = providerProfiles[0];
     if (providerProfile) {
       const balanceField = booking.currency === 'LAK' ? 'wallet_balance_lak' : booking.currency === 'USDT' ? 'wallet_balance_usdt' : 'wallet_balance_usd';
       await base44.entities.UserProfile.update(providerProfile.id, {
-        [balanceField]: (providerProfile[balanceField] || 0) + Math.abs(booking.price || 0),
+        [balanceField]: (providerProfile[balanceField] || 0) + Math.abs(price || 0),
         wallet_currency: booking.currency || 'USD'
       });
 
       await base44.entities.WalletTransaction.create({
-        user_email: booking.poster_email,
-        description: `Service payout for ${booking.service_type}`,
-        description_lao: `ຮັບເງິນຄ່າບໍລິການ ${booking.service_type}`,
-        amount: Math.abs(booking.price || 0),
+        user_email: posterEmail,
+        description: `Payout for ${serviceType}`,
+        description_lao: `ຮັບເງິນຄ່າ ${serviceType}`,
+        amount: Math.abs(price || 0),
         currency: booking.currency || 'USD',
         type: 'received',
         status: 'completed',
         request_kind: 'booking_release',
-        counterparty_email: booking.booker_email
+        counterparty_email: bookerEmail
       });
     }
 
     await base44.entities.Notification.create({
-      user_email: booking.poster_email,
+      user_email: posterEmail,
       type: '💸',
-      text: `Payment for ${booking.service_type} has been released to your wallet`,
-      text_lao: `ເງິນຄ່າ ${booking.service_type} ໄດ້ເຂົ້າກະເປົາແລ້ວ`
+      text: `Payment for ${serviceType} has been released to your wallet`,
+      text_lao: `ເງິນຄ່າ ${serviceType} ໄດ້ເຂົ້າກະເປົາແລ້ວ`
     });
 
     await loadServiceBookings();
@@ -351,7 +365,11 @@ export default function Bookings() {
           currentUser={currentUser}
           lang={lang}
           onClose={() => setSelectedServiceBooking(null)}
-          onUpdated={loadServiceBookings}
+          onRequestCancel={requestCancel}
+          onRequestComplete={requestComplete}
+          onApproveCancel={approveCancel}
+          onDeclineCancel={declineCancel}
+          onMarkCompleted={markServiceCompleted}
         />
       ) : selectedServiceBooking && (
         <ServiceBookingDetailModal
