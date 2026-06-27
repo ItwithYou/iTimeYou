@@ -237,7 +237,7 @@ export default function Explore() {
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
         </div>
-        <div className="flex gap-2 overflow-x-auto hide-scrollbar mt-3 pb-1 -mx-3 px-3 sm:mx-0 sm:px-0">
+        <div className="flex flex-wrap gap-2 mt-3">
           {[{ v: '', label: lang === 'lo' ? '🕐 ຫຼ້າສຸດ' : '🕐 Recent' }, { v: 'price_low', label: lang === 'lo' ? '💲 ລາຄາຕໍ່າ' : '💲 Low Price' }, { v: 'price_high', label: lang === 'lo' ? '💲 ລາຄາສູງ' : '💲 High Price' }, { v: 'rating', label: lang === 'lo' ? '⭐ ຄະແນນສູງສຸດ' : '⭐ Top Rated' }].map(opt => (
             <button
               key={opt.v}
@@ -253,7 +253,7 @@ export default function Explore() {
       </div>
 
       {/* Category filters */}
-      <div className="flex gap-2 overflow-x-auto hide-scrollbar mb-4 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="flex flex-wrap gap-2 mb-4">
         {CAT_KEYS.map((cat, i) => (
           <button
             key={cat}
