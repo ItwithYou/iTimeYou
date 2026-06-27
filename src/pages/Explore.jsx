@@ -238,7 +238,7 @@ export default function Explore() {
           />
         </div>
         <div className="flex gap-2 overflow-x-auto hide-scrollbar mt-3 pb-1 -mx-3 px-3 sm:mx-0 sm:px-0">
-          {[{ v: '', label: '🕐 Recent' }, { v: 'price_low', label: '💲 Low Price' }, { v: 'price_high', label: '💲 High Price' }, { v: 'rating', label: '⭐ Top Rated' }].map(opt => (
+          {[{ v: '', label: lang === 'lo' ? '🕐 ຫຼ້າສຸດ' : '🕐 Recent' }, { v: 'price_low', label: lang === 'lo' ? '💲 ລາຄາຕໍ່າ' : '💲 Low Price' }, { v: 'price_high', label: lang === 'lo' ? '💲 ລາຄາສູງ' : '💲 High Price' }, { v: 'rating', label: lang === 'lo' ? '⭐ ຄະແນນສູງສຸດ' : '⭐ Top Rated' }].map(opt => (
             <button
               key={opt.v}
               onClick={() => { setSortBy(opt.v); filterData(listings, searchQuery, activeCat, opt.v); }}
