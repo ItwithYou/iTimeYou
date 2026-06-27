@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { GRADIENT_IMG } from '../utils/img';
 
 function Lightbox({ photos, startIndex, onClose }) {
   const [idx, setIdx] = useState(startIndex);
@@ -21,15 +22,13 @@ function Lightbox({ photos, startIndex, onClose }) {
         <>
           <button
             onClick={(e) => { e.stopPropagation(); setIdx((idx - 1 + total) % total); }}
-            className="absolute left-3 z-10 w-12 h-12 bg-white/15 rounded-full flex items-center justify-center text-white active:bg-white/30"
-            style={{ touchAction: 'manipulation' }}
+            className="absolute left-3 z-10 w-10 h-10 bg-white/15 rounded-full flex items-center justify-center text-white active:bg-white/25"
           >
             <ChevronLeft size={22} />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); setIdx((idx + 1) % total); }}
-            className="absolute right-3 z-10 w-12 h-12 bg-white/15 rounded-full flex items-center justify-center text-white active:bg-white/30"
-            style={{ touchAction: 'manipulation' }}
+            className="absolute right-3 z-10 w-10 h-10 bg-white/15 rounded-full flex items-center justify-center text-white active:bg-white/25"
           >
             <ChevronRight size={22} />
           </button>
@@ -62,20 +61,12 @@ function Lightbox({ photos, startIndex, onClose }) {
 
 function Tile({ src, onClick, className = '', overlay }) {
   return (
-    <div
-      className={`relative overflow-hidden ${className}`}
-      onClick={onClick}
-      onTouchEnd={(e) => { e.stopPropagation(); onClick?.(); }}
-      style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-      role="button"
-      tabIndex={0}
-    >
+    <div className={`relative overflow-hidden cursor-zoom-in ${className}`} onClick={onClick}>
       <img
         src={src}
         alt=""
-        loading="lazy"
-        className="w-full h-full object-cover active:scale-[0.98] transition-transform duration-200"
-        onError={(e) => { e.target.style.display = 'none'; }}
+        onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = GRADIENT_IMG; }}
+        className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-300"
       />
       {overlay && (
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">

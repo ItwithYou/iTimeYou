@@ -1,44 +1,38 @@
 import { useState, useEffect } from 'react';
 import { Sun, Moon, Sparkles } from 'lucide-react';
 
+const ORDER = ['light', 'dark', 'warm'];
+
+function applyTheme(theme) {
+  const root = document.documentElement;
+  root.classList.remove('dark', 'warm');
+  if (theme === 'dark') root.classList.add('dark');
+  if (theme === 'warm') root.classList.add('warm');
+  localStorage.setItem('theme', theme);
+}
+
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('theme');
-      if (saved) return saved;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
-    return 'light';
-  });
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
 
-  useEffect(() => {
-    document.documentElement.classList.remove('dark', 'gold');
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else if (theme === 'gold') {
-      document.documentElement.classList.add('gold');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+  useEffect(() => { applyTheme(theme); }, [theme]);
 
-  const cycleTheme = () => {
-    if (theme === 'light') setTheme('dark');
-    else if (theme === 'dark') setTheme('gold');
-    else setTheme('light');
-  };
+  const next = () => setTheme((cur) => ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length]);
+
+  const label = theme === 'dark' ? 'Dark' : theme === 'warm' ? 'Warm Gold' : 'Light';
 
   return (
     <button
-      onClick={cycleTheme}
-      aria-label="Toggle theme"
-      className="p-2 rounded-full hover:bg-muted transition-colors flex items-center justify-center"
+      onClick={next}
+      aria-label={`Theme: ${label}. Tap to change.`}
+      title={`Theme: ${label}`}
+      className="p-2 rounded-full hover:bg-muted transition-colors"
     >
       {theme === 'dark' ? (
-        <Moon size={18} className="text-indigo-300" />
-      ) : theme === 'gold' ? (
-        <Sparkles size={18} className="text-amber-600" />
+        <Moon size={18} className="text-sky-300" />
+      ) : theme === 'warm' ? (
+        <Sparkles size={18} className="text-amber-500" />
       ) : (
-        <Sun size={18} className="text-amber-500" />
+        <Sun size={18} className="text-amber-400" />
       )}
     </button>
   );

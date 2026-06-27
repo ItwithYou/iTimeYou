@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { CAT_ICONS } from '../hooks/useLang';
 import ImageLightbox from './ImageLightbox';
 import useProfile from '../hooks/useProfile';
-import { DEMO_TRANSLATIONS } from '../lib/demoTranslations';
+import { coverImage, onImgError } from '../utils/img';
 
 export default function ListingCard({ listing, t, lang }) {
   const { currentUser } = useProfile();
@@ -22,10 +22,8 @@ export default function ListingCard({ listing, t, lang }) {
   const catLabel = t.categories[catIndex] || listing.category;
   const icon = CAT_ICONS[listing.category] || '📌';
   const isAdmin = currentUser?.role === 'admin';
-  const images = listing.image_urls?.length ? listing.image_urls : (listing.image_url ? [listing.image_url] : []);
-  const displayImageUrl = editImageFile ? URL.createObjectURL(editImageFile) : (editImageUrl || images[0] || '');
-  const safeDisplayImageUrl = displayImageUrl?.trim();
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const displayImageUrl = editImageFile ? URL.createObjectURL(editImageFile) : (editImageUrl || listing.image_url || '');
+  const safeDisplayImageUrl = (displayImageUrl?.trim()) || coverImage(listing);
 
   const handleDelete = async () => {
     if (!window.confirm(lang === 'lo' ? 'ລຶບລາຍການນີ້?' : 'Delete this listing?')) return;
@@ -50,81 +48,49 @@ export default function ListingCard({ listing, t, lang }) {
     window.location.reload();
   };
 
-  const handleScroll = (e) => {
-    const scrollLeft = e.target.scrollLeft;
-    const width = e.target.offsetWidth;
-    const index = Math.round(scrollLeft / width);
-    setActiveImageIndex(index);
-  };
-
   return (
-    <div className="group relative bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-border flex flex-col h-full">
-      {/* Image Carousel */}
-      <div className="h-56 sm:h-64 relative group/carousel bg-muted">
-        <div 
-          className="w-full h-full flex overflow-x-auto snap-x snap-mandatory hide-scrollbar"
-          onScroll={handleScroll}
-        >
-          {images.map((img, idx) => (
-            <div key={idx} className="w-full h-full flex-shrink-0 snap-center relative cursor-pointer" onClick={() => setShowLightbox(img)}>
-              <img
-                src={img}
-                alt={listing.title}
-                className="w-full h-full object-cover"
-                loading={idx === 0 ? "eager" : "lazy"}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-          ))}
-          {images.length === 0 && (
-             <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-muted flex-shrink-0 snap-center">
-               <ImageIcon size={48} className="opacity-20" />
-             </div>
-          )}
-        </div>
-
-        {/* Dots */}
-        {images.length > 1 && (
-          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 z-10">
-            {images.map((_, idx) => (
-              <div key={idx} className={`h-1.5 rounded-full transition-all duration-300 ${activeImageIndex === idx ? 'w-4 bg-white' : 'w-1.5 bg-white/50'}`} />
-            ))}
-          </div>
-        )}
-
+    <div className="group relative bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-border">
+      {/* Image */}
+      <div className="h-52 overflow-hidden relative cursor-pointer" onClick={() => setShowLightbox(true)}>
+        <img
+          src={safeDisplayImageUrl}
+          alt={listing.title}
+          onError={(e) => onImgError(e, listing.category)}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+        />
         {/* Save button */}
         <button
           onClick={(e) => { e.stopPropagation(); setSaved(!saved); }}
-          className="absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform z-20"
+          className="absolute top-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform z-10"
         >
-          <Heart size={16} className={saved ? 'fill-red-500 text-red-500' : 'text-muted-foreground'} />
+          <Heart size={14} className={saved ? 'fill-red-500 text-red-500' : 'text-muted-foreground'} />
         </button>
         {/* Category badge */}
-        <span className="absolute bottom-4 left-3 bg-white/95 backdrop-blur-sm text-foreground px-2.5 py-1 rounded-lg text-xs font-bold shadow-md z-20">
+        <span className="absolute bottom-3 left-3 bg-gradient-to-r from-primary to-deep-green text-white px-2.5 py-1 rounded-lg text-xs font-semibold shadow-md">
           {icon} {catLabel}
         </span>
         {/* Top listing badge */}
         {listing.rating >= 4.8 && (
-          <span className="absolute top-3 left-3 bg-gradient-to-r from-amber-400 to-amber-500 text-white px-2.5 py-1 rounded-lg text-xs font-black shadow-md z-20">
-            ✦ Top Rated
+          <span className="absolute top-3 left-3 bg-amber-400 text-white px-2.5 py-0.5 rounded-lg text-xs font-bold shadow">
+            ✦ Top
           </span>
         )}
         {isAdmin && (
-          <div className="absolute top-3 right-14 z-20">
+          <div className="absolute top-3 right-14 z-10">
             <button
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowMenu(!showMenu); }}
-              className="w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform"
+              className="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md"
             >
-              <MoreHorizontal size={16} className="text-muted-foreground" />
+              <MoreHorizontal size={14} className="text-muted-foreground" />
             </button>
             {showMenu && (
-              <div className="absolute right-0 top-10 bg-card border border-border rounded-xl shadow-xl overflow-hidden min-w-[160px]">
-                <button onClick={() => { setEditing(true); setShowMenu(false); }} className="flex items-center gap-2 w-full px-4 py-3 text-sm hover:bg-muted transition-colors font-medium">
-                  <Pencil size={14} /> {lang === 'lo' ? 'ແກ້ໄຂ' : 'Edit'}
+              <div className="absolute right-0 top-10 bg-card border border-border rounded-xl shadow-lg overflow-hidden min-w-[160px]">
+                <button onClick={() => { setEditing(true); setShowMenu(false); }} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm hover:bg-muted transition-colors">
+                  <Pencil size={13} /> {lang === 'lo' ? 'ແກ້ໄຂ' : 'Edit'}
                 </button>
-                <div className="h-px bg-border w-full" />
-                <button onClick={handleDelete} className="flex items-center gap-2 w-full px-4 py-3 text-sm text-destructive hover:bg-destructive/5 transition-colors font-medium">
-                  <Trash2 size={14} /> {lang === 'lo' ? 'ລຶບ' : 'Delete'}
+                <button onClick={handleDelete} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-destructive hover:bg-destructive/5 transition-colors">
+                  <Trash2 size={13} /> {lang === 'lo' ? 'ລຶບ' : 'Delete'}
                 </button>
               </div>
             )}
@@ -175,7 +141,7 @@ export default function ListingCard({ listing, t, lang }) {
         <Link to={`/listing/${listing.id}`} className="block p-4">
           <div className="flex justify-between items-start mb-1.5">
             <h3 className="font-bold text-sm leading-tight flex-1 mr-2 text-foreground">
-              {(lang === 'lo' && DEMO_TRANSLATIONS[listing.title]) ? DEMO_TRANSLATIONS[listing.title] : (lang === 'lo' && listing.title_lao ? listing.title_lao : listing.title)}
+              {lang === 'lo' && listing.title_lao ? listing.title_lao : listing.title}
             </h3>
             <div className="flex items-center gap-1 text-amber-500 text-sm whitespace-nowrap flex-shrink-0">
               <Star size={13} className="fill-amber-400" />
