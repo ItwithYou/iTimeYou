@@ -248,29 +248,29 @@ export default function Profile() {
         </div>
 
         {/* Premium Glass Stats Box */}
-        <div className="mt-6 mx-auto max-w-2xl bg-gradient-to-br from-card/60 to-muted/30 backdrop-blur-md border border-border/60 rounded-3xl p-5 shadow-sm flex flex-wrap items-center justify-between sm:justify-around gap-4 text-center">
-            <div className="flex flex-col items-center gap-1 min-w-[65px]">
-              <p className="text-xl font-serif font-semibold text-foreground tracking-tight">{(viewProfile.friends || []).length}</p>
-              <p className="text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Followers'}</p>
+        <div className="mt-6 mx-auto max-w-2xl bg-gradient-to-br from-card/60 to-muted/30 backdrop-blur-md border border-border/60 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-sm flex flex-wrap items-center justify-between sm:justify-around gap-2 sm:gap-4 text-center">
+            <div className="flex flex-col items-center gap-0.5 sm:gap-1 min-w-[45px] sm:min-w-[65px]">
+              <p className="text-[13px] sm:text-xl font-serif font-semibold text-foreground tracking-tight">{(viewProfile.friends || []).length}</p>
+              <p className="text-[9px] sm:text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Followers'}</p>
             </div>
-            <div className="flex flex-col items-center gap-1 min-w-[65px]">
-              <p className="text-xl font-serif font-semibold text-foreground tracking-tight">{posts.filter((post) => post.author_email === viewProfile.user_email && post.service_price > 0).length}</p>
-              <p className="text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ບໍລິການ' : 'Services'}</p>
+            <div className="flex flex-col items-center gap-0.5 sm:gap-1 min-w-[45px] sm:min-w-[65px]">
+              <p className="text-[13px] sm:text-xl font-serif font-semibold text-foreground tracking-tight">{posts.filter((post) => post.author_email === viewProfile.user_email && post.service_price > 0).length}</p>
+              <p className="text-[9px] sm:text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ບໍລິການ' : 'Services'}</p>
             </div>
-            <div className="flex flex-col items-center gap-1 min-w-[65px]">
-              <p className="text-xl font-serif font-semibold text-foreground tracking-tight capitalize">{viewProfile.gender || '-'}</p>
-              <p className="text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ເພດ' : 'Gender'}</p>
+            <div className="flex flex-col items-center gap-0.5 sm:gap-1 min-w-[45px] sm:min-w-[65px]">
+              <p className="text-[13px] sm:text-xl font-serif font-semibold text-foreground tracking-tight capitalize">{viewProfile.gender || '-'}</p>
+              <p className="text-[9px] sm:text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ເພດ' : 'Gender'}</p>
             </div>
-            <div className="flex flex-col items-center gap-1 min-w-[65px]">
-              <p className="text-xl font-serif font-semibold text-foreground tracking-tight">{viewProfile.birthdate ? new Date(viewProfile.birthdate).toLocaleDateString(lang === 'lo' ? 'lo-LA' : 'en-US', { day: 'numeric', month: 'short' }) : '-'}</p>
-              <p className="text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ວັນເກີດ' : 'Birthday'}</p>
+            <div className="flex flex-col items-center gap-0.5 sm:gap-1 min-w-[45px] sm:min-w-[65px]">
+              <p className="text-[13px] sm:text-xl font-serif font-semibold text-foreground tracking-tight">{viewProfile.birthdate ? new Date(viewProfile.birthdate).toLocaleDateString(lang === 'lo' ? 'lo-LA' : 'en-US', { day: 'numeric', month: 'short' }) : '-'}</p>
+              <p className="text-[9px] sm:text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ວັນເກີດ' : 'Birthday'}</p>
             </div>
-            <div className={`relative flex flex-col items-center gap-1 min-w-[65px] ${isOwn ? 'cursor-pointer hover:opacity-70 transition-opacity' : ''}`}>
-              <div className="flex items-center gap-1">
-                <p className="text-xl font-serif font-semibold text-foreground tracking-tight">{viewProfile.wallet_currency || 'LAK'}</p>
-                {isOwn && <Settings2 size={12} className="text-muted-foreground" />}
+            <div className={`relative flex flex-col items-center gap-0.5 sm:gap-1 min-w-[45px] sm:min-w-[65px] ${isOwn ? 'cursor-pointer hover:opacity-70 transition-opacity' : ''}`}>
+              <div className="flex items-center gap-0.5 sm:gap-1">
+                <p className="text-[13px] sm:text-xl font-serif font-semibold text-foreground tracking-tight">{viewProfile.wallet_currency || 'LAK'}</p>
+                {isOwn && <Settings2 size={10} className="text-muted-foreground sm:w-3 sm:h-3" />}
               </div>
-              <p className="text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}</p>
+              <p className="text-[9px] sm:text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}</p>
               {isOwn && (
                 <select
                   value={viewProfile.wallet_currency || 'LAK'}

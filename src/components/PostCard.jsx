@@ -375,15 +375,15 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
           </div>
           <div className="flex items-center gap-2">
             {isOwn && (
-              <div className="bg-gradient-to-tr from-rose-50 to-white border border-rose-100/60 shadow-sm rounded-md px-2 py-0.5 flex items-center justify-center">
-                 <span className="font-serif text-[12px] sm:text-[14px] font-medium text-rose-500 tracking-wide">
+              <div className="bg-gradient-to-tr from-rose-50 to-white border border-rose-100/60 shadow-sm rounded-md px-2 py-0.5 flex items-center justify-center whitespace-nowrap">
+                 <span className="font-serif text-[11px] sm:text-[14px] font-medium text-rose-500 tracking-wide flex items-baseline">
                    {(() => {
                      const formatted = convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates);
                      const [pricePart, suffixPart] = formatted.split('/');
                      return (
                        <>
-                         {pricePart}
-                         {suffixPart && <span className="text-[9px] sm:text-[10px] opacity-70 ml-0.5 font-bold uppercase tracking-widest">/{translateSuffix(suffixPart, lang)}</span>}
+                         <span>{pricePart}</span>
+                         {suffixPart && <span className="text-[8px] sm:text-[10px] opacity-70 ml-0.5 font-bold uppercase tracking-widest leading-none">/{translateSuffix(suffixPart, lang)}</span>}
                        </>
                      );
                    })()}
@@ -417,15 +417,15 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
               <MessageCircle size={16} />
               {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມ / ຈອງ' : 'Message & Book'}
             </div>
-            <div className="bg-white/95 text-rose-500 px-2.5 py-1 rounded-lg shadow-sm border border-white/20 flex items-center">
-              <span className="font-serif font-medium text-[12px] sm:text-[14px] tracking-wide">
+            <div className="bg-white/95 text-rose-500 px-2.5 py-1 rounded-lg shadow-sm border border-white/20 flex items-center whitespace-nowrap">
+              <span className="font-serif font-medium text-[11px] sm:text-[14px] tracking-wide flex items-baseline">
                 {(() => {
                   const formatted = convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates);
                   const [pricePart, suffixPart] = formatted.split('/');
                   return (
                     <>
-                      {pricePart}
-                      {suffixPart && <span className="text-[9px] sm:text-[10px] opacity-70 ml-0.5 font-bold uppercase tracking-widest">/{translateSuffix(suffixPart, lang)}</span>}
+                      <span>{pricePart}</span>
+                      {suffixPart && <span className="text-[8px] sm:text-[10px] opacity-70 ml-0.5 font-bold uppercase tracking-widest leading-none">/{translateSuffix(suffixPart, lang)}</span>}
                     </>
                   );
                 })()}

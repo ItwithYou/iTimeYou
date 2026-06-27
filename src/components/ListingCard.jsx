@@ -201,16 +201,16 @@ export default function ListingCard({ listing, t, lang }) {
           </div>
           
           <div className="flex items-center gap-3">
-             <div className="flex flex-col items-end">
-               <div className="bg-gradient-to-tr from-rose-50 to-white border border-rose-100/60 shadow-sm rounded-lg px-2.5 py-1 flex items-center justify-center">
-                 <span className="font-serif text-[14px] sm:text-[1.1rem] font-medium text-rose-500 tracking-wide">
+             <div className="flex flex-col items-end whitespace-nowrap">
+               <div className="bg-gradient-to-tr from-rose-50 to-white border border-rose-100/60 shadow-sm rounded-lg px-2 py-1 sm:px-2.5 flex items-center justify-center">
+                 <span className="font-serif text-[11px] sm:text-[15px] font-medium text-rose-500 tracking-wide whitespace-nowrap flex items-baseline">
                    {(() => {
                      const formatted = convertAndFormatPrice(listing.price, listing.currency, preferredCurrency, exchangeRates);
                      const [pricePart, suffixPart] = formatted.split('/');
                      return (
                        <>
-                         {pricePart}
-                         {suffixPart && <span className="text-[10px] sm:text-[12px] opacity-70 ml-0.5 font-bold uppercase tracking-widest">/{translateSuffix(suffixPart, lang)}</span>}
+                         <span>{pricePart}</span>
+                         {suffixPart && <span className="text-[8px] sm:text-[10px] opacity-70 ml-0.5 font-bold uppercase tracking-widest leading-none">/{translateSuffix(suffixPart, lang)}</span>}
                        </>
                      );
                    })()}
