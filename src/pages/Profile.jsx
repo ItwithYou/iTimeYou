@@ -150,37 +150,49 @@ export default function Profile() {
       <div className="mx-4 sm:mx-8 -mt-16 bg-card rounded-[32px] px-6 sm:px-10 pb-8 pt-4 shadow-xl border border-border/50 relative z-10 backdrop-blur-sm">
         <div className="flex flex-col sm:flex-row items-center sm:items-end sm:justify-between gap-4 -mt-16 sm:-mt-20 mb-6">
           {/* Avatar Area */}
-          <div className="relative">
+          <div className="relative shrink-0 mx-auto sm:mx-0">
             <img
               src={viewProfile.photo_url || viewProfile.avatar_url || ''}
               alt=""
               onClick={() => setPhotoLightbox(viewProfile.photo_url || viewProfile.avatar_url || '')}
               className={`w-32 h-32 rounded-full border-[6px] border-card shadow-xl object-cover cursor-pointer hover:scale-105 transition-transform bg-muted ${isUploadingPhoto ? 'opacity-60' : ''}`} />
+            
+            {/* Update Photo Floating Button (Pro feeling) */}
+            {isOwn && (
+              <button
+                type="button"
+                disabled={isUploadingPhoto}
+                onClick={(e) => { e.stopPropagation(); photoUploadRef.current?.click(); }}
+                className="absolute bottom-1 right-1 bg-background text-foreground border border-border p-2.5 rounded-full shadow-lg hover:bg-muted transition-colors z-10 disabled:opacity-70"
+                title={lang === 'lo' ? 'ປ່ຽນຮູບ' : 'Update Photo'}
+              >
+                {isUploadingPhoto ? (
+                  <div className="w-4 h-4 rounded-full border-[3px] border-foreground border-t-transparent animate-spin" />
+                ) : (
+                  <Camera size={16} />
+                )}
+              </button>
+            )}
+
+            {/* Verification Badge */}
             {viewProfile.is_verified &&
-              <span className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 border-[3px] border-card text-white text-sm font-bold shadow-sm">✓</span>
+              <span className={`absolute ${isOwn ? 'bottom-1 left-1' : 'bottom-2 right-2'} flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 border-[3px] border-card text-white text-sm font-bold shadow-sm z-10`}>✓</span>
             }
           </div>
           
           {/* Action Buttons */}
           {isOwn && (
-            <div className="flex gap-3 flex-wrap justify-center sm:justify-end w-full sm:w-auto">
-              <button onClick={() => setEditing(!editing)} className="bg-primary/10 text-primary px-5 py-2.5 rounded-full text-sm font-bold hover:bg-primary/20 transition-colors shadow-sm">
+            <div className="flex justify-end w-full sm:w-auto mt-2 sm:mt-0">
+              <button onClick={() => setEditing(!editing)} className="bg-background text-foreground border border-border px-6 py-2 rounded-full text-sm font-bold hover:bg-muted transition-colors shadow-sm">
                 {t.editProfile || 'Edit Profile'}
-              </button>
-              <button type="button" disabled={isUploadingPhoto} onClick={() => photoUploadRef.current?.click()} className="bg-foreground text-background px-5 py-2.5 rounded-full text-sm font-bold shadow-lg hover:opacity-90 transition-opacity disabled:opacity-70">
-                {isUploadingPhoto ? (
-                  <><div className="w-4 h-4 rounded-full border-[3px] border-background border-t-transparent animate-spin inline-block mr-1.5 align-middle mb-[2px]" /> {lang === 'lo' ? 'ກຳລັງອັບໂຫຼດ...' : 'Uploading...'}</>
-                ) : (
-                  <><Camera size={16} className="inline mr-1.5 mb-[2px]" /> {lang === 'lo' ? 'ປ່ຽນຮູບ' : 'Update Photo'}</>
-                )}
               </button>
             </div>
           )}
         </div>
 
         {/* Profile Details */}
-        <div className="text-center sm:text-left">
-          <h1 className="text-3xl font-black tracking-tight text-foreground">{viewProfile.first_name} {viewProfile.last_name}</h1>
+        <div className="text-center sm:text-left mt-2 sm:mt-0">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">{viewProfile.first_name} {viewProfile.last_name}</h1>
           <div className="mt-2.5 flex flex-wrap items-center justify-center sm:justify-start gap-3">
              <div className="flex items-center gap-1.5 bg-amber-100/60 text-amber-700 px-3 py-1 rounded-full text-sm font-bold shadow-sm">
                <StarRating rating={viewProfile.trust_stars || 0} size={14} />
@@ -212,17 +224,17 @@ export default function Profile() {
         {/* Premium Stats Grid */}
         <div className="mt-8 border-t border-border/50 pt-8">
           <div className="grid grid-cols-3 gap-4 sm:gap-6 max-w-2xl mx-auto sm:mx-0">
-            <div className="text-center p-4 rounded-2xl bg-muted/40 hover:bg-muted/60 transition-colors">
-              <p className="text-3xl font-black text-primary">{(viewProfile.friends || []).length}</p>
-              <p className="mt-1 text-xs font-bold text-muted-foreground uppercase tracking-wider">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Followers'}</p>
+            <div className="text-center p-4 rounded-2xl bg-muted/30 hover:bg-muted/50 transition-colors">
+              <p className="text-2xl font-bold text-primary">{(viewProfile.friends || []).length}</p>
+              <p className="mt-1 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Followers'}</p>
             </div>
-            <div className="text-center p-4 rounded-2xl bg-muted/40 hover:bg-muted/60 transition-colors">
-              <p className="text-3xl font-black text-primary">{posts.filter((post) => post.author_email === viewProfile.user_email && post.service_price > 0).length}</p>
-              <p className="mt-1 text-xs font-bold text-muted-foreground uppercase tracking-wider">{lang === 'lo' ? 'ບໍລິການ' : 'Services'}</p>
+            <div className="text-center p-4 rounded-2xl bg-muted/30 hover:bg-muted/50 transition-colors">
+              <p className="text-2xl font-bold text-primary">{posts.filter((post) => post.author_email === viewProfile.user_email && post.service_price > 0).length}</p>
+              <p className="mt-1 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{lang === 'lo' ? 'ບໍລິການ' : 'Services'}</p>
             </div>
-            <div className="text-center p-4 rounded-2xl bg-muted/40 hover:bg-muted/60 transition-colors">
-              <p className="text-3xl font-black text-primary capitalize">{viewProfile.gender || '-'}</p>
-              <p className="mt-1 text-xs font-bold text-muted-foreground uppercase tracking-wider">{lang === 'lo' ? 'ເພດ' : 'Gender'}</p>
+            <div className="text-center p-4 rounded-2xl bg-muted/30 hover:bg-muted/50 transition-colors">
+              <p className="text-2xl font-bold text-primary capitalize">{viewProfile.gender || '-'}</p>
+              <p className="mt-1 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{lang === 'lo' ? 'ເພດ' : 'Gender'}</p>
             </div>
           </div>
         </div>
