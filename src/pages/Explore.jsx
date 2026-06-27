@@ -26,8 +26,8 @@ export default function Explore() {
   // Automated one-time seeder for premium listings
   useEffect(() => {
     const seedData = async () => {
-      if (localStorage.getItem('seeded_explore_data_v4') || !currentUser) return;
-      localStorage.setItem('seeded_explore_data_v4', 'true');
+      if (localStorage.getItem('seeded_explore_data_v5') || !currentUser) return;
+      localStorage.setItem('seeded_explore_data_v5', 'true');
       
       try {
         const existing = await base44.entities.Listing.list();
@@ -80,8 +80,9 @@ export default function Explore() {
       };
 
       const getImages = (cat, idx) => {
-        const arr = CAT_IMAGES[cat];
-        return [arr[idx % arr.length]];
+        return Array.from({ length: 5 }).map((_, i) => 
+          `https://picsum.photos/seed/${cat}-${idx}-${i}/800/800`
+        );
       };
 
       const LISTINGS = [
@@ -203,7 +204,7 @@ export default function Explore() {
           }
         </div>
       )}
-      <div className="mb-5">
+      <div className="mb-4">
         {profile?.is_pro ? (
           <CreateListing
             profile={{ ...profile, first_name: profile.business_name || profile.first_name, last_name: '' }}
@@ -213,50 +214,35 @@ export default function Explore() {
             onPosted={loadData}
           />
         ) : (
-          <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
-            <div className="flex gap-3 items-center">
-              <img
-                src={profile?.photo_url || profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser?.email}`}
-                alt=""
-                className="w-9 h-9 rounded-full object-cover flex-shrink-0"
-              />
-              <div className="flex-1 bg-muted/50 border border-border rounded-2xl px-4 py-2.5 text-sm text-muted-foreground">
-                {lang === 'lo' ? 'ຕ້ອງຜ່ານ Pro ກ່ອນຈຶ່ງຈະລົງໂພສໃນ Business ໄດ້' : 'You need Pro approval before posting on Business'}
-              </div>
-              <Link to={`/profile/${profile?.id || ''}`} className="flex-shrink-0 bg-gradient-to-r from-tiffany to-deep-green text-white px-4 py-2 rounded-xl text-xs font-bold hover:opacity-90 transition-opacity">
-                {profile?.is_verified ? (lang === 'lo' ? 'ສະໝັກ Pro' : 'Apply Pro') : (lang === 'lo' ? 'ຢືນຢັນ' : 'Verify')}
-              </Link>
-            </div>
+          <div className="bg-gradient-to-r from-muted to-muted/30 rounded-xl p-2.5 px-4 flex items-center justify-between border border-border/50">
+            <span className="text-xs text-muted-foreground font-medium">
+              {lang === 'lo' ? 'ຕ້ອງເປັນ Pro ເພື່ອລົງໂພສທຸລະກິດ' : 'Business posting requires Pro'}
+            </span>
+            <Link to={`/profile/${profile?.id || ''}`} className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:opacity-90">
+              {profile?.is_verified ? (lang === 'lo' ? 'ສະໝັກ Pro' : 'Apply Pro') : (lang === 'lo' ? 'ຢືນຢັນ' : 'Verify')}
+            </Link>
           </div>
         )}
       </div>
 
-      {/* Search bar */}
-      <div className="bg-card rounded-2xl p-4 shadow-sm border border-border mb-5">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 flex items-center gap-2 bg-muted rounded-xl px-4 py-2.5 border border-border focus-within:border-primary transition-colors">
-            <Search size={16} className="text-muted-foreground flex-shrink-0" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={e => { setSearchQuery(e.target.value); filterData(listings, e.target.value, activeCat, sortBy); }}
-              placeholder={t.searchPlaceholder}
-              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            />
-          </div>
-          <button
-            onClick={handleFilter}
-            className="bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
-          >
-            {t.search}
-          </button>
+      {/* Search & Filters */}
+      <div className="bg-card rounded-xl p-3 shadow-sm border border-border mb-4">
+        <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2 border border-border focus-within:border-primary transition-colors">
+          <Search size={16} className="text-muted-foreground flex-shrink-0" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => { setSearchQuery(e.target.value); filterData(listings, e.target.value, activeCat, sortBy); }}
+            placeholder={t.searchPlaceholder}
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          />
         </div>
-        <div className="flex gap-2 flex-wrap mt-3">
+        <div className="flex gap-2 overflow-x-auto hide-scrollbar mt-3 pb-1 -mx-3 px-3 sm:mx-0 sm:px-0">
           {[{ v: '', label: '🕐 Recent' }, { v: 'price_low', label: '💲 Low Price' }, { v: 'price_high', label: '💲 High Price' }, { v: 'rating', label: '⭐ Top Rated' }].map(opt => (
             <button
               key={opt.v}
               onClick={() => { setSortBy(opt.v); filterData(listings, searchQuery, activeCat, opt.v); }}
-              className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-all select-none ${
+              className={`flex-shrink-0 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all select-none ${
                 sortBy === opt.v ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:border-primary/60'
               }`}
             >
@@ -267,15 +253,15 @@ export default function Explore() {
       </div>
 
       {/* Category filters */}
-      <div className="flex gap-2 flex-wrap mb-4">
+      <div className="flex gap-2 overflow-x-auto hide-scrollbar mb-4 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
         {CAT_KEYS.map((cat, i) => (
           <button
             key={cat}
             onClick={() => handleCatFilter(cat)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
               activeCat === cat
                 ? 'bg-primary text-primary-foreground border-primary'
-                : 'border-border text-muted-foreground hover:border-primary'
+                : 'border-border text-muted-foreground bg-card hover:border-primary'
             }`}
           >
             {CAT_ICONS[cat]} {t.categories[i]}
