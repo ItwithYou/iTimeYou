@@ -130,7 +130,7 @@ export { CAT_KEYS, CAT_ICONS };
 
 export default function useLang() {
   const [lang, setLangState] = useState(() => {
-    try { return localStorage.getItem('itimeyou_lang') || 'en'; } catch { return 'en'; }
+    try { return localStorage.getItem('itimeyou_lang') || 'lo'; } catch { return 'lo'; }
   });
 
   const setLang = useCallback((l) => {
