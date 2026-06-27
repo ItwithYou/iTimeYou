@@ -133,91 +133,97 @@ export default function Profile() {
 
 
   return (
-    <div className="max-w-3xl mx-auto pb-8">
-      {/* Cover */}
-      <div className="h-16" />
+    <div className="max-w-4xl mx-auto pb-8 pt-4 px-4 sm:px-6">
+      {/* Premium Cover & Info Card */}
+      <div className="mx-auto max-w-2xl rounded-[32px] border border-border bg-card shadow-lg overflow-hidden">
+        {/* Gradient Banner */}
+        <div className="h-32 sm:h-40 bg-gradient-to-br from-primary/80 via-primary to-primary/50 relative overflow-hidden">
+          <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px]"></div>
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 mix-blend-overlay"></div>
+        </div>
 
-      {/* Info */}
-      <div className="mx-auto max-w-sm rounded-[28px] border border-border bg-card px-6 pt-10 pb-6 text-center shadow-sm">
-        <div className="-mt-20 mb-3 flex justify-center">
-          <div className="relative">
+        {/* Content Section */}
+        <div className="px-6 sm:px-10 pb-10 text-center relative -mt-16 sm:-mt-20">
+          <div className="relative inline-block">
             <img
               src={viewProfile.photo_url || viewProfile.avatar_url || ''}
               alt=""
               onClick={() => setPhotoLightbox(viewProfile.photo_url || viewProfile.avatar_url || '')}
-              className="w-24 h-24 rounded-full border-4 border-card shadow-lg object-cover cursor-pointer hover:opacity-90 transition-opacity" />
+              className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-[6px] border-card shadow-xl object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-300 relative z-10 bg-muted" />
             {viewProfile.is_verified &&
-            <span className="absolute bottom-1 right-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 border-4 border-card text-white text-sm font-bold">✓</span>
+              <span className="absolute bottom-3 right-3 flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-emerald-500 border-4 border-card text-white text-sm sm:text-base font-bold z-20 shadow-md">✓</span>
             }
           </div>
-        </div>
-        <h1 className="text-2xl font-bold tracking-tight">{viewProfile.display_name_style === 'mr' ? 'Mr. ' : viewProfile.display_name_style === 'ms' ? 'Ms. ' : viewProfile.display_name_style === 'mx' ? 'Mx. ' : ''}{viewProfile.first_name} {viewProfile.last_name}</h1>
-        <div className="flex items-center justify-center gap-2 mt-2">
-          <StarRating rating={viewProfile.trust_stars || 0} size={18} />
-        </div>
-        <div className="mt-1">
-          <TrustBadge stars={viewProfile.trust_stars || 0} lang={lang} />
-        </div>
-        <div className="mt-3 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
-          {viewProfile.location &&
-          <span className="flex items-center gap-1"><MapPin size={14} /> {viewProfile.location}</span>
+
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-4 text-foreground">{viewProfile.first_name} {viewProfile.last_name}</h1>
+          
+          <div className="flex items-center justify-center gap-2 mt-3">
+            <StarRating rating={viewProfile.trust_stars || 0} size={20} />
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground font-medium">
+            {viewProfile.location &&
+            <span className="flex items-center gap-1.5 bg-muted/50 px-4 py-1.5 rounded-full border border-border/50"><MapPin size={15} className="text-primary" /> {viewProfile.location}</span>
+            }
+            <span className="flex items-center gap-1.5 bg-muted/50 px-4 py-1.5 rounded-full border border-border/50"><Calendar size={15} className="text-primary" /> {t.joined} {new Date(viewProfile.created_date).getFullYear()}</span>
+          </div>
+
+          <div className="mt-5 flex justify-center gap-3 flex-wrap">
+            {viewProfile.is_pro ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 px-4 py-1.5 text-sm font-bold border border-blue-500/20 shadow-sm">
+                <BadgeCheck size={16} /> Pro
+              </span>
+            ) : viewProfile.is_verified ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-4 py-1.5 text-sm font-bold border border-emerald-500/20 shadow-sm">
+                <Shield size={16} /> Verified
+              </span>
+            ) : null}
+            <TrustBadge stars={viewProfile.trust_stars || 0} lang={lang} />
+          </div>
+
+          <p className="text-base text-foreground/80 mt-6 font-medium tracking-wide max-w-lg mx-auto leading-relaxed">
+            {lang === 'lo' ? viewProfile.bio_lao || viewProfile.bio : viewProfile.bio}
+          </p>
+
+          <div className="mt-8 border-t border-border/50 pt-8">
+            <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto">
+              <div className="text-center group cursor-default">
+                <p className="text-4xl sm:text-5xl font-black tracking-tighter text-foreground group-hover:text-primary transition-colors">{(viewProfile.friends || []).length}</p>
+                <p className="mt-2 text-xs font-semibold tracking-widest uppercase text-muted-foreground">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Follower'}</p>
+              </div>
+              <div className="text-center group cursor-default">
+                <p className="text-4xl sm:text-5xl font-black tracking-tighter text-foreground group-hover:text-primary transition-colors">{posts.filter((post) => post.author_email === viewProfile.user_email && post.service_price > 0).length}</p>
+                <p className="mt-2 text-xs font-semibold tracking-widest uppercase text-muted-foreground">{lang === 'lo' ? 'ໃຫ້ບໍລິການ' : 'Service'}</p>
+              </div>
+              <div className="text-center group cursor-default flex flex-col justify-center">
+                <p className="text-xl sm:text-2xl font-black tracking-tight text-foreground capitalize mt-2 group-hover:text-primary transition-colors">{viewProfile.gender || '-'}</p>
+                <p className="mt-3 text-xs font-semibold tracking-widest uppercase text-muted-foreground">{lang === 'lo' ? 'ເພດ' : 'Gender'}</p>
+              </div>
+            </div>
+          </div>
+
+          {isOwn &&
+          <div className="flex gap-3 justify-center mt-10 flex-wrap">
+              <button onClick={() => setEditing(!editing)} className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:scale-[1.02] transition-all select-none shadow-primary/20">
+                <BadgeCheck size={16} /> {t.editProfile}
+              </button>
+              <button type="button" onClick={() => photoUploadRef.current?.click()} className="flex items-center gap-2 bg-primary/10 text-primary px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-primary hover:text-primary-foreground transition-all select-none border border-primary/20">
+                <Camera size={16} /> {lang === 'lo' ? 'ຮູບ' : 'Photo'}
+              </button>
+              <input ref={photoUploadRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+              <button onClick={() => navigate(`/profile/${viewProfile.id}/password`)} className="flex items-center gap-2 border border-border bg-card px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-muted transition-all select-none shadow-sm">
+                <KeyRound size={16} className="text-muted-foreground" /> {lang === 'lo' ? 'ລະຫັດຜ່ານ' : 'Password'}
+              </button>
+              <button onClick={() => base44.auth.logout()} className="flex items-center gap-2 border border-border bg-card px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-muted transition-all select-none shadow-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                {lang === 'lo' ? 'ອອກລະບົບ' : 'Logout'}
+              </button>
+              <button onClick={() => setShowDeleteConfirm(true)} className="flex items-center gap-2 border border-destructive/20 text-destructive bg-destructive/5 px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-destructive hover:text-destructive-foreground transition-all select-none mt-2 sm:mt-0 w-full sm:w-auto justify-center">
+                <Trash2 size={16} /> {lang === 'lo' ? 'ລຶບບັນຊີ' : 'Delete Account'}
+              </button>
+            </div>
           }
-          <span className="flex items-center gap-1"><Calendar size={14} /> {t.joined} {new Date(viewProfile.created_date).getFullYear()}</span>
         </div>
-
-        <div className="mt-3 flex justify-center gap-2 flex-wrap">
-          {viewProfile.is_pro ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 text-blue-700 px-3 py-1 text-xs font-bold border border-blue-200">
-              <BadgeCheck size={13} /> Pro
-            </span>
-          ) : viewProfile.is_verified ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-700 px-3 py-1 text-xs font-bold border border-emerald-200">
-              <Shield size={13} /> Verified
-            </span>
-          ) : null}
-          <TrustBadge stars={viewProfile.trust_stars || 0} lang={lang} />
-        </div>
-
-        <div className="mt-5 border-t border-border pt-5">
-          <div className="grid grid-cols-3 gap-3 max-w-md mx-auto">
-            <div className="text-center">
-              <p className="text-3xl font-black tracking-tight text-foreground">{(viewProfile.friends || []).length}</p>
-              <p className="mt-1 text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Follower'}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-black tracking-tight text-foreground">{posts.filter((post) => post.author_email === viewProfile.user_email && post.service_price > 0).length}</p>
-              <p className="mt-1 text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ໃຫ້ບໍລິການ' : 'Provide Service'}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-lg font-black tracking-tight text-foreground capitalize">{viewProfile.gender || '-'}</p>
-              <p className="mt-1 text-xs font-medium text-muted-foreground">{lang === 'lo' ? 'ເພດ' : 'Gender'}</p>
-            </div>
-          </div>
-        </div>
-        <p className="text-sm text-muted-foreground mt-3 font-medium tracking-wide">
-          {lang === 'lo' ? viewProfile.bio_lao || viewProfile.bio : viewProfile.bio}
-        </p>
-
-        {isOwn &&
-        <div className="flex gap-2 justify-center mt-4 flex-wrap">
-            <button onClick={() => setEditing(!editing)} className="border border-border px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-muted transition-colors select-none">
-              ✏️ {t.editProfile}
-            </button>
-            <button type="button" onClick={() => photoUploadRef.current?.click()} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold active:opacity-90 select-none min-h-[44px]">
-              <Camera size={14} className="inline mr-1" /> {lang === 'lo' ? 'ຮູບ' : 'Photo'}
-            </button>
-            <input ref={photoUploadRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
-            <button onClick={() => navigate(`/profile/${viewProfile.id}/password`)} className="flex items-center gap-1.5 border border-border px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-muted transition-colors select-none">
-              <KeyRound size={14} /> {lang === 'lo' ? 'ລະຫັດຜ່ານ' : 'Password'}
-            </button>
-            <button onClick={() => base44.auth.logout()} className="px-4 py-1.5 text-sm font-semibold rounded-2xl flex items-center gap-1.5 border border-border hover:bg-muted transition-colors select-none">
-              🚪 {lang === 'lo' ? 'ອອກຈາກລະບົບ' : 'Logout'}
-            </button>
-            <button onClick={() => setShowDeleteConfirm(true)} className="flex items-center gap-1.5 border border-destructive/50 text-destructive px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-destructive/5 transition-colors select-none">
-              <Trash2 size={13} /> {lang === 'lo' ? 'ລຶບບັນຊີ' : 'Delete Account'}
-            </button>
-          </div>
-        }
       </div>
 
       {/* Edit panel */}
