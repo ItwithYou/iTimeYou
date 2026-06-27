@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { firebaseClient, auth } from '@/api/firebaseClient';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Phone, User, MessageSquare, X } from 'lucide-react';
-import { toast } from 'sonner';
+import { ArrowLeft, Phone, User, X } from 'lucide-react';
 
 function friendlyError(err) {
   console.error('Auth error:', err?.code, err?.message, err);

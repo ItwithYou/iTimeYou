@@ -4,7 +4,7 @@ import { X, Image, Clock, Calendar, DollarSign, Loader2, MapPin, LocateFixed } f
 import MobileSelect from './MobileSelect';
 import PhotoGrid from './PhotoGrid';
 import { toast } from 'sonner';
-import { getTodayISO, getNowDatetimeLocal, isDateInPast, isDateTimeInPast, formatDateDMY, formatDateTimeDMY } from '../utils/dateUtils';
+import { getTodayISO, getNowDatetimeLocal, isDateTimeInPast, formatDateDMY, formatDateTimeDMY } from '../utils/dateUtils';
 import { PERSONAL_CATS } from '../hooks/useLang';
 
 const CURRENCIES = ['LAK', 'USD', 'USDT'];

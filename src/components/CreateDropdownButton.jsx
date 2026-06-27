@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { ImagePlus, User, Building2, Camera } from 'lucide-react';
+import { ImagePlus, User, Building2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function CreateDropdownButton({ lang }) {

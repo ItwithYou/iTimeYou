@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
-import MobileSelect from '../components/MobileSelect';
 import usePullToRefresh from '../hooks/usePullToRefresh';
 import { RefreshCw } from 'lucide-react';
 import { firebaseClient } from '@/api/firebaseClient';
 import PostCard from '../components/PostCard';
 import StarRating from '../components/StarRating';
 import TrustBadge from '../components/TrustBadge';
-import { PERSONAL_CATS } from '../hooks/useLang';
-import CreateServicePost from '../components/CreateServicePost';
 import CategoryTabs from '../components/CategoryTabs';
 import LocationPickerModal from '../components/LocationPickerModal';
 import { MapPin } from 'lucide-react';

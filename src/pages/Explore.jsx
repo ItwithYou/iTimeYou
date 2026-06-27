@@ -1,12 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import usePullToRefresh from '../hooks/usePullToRefresh';
 import { RefreshCw } from 'lucide-react';
 import { firebaseClient } from '@/api/firebaseClient';
 import ListingCard from '../components/ListingCard';
-import CreateListing from '../components/CreateListing';
-import { BUSINESS_CATS } from '../hooks/useLang';
 import { Search, MapPin } from 'lucide-react';
 import CategoryTabs from '../components/CategoryTabs';
 import LocationPickerModal from '../components/LocationPickerModal';

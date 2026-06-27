@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useOutletContext, useParams, Link, useNavigate } from 'react-router-dom';
-import { coverImage, onImgError } from '../utils/img';
+import { coverImage } from '../utils/img';
 import MobileDatePicker from '../components/MobileDatePicker';
 import { firebaseClient } from '@/api/firebaseClient';
 import { Star, MapPin, Users, Bed, Bath, Check, MessageCircle, User } from 'lucide-react';

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Star, MapPin, Heart, MoreHorizontal, Pencil, Trash2, Check, X, Image as ImageIcon, Clock } from 'lucide-react';
+import { Star, MapPin, Heart, MoreHorizontal, Pencil, Trash2, Check, X, Image as ImageIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { firebaseClient } from '@/api/firebaseClient';
 import moment from 'moment';
