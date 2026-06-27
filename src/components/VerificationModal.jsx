@@ -53,11 +53,11 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onTouchEnd={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="bg-card rounded-2xl p-6 max-w-lg w-full max-h-[75vh] md:max-h-[85vh] overflow-y-auto shadow-xl overscroll-contain" onMouseDown={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[100] flex items-center justify-center p-4" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onTouchEnd={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="bg-card rounded-[24px] p-5 sm:p-7 max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl border border-border overscroll-contain" onMouseDown={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-5 sticky top-0 bg-card z-10 pb-2 border-b border-border">
           <h2 className="text-lg font-bold">{t.verifyTitle}</h2>
-          <button onClick={onClose} className="p-1 hover:bg-muted rounded-full"><X size={20} /></button>
+          <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-full transition-colors"><X size={20} /></button>
         </div>
 
         <div className="bg-emerald-50 rounded-lg p-3 text-sm text-emerald-700 mb-5 leading-relaxed">

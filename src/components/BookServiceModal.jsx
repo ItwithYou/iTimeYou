@@ -167,15 +167,15 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onTouchEnd={e => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-md p-4" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div
-        className="bg-card rounded-t-3xl sm:rounded-2xl w-full sm:max-w-sm p-6 shadow-xl border border-border overscroll-contain"
+        className="bg-card rounded-[24px] w-full sm:max-w-sm p-5 sm:p-7 shadow-2xl border border-border max-h-[85vh] overflow-y-auto overscroll-contain"
         onMouseDown={e => e.stopPropagation()}
         onTouchEnd={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between mb-5 sticky top-0 bg-card z-10 pb-2 border-b border-border">
           <h2 className="font-bold text-base">{lang === 'lo' ? 'ຈອງບໍລິການ' : 'Book Service'}</h2>
-          <button onClick={onClose} className="p-1 hover:bg-muted rounded-full"><X size={18} /></button>
+          <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-full transition-colors"><X size={18} /></button>
         </div>
 
         {/* Service summary */}

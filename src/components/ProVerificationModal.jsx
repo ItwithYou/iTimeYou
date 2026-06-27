@@ -42,11 +42,11 @@ export default function ProVerificationModal({ profile, lang, onClose, onSubmitt
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="bg-card rounded-t-3xl sm:rounded-2xl w-full sm:max-w-lg p-6 shadow-xl border border-border max-h-[75vh] md:max-h-[85vh] overflow-y-auto" onMouseDown={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-md p-4" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="bg-card rounded-[24px] w-full sm:max-w-lg p-5 sm:p-7 shadow-2xl border border-border max-h-[85vh] overflow-y-auto overscroll-contain" onMouseDown={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-5 sticky top-0 bg-card z-10 pb-2 border-b border-border">
           <h2 className="text-lg font-bold">{lang === 'lo' ? 'ສະໝັກ Pro' : 'Apply for Pro'}</h2>
-          <button onClick={onClose} className="p-1 hover:bg-muted rounded-full"><X size={20} /></button>
+          <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-full transition-colors"><X size={20} /></button>
         </div>
 
         <div className="space-y-3">
