@@ -1,0 +1,10 @@
+{
+  "name": "iTimeYou",
+  "short_name": "iTimeYou",
+  "description": "Social marketplace for Lao culture, stays, food and experiences",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#004D4A",
+  "theme_color": "#0ADBB9",
+  "icons": []
+}

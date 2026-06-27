@@ -1,6 +1,33 @@
-import { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { useState, useEffect } from 'react';
+import { base44, auth } from '@/api/base44Client';
+import { onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+
+function friendlyError(err) {
+  const code = err?.code || '';
+  const msg = err?.message || '';
+  if (code.includes('unauthorized-domain'))
+    return 'This website domain is not authorized in Firebase. Add it under Authentication → Settings → Authorized domains.';
+  if (code.includes('operation-not-allowed'))
+    return 'This sign-in method is disabled. Enable it in Firebase → Authentication → Sign-in method.';
+  if (code.includes('popup-blocked'))
+    return 'Popup was blocked by the browser. Please allow popups and try again.';
+  if (code.includes('popup-closed-by-user') || code.includes('cancelled-popup-request'))
+    return 'Google sign-in was cancelled.';
+  if (code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found'))
+    return 'Invalid email or password.';
+  if (code.includes('email-already-in-use'))
+    return 'This email is already registered — try logging in instead.';
+  if (code.includes('weak-password'))
+    return 'Password must be at least 6 characters.';
+  if (code.includes('invalid-email'))
+    return 'Please enter a valid email address.';
+  if (code.includes('too-many-requests'))
+    return 'Too many attempts. Please wait a moment and try again.';
+  if (code.includes('network-request-failed'))
+    return 'Network error. Check your internet connection.';
+  return msg.replace('Firebase:', '').replace(/\(auth.*\)\.?/, '').trim() || 'Something went wrong. Please try again.';
+}
 
 export default function Login() {
   const [mode, setMode] = useState('login');
@@ -8,55 +35,62 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // If already signed in, skip the login screen.
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => { if (u) navigate('/feed'); });
+    return unsub;
+  }, [navigate]);
 
   const go = () => navigate('/feed');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(''); setLoading(true);
+    setError(''); setInfo(''); setLoading(true);
     try {
       if (mode === 'login') {
-        await base44.auth.login({ email, password });
+        await base44.auth.login({ email: email.trim(), password });
       } else {
-        await base44.auth.register({ email, password, full_name: name });
+        await base44.auth.register({ email: email.trim(), password, full_name: name.trim() });
       }
       go();
     } catch (err) {
-      const msg = err?.message || '';
-      if (msg.includes('user-not-found') || msg.includes('wrong-password') || msg.includes('invalid-credential')) {
-        setError('Invalid email or password');
-      } else if (msg.includes('email-already-in-use')) {
-        setError('Email already registered — try logging in');
-      } else if (msg.includes('weak-password')) {
-        setError('Password must be at least 6 characters');
-      } else {
-        setError(msg || 'Something went wrong');
-      }
+      setError(friendlyError(err));
     } finally { setLoading(false); }
   };
 
   const handleGoogle = async () => {
-    setError(''); setLoading(true);
+    setError(''); setInfo(''); setLoading(true);
     try { await base44.auth.loginWithGoogle(); go(); }
-    catch (err) { setError(err?.message || 'Google login failed'); }
+    catch (err) { setError(friendlyError(err)); }
     finally { setLoading(false); }
   };
 
+  const handleForgot = async () => {
+    setError(''); setInfo('');
+    if (!email.trim()) { setError('Enter your email above first, then tap “Forgot password”.'); return; }
+    try {
+      await base44.auth.resetPassword(email.trim());
+      setInfo('Password reset email sent. Check your inbox.');
+    } catch (err) { setError(friendlyError(err)); }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-background to-primary/5 px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-background to-primary/5 px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="text-5xl font-black text-primary tracking-tight mb-1">iTimeYou</div>
           <div className="text-sm text-muted-foreground">ເຊື່ອມຕໍ່ · ແບ່ງປັນ · ສຳຜັດ</div>
-          <div className="text-xs text-muted-foreground">Connect · Share · Experience</div>
+          <div className="text-xs text-muted-foreground">Connect · Share · Experience Laos</div>
         </div>
 
         <div className="bg-card rounded-2xl shadow-sm border border-border p-6">
           <div className="flex mb-6 bg-muted rounded-xl p-1">
-            {['login','register'].map(m => (
-              <button key={m} onClick={() => { setMode(m); setError(''); }}
+            {['login', 'register'].map(m => (
+              <button key={m} onClick={() => { setMode(m); setError(''); setInfo(''); }}
                 className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${mode === m ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'}`}>
                 {m === 'login' ? 'Login' : 'Register'}
               </button>
@@ -75,20 +109,31 @@ export default function Login() {
             <div>
               <label className="block text-xs font-semibold text-muted-foreground mb-1">Email</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-                placeholder="your@email.com" required
+                placeholder="your@email.com" required autoComplete="email"
                 className="w-full px-4 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-muted-foreground mb-1">Password</label>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••" required minLength={6}
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 className="w-full px-4 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
             </div>
-            {error && <div className="text-red-500 text-xs text-center bg-red-50 dark:bg-red-950/20 rounded-lg py-2 px-3">{error}</div>}
+
+            {error && <div className="text-red-600 dark:text-red-400 text-xs leading-relaxed bg-red-50 dark:bg-red-950/20 rounded-lg py-2.5 px-3">{error}</div>}
+            {info && <div className="text-emerald-600 dark:text-emerald-400 text-xs leading-relaxed bg-emerald-50 dark:bg-emerald-950/20 rounded-lg py-2.5 px-3">{info}</div>}
+
             <button type="submit" disabled={loading}
               className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm disabled:opacity-60 hover:opacity-90 transition-opacity mt-1">
-              {loading ? '...' : mode === 'login' ? 'Login' : 'Create Account'}
+              {loading ? 'Please wait…' : mode === 'login' ? 'Login' : 'Create Account'}
             </button>
+
+            {mode === 'login' && (
+              <button type="button" onClick={handleForgot}
+                className="w-full text-xs text-muted-foreground hover:text-primary transition-colors text-center">
+                Forgot password?
+              </button>
+            )}
           </form>
 
           <div className="relative my-4">
@@ -102,14 +147,9 @@ export default function Login() {
             Continue with Google
           </button>
 
-          {mode === 'login' && (
-            <div className="text-center mt-3">
-              <button onClick={() => { setMode('register'); setError(''); }}
-                className="text-xs text-muted-foreground hover:text-primary transition-colors">
-                No account? Register free
-              </button>
-            </div>
-          )}
+          <p className="text-center text-[11px] text-muted-foreground mt-4 leading-relaxed">
+            By continuing you agree to iTimeYou's Terms &amp; Privacy Policy.
+          </p>
         </div>
       </div>
     </div>
