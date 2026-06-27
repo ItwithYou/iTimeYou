@@ -227,14 +227,14 @@ export default function Explore() {
 
       {/* Search & Filters */}
       <div className="bg-card rounded-xl p-3 shadow-sm border border-border mb-4">
-        {/* Sort Options - Thin, small, center, one line */}
-        <div className="flex justify-center items-center gap-1.5 mb-2.5 w-full">
+        {/* Premium Segmented Control - Sort Options */}
+        <div className="flex items-center justify-between bg-muted/40 p-0.5 rounded-lg border border-border/50 mb-3 w-full">
           {[{ v: '', label: lang === 'lo' ? 'ຫຼ້າສຸດ' : 'Recent' }, { v: 'price_low', label: lang === 'lo' ? 'ລາຄາຕໍ່າ' : 'Low Price' }, { v: 'price_high', label: lang === 'lo' ? 'ລາຄາສູງ' : 'High Price' }, { v: 'rating', label: lang === 'lo' ? 'ຄະແນນສູງສຸດ' : 'Top Rated' }].map(opt => (
             <button
               key={opt.v}
               onClick={() => { setSortBy(opt.v); filterData(listings, searchQuery, activeCat, opt.v); }}
-              className={`flex-1 text-center truncate px-1 py-1 rounded-md border text-[10px] sm:text-xs font-bold transition-all select-none ${
-                sortBy === opt.v ? 'bg-primary text-primary-foreground border-primary shadow-sm' : 'border-border text-muted-foreground bg-muted/30 hover:border-primary/60'
+              className={`flex-1 text-center truncate px-1 py-1 text-[10px] sm:text-xs font-semibold rounded-md transition-all select-none ${
+                sortBy === opt.v ? 'bg-background text-foreground shadow-sm scale-[1.02]' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {opt.label}
