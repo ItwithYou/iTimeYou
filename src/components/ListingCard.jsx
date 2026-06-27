@@ -73,7 +73,7 @@ export default function ListingCard({ listing, t, lang }) {
   return (
     <div className="group relative bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-border">
       {/* Image */}
-      <div className="h-52 overflow-hidden relative cursor-pointer">
+      <div className="relative cursor-pointer">
         <PhotoGrid photos={listing.image_urls?.length > 0 ? listing.image_urls : [coverImage(listing)]} />
         {/* Save button */}
         <button
