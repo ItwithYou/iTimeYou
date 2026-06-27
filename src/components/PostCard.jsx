@@ -10,9 +10,10 @@ import { CAT_ICONS } from '../hooks/useLang';
 import moment from 'moment';
 import { formatTimestampDMY } from '../utils/dateUtils';
 import { formatServiceWhen } from '../utils/dateUtils';
+import { convertAndFormatPrice } from '../utils/currencyUtils';
 
 export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, authorProfile: initialAuthorProfile }) {
-  const { profile, currentUser, refreshProfile } = useAppContext();
+  const { profile, currentUser, refreshProfile, exchangeRates, preferredCurrency } = useAppContext();
   const navigate = useNavigate();
   const isAdmin = currentUser?.role === 'admin';
   const [, setTick] = useState(0);
@@ -395,7 +396,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
             className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-tiffany to-deep-green text-white py-3 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity shadow-sm"
           >
             <MessageCircle size={16} />
-            {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມ / ຈອງ' : 'Message & Book'} — {post.service_price} {post.service_currency || 'USD'}
+            {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມ / ຈອງ' : 'Message & Book'} — {convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates)}
           </button>
         </div>
       )}

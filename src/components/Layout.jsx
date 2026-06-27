@@ -37,6 +37,28 @@ export default function Layout() {
 
   // Track visited tab paths for persistent mounting
   const [visitedPaths, setVisitedPaths] = useState(() => new Set([location.pathname]));
+  
+  const [exchangeRates, setExchangeRates] = useState({ usdBuy: 22000, usdSell: 22000, usdtBuy: 22000, usdtSell: 22000 });
+
+  useEffect(() => {
+    const loadExchangeRates = async () => {
+      try {
+        const items = await base44.entities.ExchangeRateSettings.list('-updated_date', 1);
+        const item = items[0];
+        if (item) {
+          setExchangeRates({
+            usdBuy: item.usd_buy || 22000,
+            usdSell: item.usd_sell || 22000,
+            usdtBuy: item.usdt_buy || item.usd_buy || 22000,
+            usdtSell: item.usdt_sell || item.usd_sell || 22000,
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load exchange rates', err);
+      }
+    };
+    loadExchangeRates();
+  }, []);
 
   // One-time migration to transfer demo data to Admin
   useEffect(() => {
@@ -76,7 +98,8 @@ export default function Layout() {
     }
   }, [location.pathname]);
 
-  const contextValue = { profile, currentUser, t, lang, setLang, refreshProfile };
+  const preferredCurrency = profile?.preferred_currency || profile?.wallet_currency || 'LAK';
+  const contextValue = { profile, currentUser, t, lang, setLang, refreshProfile, exchangeRates, preferredCurrency };
 
   // Update activity timestamp every 30 seconds only on visible tabs
   useEffect(() => {

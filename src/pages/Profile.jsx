@@ -70,7 +70,8 @@ export default function Profile() {
         bio: lang === 'lo' ? data[0].bio_lao || data[0].bio : data[0].bio,
         location: data[0].location || '',
         gender: data[0].gender || '',
-        birthdate: data[0].birthdate || ''
+        birthdate: data[0].birthdate || '',
+        preferred_currency: data[0].preferred_currency || data[0].wallet_currency || 'LAK'
       });
       base44.entities.Post.filter({ author_email: data[0].user_email }, '-created_date', 20).then(setPosts);
       base44.entities.Listing.filter({ host_email: data[0].user_email }).then(setListings);
@@ -110,6 +111,7 @@ export default function Profile() {
       location: editData.location || '',
       gender: editData.gender || '',
       birthdate: editData.birthdate || '',
+      preferred_currency: editData.preferred_currency || 'LAK',
     };
     try {
       await base44.entities.UserProfile.update(viewProfile.id, payload);
@@ -290,6 +292,21 @@ export default function Profile() {
               <label className="text-xs font-semibold">{lang === 'lo' ? 'ວັນເກີດ' : 'Birthdate'}</label>
               <input type="date" value={editData.birthdate || ''} onChange={(e) => setEditData({ ...editData, birthdate: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
             </div>
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-semibold">{lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}</label>
+            <MobileSelect
+              value={editData.preferred_currency || 'LAK'}
+              onChange={(v) => setEditData({ ...editData, preferred_currency: v })}
+              options={[
+                { value: 'LAK', label: 'LAK (ກີບ)' },
+                { value: 'USD', label: 'USD ($)' },
+                { value: 'USDT', label: 'USDT (₮)' },
+              ]}
+              placeholder={lang === 'lo' ? 'ເລືອກສະກຸນເງິນ' : 'Select currency'}
+              label={lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}
+            />
           </div>
           <button onClick={saveEdit} className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg text-sm font-semibold hover:opacity-90">
             💾 {t.saveChanges}

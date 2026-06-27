@@ -7,10 +7,13 @@ import ImageLightbox from './ImageLightbox';
 import PhotoGrid from './PhotoGrid';
 import useProfile from '../hooks/useProfile';
 import { coverImage } from '../utils/img';
+import { useAppContext } from '../lib/AppContext';
+import { convertAndFormatPrice } from '../utils/currencyUtils';
 import moment from 'moment';
 
 export default function ListingCard({ listing, t, lang }) {
   const { currentUser } = useProfile();
+  const { exchangeRates, preferredCurrency } = useAppContext();
   const [saved, setSaved] = useState(false);
   const [showLightbox, setShowLightbox] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -199,7 +202,7 @@ export default function ListingCard({ listing, t, lang }) {
           
           <div className="flex items-center gap-3">
              <div className="text-right">
-               <span className="text-primary font-black text-lg">${listing.price}</span>
+               <span className="text-primary font-black text-lg">{convertAndFormatPrice(listing.price, listing.currency, preferredCurrency, exchangeRates)}</span>
                <span className="text-muted-foreground text-xs block -mt-1">{t.perNight || '/night'}</span>
              </div>
              <Link to={`/listing/${listing.id}`} className="bg-primary text-primary-foreground px-4 py-2 rounded-xl text-sm font-semibold shadow-sm hover:opacity-90 transition-opacity">
