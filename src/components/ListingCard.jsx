@@ -191,7 +191,7 @@ export default function ListingCard({ listing, t, lang }) {
                className="flex items-center gap-1.5 text-sm text-muted-foreground active:text-primary transition-colors font-medium"
              >
                <Heart size={18} className={saved ? 'fill-red-500 text-red-500' : ''} />
-               {saved ? 'Saved' : 'Save'}
+               {saved ? (lang === 'lo' ? 'ບັນທຶກແລ້ວ' : 'Saved') : (lang === 'lo' ? 'ບັນທຶກ' : 'Save')}
              </button>
              <div className="flex items-center gap-1 text-amber-500 text-sm">
                <Star size={16} className="fill-amber-400" />

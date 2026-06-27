@@ -43,8 +43,8 @@ export default function Feed() {
   // Automated one-time seeder for premium demo data — Yakuci admin posts
   useEffect(() => {
     const seedData = async () => {
-      if (localStorage.getItem('seeded_yakuci_v8')) return;
-      localStorage.setItem('seeded_yakuci_v8', 'true');
+      if (localStorage.getItem('seeded_yakuci_v9')) return;
+      localStorage.setItem('seeded_yakuci_v9', 'true');
 
       // Clean up old demo posts
       try {

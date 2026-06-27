@@ -26,8 +26,8 @@ export default function Explore() {
   // Automated one-time seeder for premium listings
   useEffect(() => {
     const seedData = async () => {
-      if (localStorage.getItem('seeded_explore_data_v5') || !currentUser) return;
-      localStorage.setItem('seeded_explore_data_v5', 'true');
+      if (localStorage.getItem('seeded_explore_data_v6') || !currentUser) return;
+      localStorage.setItem('seeded_explore_data_v6', 'true');
       
       try {
         const existing = await base44.entities.Listing.list();
