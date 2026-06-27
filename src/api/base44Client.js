@@ -75,6 +75,16 @@ function createEntity(collectionName) {
     },
     async filter(filters = {}, sort = '-created_date', maxResults = 100) {
       try {
+        // Firestore stores the document id as the key, not a field.
+        // Support filter({ id }) by fetching that document directly.
+        if (filters && filters.id) {
+          const { id, ...rest } = filters;
+          const d = await getDoc(doc(db, collectionName, id));
+          if (!d.exists()) return [];
+          const row = { id: d.id, ...d.data() };
+          const matches = Object.entries(rest).every(([k, v]) => row[k] === v);
+          return matches ? [row] : [];
+        }
         const entries = Object.entries(filters);
         const constraints = entries.map(([k, v]) => where(k, '==', v));
         const q = constraints.length

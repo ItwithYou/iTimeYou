@@ -12,7 +12,12 @@ export const AuthProvider = ({ children }) => {
   const [authError] = useState(null);
 
   useEffect(() => {
+    // Safety net: never hang on the splash. If Firebase is slow/unreachable
+    // (e.g. flaky mobile network), show the app as a guest after a few seconds.
+    const failSafe = setTimeout(() => setIsLoadingAuth(false), 4000);
+
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
+      clearTimeout(failSafe);
       if (firebaseUser) {
         setUser({
           id: firebaseUser.uid,
@@ -29,7 +34,7 @@ export const AuthProvider = ({ children }) => {
       }
       setIsLoadingAuth(false);
     });
-    return unsub;
+    return () => { clearTimeout(failSafe); unsub(); };
   }, []);
 
   const logout = () => {
