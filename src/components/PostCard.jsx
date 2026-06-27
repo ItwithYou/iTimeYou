@@ -375,8 +375,8 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
           </div>
           <div className="flex items-center gap-2">
             {isOwn && (
-              <div className="bg-gradient-to-tr from-amber-50 to-orange-50 border border-amber-200/60 shadow-sm rounded-md px-2 py-0.5 flex items-center justify-center">
-                 <span className="font-serif text-[12px] sm:text-[14px] font-black bg-gradient-to-r from-amber-700 to-amber-900 bg-clip-text text-transparent tracking-tight">
+              <div className="bg-gradient-to-tr from-rose-50 to-white border border-rose-100/60 shadow-sm rounded-md px-2 py-0.5 flex items-center justify-center">
+                 <span className="font-serif text-[12px] sm:text-[14px] font-medium text-rose-500 tracking-wide">
                    {convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates)}
                  </span>
               </div>
@@ -408,8 +408,8 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
               <MessageCircle size={16} />
               {lang === 'lo' ? 'ສົ່ງຂໍ້ຄວາມ / ຈອງ' : 'Message & Book'}
             </div>
-            <div className="bg-white text-deep-green px-2.5 py-1 rounded-lg shadow-sm border border-white/20 flex items-center">
-              <span className="font-serif font-black text-[12px] sm:text-[14px] tracking-tight">{convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates)}</span>
+            <div className="bg-white/95 text-rose-500 px-2.5 py-1 rounded-lg shadow-sm border border-white/20 flex items-center">
+              <span className="font-serif font-medium text-[12px] sm:text-[14px] tracking-wide">{convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates)}</span>
             </div>
           </button>
         </div>

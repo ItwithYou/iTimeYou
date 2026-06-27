@@ -202,8 +202,8 @@ export default function ListingCard({ listing, t, lang }) {
           
           <div className="flex items-center gap-3">
              <div className="flex flex-col items-end">
-               <div className="bg-gradient-to-tr from-amber-50 to-orange-50 border border-amber-200/60 shadow-sm rounded-lg px-2.5 py-1 flex items-center justify-center">
-                 <span className="font-serif text-[14px] sm:text-[1.1rem] font-black bg-gradient-to-r from-amber-700 to-amber-900 bg-clip-text text-transparent tracking-tight">
+               <div className="bg-gradient-to-tr from-rose-50 to-white border border-rose-100/60 shadow-sm rounded-lg px-2.5 py-1 flex items-center justify-center">
+                 <span className="font-serif text-[14px] sm:text-[1.1rem] font-medium text-rose-500 tracking-wide">
                    {convertAndFormatPrice(listing.price, listing.currency, preferredCurrency, exchangeRates)}
                  </span>
                </div>
