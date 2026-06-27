@@ -69,7 +69,8 @@ export default function Profile() {
         last_name: data[0].last_name,
         bio: lang === 'lo' ? data[0].bio_lao || data[0].bio : data[0].bio,
         location: data[0].location || '',
-        gender: data[0].gender || ''
+        gender: data[0].gender || '',
+        birthdate: data[0].birthdate || ''
       });
       base44.entities.Post.filter({ author_email: data[0].user_email }, '-created_date', 20).then(setPosts);
       base44.entities.Listing.filter({ host_email: data[0].user_email }).then(setListings);
@@ -108,6 +109,7 @@ export default function Profile() {
       bio_lao: editData.bio || '',
       location: editData.location || '',
       gender: editData.gender || '',
+      birthdate: editData.birthdate || '',
     };
     try {
       await base44.entities.UserProfile.update(viewProfile.id, payload);
@@ -149,11 +151,9 @@ export default function Profile() {
       {/* Info Card */}
       <div className="mx-4 sm:mx-8 -mt-16 bg-card rounded-[32px] px-6 sm:px-10 pb-8 pt-4 shadow-xl border border-border/50 relative z-10 backdrop-blur-sm">
         
-        {/* Header Row: Avatar on Left, Buttons on Right */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 mb-4">
-          
-          {/* Avatar Area (Pulling up over cover) */}
-          <div className="relative shrink-0 -mt-16 sm:-mt-20">
+        {/* Avatar Area Centered */}
+        <div className="flex flex-col items-center -mt-20">
+          <div className="relative shrink-0">
             <img
               src={viewProfile.photo_url || viewProfile.avatar_url || ''}
               alt=""
@@ -176,79 +176,77 @@ export default function Profile() {
                 )}
               </button>
             )}
-
+            
             {/* Verification Badge */}
             {viewProfile.is_verified &&
-              <span className={`absolute ${isOwn ? 'bottom-1 left-1' : 'bottom-2 right-2'} flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 border-[3px] border-card text-white text-sm font-bold shadow-sm z-10`}>✓</span>
+              <span className={`absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 border-[3px] border-card text-white text-sm font-bold shadow-sm z-10 pointer-events-none`}>✓</span>
             }
           </div>
-          
-          {/* Action Buttons */}
-          {isOwn && (
-            <div className="flex justify-end w-full sm:w-auto mt-2 sm:mt-4">
-              <button onClick={() => setEditing(!editing)} className="bg-foreground text-background px-6 py-2 rounded-full text-sm font-bold hover:opacity-90 transition-colors shadow-sm">
-                {t.editProfile || 'Edit Profile'}
-              </button>
-            </div>
-          )}
-        </div>
 
-        {/* Profile Details */}
-        <div className="text-center sm:text-left mt-2">
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">{viewProfile.first_name} {viewProfile.last_name}</h1>
-          <div className="mt-2.5 flex flex-wrap items-center justify-center sm:justify-start gap-3">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground mt-4">{viewProfile.first_name} {viewProfile.last_name}</h1>
+          
+          <div className="mt-2.5 flex flex-wrap items-center justify-center gap-3">
              <div className="flex items-center gap-1.5 bg-amber-100/60 text-amber-700 px-3 py-1 rounded-full text-sm font-bold shadow-sm">
                <StarRating rating={viewProfile.trust_stars || 0} size={14} />
                <span>{viewProfile.trust_stars ? viewProfile.trust_stars.toFixed(1) : '5.0'}</span>
              </div>
              {viewProfile.is_pro ? (
-               <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 text-blue-700 px-3 py-1 text-sm font-bold border border-blue-100 shadow-sm">
+               <button onClick={() => isOwn && setShowProModal(true)} className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 text-blue-700 px-3 py-1 text-sm font-bold border border-blue-100 shadow-sm cursor-pointer hover:bg-blue-100 transition-colors">
                  <BadgeCheck size={14} /> Pro
-               </span>
+               </button>
              ) : viewProfile.is_verified ? (
-               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 text-emerald-700 px-3 py-1 text-sm font-bold border border-emerald-100 shadow-sm">
+               <button onClick={() => isOwn && setShowVerModal(true)} className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 text-emerald-700 px-3 py-1 text-sm font-bold border border-emerald-100 shadow-sm cursor-pointer hover:bg-emerald-100 transition-colors">
                  <Shield size={14} /> Verified
-               </span>
+               </button>
+             ) : isOwn ? (
+               <button onClick={() => setShowVerModal(true)} className="inline-flex items-center gap-1.5 rounded-full bg-muted text-muted-foreground px-3 py-1 text-sm font-bold border border-border shadow-sm cursor-pointer hover:bg-muted/80 transition-colors">
+                 <Shield size={14} /> {lang === 'lo' ? 'ຍັງບໍ່ຢືນຢັນ' : 'Unverified'}
+               </button>
              ) : null}
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center justify-center sm:justify-start gap-5 text-sm text-muted-foreground font-medium">
-            {viewProfile.location && (
-              <span className="flex items-center gap-1.5"><MapPin size={16} className="text-primary/70" /> {viewProfile.location}</span>
-            )}
-            <span className="flex items-center gap-1.5"><Calendar size={16} className="text-primary/70" /> Joined {new Date(viewProfile.created_date).getFullYear()}</span>
+          {/* Action Row - Edit, Logout, Joined same line */}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+             <span className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/60 px-3 py-1.5 rounded-full font-medium border border-border/50">
+               <Calendar size={14} className="text-primary/70" /> Joined {new Date(viewProfile.created_date).getFullYear()}
+             </span>
+             {isOwn && (
+               <>
+                 <button onClick={() => setEditing(!editing)} className="flex items-center gap-1.5 text-xs bg-foreground text-background px-4 py-1.5 rounded-full font-bold shadow-sm hover:opacity-90 transition-opacity">
+                   {t.editProfile || 'Edit Profile'}
+                 </button>
+                 <button onClick={() => base44.auth.logout()} className="flex items-center gap-1.5 text-xs bg-red-50 text-red-600 border border-red-100 px-4 py-1.5 rounded-full font-bold shadow-sm hover:bg-red-100 transition-colors">
+                   <LogOut size={14} /> {lang === 'lo' ? 'ອອກຈາກລະບົບ' : 'Logout'}
+                 </button>
+                 <input ref={photoUploadRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+               </>
+             )}
           </div>
           
-          <p className="text-base text-foreground/80 mt-5 font-medium leading-relaxed max-w-2xl">
+          <p className="text-base text-foreground/80 mt-5 font-medium leading-relaxed max-w-2xl text-center">
             {lang === 'lo' ? viewProfile.bio_lao || viewProfile.bio : viewProfile.bio}
           </p>
         </div>
 
-        {/* Premium Stats Row */}
-        <div className="mt-6 flex flex-wrap items-center justify-center sm:justify-start gap-6 sm:gap-8">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <p className="text-base font-extrabold text-foreground">{(viewProfile.friends || []).length}</p>
-              <p className="text-sm font-medium text-muted-foreground">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Followers'}</p>
+        {/* Premium Glass Stats Box */}
+        <div className="mt-6 mx-auto max-w-xl bg-gradient-to-br from-card/60 to-muted/30 backdrop-blur-md border border-border/60 rounded-3xl p-5 shadow-sm flex flex-wrap items-center justify-between sm:justify-around gap-4 text-center">
+            <div className="flex flex-col items-center gap-1 min-w-[70px]">
+              <p className="text-xl font-black text-foreground">{(viewProfile.friends || []).length}</p>
+              <p className="text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'Followers'}</p>
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <p className="text-base font-extrabold text-foreground">{posts.filter((post) => post.author_email === viewProfile.user_email && post.service_price > 0).length}</p>
-              <p className="text-sm font-medium text-muted-foreground">{lang === 'lo' ? 'ບໍລິການ' : 'Services'}</p>
+            <div className="flex flex-col items-center gap-1 min-w-[70px]">
+              <p className="text-xl font-black text-foreground">{posts.filter((post) => post.author_email === viewProfile.user_email && post.service_price > 0).length}</p>
+              <p className="text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ບໍລິການ' : 'Services'}</p>
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <p className="text-base font-extrabold text-foreground capitalize">{viewProfile.gender || '-'}</p>
-              <p className="text-sm font-medium text-muted-foreground">{lang === 'lo' ? 'ເພດ' : 'Gender'}</p>
+            <div className="flex flex-col items-center gap-1 min-w-[70px]">
+              <p className="text-xl font-black text-foreground capitalize">{viewProfile.gender || '-'}</p>
+              <p className="text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ເພດ' : 'Gender'}</p>
+            </div>
+            <div className="flex flex-col items-center gap-1 min-w-[70px]">
+              <p className="text-xl font-black text-foreground">{viewProfile.birthdate ? new Date(viewProfile.birthdate).toLocaleDateString(lang === 'lo' ? 'lo-LA' : 'en-US', { day: 'numeric', month: 'short' }) : '-'}</p>
+              <p className="text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ວັນເກີດ' : 'Birthday'}</p>
             </div>
         </div>
-
-        {/* Secondary Account Actions */}
-        {isOwn && (
-          <div className="mt-8 pt-6 border-t border-border/50 flex flex-wrap justify-center sm:justify-end gap-2 sm:gap-4">
-            <input ref={photoUploadRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
-            <button onClick={() => base44.auth.logout()} className="flex items-center gap-2 text-muted-foreground hover:text-foreground px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors bg-card hover:bg-muted/50 border border-transparent hover:border-border/50">
-              <LogOut size={16} /> {lang === 'lo' ? 'ອອກຈາກລະບົບ' : 'Logout'}
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Edit panel */}
@@ -272,20 +270,26 @@ export default function Profile() {
             <label className="text-xs font-semibold">{lang === 'lo' ? 'ສະຖານທີ່' : 'Location'}</label>
             <input value={editData.location} onChange={(e) => setEditData({ ...editData, location: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
           </div>
-          <div>
-            <label className="text-xs font-semibold">{lang === 'lo' ? 'ເພດ' : 'Gender'}</label>
-            <MobileSelect
-              value={editData.gender || ''}
-              onChange={(v) => setEditData({ ...editData, gender: v })}
-              options={[
-                { value: '', label: lang === 'lo' ? 'ເລືອກເພດ' : 'Select gender' },
-                { value: 'male', label: lang === 'lo' ? 'ຊາຍ' : 'Male' },
-                { value: 'female', label: lang === 'lo' ? 'ຍິງ' : 'Female' },
-                { value: 'other', label: lang === 'lo' ? 'ອື່ນໆ' : 'Other' },
-              ]}
-              placeholder={lang === 'lo' ? 'ເລືອກເພດ' : 'Select gender'}
-              label={lang === 'lo' ? 'ເພດ' : 'Gender'}
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-semibold">{lang === 'lo' ? 'ເພດ' : 'Gender'}</label>
+              <MobileSelect
+                value={editData.gender || ''}
+                onChange={(v) => setEditData({ ...editData, gender: v })}
+                options={[
+                  { value: '', label: lang === 'lo' ? 'ເລືອກເພດ' : 'Select gender' },
+                  { value: 'male', label: lang === 'lo' ? 'ຊາຍ' : 'Male' },
+                  { value: 'female', label: lang === 'lo' ? 'ຍິງ' : 'Female' },
+                  { value: 'other', label: lang === 'lo' ? 'ອື່ນໆ' : 'Other' },
+                ]}
+                placeholder={lang === 'lo' ? 'ເລືອກເພດ' : 'Select gender'}
+                label={lang === 'lo' ? 'ເພດ' : 'Gender'}
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold">{lang === 'lo' ? 'ວັນເກີດ' : 'Birthdate'}</label>
+              <input type="date" value={editData.birthdate || ''} onChange={(e) => setEditData({ ...editData, birthdate: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+            </div>
           </div>
           <button onClick={saveEdit} className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg text-sm font-semibold hover:opacity-90">
             💾 {t.saveChanges}
