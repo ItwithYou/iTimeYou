@@ -250,10 +250,10 @@ const authModule = {
     return sendPasswordResetEmail(auth, email);
   },
   logout() {
-    signOut(auth).finally(() => { window.location.href = '/login'; });
+    signOut(auth).finally(() => { window.location.href = '/'; });
   },
   redirectToLogin() {
-    window.location.href = '/login';
+    window.location.href = '/';
   },
   onAuthStateChanged(cb) {
     return onAuthStateChanged(auth, cb);
