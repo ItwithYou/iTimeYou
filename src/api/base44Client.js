@@ -49,10 +49,11 @@ function parseSort(sort) {
 
 function mapUser(u) {
   if (!u) return null;
-  const display = u.displayName || u.email?.split('@')[0] || 'User';
+  const userIdentifier = u.email || u.phoneNumber || u.uid;
+  const display = u.displayName || userIdentifier.split('@')[0] || 'User';
   return {
     id: u.uid,
-    email: u.email,
+    email: userIdentifier,
     full_name: display,
     first_name: display.split(' ')[0],
     last_name: (u.displayName || '').split(' ').slice(1).join(' '),
@@ -173,11 +174,13 @@ async function ensureUserDir(firebaseUser) {
   try {
     const uref = doc(db, 'users', firebaseUser.uid);
     const snap = await getDoc(uref);
+    const userIdentifier = firebaseUser.email || firebaseUser.phoneNumber || firebaseUser.uid;
     const desiredRole = isAdminEmail(firebaseUser.email) ? 'admin' : 'user';
+    
     if (!snap.exists()) {
       await setDoc(uref, {
-        email: firebaseUser.email,
-        full_name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+        email: userIdentifier,
+        full_name: firebaseUser.displayName || userIdentifier.split('@')[0] || 'User',
         role: desiredRole,
         created_date: new Date().toISOString(),
       });
@@ -185,7 +188,7 @@ async function ensureUserDir(firebaseUser) {
       // Promote an existing owner account to admin.
       await setDoc(uref, { role: 'admin' }, { merge: true });
     }
-  } catch (e) { /* non-fatal */ }
+  } catch (e) { console.error('ensureUserDir error:', e); }
 }
 
 // Automatically handle redirect results when the page reloads after Google sign-in

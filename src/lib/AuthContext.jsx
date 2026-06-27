@@ -19,10 +19,11 @@ export const AuthProvider = ({ children }) => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       clearTimeout(failSafe);
       if (firebaseUser) {
+        const userIdentifier = firebaseUser.email || firebaseUser.phoneNumber || firebaseUser.uid;
         setUser({
           id: firebaseUser.uid,
-          email: firebaseUser.email,
-          full_name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+          email: userIdentifier,
+          full_name: firebaseUser.displayName || userIdentifier.split('@')[0] || 'User',
           first_name: firebaseUser.displayName?.split(' ')[0] || 'User',
           last_name: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
           photo_url: firebaseUser.photoURL || '',
