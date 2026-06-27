@@ -128,7 +128,7 @@ export default function Profile() {
   };
   const handleCurrencyToggle = async () => {
     if (!isOwn) return;
-    const currencies = ['LAK', 'USD', 'USDT'];
+    const currencies = ['LAK', 'USD', 'THB', 'CNY'];
     const current = viewProfile.wallet_currency || 'LAK';
     const nextIdx = (currencies.indexOf(current) + 1) % currencies.length;
     const nextCurrency = currencies[nextIdx];
@@ -265,16 +265,34 @@ export default function Profile() {
               <p className="text-xl font-serif font-semibold text-foreground tracking-tight">{viewProfile.birthdate ? new Date(viewProfile.birthdate).toLocaleDateString(lang === 'lo' ? 'lo-LA' : 'en-US', { day: 'numeric', month: 'short' }) : '-'}</p>
               <p className="text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ວັນເກີດ' : 'Birthday'}</p>
             </div>
-            <div 
-              onClick={handleCurrencyToggle} 
-              className={`flex flex-col items-center gap-1 min-w-[65px] ${isOwn ? 'cursor-pointer hover:opacity-70 transition-opacity' : ''}`}
-              title={isOwn ? (lang === 'lo' ? 'ຄລິກເພື່ອປ່ຽນສະກຸນເງິນ' : 'Click to change currency') : ''}
-            >
+            <div className={`relative flex flex-col items-center gap-1 min-w-[65px] ${isOwn ? 'cursor-pointer hover:opacity-70 transition-opacity' : ''}`}>
               <div className="flex items-center gap-1">
                 <p className="text-xl font-serif font-semibold text-foreground tracking-tight">{viewProfile.wallet_currency || 'LAK'}</p>
                 {isOwn && <Settings2 size={12} className="text-muted-foreground" />}
               </div>
               <p className="text-xs font-bold text-muted-foreground">{lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}</p>
+              {isOwn && (
+                <select
+                  value={viewProfile.wallet_currency || 'LAK'}
+                  onChange={async (e) => {
+                    const nextCurrency = e.target.value;
+                    setViewProfile({ ...viewProfile, wallet_currency: nextCurrency });
+                    try {
+                      await base44.entities.UserProfile.update(viewProfile.id, { wallet_currency: nextCurrency });
+                      toast.success(lang === 'lo' ? `ປ່ຽນສະກຸນເງິນເປັນ ${nextCurrency}` : `Currency set to ${nextCurrency}`);
+                      refreshProfile();
+                    } catch (err) {
+                      toast.error('Failed to update currency');
+                    }
+                  }}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                >
+                  <option value="LAK">LAK</option>
+                  <option value="USD">USD</option>
+                  <option value="THB">THB</option>
+                  <option value="CNY">CNY</option>
+                </select>
+              )}
             </div>
         </div>
       </div>

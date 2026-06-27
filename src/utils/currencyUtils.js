@@ -1,7 +1,10 @@
 export const convertAndFormatPrice = (amount, originalCurrency, preferredCurrency, exchangeRates) => {
   if (!amount && amount !== 0) return '0';
   
-  const fromCurrency = (originalCurrency || 'LAK').toUpperCase();
+  const rawCurrency = (originalCurrency || 'LAK').toUpperCase();
+  const suffixMatch = rawCurrency.match(/(\/.*)$/);
+  const suffix = suffixMatch ? suffixMatch[1] : '';
+  const fromCurrency = rawCurrency.replace(/\/.*$/, '').trim();
   const toCurrency = (preferredCurrency || fromCurrency).toUpperCase();
 
   // Handle LAK formatting (no decimals, commas)
@@ -11,10 +14,12 @@ export const convertAndFormatPrice = (amount, originalCurrency, preferredCurrenc
 
   // If the target currency matches the original, just format it
   if (fromCurrency === toCurrency) {
-    if (toCurrency === 'LAK') return `${formatLak(amount)} LAK`;
-    if (toCurrency === 'USD') return `$${formatUsd(amount)}`;
-    if (toCurrency === 'USDT') return `₮${formatUsd(amount)}`;
-    return `${amount} ${toCurrency}`;
+    if (toCurrency === 'LAK') return `${formatLak(amount)} LAK${suffix}`;
+    if (toCurrency === 'USD') return `$${formatUsd(amount)}${suffix}`;
+    if (toCurrency === 'USDT') return `₮${formatUsd(amount)}${suffix}`;
+    if (toCurrency === 'THB') return `฿${formatLak(amount)}${suffix}`;
+    if (toCurrency === 'CNY') return `¥${formatUsd(amount)}${suffix}`;
+    return `${amount} ${toCurrency}${suffix}`;
   }
 
   // Base exchange rates against USD
@@ -28,22 +33,27 @@ export const convertAndFormatPrice = (amount, originalCurrency, preferredCurrenc
     amountInUsd = amount / lakToUsdRate;
   } else if (fromCurrency === 'USDT') {
     amountInUsd = amount * usdtToUsdRate;
+  } else if (fromCurrency === 'THB') {
+    amountInUsd = amount / (exchangeRates?.thbBuy || 35);
+  } else if (fromCurrency === 'CNY') {
+    amountInUsd = amount / (exchangeRates?.cnyBuy || 7.2);
   } else if (fromCurrency !== 'USD') {
     // If unknown currency, just return raw
     return `${amount} ${fromCurrency}`;
   }
 
-  // Convert FROM USD TO target currency
-  let finalAmount = amountInUsd;
+  // Convert FROM USD to preferred currency
   if (toCurrency === 'LAK') {
-    finalAmount = amountInUsd * lakToUsdRate;
-    return `${formatLak(finalAmount)} LAK`;
+    return `${formatLak(amountInUsd * lakToUsdRate)} LAK${suffix}`;
   } else if (toCurrency === 'USDT') {
-    finalAmount = amountInUsd / usdtToUsdRate;
-    return `₮${formatUsd(finalAmount)}`;
+    return `₮${formatUsd(amountInUsd / usdtToUsdRate)}${suffix}`;
+  } else if (toCurrency === 'THB') {
+    return `฿${formatLak(amountInUsd * (exchangeRates?.thbBuy || 35))}${suffix}`;
+  } else if (toCurrency === 'CNY') {
+    return `¥${formatUsd(amountInUsd * (exchangeRates?.cnyBuy || 7.2))}${suffix}`;
   } else if (toCurrency === 'USD') {
-    return `$${formatUsd(finalAmount)}`;
+    return `$${formatUsd(amountInUsd)}${suffix}`;
   }
 
-  return `${amount} ${toCurrency}`;
+  return `${amount} ${toCurrency}${suffix}`;
 };
