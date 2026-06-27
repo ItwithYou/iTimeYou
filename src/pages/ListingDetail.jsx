@@ -23,6 +23,7 @@ export default function ListingDetail() {
   const [checkOut, setCheckOut] = useState('');
   const [guestCount, setGuestCount] = useState(1);
   const [booked, setBooked] = useState(false);
+  const [isBooking, setIsBooking] = useState(false);
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
@@ -52,6 +53,7 @@ export default function ListingDetail() {
   const bookingCurrency = 'USD';
 
   const handleBooking = async () => {
+    if (isBooking) return;
     if (!currentUser) { navigate('/login'); return; }
     if (!checkIn || !checkOut) { toast.error(t.selectDates); return; }
     if (nights <= 0) { toast.error(t.selectDates); return; }
@@ -73,7 +75,11 @@ export default function ListingDetail() {
       toast.error(t.insufficientBalance);
       return;
     }
-    await base44.entities.Booking.create({
+    
+    setIsBooking(true);
+    
+    try {
+      await base44.entities.Booking.create({
       listing_id: listing.id,
       guest_email: currentUser.email,
       host_email: listing.host_email,
@@ -102,9 +108,16 @@ export default function ListingDetail() {
       status: 'completed',
       request_kind: 'booking_release',
       counterparty_email: listing.host_email,
+      balance_snapshot: JSON.stringify(balanceUpdate),
     });
     setBooked(true);
     toast.success(t.bookingRequested);
+    } catch (e) {
+      console.error(e);
+      toast.error('Booking failed');
+    } finally {
+      setIsBooking(false);
+    }
   };
 
   const isLao = lang === 'lo';
@@ -265,7 +278,7 @@ export default function ListingDetail() {
                   <div className="flex items-center gap-3 mt-1.5">
                     <button onClick={() => setGuestCount(g => Math.max(1, g - 1))} className="w-9 h-9 rounded-xl border border-border flex items-center justify-center text-lg font-bold hover:bg-muted transition-colors select-none">−</button>
                     <span className="flex-1 text-center font-bold text-sm border border-border rounded-xl py-2 bg-muted/40">{guestCount} {t.guests}</span>
-                    <button onClick={() => setGuestCount(g => Math.min(listing.guests || 1, g + 1))} className="w-9 h-9 rounded-xl border border-border flex items-center justify-center text-lg font-bold hover:bg-muted transition-colors select-none">+</button>
+                    <button onClick={() => setGuestCount(g => Math.min(listing.guests || 20, g + 1))} className="w-9 h-9 rounded-xl border border-border flex items-center justify-center text-lg font-bold hover:bg-muted transition-colors select-none">+</button>
                   </div>
                 </div>
                 {nights > 0 && (
@@ -292,9 +305,11 @@ export default function ListingDetail() {
                 )}
                 <button
                   onClick={handleBooking}
-                  className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity"
+                  disabled={isBooking}
+                  className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-70"
                 >
-                  {t.requestBook}
+                  {isBooking && <div className="w-4 h-4 rounded-full border-[3px] border-primary-foreground border-t-transparent animate-spin" />}
+                  {isBooking ? (lang === 'lo' ? 'ກຳລັງດຳເນີນການ...' : 'Processing...') : t.requestBook}
                 </button>
                 <p className="text-center text-xs text-muted-foreground mt-2">💰 {t.payViaWallet}</p>
               </>
