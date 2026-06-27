@@ -151,49 +151,49 @@ export default function Wallet() {
         <div className="relative">
           {/* Brand row */}
           <div className="mb-8 flex items-center justify-between">
-            <span className="text-[19px] font-black tracking-tight text-white drop-shadow-sm">
+            <span className="text-[14px] font-light tracking-[0.2em] uppercase text-white drop-shadow-sm opacity-90">
               iTimeYou
             </span>
           </div>
 
           {/* Chip + balance label */}
           <div className="mb-3 flex items-center gap-3">
-            <div className="flex h-7 items-center justify-center rounded-md bg-gradient-to-br from-white/90 to-white/70 px-3 shadow-[0_2px_10px_rgba(0,0,0,0.1)] ring-1 ring-black/5">
-              <span className="text-[10px] font-extrabold tracking-widest text-[#088F8A]">
+            <div className="flex h-6 items-center justify-center rounded bg-gradient-to-br from-white/90 to-white/70 px-2.5 shadow-[0_2px_10px_rgba(0,0,0,0.1)] ring-1 ring-black/5">
+              <span className="text-[9px] font-medium tracking-widest text-[#088F8A] uppercase">
                 iTimeYou
               </span>
             </div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/50">{t.balance}</p>
+            <p className="text-[10px] font-normal uppercase tracking-[0.25em] text-white/60">{t.balance}</p>
           </div>
 
           {/* Big balance number — premium tabular font */}
-          <div className="flex items-end gap-2">
-            <span className="wallet-num bg-gradient-to-r from-white via-white to-white/90 bg-clip-text text-[44px] font-extrabold leading-none text-transparent break-all drop-shadow-sm">
+          <div className="flex items-end gap-1.5 mb-1">
+            <span className="wallet-num bg-gradient-to-r from-white via-white to-white/90 bg-clip-text text-[34px] sm:text-[42px] font-light leading-none text-transparent break-all drop-shadow-sm tracking-tight">
               {totalLak.toLocaleString()}
             </span>
-            <span className="pb-2 text-sm font-bold text-white/90">LAK</span>
+            <span className="pb-1.5 text-[10px] sm:text-xs font-medium text-white/80 tracking-widest">LAK</span>
           </div>
 
 
           {/* Owner + masked number */}
           <div className="mt-6 flex items-center justify-between">
-            <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-white/85">
+            <p className="text-[11px] font-normal uppercase tracking-[0.15em] text-white/80">
               {profile?.first_name} {profile?.last_name}
             </p>
-            <p className="wallet-num text-[12px] tracking-[0.28em] text-white/35">•••• 2026</p>
+            <p className="wallet-num text-[10px] tracking-[0.3em] text-white/40">•••• 2026</p>
           </div>
 
           {/* Currency pills */}
-          <div className="mt-5 grid grid-cols-4 gap-2.5">
+          <div className="mt-5 grid grid-cols-4 gap-2">
             {[
               { code: 'LAK', val: lakBalance },
               { code: 'USD', val: usdBalance },
               { code: 'THB', val: thbBalance },
               { code: 'CNY', val: cnyBalance },
             ].map((c) => (
-              <div key={c.code} className="min-w-0 rounded-2xl border border-white/20 bg-white/[0.12] px-2.5 py-3 backdrop-blur-md">
-                <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-white/80">{c.code}</p>
-                <p className="wallet-num mt-1 break-all text-[12px] sm:text-[14px] font-bold leading-tight text-white drop-shadow-sm">{(c.val || 0).toLocaleString()}</p>
+              <div key={c.code} className="min-w-0 rounded-[14px] border border-white/20 bg-white/[0.08] px-2 py-2.5 backdrop-blur-md">
+                <p className="text-[8px] font-medium uppercase tracking-[0.15em] text-white/70">{c.code}</p>
+                <p className="wallet-num mt-1 break-all text-[11px] sm:text-[13px] font-light tracking-wide leading-tight text-white drop-shadow-sm">{(c.val || 0).toLocaleString()}</p>
               </div>
             ))}
           </div>
