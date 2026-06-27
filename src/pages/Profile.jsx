@@ -196,10 +196,9 @@ export default function Profile() {
                 )}
               </button>
             )}
-            
             {/* Verification Badge */}
             {viewProfile.is_verified &&
-              <span className={`absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 border-[3px] border-card text-white text-sm font-bold shadow-sm z-10 pointer-events-none`}>✓</span>
+              <span className={`absolute bottom-2 left-2 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 border-[3px] border-card text-white text-sm font-bold shadow-sm z-10 pointer-events-none`}>✓</span>
             }
           </div>
 
