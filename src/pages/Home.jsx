@@ -75,18 +75,18 @@ export default function Home() {
       </section>
 
       {/* Category pills */}
-      <section className="py-6 bg-card border-b border-border sticky top-14 z-10">
-        <div className="flex gap-3 overflow-x-auto px-4 max-w-6xl mx-auto scrollbar-hide pb-1">
+      <section className="py-8 bg-card relative z-10 -mt-8 mx-0 sm:mx-4 rounded-t-3xl sm:rounded-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.08)] border border-border/50">
+        <div className="flex justify-center flex-wrap gap-3 sm:gap-8 px-2 sm:px-4 max-w-4xl mx-auto">
           {categories.map((cat, i) =>
           <Link
             key={cat.key}
             to={`/explore?cat=${cat.key}`}
-            className="flex flex-col items-center gap-1.5 flex-shrink-0 group">
-            
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center text-2xl group-hover:from-primary/20 group-hover:to-secondary/20 transition-all border border-border group-hover:border-primary/30 group-hover:shadow-md">
-                {cat.emoji}
+            className="flex flex-col items-center gap-2.5 group cursor-pointer w-16 sm:w-24">
+              <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-[1.25rem] bg-background shadow-sm flex items-center justify-center text-2xl sm:text-4xl group-hover:scale-[1.05] group-hover:shadow-xl transition-all duration-300 border border-border group-hover:border-primary/40 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <span className="relative z-10 group-hover:-translate-y-0.5 transition-transform duration-300">{cat.emoji}</span>
               </div>
-              <span className="text-[10px] font-semibold text-muted-foreground group-hover:text-primary transition-colors text-center leading-tight max-w-[56px]">
+              <span className="text-[10px] sm:text-xs font-bold text-muted-foreground group-hover:text-primary transition-colors text-center leading-tight">
                 {t.categories[i]}
               </span>
             </Link>

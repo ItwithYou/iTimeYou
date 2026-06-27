@@ -141,14 +141,13 @@ export default function Explore() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const q = params.get('q') || '';
+    const initialCat = params.get('cat') || '';
     setSearchQuery(q);
-    base44.entities.Listing.list('-created_date', 50).then(data => {
+    setActiveCat(initialCat);
+    
+    base44.entities.Listing.list('-created_date', 100).then(data => {
       setListings(data);
-      if (q) {
-        filterData(data, q, '', '');
-      } else {
-        setFiltered(data);
-      }
+      filterData(data, q, initialCat, '');
     });
   }, []);
 
