@@ -69,8 +69,8 @@ function RequestCard({ tx, lang, onApprove, onReject }) {
       )}
 
       <div className="flex gap-2">
-        <button onClick={() => onApprove(tx)} className="flex-1 bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-semibold">Approve</button>
-        <button onClick={() => onReject(tx)} className="flex-1 bg-destructive text-destructive-foreground py-2.5 rounded-xl text-sm font-semibold">Reject</button>
+        <button onClick={() => onApprove(tx)} disabled={tx._isProcessing} className="flex-1 bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-semibold disabled:opacity-50">{tx._isProcessing ? '...' : 'Approve'}</button>
+        <button onClick={() => onReject(tx)} disabled={tx._isProcessing} className="flex-1 bg-destructive text-destructive-foreground py-2.5 rounded-xl text-sm font-semibold disabled:opacity-50">{tx._isProcessing ? '...' : 'Reject'}</button>
       </div>
     </div>
   );
@@ -107,6 +107,7 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
   const [rejectReason, setRejectReason] = useState('');
   const [selectedAppeal, setSelectedAppeal] = useState(null);
   const [resolutionNotes, setResolutionNotes] = useState('');
+  const [processingTxs, setProcessingTxs] = useState(new Set());
 
   const pendingTopups = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'topup');
   const pendingWithdraws = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'withdraw');
@@ -150,13 +151,23 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
   if (currentUser?.role !== 'admin') return null;
 
   const approveTransaction = async (tx) => {
-    const targetProfiles = await base44.entities.UserProfile.filter({ user_email: tx.user_email });
-    const targetProfile = targetProfiles[0];
-    if (!targetProfile) return;
+    if (processingTxs.has(tx.id)) return;
+    setProcessingTxs(prev => new Set(prev).add(tx.id));
+    
+    try {
+      const checkTx = await base44.entities.WalletTransaction.filter({ id: tx.id });
+      if (checkTx[0]?.status !== 'pending') {
+        toast.error('This transaction is already processed');
+        return;
+      }
 
-    const currency = tx.currency || 'USD';
-    const balanceField = getCurrencyBalanceField(currency);
-    const targetBalance = targetProfile[balanceField] || 0;
+      const targetProfiles = await base44.entities.UserProfile.filter({ user_email: tx.user_email });
+      const targetProfile = targetProfiles[0];
+      if (!targetProfile) return;
+
+      const currency = tx.currency || 'USD';
+      const balanceField = getCurrencyBalanceField(currency);
+      const targetBalance = targetProfile[balanceField] || 0;
 
     if (tx.request_kind === 'topup' || tx.request_kind === 'receive') {
       await base44.entities.UserProfile.update(targetProfile.id, {
@@ -213,30 +224,52 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
       approved_by_email: currentUser.email,
       approved_at: new Date().toISOString(),
     });
-    await base44.entities.Notification.create({
-      user_email: tx.user_email,
-      type: '✅',
-      text: `Your ${tx.request_kind} request was approved`,
-      text_lao: `ຄຳຂໍ ${tx.request_kind} ຂອງທ່ານໄດ້ຖືກອະນຸມັດ`,
-    });
-    onUpdated?.();
+      await base44.entities.Notification.create({
+        user_email: tx.user_email,
+        type: '✅',
+        text: `Your ${tx.request_kind} request was approved`,
+        text_lao: `ຄຳຂໍ ${tx.request_kind} ຂອງທ່ານໄດ້ຖືກອະນຸມັດ`,
+      });
+      onUpdated?.();
+    } catch (err) {
+      toast.error('Failed to approve transaction');
+      console.error(err);
+    } finally {
+      setProcessingTxs(prev => { const next = new Set(prev); next.delete(tx.id); return next; });
+    }
   };
 
   const rejectTransaction = async (tx, reason) => {
-    await base44.entities.WalletTransaction.update(tx.id, {
-      status: 'rejected',
-      reject_reason: reason || '',
-      approved_by_name: currentUser.full_name || currentUser.email,
-      approved_by_email: currentUser.email,
-      approved_at: new Date().toISOString(),
-    });
-    await base44.entities.Notification.create({
-      user_email: tx.user_email,
-      type: '❌',
-      text: `Your ${tx.request_kind} request was rejected${reason ? `: ${reason}` : ''}`,
-      text_lao: `ຄຳຂໍ ${tx.request_kind} ຂອງທ່ານຖືກປະຕິເສດ${reason ? `: ${reason}` : ''}`,
-    });
-    onUpdated?.();
+    if (processingTxs.has(tx.id)) return;
+    setProcessingTxs(prev => new Set(prev).add(tx.id));
+    
+    try {
+      const checkTx = await base44.entities.WalletTransaction.filter({ id: tx.id });
+      if (checkTx[0]?.status !== 'pending') {
+        toast.error('This transaction is already processed');
+        return;
+      }
+
+      await base44.entities.WalletTransaction.update(tx.id, {
+        status: 'rejected',
+        reject_reason: reason || '',
+        approved_by_name: currentUser.full_name || currentUser.email,
+        approved_by_email: currentUser.email,
+        approved_at: new Date().toISOString(),
+      });
+      await base44.entities.Notification.create({
+        user_email: tx.user_email,
+        type: '❌',
+        text: `Your ${tx.request_kind} request was rejected${reason ? `: ${reason}` : ''}`,
+        text_lao: `ຄຳຂໍ ${tx.request_kind} ຂອງທ່ານຖືກປະຕິເສດ${reason ? `: ${reason}` : ''}`,
+      });
+      onUpdated?.();
+    } catch (err) {
+      toast.error('Failed to reject transaction');
+      console.error(err);
+    } finally {
+      setProcessingTxs(prev => { const next = new Set(prev); next.delete(tx.id); return next; });
+    }
   };
 
   const approveStayPayout = async (booking) => {
@@ -532,7 +565,7 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {currentList.map((tx) => (
-              <RequestCard key={tx.id} tx={tx} lang={lang} onApprove={approveTransaction} onReject={(item) => { setRejectingTx(item); setRejectReason(item.reject_reason || ''); }} />
+              <RequestCard key={tx.id} tx={{ ...tx, _isProcessing: processingTxs.has(tx.id) }} lang={lang} onApprove={approveTransaction} onReject={(item) => { setRejectingTx(item); setRejectReason(item.reject_reason || ''); }} />
             ))}
           </div>
         )
