@@ -18,6 +18,7 @@ export default function AdminExchangeRates({ currentUser, lang }) {
   const [saving, setSaving] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [bcelTime, setBcelTime] = useState(null);
 
   const loadSettings = async () => {
     const items = await base44.entities.ExchangeRateSettings.list('-updated_date', 1);
@@ -65,6 +66,7 @@ export default function AdminExchangeRates({ currentUser, lang }) {
           usdt_buy: data.rates.usdtBuy,
           usdt_sell: data.rates.usdtSell,
         }));
+        setBcelTime(data.time || data.rates.time || new Date().toISOString());
         toast.success(lang === 'lo' ? 'ດຶງອັດຕາ BCEL ສຳເລັດ' : 'BCEL rates fetched');
       } else {
         toast.error(lang === 'lo' ? 'ບໍ່ສາມາດດຶງອັດຕາໄດ້' : 'Failed to fetch rates');
@@ -129,21 +131,39 @@ export default function AdminExchangeRates({ currentUser, lang }) {
             <h3 className="font-bold text-base">{lang === 'lo' ? 'ອັດຕາແລກປ່ຽນ' : 'Exchange Rates'}</h3>
             <p className="text-sm text-muted-foreground">{lang === 'lo' ? 'ຕັ້ງອັດຕາແລກປ່ຽນທີ່ຈະສະແດງໃຫ້ຜູ້ໃຊ້' : 'Set the rates shown to all users in their wallet'}</p>
           </div>
-          <button
-            onClick={fetchBcelRates}
-            disabled={fetching}
-            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-xl text-xs font-semibold hover:opacity-90 disabled:opacity-50"
-          >
-            <RefreshCw size={14} className={fetching ? 'animate-spin' : ''} />
-            {fetching ? '...' : (lang === 'lo' ? 'ດຶງ BCEL' : 'Fetch BCEL')}
-          </button>
+          <div className="flex items-center gap-2">
+            <a 
+              href="https://www.bcel.com.la/bcel/exchange-rate.html?lang=en" 
+              target="_blank" 
+              rel="noreferrer"
+              className="flex items-center gap-1 border border-primary text-primary px-3 py-2 rounded-xl text-xs font-bold hover:bg-primary/10 transition-colors"
+            >
+              {lang === 'lo' ? 'ເວັບ BCEL' : 'BCEL Web'} ↗
+            </a>
+            <button
+              onClick={fetchBcelRates}
+              disabled={fetching}
+              className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-xl text-xs font-bold hover:opacity-90 disabled:opacity-50 transition-colors"
+            >
+              <RefreshCw size={14} className={fetching ? 'animate-spin' : ''} />
+              {fetching ? '...' : (lang === 'lo' ? 'ດຶງ BCEL' : 'Fetch BCEL')}
+            </button>
+          </div>
         </div>
 
         {settings?.updated_date && (
-          <p className="text-xs text-muted-foreground mb-4">
-            {lang === 'lo' ? 'ອັບເດດລ່າສຸດ' : 'Last updated'}: {moment(settings.updated_date).format('MMM D, YYYY h:mm A')}
+          <p className="text-xs text-muted-foreground mb-2">
+            {lang === 'lo' ? 'ອັບເດດລ່າສຸດໃນລະບົບ' : 'Last saved in system'}: {moment(settings.updated_date).format('MMM D, YYYY h:mm A')}
             {settings.updated_by && ` · ${settings.updated_by}`}
           </p>
+        )}
+        
+        {bcelTime && (
+          <div className="mb-4">
+            <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-100/50 border border-emerald-200 px-2 py-1 rounded-md">
+              ✅ {lang === 'lo' ? 'ດຶງອັດຕາ BCEL ເວລາ' : 'Fetched BCEL rates at'}: {moment(bcelTime).format('MMM D, YYYY h:mm A')}
+            </span>
+          </div>
         )}
 
         {/* Rate table */}
