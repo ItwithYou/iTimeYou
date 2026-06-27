@@ -85,30 +85,35 @@ export default function Profile() {
   };
 
   const saveEdit = async () => {
+    // Prevent undefined values which crash Firestore
+    const safeData = {
+      first_name: editData.first_name || '',
+      last_name: editData.last_name || '',
+      bio: editData.bio || '',
+      bio_lao: editData.bio || '',
+      location: editData.location || '',
+      gender: editData.gender || '',
+    };
+
     // Optimistic: update local state immediately
     const optimisticProfile = {
       ...viewProfile,
-      first_name: editData.first_name,
-      last_name: editData.last_name,
-      bio: editData.bio,
-      bio_lao: editData.bio,
-      location: editData.location,
-      gender: editData.gender,
+      ...safeData,
     };
     setViewProfile(optimisticProfile);
     setEditing(false);
-    toast.success(t.profileSaved);
 
-    // Persist in background
-    await base44.entities.UserProfile.update(viewProfile.id, {
-      first_name: editData.first_name,
-      last_name: editData.last_name,
-      bio: editData.bio,
-      bio_lao: editData.bio,
-      location: editData.location,
-      gender: editData.gender,
-    });
-    refreshProfile();
+    try {
+      // Persist in background
+      await base44.entities.UserProfile.update(viewProfile.id, safeData);
+      toast.success(t.profileSaved);
+      refreshProfile();
+    } catch (err) {
+      console.error('Failed to save profile:', err);
+      toast.error('Failed to save. Please try again.');
+      // Revert optimistic update
+      loadProfile();
+    }
   };
 
   if (!currentUser) return (
