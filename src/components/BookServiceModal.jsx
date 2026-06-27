@@ -139,23 +139,49 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
         c.participants?.includes(currentUser.email) && c.participants?.includes(post.author_email)
       );
       let convId;
+      const bookingContext = JSON.stringify({
+        booking_id: booking.id,
+        service_type: post.service_type || 'Service',
+        service_emoji: post.service_type_emoji || '🛎️',
+        price,
+        currency,
+        service_when: selectedSlot || post.service_when || '',
+        service_location: post.service_location || '',
+        service_location_map_url: post.service_location_map_url || '',
+        booker_name: currentUser.full_name || currentUser.email,
+        booker_email: currentUser.email,
+        poster_name: post.author_name || '',
+      });
       if (existing) {
         convId = existing.id;
+        await base44.entities.Conversation.update(convId, {
+          booking_context: bookingContext,
+          booking_id: booking.id,
+          last_message: `📋 ${lang === 'lo' ? 'ຈອງ' : 'Booked'}: ${post.service_type || 'Service'}`,
+          last_message_time: new Date().toISOString(),
+        });
       } else {
         const conv = await base44.entities.Conversation.create({
           participants: [currentUser.email, post.author_email],
-          last_message: '',
+          booking_context: bookingContext,
+          booking_id: booking.id,
+          last_message: `📋 ${lang === 'lo' ? 'ຈອງ' : 'Booked'}: ${post.service_type || 'Service'}`,
+          last_message_time: new Date().toISOString(),
         });
         convId = conv.id;
       }
+      // Send initial booking confirmation message
+      const whenText = selectedSlot || post.service_when
+        ? `\n⏰ ${selectedSlot || post.service_when}` : '';
+      const locationText = post.service_location ? `\n📍 ${post.service_location}` : '';
       await base44.entities.Message.create({
         conversation_id: convId,
         sender_email: currentUser.email,
-        text: `Hi! I just booked your service "${post.service_type || 'Service'}" for ${price} ${currency}. Looking forward to it! 🎉`,
-      });
-      await base44.entities.Conversation.update(convId, {
-        last_message: `Booking confirmed for "${post.service_type || 'Service'}"`,
-        last_message_time: new Date().toISOString(),
+        text: `📋 ${lang === 'lo' ? 'ຂ້ອຍຈອງ' : 'I booked'}: "${post.service_type || 'Service'}"
+💰 ${price} ${currency}${whenText}${locationText}
+
+${lang === 'lo' ? 'ລໍຖ້າ ✅' : 'Looking forward to it! ✅'}`,
+        msg_type: 'booking_card',
       });
 
       toast.success(lang === 'lo' ? 'ຈອງສຳເລັດ! ✅' : 'Booking confirmed! ✅');
