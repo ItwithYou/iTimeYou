@@ -7,7 +7,8 @@ import { formatTimestampDMY } from '../../utils/dateUtils';
 
 const getCurrencyBalanceField = (currency) => {
   if (currency === 'LAK') return 'wallet_balance_lak';
-  if (currency === 'USDT') return 'wallet_balance_usdt';
+  if (currency === 'THB') return 'wallet_balance_thb';
+  if (currency === 'CNY') return 'wallet_balance_cny';
   return 'wallet_balance_usd';
 };
 

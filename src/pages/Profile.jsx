@@ -286,9 +286,9 @@ export default function Profile() {
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 >
                   <option value="LAK">LAK</option>
-                  <option value="USD">USD</option>
-                  <option value="THB">THB</option>
-                  <option value="CNY">CNY</option>
+                  <option value="USD">USD ($)</option>
+                  <option value="THB">THB (฿)</option>
+                  <option value="CNY">CNY (¥)</option>
                 </select>
               )}
             </div>
@@ -345,7 +345,8 @@ export default function Profile() {
               options={[
                 { value: 'LAK', label: 'LAK (ກີບ)' },
                 { value: 'USD', label: 'USD ($)' },
-                { value: 'USDT', label: 'USDT (₮)' },
+                { value: 'THB', label: 'THB (฿)' },
+                { value: 'CNY', label: 'CNY (¥)' },
               ]}
               placeholder={lang === 'lo' ? 'ເລືອກສະກຸນເງິນ' : 'Select currency'}
               label={lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}

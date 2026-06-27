@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { getTodayISO, getNowDatetimeLocal, isDateTimeInPast, formatDateDMY, formatDateTimeDMY } from '../utils/dateUtils';
 import { PERSONAL_CATS } from '../hooks/useLang';
 
-const CURRENCIES = ['LAK', 'USD', 'USDT'];
+const CURRENCIES = ['LAK', 'USD', 'THB', 'CNY'];
 
 
 export default function CreateServicePost({ profile, currentUser, lang, t, onPosted, defaultOpen }) {

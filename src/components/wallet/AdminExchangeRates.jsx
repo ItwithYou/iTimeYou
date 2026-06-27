@@ -6,7 +6,6 @@ import moment from 'moment';
 
 const RATE_FIELDS = [
   { code: 'USD', buyKey: 'usd_buy', sellKey: 'usd_sell', flag: '🇺🇸' },
-  { code: 'USDT', buyKey: 'usdt_buy', sellKey: 'usdt_sell', flag: '💲' },
   { code: 'THB', buyKey: 'thb_buy', sellKey: 'thb_sell', flag: '🇹🇭' },
   { code: 'CNY', buyKey: 'cny_buy', sellKey: 'cny_sell', flag: '🇨🇳' },
   { code: 'VND', buyKey: 'vnd_buy', sellKey: 'vnd_sell', flag: '🇻🇳' },
@@ -28,8 +27,6 @@ export default function AdminExchangeRates({ currentUser, lang }) {
       setForm({
         usd_buy: item.usd_buy || '',
         usd_sell: item.usd_sell || '',
-        usdt_buy: item.usdt_buy || '',
-        usdt_sell: item.usdt_sell || '',
         thb_buy: item.thb_buy || '',
         thb_sell: item.thb_sell || '',
         cny_buy: item.cny_buy || '',
@@ -41,7 +38,6 @@ export default function AdminExchangeRates({ currentUser, lang }) {
     } else {
       setForm({
         usd_buy: 22072, usd_sell: 22183,
-        usdt_buy: 22072, usdt_sell: 22183,
         thb_buy: 640, thb_sell: 660,
         cny_buy: 3000, cny_sell: 3100,
         vnd_buy: 0.85, vnd_sell: 0.9,
@@ -63,8 +59,6 @@ export default function AdminExchangeRates({ currentUser, lang }) {
           ...prev,
           usd_buy: data.rates.usdBuy ?? prev.usd_buy,
           usd_sell: data.rates.usdSell ?? prev.usd_sell,
-          usdt_buy: data.rates.usdtBuy ?? data.rates.usdBuy ?? prev.usdt_buy,
-          usdt_sell: data.rates.usdtSell ?? data.rates.usdSell ?? prev.usdt_sell,
           thb_buy: data.rates.thbBuy ?? prev.thb_buy,
           thb_sell: data.rates.thbSell ?? prev.thb_sell,
           cny_buy: data.rates.cnyBuy ?? prev.cny_buy,

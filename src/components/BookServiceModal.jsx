@@ -21,15 +21,17 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
         setExchangeRates({
           usdBuy: item.usd_buy || 22072,
           usdSell: item.usd_sell || 22183,
-          usdtBuy: item.usdt_buy || item.usd_buy || 22072,
-          usdtSell: item.usdt_sell || item.usd_sell || 22183,
+          thbBuy: item.thb_buy || 640,
+          thbSell: item.thb_sell || 645,
+          cnyBuy: item.cny_buy || 3040,
+          cnySell: item.cny_sell || 3060,
         });
       }
     });
   }, []);
 
   const totalLakBalance = getTotalLakBalance(profile, exchangeRates);
-  const requiredLak = currency === 'LAK' ? price : price * (currency === 'USDT' ? exchangeRates.usdtBuy : exchangeRates.usdBuy);
+  const requiredLak = currency === 'LAK' ? price : price * (currency === 'THB' ? exchangeRates.thbBuy : currency === 'CNY' ? exchangeRates.cnyBuy : exchangeRates.usdBuy);
   const canAfford = totalLakBalance >= requiredLak;
   const isHourlyService = post.service_duration_unit === 'hours';
   const slotOptions = useMemo(() => {

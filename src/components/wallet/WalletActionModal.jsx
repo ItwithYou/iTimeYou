@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { DEFAULT_EXCHANGE_RATES, convertFromLak, convertToLak, exchangeWalletBalance } from '../../utils/wallet';
 
 const BANKS = ['BCEL', 'LDB'];
-const CURRENCIES = ['LAK', 'USD', 'USDT'];
+const CURRENCIES = ['LAK', 'USD', 'THB', 'CNY'];
 
 function FileUploadButton({ label, accept, onChange }) {
   const ref = useRef(null);

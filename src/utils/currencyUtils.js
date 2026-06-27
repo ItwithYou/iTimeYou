@@ -7,57 +7,43 @@ export const convertAndFormatPrice = (amount, originalCurrency, preferredCurrenc
   const fromCurrency = rawCurrency.replace(/\/.*$/, '').trim();
   const toCurrency = (preferredCurrency || fromCurrency).toUpperCase();
 
-  // Handle LAK formatting (no decimals, commas)
+  // Formatters
   const formatLak = (val) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Math.round(val));
-  // Handle USD/USDT formatting (decimals allowed)
   const formatUsd = (val) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
 
-  // If the target currency matches the original, just format it
   if (fromCurrency === toCurrency) {
     if (toCurrency === 'LAK') return `${formatLak(amount)} LAK${suffix}`;
     if (toCurrency === 'USD') return `$${formatUsd(amount)}${suffix}`;
-    if (toCurrency === 'USDT') return `₮${formatUsd(amount)}${suffix}`;
     if (toCurrency === 'THB') return `฿${formatLak(amount)}${suffix}`;
     if (toCurrency === 'CNY') return `¥${formatUsd(amount)}${suffix}`;
     return `${amount} ${toCurrency}${suffix}`;
   }
 
-  // Base exchange rates against USD
-  const lakToUsdRate = exchangeRates?.usdBuy || 22000;
-  const usdtToUsdRate = 1; // Assuming 1 USDT = 1 USD for display
+  // Base exchange rates against LAK (using Buy rates for display consistency)
+  const usdToLak = exchangeRates?.usdBuy || 22072;
+  const thbToLak = exchangeRates?.thbBuy || 640;
+  const cnyToLak = exchangeRates?.cnyBuy || 3040;
 
-  let amountInUsd = amount;
+  // 1. Convert FROM original currency TO LAK
+  let amountInLak = amount;
+  if (fromCurrency === 'USD') amountInLak = amount * usdToLak;
+  else if (fromCurrency === 'THB') amountInLak = amount * thbToLak;
+  else if (fromCurrency === 'CNY') amountInLak = amount * cnyToLak;
+  else if (fromCurrency !== 'LAK') return `${amount} ${fromCurrency}`; // Unknown
 
-  // Convert FROM original currency TO USD
-  if (fromCurrency === 'LAK') {
-    amountInUsd = amount / lakToUsdRate;
-  } else if (fromCurrency === 'USDT') {
-    amountInUsd = amount * usdtToUsdRate;
-  } else if (fromCurrency === 'THB') {
-    amountInUsd = amount / (exchangeRates?.thbBuy || 35);
-  } else if (fromCurrency === 'CNY') {
-    amountInUsd = amount / (exchangeRates?.cnyBuy || 7.2);
-  } else if (fromCurrency !== 'USD') {
-    // If unknown currency, just return raw
-    return `${amount} ${fromCurrency}`;
-  }
-
-  // Convert FROM USD to preferred currency
+  // 2. Convert FROM LAK TO preferred currency
   if (toCurrency === 'LAK') {
-    return `${formatLak(amountInUsd * lakToUsdRate)} LAK${suffix}`;
-  } else if (toCurrency === 'USDT') {
-    return `₮${formatUsd(amountInUsd / usdtToUsdRate)}${suffix}`;
-  } else if (toCurrency === 'THB') {
-    return `฿${formatLak(amountInUsd * (exchangeRates?.thbBuy || 35))}${suffix}`;
-  } else if (toCurrency === 'CNY') {
-    return `¥${formatUsd(amountInUsd * (exchangeRates?.cnyBuy || 7.2))}${suffix}`;
+    return `${formatLak(amountInLak)} LAK${suffix}`;
   } else if (toCurrency === 'USD') {
-    return `$${formatUsd(amountInUsd)}${suffix}`;
+    return `$${formatUsd(amountInLak / usdToLak)}${suffix}`;
+  } else if (toCurrency === 'THB') {
+    return `฿${formatLak(amountInLak / thbToLak)}${suffix}`;
+  } else if (toCurrency === 'CNY') {
+    return `¥${formatUsd(amountInLak / cnyToLak)}${suffix}`;
   }
 
   return `${amount} ${toCurrency}${suffix}`;
 };
-
 export const translateSuffix = (suffix, lang) => {
   if (lang !== 'lo' || !suffix) return suffix;
   const s = suffix.toUpperCase();

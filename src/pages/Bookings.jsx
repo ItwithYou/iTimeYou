@@ -158,7 +158,7 @@ export default function Bookings() {
     const profiles = await firebaseClient.entities.UserProfile.filter({ user_email: bookerEmail });
     const bookerProfile = profiles[0];
     if (bookerProfile) {
-      const balanceField = booking.currency === 'LAK' ? 'wallet_balance_lak' : booking.currency === 'USDT' ? 'wallet_balance_usdt' : 'wallet_balance_usd';
+      const balanceField = booking.currency === 'LAK' ? 'wallet_balance_lak' : booking.currency === 'THB' ? 'wallet_balance_thb' : booking.currency === 'CNY' ? 'wallet_balance_cny' : 'wallet_balance_usd';
       await firebaseClient.entities.UserProfile.update(bookerProfile.id, {
         [balanceField]: (bookerProfile[balanceField] || 0) + Math.abs(price || 0)
       });
@@ -212,7 +212,7 @@ export default function Bookings() {
     const providerProfiles = await firebaseClient.entities.UserProfile.filter({ user_email: posterEmail });
     const providerProfile = providerProfiles[0];
     if (providerProfile) {
-      const balanceField = booking.currency === 'LAK' ? 'wallet_balance_lak' : booking.currency === 'USDT' ? 'wallet_balance_usdt' : 'wallet_balance_usd';
+      const balanceField = booking.currency === 'LAK' ? 'wallet_balance_lak' : booking.currency === 'THB' ? 'wallet_balance_thb' : booking.currency === 'CNY' ? 'wallet_balance_cny' : 'wallet_balance_usd';
       await firebaseClient.entities.UserProfile.update(providerProfile.id, {
         [balanceField]: (providerProfile[balanceField] || 0) + Math.abs(price || 0),
         wallet_currency: booking.currency || 'USD'

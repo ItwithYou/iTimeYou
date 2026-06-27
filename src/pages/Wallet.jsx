@@ -33,18 +33,16 @@ export default function Wallet() {
   const [profilesByEmail, setProfilesByEmail] = useState({});
   const [actionType, setActionType] = useState('');
   const [exchangeRates, setExchangeRates] = useState({
-    usdBuy: 0,
-    usdSell: 0,
-    usdtBuy: 0,
-    usdtSell: 0,
+    usdBuy: 0, usdSell: 0,
+    thbBuy: 0, thbSell: 0,
+    cnyBuy: 0, cnySell: 0,
     updatedAt: '',
   });
   const [ratesLoaded, setRatesLoaded] = useState(false);
   const lakBalance = profile?.wallet_balance_lak || 0;
   const usdBalance = profile?.wallet_balance_usd || 0;
-  const usdtBalance = profile?.wallet_balance_usdt || 0;
-  const usdReferenceRate = exchangeRates.usdBuy || 22072;
-  const usdtReferenceRate = exchangeRates.usdtBuy || usdReferenceRate;
+  const thbBalance = profile?.wallet_balance_thb || 0;
+  const cnyBalance = profile?.wallet_balance_cny || 0;
   const totalLak = getTotalLakBalance(profile, exchangeRates);
 
   const loadTx = async () => {
@@ -76,8 +74,10 @@ export default function Wallet() {
         setExchangeRates({
           usdBuy: item.usd_buy || 0,
           usdSell: item.usd_sell || 0,
-          usdtBuy: item.usdt_buy || item.usd_buy || 0,
-          usdtSell: item.usdt_sell || item.usd_sell || 0,
+          thbBuy: item.thb_buy || 0,
+          thbSell: item.thb_sell || 0,
+          cnyBuy: item.cny_buy || 0,
+          cnySell: item.cny_sell || 0,
           updatedAt: item.updated_date || '',
         });
         setRatesLoaded(true);
@@ -141,25 +141,25 @@ export default function Wallet() {
       )}
 
       {/* Premium wallet card */}
-      <div className="relative mb-6 overflow-hidden rounded-[30px] p-6 text-white shadow-[0_30px_80px_-24px_rgba(2,30,26,0.85)] bg-gradient-to-br from-[#0d4339] via-[#0a2e2a] to-[#05201d]">
-        {/* gold inner hairline + glows */}
-        <div className="pointer-events-none absolute inset-0 rounded-[30px] ring-1 ring-inset ring-amber-200/15" />
-        <div className="pointer-events-none absolute -top-24 -right-16 h-64 w-64 rounded-full bg-emerald-400/25 blur-[90px]" />
-        <div className="pointer-events-none absolute -bottom-24 -left-12 h-64 w-64 rounded-full bg-amber-300/10 blur-[90px]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.14),transparent_42%)]" />
+      <div className="relative mb-6 overflow-hidden rounded-[30px] p-6 text-white shadow-[0_30px_80px_-24px_rgba(10,186,181,0.65)] bg-gradient-to-br from-[#12E2DC] via-[#0ABAB5] to-[#088F8A]">
+        {/* Subtle inner hairline + glows */}
+        <div className="pointer-events-none absolute inset-0 rounded-[30px] ring-1 ring-inset ring-white/20" />
+        <div className="pointer-events-none absolute -top-24 -right-16 h-64 w-64 rounded-full bg-white/20 blur-[90px]" />
+        <div className="pointer-events-none absolute -bottom-24 -left-12 h-64 w-64 rounded-full bg-white/10 blur-[90px]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_42%)]" />
 
         <div className="relative">
           {/* Brand row */}
           <div className="mb-8 flex items-center justify-between">
-            <span className="text-[19px] font-black tracking-tight">
-              <span className="text-amber-300">i</span>TimeYou
+            <span className="text-[19px] font-black tracking-tight text-white drop-shadow-sm">
+              iTimeYou
             </span>
           </div>
 
           {/* Chip + balance label */}
           <div className="mb-3 flex items-center gap-3">
-            <div className="flex h-7 items-center justify-center rounded-md bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_2px_10px_rgba(217,119,6,0.3)] ring-1 ring-amber-500/50">
-              <span className="text-[10px] font-extrabold tracking-widest text-amber-950 drop-shadow-[0_1px_0_rgba(255,255,255,0.4)]">
+            <div className="flex h-7 items-center justify-center rounded-md bg-gradient-to-br from-white/90 to-white/70 px-3 shadow-[0_2px_10px_rgba(0,0,0,0.1)] ring-1 ring-black/5">
+              <span className="text-[10px] font-extrabold tracking-widest text-[#088F8A]">
                 iTimeYou
               </span>
             </div>
@@ -168,10 +168,10 @@ export default function Wallet() {
 
           {/* Big balance number — premium tabular font */}
           <div className="flex items-end gap-2">
-            <span className="wallet-num bg-gradient-to-r from-white via-white to-amber-100 bg-clip-text text-[44px] font-extrabold leading-none text-transparent break-all">
+            <span className="wallet-num bg-gradient-to-r from-white via-white to-white/90 bg-clip-text text-[44px] font-extrabold leading-none text-transparent break-all drop-shadow-sm">
               {totalLak.toLocaleString()}
             </span>
-            <span className="pb-2 text-sm font-bold text-amber-200/80">LAK</span>
+            <span className="pb-2 text-sm font-bold text-white/90">LAK</span>
           </div>
 
 
@@ -184,15 +184,16 @@ export default function Wallet() {
           </div>
 
           {/* Currency pills */}
-          <div className="mt-5 grid grid-cols-3 gap-2.5">
+          <div className="mt-5 grid grid-cols-4 gap-2.5">
             {[
               { code: 'LAK', val: lakBalance },
               { code: 'USD', val: usdBalance },
-              { code: 'USDT', val: usdtBalance },
+              { code: 'THB', val: thbBalance },
+              { code: 'CNY', val: cnyBalance },
             ].map((c) => (
-              <div key={c.code} className="min-w-0 rounded-2xl border border-white/12 bg-white/[0.07] px-3.5 py-3 backdrop-blur-sm">
-                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-amber-200/70">{c.code}</p>
-                <p className="wallet-num mt-1 break-all text-[14px] font-bold leading-tight text-white">{(c.val || 0).toLocaleString()}</p>
+              <div key={c.code} className="min-w-0 rounded-2xl border border-white/20 bg-white/[0.12] px-2.5 py-3 backdrop-blur-md">
+                <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-white/80">{c.code}</p>
+                <p className="wallet-num mt-1 break-all text-[12px] sm:text-[14px] font-bold leading-tight text-white drop-shadow-sm">{(c.val || 0).toLocaleString()}</p>
               </div>
             ))}
           </div>
@@ -209,7 +210,7 @@ export default function Wallet() {
           >
             <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-[18px] bg-card border border-border shadow-sm transition-all duration-200 group-hover:shadow-md group-hover:-translate-y-1 group-active:scale-95 group-active:translate-y-0 relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <btn.icon size={20} className="text-emerald-600 relative z-10" />
+              <btn.icon size={20} className="text-[#0ABAB5] relative z-10" />
             </div>
             <span className="text-[10px] sm:text-[11px] font-semibold text-foreground/80 leading-tight text-center tracking-wide">{btn.label}</span>
           </button>
@@ -222,7 +223,7 @@ export default function Wallet() {
           <p className="text-xs font-bold text-foreground">{lang === 'lo' ? 'ອັດຕາແລກປ່ຽນ' : 'Exchange Rates'}</p>
           {ratesLoaded ? (
             <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
-              USD {exchangeRates.usdBuy.toLocaleString()} · USDT {exchangeRates.usdtBuy.toLocaleString()}
+              USD {exchangeRates.usdBuy.toLocaleString()} · THB {exchangeRates.thbBuy.toLocaleString()} · CNY {exchangeRates.cnyBuy.toLocaleString()}
             </p>
           ) : (
             <p className="mt-0.5 text-[11px] text-muted-foreground">{lang === 'lo' ? 'ກຳລັງໂຫລດ...' : 'Loading...'}</p>
