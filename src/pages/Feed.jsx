@@ -43,8 +43,8 @@ export default function Feed() {
   // Automated one-time seeder for premium demo data — Yakuci admin posts
   useEffect(() => {
     const seedData = async () => {
-      if (localStorage.getItem('seeded_yakuci_v4')) return;
-      localStorage.setItem('seeded_yakuci_v4', 'true');
+      if (localStorage.getItem('seeded_yakuci_v5')) return;
+      localStorage.setItem('seeded_yakuci_v5', 'true');
 
       // Clean up old demo posts
       try {
@@ -70,13 +70,13 @@ export default function Feed() {
           text_en: 'Hmong New Year 2026! The most beautiful festival — traditional dances, ball-tossing games, and stunning Hmong costumes. Come celebrate with us! 🎊🌸',
           text_lo: 'ປີໃໝ່ມົ້ງ 2026! ເທດສະການທີ່ສວຍງາມທີ່ສຸດ — ເຕັ້ນລຳ, ເກມໂຍນລູກບານ, ແລະ ຊຸດມົ້ງດັ້ງເດີມ. ມາສະເຫຼີມສະຫຼອງນຳກັນ! 🎊🌸',
           photo_urls: [
+            'https://images.unsplash.com/photo-1512887680180-2c70fb92a2a4?w=800&q=80',
+            'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
             'https://images.unsplash.com/photo-1596489481283-36cb9eb070d6?w=800&q=80',
-            'https://images.unsplash.com/photo-1628174542289-4b68ce46b1eb?w=800&q=80',
-            'https://images.unsplash.com/photo-1582236371720-3351ec8f26db?w=800&q=80',
-            'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&q=80',
-            'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80'
+            'https://images.unsplash.com/photo-1610018861294-b2512fde1c9e?w=800&q=80',
+            'https://images.unsplash.com/photo-1604999333679-b86d54738315?w=800&q=80'
           ],
-          photo_url: 'https://images.unsplash.com/photo-1596489481283-36cb9eb070d6?w=800&q=80',
+          photo_url: 'https://images.unsplash.com/photo-1512887680180-2c70fb92a2a4?w=800&q=80',
           service_price: 0,
         },
         {
@@ -100,13 +100,13 @@ export default function Feed() {
           text_en: 'Book a 1-on-1 session with a Lao cultural expert! Learn about Baci traditions, silk weaving heritage, and ethnic group history. 1-hour private consultation available 🎓🇱🇦',
           text_lo: 'ນັດລົມກັບຜູ້ຊ່ຽວຊານດ້ານວັດທະນະທຳລາວ! ຮຽນຮູ້ກ່ຽວກັບປະເພນີບາສີ, ການຖັກແສ່ວ, ແລະ ປະຫວັດສາດຊົນເຜົ່າ. ຈອງເວລາ 1 ຊົ່ວໂມງ ເພື່ອສົນທະນາສ່ວນຕົວ 🎓🇱🇦',
           photo_urls: [
-            'https://images.unsplash.com/photo-1627894483216-2138af692e32?w=800&q=80',
-            'https://images.unsplash.com/photo-1605389659050-2f3b922262d0?w=800&q=80',
-            'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80',
+            'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
             'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80',
-            'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80'
+            'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80',
+            'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80',
+            'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&q=80'
           ],
-          photo_url: 'https://images.unsplash.com/photo-1627894483216-2138af692e32?w=800&q=80',
+          photo_url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
           service_price: 25, service_type: 'Expert Session', service_location: 'Online / Vientiane', service_currency: 'USD',
         },
         {
