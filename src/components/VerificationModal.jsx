@@ -54,54 +54,50 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[100] flex items-center justify-center p-4" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onTouchEnd={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="bg-card rounded-[24px] p-5 sm:p-7 max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl border border-border overscroll-contain" onMouseDown={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-5 sticky top-0 bg-card z-10 pb-2 border-b border-border">
-          <h2 className="text-lg font-bold">{t.verifyTitle}</h2>
-          <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-full transition-colors"><X size={20} /></button>
-        </div>
-
-        <div className="bg-emerald-50 rounded-lg p-3 text-sm text-emerald-700 mb-5 leading-relaxed">
-          {t.verFeats}
+      <div className="bg-card rounded-[24px] p-4 sm:p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-border overscroll-contain" onMouseDown={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-3 sticky top-0 bg-card z-10 pb-2 border-b border-border">
+          <h2 className="text-[15px] sm:text-lg font-bold">{t.verifyTitle}</h2>
+          <button onClick={onClose} className="p-1 hover:bg-muted rounded-full transition-colors"><X size={18} /></button>
         </div>
 
         {/* Step 1 */}
-        <div className="flex gap-3 mb-4">
-          <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center flex-shrink-0">1</div>
-          <div className="flex-1 space-y-3">
-            <div className="font-semibold text-sm">Personal Information</div>
+        <div className="flex gap-2 mb-3">
+          <div className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center flex-shrink-0">1</div>
+          <div className="flex-1 space-y-2">
+            <div className="font-semibold text-[13px]">Personal Information</div>
             <div>
-              <label className="text-xs font-semibold">{t.fullName}</label>
-              <input value={name} onChange={e => setName(e.target.value)} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" placeholder="As shown on your ID" />
+              <label className="text-[11px] font-semibold">{t.fullName}</label>
+              <input value={name} onChange={e => setName(e.target.value)} className="w-full border border-border rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-primary" placeholder="As shown on your ID" />
             </div>
             <div>
-              <label className="text-xs font-semibold">{t.dob}</label>
-              <input type="date" value={dob} onChange={e => setDob(e.target.value)} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+              <label className="text-[11px] font-semibold">{t.dob}</label>
+              <input type="date" value={dob} onChange={e => setDob(e.target.value)} className="w-full border border-border rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-primary" />
             </div>
           </div>
         </div>
 
         {/* Step 2 */}
-        <div className="flex gap-3 mb-4">
-          <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center flex-shrink-0">2</div>
-          <div className="flex-1 space-y-3">
-            <div className="font-semibold text-sm">Identity Documents</div>
+        <div className="flex gap-2 mb-3">
+          <div className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center flex-shrink-0">2</div>
+          <div className="flex-1 space-y-2">
+            <div className="font-semibold text-[13px]">Identity Documents</div>
             <div>
-              <label className="text-xs font-semibold">{t.idDoc}</label>
+              <label className="text-[11px] font-semibold">{t.idDoc}</label>
               <button
                 type="button"
                 onClick={() => idInputRef.current?.click()}
-                className="flex items-center gap-2 border-2 border-dashed border-border rounded-lg px-4 py-4 text-sm text-muted-foreground active:border-primary transition-colors w-full text-left min-h-[48px]"
+                className="flex items-center gap-2 border border-dashed border-border rounded-lg px-3 py-2 text-xs text-muted-foreground active:border-primary transition-colors w-full text-left"
               >
                 {idFile ? `✅ ${idFile.name}` : '📄 Tap to upload (Passport / National ID)'}
               </button>
               <input ref={idInputRef} type="file" accept="image/*,.pdf" className="hidden" onChange={e => { if (e.target.files[0]) setIdFile(e.target.files[0]); }} />
             </div>
             <div>
-              <label className="text-xs font-semibold">{t.selfieId}</label>
+              <label className="text-[11px] font-semibold">{t.selfieId}</label>
               <button
                 type="button"
                 onClick={() => selfieInputRef.current?.click()}
-                className="flex items-center gap-2 border-2 border-dashed border-border rounded-lg px-4 py-4 text-sm text-muted-foreground active:border-primary transition-colors w-full text-left min-h-[48px]"
+                className="flex items-center gap-2 border border-dashed border-border rounded-lg px-3 py-2 text-xs text-muted-foreground active:border-primary transition-colors w-full text-left"
               >
                 {selfieFile ? `✅ ${selfieFile.name}` : '🤳 Tap to upload selfie holding your ID'}
               </button>
@@ -111,12 +107,12 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
         </div>
 
         {/* Step 3 */}
-        <div className="flex gap-3 mb-6">
-          <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center flex-shrink-0">3</div>
-          <div className="flex-1 space-y-2">
-            <div className="font-semibold text-sm">Agreement</div>
-            <button type="button" onClick={() => setTermsChecked(!termsChecked)} className="flex items-start gap-3 text-sm text-left py-1 min-h-[44px]">
-              <input type="checkbox" checked={termsChecked} readOnly className="mt-0.5 accent-primary w-5 h-5 flex-shrink-0 pointer-events-none" />
+        <div className="flex gap-2 mb-4">
+          <div className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center flex-shrink-0">3</div>
+          <div className="flex-1 space-y-1">
+            <div className="font-semibold text-[13px]">Agreement</div>
+            <button type="button" onClick={() => setTermsChecked(!termsChecked)} className="flex items-start gap-2 text-xs text-left py-1">
+              <input type="checkbox" checked={termsChecked} readOnly className="mt-0.5 accent-primary w-4 h-4 flex-shrink-0 pointer-events-none" />
               <span>{t.termsAgree}</span>
             </button>
           </div>
@@ -125,12 +121,9 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
         <button
           onClick={handleSubmit}
           disabled={submitting}
-          className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+          className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           {submitting ? '...' : t.submitVerify}
-        </button>
-        <button onClick={onClose} className="w-full border border-border py-2.5 rounded-lg text-sm font-semibold mt-2 hover:bg-muted transition-colors">
-          Cancel
         </button>
       </div>
     </div>

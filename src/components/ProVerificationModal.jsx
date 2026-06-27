@@ -43,39 +43,36 @@ export default function ProVerificationModal({ profile, lang, onClose, onSubmitt
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-md p-4" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="bg-card rounded-[24px] w-full sm:max-w-lg p-5 sm:p-7 shadow-2xl border border-border max-h-[85vh] overflow-y-auto overscroll-contain" onMouseDown={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-5 sticky top-0 bg-card z-10 pb-2 border-b border-border">
-          <h2 className="text-lg font-bold">{lang === 'lo' ? 'ສະໝັກ Pro' : 'Apply for Pro'}</h2>
-          <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-full transition-colors"><X size={20} /></button>
+      <div className="bg-card rounded-[24px] w-full sm:max-w-lg p-4 sm:p-6 shadow-2xl border border-border max-h-[90vh] overflow-y-auto overscroll-contain" onMouseDown={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-3 sticky top-0 bg-card z-10 pb-2 border-b border-border">
+          <h2 className="text-[15px] sm:text-lg font-bold">{lang === 'lo' ? 'ສະໝັກ Pro' : 'Apply for Pro'}</h2>
+          <button onClick={onClose} className="p-1 hover:bg-muted rounded-full transition-colors"><X size={18} /></button>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <div>
-            <label className="text-xs font-semibold">{lang === 'lo' ? 'ຊື່ທຸລະກິດ' : 'Business name'}</label>
-            <input value={businessName} onChange={e => setBusinessName(e.target.value)} className="w-full border border-border rounded-lg px-3 py-2 text-sm" placeholder={lang === 'lo' ? 'ຊື່ຕາມໃບອະນຸຍາດ' : 'Name from your business license'} />
+            <label className="text-[11px] font-semibold block mb-1">{lang === 'lo' ? 'ຊື່ທຸລະກິດ' : 'Business name'}</label>
+            <input value={businessName} onChange={e => setBusinessName(e.target.value)} className="w-full border border-border rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-primary" placeholder={lang === 'lo' ? 'ຊື່ຕາມໃບອະນຸຍາດ' : 'Name from your business license'} />
           </div>
           <div>
-            <label className="text-xs font-semibold">{lang === 'lo' ? 'Tax ID' : 'Tax ID'}</label>
-            <input value={taxId} onChange={e => setTaxId(e.target.value)} className="w-full border border-border rounded-lg px-3 py-2 text-sm" placeholder={lang === 'lo' ? 'ເລກປະຈຳຕົວພາສີ' : 'Tax number'} />
+            <label className="text-[11px] font-semibold block mb-1">{lang === 'lo' ? 'Tax ID' : 'Tax ID'}</label>
+            <input value={taxId} onChange={e => setTaxId(e.target.value)} className="w-full border border-border rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-primary" placeholder={lang === 'lo' ? 'ເລກປະຈຳຕົວພາສີ' : 'Tax number'} />
           </div>
           <div>
-            <label className="text-xs font-semibold">{lang === 'lo' ? 'ລາຍຊື່ບໍລິການທີ່ຈະເຮັດ' : 'Service names you provide'}</label>
-            <textarea value={serviceNames} onChange={e => setServiceNames(e.target.value)} rows={3} className="w-full border border-border rounded-lg px-3 py-2 text-sm resize-none" placeholder={lang === 'lo' ? 'ເຊັ່ນ ໂຮງແຮມ, guest house, tour...' : 'Example: hotel, guest house, tour...'} />
+            <label className="text-[11px] font-semibold block mb-1">{lang === 'lo' ? 'ລາຍຊື່ບໍລິການທີ່ຈະເຮັດ' : 'Service names you provide'}</label>
+            <textarea value={serviceNames} onChange={e => setServiceNames(e.target.value)} rows={2} className="w-full border border-border rounded-lg px-2.5 py-1.5 text-sm resize-none outline-none focus:border-primary" placeholder={lang === 'lo' ? 'ເຊັ່ນ ໂຮງແຮມ, guest house, tour...' : 'Example: hotel, guest house, tour...'} />
           </div>
           <div>
-            <label className="text-xs font-semibold block mb-1">{lang === 'lo' ? 'ໃບອະນຸຍາດທຸລະກິດ' : 'Business license'}</label>
-            <button type="button" onClick={() => fileRef.current?.click()} className="flex items-center gap-2 border-2 border-dashed border-border rounded-lg px-4 py-4 text-sm text-muted-foreground w-full text-left min-h-[48px]">
-              {licenseFile ? `✅ ${licenseFile.name}` : (lang === 'lo' ? 'ກົດເພື່ອອັບໂຫລດໃບອະນຸຍາດ' : 'Tap to upload business license')}
+            <label className="text-[11px] font-semibold block mb-1">{lang === 'lo' ? 'ໃບອະນຸຍາດທຸລະກິດ' : 'Business license'}</label>
+            <button type="button" onClick={() => fileRef.current?.click()} className="flex items-center gap-2 border border-dashed border-border rounded-lg px-3 py-2 text-xs text-muted-foreground active:border-primary transition-colors w-full text-left">
+              {licenseFile ? `✅ ${licenseFile.name}` : (lang === 'lo' ? '📄 ກົດເພື່ອອັບໂຫລດໃບອະນຸຍາດ' : '📄 Tap to upload business license')}
             </button>
             <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden" onChange={e => setLicenseFile(e.target.files?.[0] || null)} />
           </div>
         </div>
 
-        <button onClick={handleSubmit} disabled={submitting} className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-sm mt-5 disabled:opacity-50">
+        <button onClick={handleSubmit} disabled={submitting} className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold text-sm mt-4 hover:bg-blue-700 transition-colors disabled:opacity-50">
           {submitting ? '...' : (lang === 'lo' ? 'ສົ່ງຄຳຂໍ Pro' : 'Submit Pro request')}
-        </button>
-        <button onClick={onClose} className="w-full border border-border py-2.5 rounded-lg text-sm font-semibold mt-2 hover:bg-muted transition-colors">
-          {lang === 'lo' ? 'ຍົກເລີກ' : 'Cancel'}
         </button>
       </div>
     </div>
