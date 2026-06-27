@@ -43,8 +43,8 @@ export default function Feed() {
   // Automated one-time seeder for premium demo data — Yakuci admin posts
   useEffect(() => {
     const seedData = async () => {
-      if (localStorage.getItem('seeded_yakuci_v7')) return;
-      localStorage.setItem('seeded_yakuci_v7', 'true');
+      if (localStorage.getItem('seeded_yakuci_v8')) return;
+      localStorage.setItem('seeded_yakuci_v8', 'true');
 
       // Clean up old demo posts
       try {
@@ -100,13 +100,13 @@ export default function Feed() {
           text_en: 'Book a 1-on-1 session with a Lao cultural expert! Learn about Baci traditions, silk weaving heritage, and ethnic group history. 1-hour private consultation available 🎓🇱🇦',
           text_lo: 'ນັດລົມກັບຜູ້ຊ່ຽວຊານດ້ານວັດທະນະທຳລາວ! ຮຽນຮູ້ກ່ຽວກັບປະເພນີບາສີ, ການຖັກແສ່ວ, ແລະ ປະຫວັດສາດຊົນເຜົ່າ. ຈອງເວລາ 1 ຊົ່ວໂມງ ເພື່ອສົນທະນາສ່ວນຕົວ 🎓🇱🇦',
           photo_urls: [
-            'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
-            'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80',
-            'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80',
-            'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80',
-            'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&q=80'
+            'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
+            'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800&q=80',
+            'https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8e?w=800&q=80',
+            'https://images.unsplash.com/photo-1534008897995-27a23e859048?w=800&q=80',
+            'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800&q=80'
           ],
-          photo_url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
+          photo_url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
           service_price: 25, service_type: 'Expert Session', service_location: 'Online / Vientiane', service_currency: 'USD',
         },
         {
@@ -115,13 +115,13 @@ export default function Feed() {
           text_en: 'Lao nature is unmatched! Kuang Si Falls with crystal-clear turquoise water like nowhere else. The trek is challenging but so worth it — nothing compares to Lao wilderness ⛰️💚',
           text_lo: 'ທຳມະຊາດຂອງລາວງາມຫຼາຍ! ນ້ຳຕົກຕາດກວາງຊີ ນ້ຳໃສສີຟ້າທີ່ບໍ່ເຄີຍເຫັນມາກ່ອນ. ການເດີນປ່າຍາກແຕ່ຄຸ້ມຄ່າ — ທຳມະຊາດລາວບໍ່ມີບ່ອນໃດທຽບໄດ້ ⛰️💚',
           photo_urls: [
-            'https://images.unsplash.com/photo-1596489370076-2f7881c12cc8?w=800&q=80',
-            'https://images.unsplash.com/photo-1561081734-7db3e1345d3f?w=800&q=80',
+            'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&q=80',
+            'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
             'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800&q=80',
             'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80',
             'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=800&q=80'
           ],
-          photo_url: 'https://images.unsplash.com/photo-1596489370076-2f7881c12cc8?w=800&q=80',
+          photo_url: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&q=80',
           service_price: 0,
         },
         {
