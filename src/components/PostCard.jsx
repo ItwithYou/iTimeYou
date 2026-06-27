@@ -45,7 +45,6 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
   const [commentText, setCommentText] = useState('');
   const [liked, setLiked] = useState(Array.isArray(post.likes) && post.likes.includes(currentUserEmail));
   const [serviceActive, setServiceActive] = useState(post.service_active !== false);
-  const editPhotoInputRef = useRef(null);
   const [likeCount, setLikeCount] = useState(post.like_count || 0);
   const isOwn = currentUserEmail === post.author_email;
   const canEdit = isOwn || isAdmin;

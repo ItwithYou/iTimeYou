@@ -25,8 +25,7 @@ export default function ListingCard({ listing, t, lang }) {
   const catLabel = t.categories[catIndex] || listing.category;
   const icon = CAT_ICONS[listing.category] || '📌';
   const isAdmin = currentUser?.role === 'admin';
-  const displayImageUrl = editImageFile ? URL.createObjectURL(editImageFile) : (editImageUrl || listing.image_url || '');
-  const safeDisplayImageUrl = (displayImageUrl?.trim()) || coverImage(listing);
+  const safeDisplayImageUrl = (listing.image_urls && listing.image_urls.length > 0) ? listing.image_urls[0] : (listing.image_url || coverImage(listing));
 
   const handleDelete = async () => {
     if (!window.confirm(lang === 'lo' ? 'ລຶບລາຍການນີ້?' : 'Delete this listing?')) return;
