@@ -43,8 +43,8 @@ export default function Feed() {
   // Automated one-time seeder for premium demo data — Yakuci admin posts
   useEffect(() => {
     const seedData = async () => {
-      if (localStorage.getItem('seeded_yakuci_v5')) return;
-      localStorage.setItem('seeded_yakuci_v5', 'true');
+      if (localStorage.getItem('seeded_yakuci_v6')) return;
+      localStorage.setItem('seeded_yakuci_v6', 'true');
 
       // Clean up old demo posts
       try {
@@ -138,6 +138,21 @@ export default function Feed() {
           ],
           photo_url: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80',
           service_price: 45, service_type: 'Lao Guesthouse', service_location: 'Luang Prabang', service_currency: 'USD/night',
+        },
+        {
+          category: 'home',
+          text: 'ບ້ານພັກຕາກອາກາດກາງປ່າທຳມະຊາດໃນລາວ! ງຽບສະຫງົບ, ອາກາດສົດຊື່ນ, ແລະ ໄດ້ສຳຜັດກັບວິຖີຊີວິດຊົນນະບົດແບບແທ້ໆ 🌳🏡',
+          text_en: 'Rural forest homestay in Laos! Peaceful, fresh air, and a true taste of authentic countryside living. Your perfect Airbnb-style getaway 🌳🏡',
+          text_lo: 'ບ້ານພັກຕາກອາກາດກາງປ່າທຳມະຊາດໃນລາວ! ງຽບສະຫງົບ, ອາກາດສົດຊື່ນ, ແລະ ໄດ້ສຳຜັດກັບວິຖີຊີວິດຊົນນະບົດແບບແທ້ໆ 🌳🏡',
+          photo_urls: [
+            'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=800&q=80',
+            'https://images.unsplash.com/photo-1449844908441-8829872d2607?w=800&q=80',
+            'https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=800&q=80',
+            'https://images.unsplash.com/photo-1521401830884-6c03c1c87ebb?w=800&q=80',
+            'https://images.unsplash.com/photo-1542718610-a1d656d1884c?w=800&q=80'
+          ],
+          photo_url: 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=800&q=80',
+          service_price: 35, service_type: 'Forest Homestay', service_location: 'Vang Vieng Rural', service_currency: 'USD/night',
         },
       ];
 
