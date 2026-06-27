@@ -43,8 +43,8 @@ export default function Feed() {
   // Automated one-time seeder for premium demo data — Yakuci admin posts
   useEffect(() => {
     const seedData = async () => {
-      if (localStorage.getItem('seeded_yakuci_v6')) return;
-      localStorage.setItem('seeded_yakuci_v6', 'true');
+      if (localStorage.getItem('seeded_yakuci_v7')) return;
+      localStorage.setItem('seeded_yakuci_v7', 'true');
 
       // Clean up old demo posts
       try {
@@ -70,13 +70,13 @@ export default function Feed() {
           text_en: 'Hmong New Year 2026! The most beautiful festival — traditional dances, ball-tossing games, and stunning Hmong costumes. Come celebrate with us! 🎊🌸',
           text_lo: 'ປີໃໝ່ມົ້ງ 2026! ເທດສະການທີ່ສວຍງາມທີ່ສຸດ — ເຕັ້ນລຳ, ເກມໂຍນລູກບານ, ແລະ ຊຸດມົ້ງດັ້ງເດີມ. ມາສະເຫຼີມສະຫຼອງນຳກັນ! 🎊🌸',
           photo_urls: [
-            'https://images.unsplash.com/photo-1512887680180-2c70fb92a2a4?w=800&q=80',
             'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
             'https://images.unsplash.com/photo-1596489481283-36cb9eb070d6?w=800&q=80',
-            'https://images.unsplash.com/photo-1610018861294-b2512fde1c9e?w=800&q=80',
-            'https://images.unsplash.com/photo-1604999333679-b86d54738315?w=800&q=80'
+            'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80',
+            'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
+            'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80'
           ],
-          photo_url: 'https://images.unsplash.com/photo-1512887680180-2c70fb92a2a4?w=800&q=80',
+          photo_url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
           service_price: 0,
         },
         {
