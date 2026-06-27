@@ -6,8 +6,8 @@
 
 @layer base {
   :root {
-    --font-inter: 'Inter', sans-serif;
-    --font-lao: 'Phetsarath', sans-serif;
+    --font-inter: 'Inter', 'Phetsarath OT', 'Phetsarath', sans-serif;
+    --font-lao: 'Phetsarath OT', 'Phetsarath', sans-serif;
 
     --background: 240 8% 97%;
     --foreground: 220 25% 10%;
