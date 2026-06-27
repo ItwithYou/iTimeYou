@@ -9,7 +9,12 @@ export default function Notifications() {
 
   useEffect(() => {
     if (!currentUser) return;
-    base44.entities.Notification.filter({ user_email: currentUser.email }, '-created_date', 30).then(setNotifications);
+    const load = () => base44.entities.Notification.filter({ user_email: currentUser.email }, '-created_date', 30).then(setNotifications);
+    load();
+    const unsub = base44.entities.Notification.subscribe(() => {
+      load();
+    });
+    return unsub;
   }, [currentUser]);
 
   const markAllRead = async () => {

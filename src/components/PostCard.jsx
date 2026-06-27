@@ -224,12 +224,23 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
             {authorProfile && <span>• {(authorProfile.friends || []).length} {lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'followers'}</span>}
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {post.category && (
-            <span className="text-xs px-2.5 py-1 rounded-xl bg-gradient-to-r from-primary/10 to-deep-green/10 text-primary font-semibold border border-primary/15 flex-shrink-0">
-              {CAT_ICONS[post.category]} {t.categories[catIndex] || ''}
-            </span>
-          )}
+        <div className="flex flex-col items-end gap-1.5">
+          <div className="flex items-center gap-1.5">
+            {post.post_type === 'request' ? (
+              <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 font-bold border border-amber-200 shadow-sm">
+                {lang === 'lo' ? 'ຕ້ອງການບໍລິການ' : 'Looking For'}
+              </span>
+            ) : (
+              <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 font-bold border border-emerald-200 shadow-sm">
+                {lang === 'lo' ? 'ໃຫ້ບໍລິການ' : 'Offering'}
+              </span>
+            )}
+            {post.category && (
+              <span className="text-xs px-2.5 py-1 rounded-xl bg-gradient-to-r from-primary/10 to-deep-green/10 text-primary font-semibold border border-primary/15 flex-shrink-0">
+                {CAT_ICONS[post.category]} {t.categories[catIndex] || ''}
+              </span>
+            )}
+          </div>
           {!isOwn && (
             <button
               onClick={handleFollowToggle}

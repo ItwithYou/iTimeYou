@@ -112,6 +112,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
   };
   const [text, setText] = useState('');
   const [service, setService] = useState(SERVICES[0]);
+  const [postType, setPostType] = useState('offer');
   const [duration, setDuration] = useState(1);
   const [when, setWhen] = useState('');
   const [timeFrom, setTimeFrom] = useState('');
@@ -190,6 +191,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
         text_lo: lang === 'lo' ? text : '',
         text_en: lang === 'en' ? text : '',
         category: service.key === 'talking' || service.key === 'culture' ? 'culture' : service.key === 'food' ? 'food' : service.key === 'room' ? 'stay' : service.key === 'experience' ? 'experience' : service.key === 'nature' ? 'nature' : 'home',
+        post_type: postType,
         photo_url,
         photo_urls,
         likes: [],
@@ -207,6 +209,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
       setText('');
       setPhotoFiles([]);
       setPhotoPreviews([]);
+      setPostType('offer');
       setDuration(service.minTime);
       setWhen('');
       setTimeFrom('');
@@ -292,6 +295,26 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
             rows={2}
             className="flex-1 bg-muted/50 border border-border rounded-2xl px-4 py-2.5 text-sm outline-none focus:border-primary resize-none transition-colors"
           />
+        </div>
+
+        {/* Offer vs Request Toggle */}
+        <div className="flex gap-2 mb-2">
+          <button
+            onClick={() => setPostType('offer')}
+            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all border ${
+              postType === 'offer' ? 'bg-primary text-primary-foreground border-primary shadow-sm' : 'bg-muted/50 text-muted-foreground border-border hover:border-primary/50'
+            }`}
+          >
+            {lang === 'lo' ? 'ຂ້ອຍໃຫ້ບໍລິການ (Offer)' : 'I am Offering'}
+          </button>
+          <button
+            onClick={() => setPostType('request')}
+            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all border ${
+              postType === 'request' ? 'bg-amber-500 text-white border-amber-500 shadow-sm' : 'bg-muted/50 text-muted-foreground border-border hover:border-amber-500/50'
+            }`}
+          >
+            {lang === 'lo' ? 'ຂ້ອຍຕ້ອງການບໍລິການ (Request)' : 'I am Looking for'}
+          </button>
         </div>
 
         {/* Photo previews - Facebook style grid */}
