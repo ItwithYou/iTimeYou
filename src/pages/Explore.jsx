@@ -237,6 +237,15 @@ export default function Explore() {
           >
             <MapPin size={16} />
           </button>
+          {searchQuery && (
+            <button
+              onClick={() => { setSearchQuery(''); filterData(listings, '', activeCat, sortBy); }}
+              className="px-2 py-1 flex-shrink-0 rounded-full text-xs font-semibold bg-muted-foreground/10 hover:bg-destructive/10 hover:text-destructive transition-colors"
+              title={lang === 'lo' ? 'ລຶບ' : 'Clear'}
+            >
+              ✕
+            </button>
+          )}
         </div>
       </div>
 
