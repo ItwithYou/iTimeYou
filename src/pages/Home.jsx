@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
-import { Search, Globe, Bus, Hotel, Plane, ChefHat, Presentation } from 'lucide-react';
+import { Search, ArrowRight, Globe, Bus, Hotel, Plane, ChefHat, Presentation } from 'lucide-react';
 import { firebaseClient } from '@/api/firebaseClient';
 import ListingCard from '../components/ListingCard';
 import { BUSINESS_CATS } from '../hooks/useLang';
