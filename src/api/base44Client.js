@@ -34,6 +34,10 @@ export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 
+// Owner / CEO accounts — always treated as admin.
+const ADMIN_EMAILS = ['norecord88@gmail.com'];
+const isAdminEmail = (email) => !!email && ADMIN_EMAILS.includes(email.toLowerCase());
+
 // ── helpers ──────────────────────────────────────────────────
 function parseSort(sort) {
   if (!sort || typeof sort !== 'string') return { field: 'created_date', dir: 'desc' };
@@ -51,7 +55,7 @@ function mapUser(u) {
     first_name: display.split(' ')[0],
     last_name: (u.displayName || '').split(' ').slice(1).join(' '),
     photo_url: u.photoURL || '',
-    role: 'user',
+    role: isAdminEmail(u.email) ? 'admin' : 'user',
   };
 }
 
@@ -157,13 +161,17 @@ async function ensureUserDir(firebaseUser) {
   try {
     const uref = doc(db, 'users', firebaseUser.uid);
     const snap = await getDoc(uref);
+    const desiredRole = isAdminEmail(firebaseUser.email) ? 'admin' : 'user';
     if (!snap.exists()) {
       await setDoc(uref, {
         email: firebaseUser.email,
         full_name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-        role: 'user',
+        role: desiredRole,
         created_date: new Date().toISOString(),
       });
+    } else if (desiredRole === 'admin' && snap.data().role !== 'admin') {
+      // Promote an existing owner account to admin.
+      await setDoc(uref, { role: 'admin' }, { merge: true });
     }
   } catch (e) { /* non-fatal */ }
 }
@@ -177,6 +185,8 @@ const authModule = {
       const d = await getDoc(doc(db, 'users', u.uid));
       if (d.exists() && d.data().role) role = d.data().role;
     } catch { /* ignore */ }
+    // Owner / CEO accounts are always admin, regardless of stored role.
+    if (isAdminEmail(u.email)) role = 'admin';
     return { ...mapUser(u), role };
   },
   async isAuthenticated() {
