@@ -20,12 +20,14 @@ export const AuthProvider = ({ children }) => {
       clearTimeout(failSafe);
       if (firebaseUser) {
         const userIdentifier = firebaseUser.email || firebaseUser.phoneNumber || firebaseUser.uid;
+        const display = firebaseUser.displayName || userIdentifier.split('@')[0] || 'User';
+        const nameParts = display.split(' ');
         setUser({
           id: firebaseUser.uid,
           email: userIdentifier,
-          full_name: firebaseUser.displayName || userIdentifier.split('@')[0] || 'User',
-          first_name: firebaseUser.displayName?.split(' ')[0] || 'User',
-          last_name: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+          full_name: display,
+          first_name: nameParts[0] || 'User',
+          last_name: nameParts.slice(1).join(' ') || '',
           photo_url: firebaseUser.photoURL || '',
         });
         setIsAuthenticated(true);

@@ -21,8 +21,19 @@ function friendlyError(err) {
   return cleaned;
 }
 
+const COUNTRY_CODES = [
+  { code: '+856', label: 'Lao (+856)' },
+  { code: '+66', label: 'Thailand (+66)' },
+  { code: '+84', label: 'Vietnam (+84)' },
+  { code: '+855', label: 'Cambodia (+855)' },
+  { code: '+86', label: 'China (+86)' },
+  { code: '+1', label: 'US/Canada (+1)' },
+  { code: '+44', label: 'UK (+44)' },
+];
+
 export default function Login() {
   const [step, setStep] = useState('initial'); // 'initial', 'phone', 'otp', 'username'
+  const [countryCode, setCountryCode] = useState('+856');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [fullName, setFullName] = useState('');
@@ -58,8 +69,9 @@ export default function Login() {
     e.preventDefault();
     setError(''); setLoading(true);
     try {
+      const fullNumber = phoneNumber.startsWith('+') ? phoneNumber : `${countryCode}${phoneNumber.replace(/^0+/, '')}`;
       const appVerifier = base44.auth.setupRecaptcha('recaptcha-container');
-      const confResult = await base44.auth.loginWithPhone(phoneNumber, appVerifier);
+      const confResult = await base44.auth.loginWithPhone(fullNumber, appVerifier);
       setConfirmationResult(confResult);
       setStep('otp');
     } catch (err) {
@@ -147,11 +159,22 @@ export default function Login() {
                 </button>
                 <h3 className="font-bold text-sm">Enter your phone number</h3>
               </div>
-              <p className="text-xs text-muted-foreground leading-relaxed mb-4">We'll send you a code to verify your identity. Use country code (e.g., +856 20...)</p>
+              <p className="text-xs text-muted-foreground leading-relaxed mb-4">We'll send you a code to verify your identity.</p>
               
-              <input type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)}
-                placeholder="+856 20 xxxx xxxx" required autoFocus
-                className="w-full px-4 py-3.5 rounded-2xl border border-border bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all font-medium tracking-wide" />
+              <div className="flex gap-2">
+                <select 
+                  value={countryCode} 
+                  onChange={e => setCountryCode(e.target.value)}
+                  className="px-3 py-3.5 rounded-2xl border border-border bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all font-medium min-w-[110px]"
+                >
+                  {COUNTRY_CODES.map(c => (
+                    <option key={c.code} value={c.code}>{c.label}</option>
+                  ))}
+                </select>
+                <input type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)}
+                  placeholder="20 xxxx xxxx" required autoFocus
+                  className="flex-1 px-4 py-3.5 rounded-2xl border border-border bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all font-medium tracking-wide" />
+              </div>
               
               <div id="recaptcha-container" className="my-2 flex justify-center"></div>
 

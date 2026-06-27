@@ -14,7 +14,7 @@ import {
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword,
   createUserWithEmailAndPassword, signOut,
-  GoogleAuthProvider, signInWithRedirect, getRedirectResult, sendPasswordResetEmail,
+  GoogleAuthProvider, signInWithPopup, getRedirectResult, sendPasswordResetEmail,
   updateProfile, updatePassword,
   confirmPasswordReset, verifyPasswordResetCode,
   RecaptchaVerifier, signInWithPhoneNumber
@@ -238,10 +238,9 @@ const authModule = {
   },
   async loginWithGoogle() {
     const provider = new GoogleAuthProvider();
-    // Using redirect instead of popup to avoid showing the standalone browser window with the firebaseapp URL
-    await signInWithRedirect(auth, provider);
-    // Note: ensureUserDir and mapping will happen on the next page load via getRedirectResult()
-    // but the app's auth state listener will automatically pick up the user.
+    const cred = await signInWithPopup(auth, provider);
+    await ensureUserDir(cred.user);
+    return mapUser(cred.user);
   },
   async register({ email, password, full_name }) {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
