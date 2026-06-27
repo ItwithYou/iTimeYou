@@ -9,7 +9,6 @@ import { base44 } from '@/api/base44Client';
 import { CAT_ICONS } from '../hooks/useLang';
 import moment from 'moment';
 import { formatTimestampDMY } from '../utils/dateUtils';
-import { formatServiceWhen } from '../utils/dateUtils';
 import { convertAndFormatPrice, translateSuffix } from '../utils/currencyUtils';
 
 export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, authorProfile: initialAuthorProfile }) {
@@ -186,10 +185,16 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
         });
         return;
       } catch {
+        // User cancelled or share failed, fallback to copy
       }
     }
 
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank', 'noopener,noreferrer');
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success(lang === 'lo' ? 'ກ໋ອບປີ້ລິ້ງແລ້ວ!' : 'Link copied to clipboard!');
+    } catch {
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank', 'noopener,noreferrer');
+    }
   };
 
   return (
