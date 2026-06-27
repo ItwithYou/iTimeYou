@@ -92,7 +92,7 @@ export default function Wallet() {
   }, []);
 
   const requireVerified = () => {
-    if (!profile?.is_verified) {
+    if (!profile?.is_verified && !profile?.is_pro) {
       toast.error(t.needsVerify);
       navigate(`/profile/${profile?.id}`);
       return false;
@@ -129,7 +129,7 @@ export default function Wallet() {
       <h1 className="text-xl font-bold mb-4">{t.walletTitle}</h1>
 
       {/* Verification banner */}
-      {!profile?.is_verified && (
+      {(!profile?.is_verified && !profile?.is_pro) && (
         <Link to={`/profile/${profile?.id}`} className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-4 group hover:bg-amber-100 transition-colors">
           <Shield size={22} className="text-amber-600 flex-shrink-0" />
           <div className="flex-1">

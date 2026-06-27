@@ -63,7 +63,7 @@ export default function ListingDetail() {
       toast.error(lang === 'lo' ? 'ວັນເຊັກເອົ້າຕ້ອງຫຼັງວັນເຊັກອິນ' : 'Check-out must be after check-in');
       return;
     }
-    if (!profile?.is_verified) {
+    if (!profile?.is_verified && !profile?.is_pro) {
       toast.error(t.needsVerify);
       navigate(`/profile/${profile?.id}`);
       return;

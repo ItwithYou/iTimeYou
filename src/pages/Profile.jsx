@@ -360,7 +360,7 @@ export default function Profile() {
       }
 
       {/* Verification */}
-      {isOwn && !viewProfile.is_verified && viewProfile.verification_status !== 'pending' &&
+      {isOwn && !viewProfile.is_verified && !viewProfile.is_pro && viewProfile.verification_status !== 'pending' &&
       <div className="mx-6 mt-4 bg-card rounded-xl p-5 shadow-sm">
           <h3 className="font-semibold flex items-center gap-2"><Shield size={18} /> {lang === 'lo' ? 'ການຢືນຢັນບັນຊີ' : 'Account Verification'}</h3>
           <p className="text-sm text-muted-foreground mt-1 mb-3">{t.verFeats}</p>

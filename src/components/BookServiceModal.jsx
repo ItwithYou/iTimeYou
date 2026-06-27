@@ -66,7 +66,7 @@ export default function BookServiceModal({ post, profile, currentUser, lang, onC
   };
 
   const handleBook = async () => {
-    if (!profile?.is_verified) {
+    if (!profile?.is_verified && !profile?.is_pro) {
       toast.error(lang === 'lo' ? 'ຕ້ອງຢືນຢັນຕົວຕົນກ່ອນ' : 'You must verify your identity first');
       onClose();
       return;

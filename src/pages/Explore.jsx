@@ -205,7 +205,7 @@ export default function Explore() {
         </div>
       )}
       <div className="mb-4">
-        {profile?.is_pro ? (
+        {profile?.is_pro || profile?.is_verified ? (
           <CreateListing
             profile={{ ...profile, first_name: profile.business_name || profile.first_name, last_name: '' }}
             currentUser={currentUser}
@@ -216,10 +216,10 @@ export default function Explore() {
         ) : (
           <div className="bg-gradient-to-r from-muted to-muted/30 rounded-xl p-2.5 px-4 flex items-center justify-between border border-border/50">
             <span className="text-xs text-muted-foreground font-medium">
-              {lang === 'lo' ? 'ຕ້ອງເປັນ Pro ເພື່ອລົງໂພສທຸລະກິດ' : 'Business posting requires Pro'}
+              {lang === 'lo' ? 'ຕ້ອງຢືນຢັນບັນຊີກ່ອນຈຶ່ງສາມາດລົງໂພສໄດ້' : 'Account verification required to post'}
             </span>
             <Link to={`/profile/${profile?.id || ''}`} className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:opacity-90">
-              {profile?.is_verified ? (lang === 'lo' ? 'ສະໝັກ Pro' : 'Apply Pro') : (lang === 'lo' ? 'ຢືນຢັນ' : 'Verify')}
+              {lang === 'lo' ? 'ຢືນຢັນ' : 'Verify'}
             </Link>
           </div>
         )}
