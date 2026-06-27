@@ -99,6 +99,7 @@ export default function Profile() {
       setIsUploadingPhoto(false);
       // Clean up object URL
       URL.revokeObjectURL(tempUrl);
+      if (e.target) e.target.value = '';
     }
   };
 
