@@ -186,7 +186,7 @@ export default function Explore() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="max-w-2xl mx-auto px-4 py-6">
       {/* Pull-to-refresh indicator */}
       {(pullDistance > 8 || refreshing) && (
         <div
@@ -284,7 +284,7 @@ export default function Explore() {
       </p>
 
       {filtered.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="space-y-6">
           {filtered.map(l => (
             <ListingCard key={l.id} listing={l} t={t} lang={lang} />
           ))}
