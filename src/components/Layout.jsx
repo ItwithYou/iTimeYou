@@ -147,8 +147,8 @@ export default function Layout() {
             <span className="text-4xl font-black text-white tracking-tight">iTimeYou</span>
           </div>
           
-          <p className="text-white/60 text-xs tracking-widest mb-1 lao-text font-semibold">ສັງຄົມ · ບ້ານ · ຈ່າຍ · ລາວ</p>
-          <p className="text-white/50 text-xs tracking-widest mb-6">SOCIAL · STAY · PAY · LAOS</p>
+          <p className="text-white/60 text-xs tracking-widest mb-1 lao-text font-semibold">ສັງຄົມ · ທ່ຽວ · ວັດທະນະທໍາ · ທີ່ພັກ</p>
+          <p className="text-white/50 text-xs tracking-widest mb-6">SOCIAL · TRAVEL · CULTURE · STAY</p>
           
           {/* Loading bar */}
           <div className="w-48 h-px bg-[#0ADBB9]/30 mb-6 mx-auto" />

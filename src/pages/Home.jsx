@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
-import { Search, ArrowRight } from 'lucide-react';
+import { Search, ArrowRight, Landmark, BedDouble, UtensilsCrossed, Sparkles, Building2, Leaf } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import ListingCard from '../components/ListingCard';
 
@@ -20,12 +20,13 @@ export default function Home() {
   };
 
   const categories = [
-  { key: 'culture', emoji: '🏛️' },
-  { key: 'stay', emoji: '🏠' },
-  { key: 'food', emoji: '🍜' },
-  { key: 'experience', emoji: '🎭' },
-  { key: 'home', emoji: '🏡' },
-  { key: 'nature', emoji: '🌿' }];
+  { key: 'culture',    Icon: Landmark,         gradient: 'from-amber-400 to-orange-500' },
+  { key: 'stay',       Icon: BedDouble,         gradient: 'from-sky-400 to-indigo-500' },
+  { key: 'food',       Icon: UtensilsCrossed,   gradient: 'from-rose-400 to-pink-600' },
+  { key: 'experience', Icon: Sparkles,           gradient: 'from-violet-400 to-purple-600' },
+  { key: 'home',       Icon: Building2,          gradient: 'from-teal-400 to-emerald-600' },
+  { key: 'nature',     Icon: Leaf,              gradient: 'from-lime-400 to-green-600' },
+  ];
 
 
   return (
@@ -35,116 +36,104 @@ export default function Home() {
         <div className="absolute inset-0">
           <img src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1400&q=80" alt="" className="w-full h-full object-cover opacity-20" />
         </div>
-        <div className="relative max-w-4xl mx-auto px-5 py-16 sm:py-24 text-center">
-          <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-xs font-semibold mb-6">
-            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+        <div className="relative max-w-3xl mx-auto px-5 py-10 sm:py-14 text-center">
+          <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full px-3 py-1 text-[10px] font-medium mb-4">
+            <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
             {lang === 'lo' ? 'ເວທີໄວ້ວາງໃຈ' : 'Trusted Community Platform'}
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black leading-tight mb-4">
-            {lang === 'lo' ? 'ຄົ້ນພົບ ແລະ ແລກປ່ຽນ' : 'Discover, Share &'}<br/>
+          <h1 className="text-xl sm:text-3xl font-bold leading-snug mb-2">
+            {lang === 'lo' ? 'ຄົ້ນພົບ ແລະ ແລກປ່ຽນ' : 'Discover, Share &'}{' '}
             <span className="text-emerald-300">{lang === 'lo' ? 'ບໍລິການທີ່ໜ້າເຊື່ອຖື' : 'Book Trusted Services'}</span>
           </h1>
-          <p className="text-white/75 text-sm sm:text-base mb-8 max-w-xl mx-auto">
+          <p className="text-white/60 text-xs sm:text-sm mb-6 max-w-md mx-auto">
             {lang === 'lo' ? 'ຊຸມຊົນທີ່ຢືນຢັນຕົວຕົນ · ກະເປົາເງິນດິຈິທັລ · ທົ່ວໂລກ' : 'Verified identities · Digital wallet · Bilingual EN & Lao'}
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-xs mx-auto sm:max-w-none">
+          <div className="flex flex-col sm:flex-row gap-2 justify-center max-w-xs mx-auto sm:max-w-none">
             <div
-              className="flex items-center gap-2 bg-white rounded-2xl px-4 py-3 flex-1 max-w-md mx-auto sm:mx-0 shadow-lg cursor-pointer"
+              className="flex items-center gap-2 bg-white rounded-xl px-3 py-2.5 flex-1 max-w-sm mx-auto sm:mx-0 shadow-md cursor-pointer"
               onClick={handleSearch}
             >
-              <Search size={18} className="text-muted-foreground flex-shrink-0" />
+              <Search size={15} className="text-muted-foreground flex-shrink-0" />
               <input
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSearch()}
                 placeholder={lang === 'lo' ? 'ຄົ້ນຫາລາຍຊື່...' : 'Search listings, services...'}
-                className="flex-1 bg-transparent text-foreground text-sm outline-none placeholder:text-muted-foreground"
+                className="flex-1 bg-transparent text-foreground text-xs outline-none placeholder:text-muted-foreground"
               />
             </div>
-            <button onClick={handleSearch} className="bg-emerald-400 hover:bg-emerald-300 text-[#0d3d2e] px-8 py-3 rounded-2xl font-bold text-sm transition-colors shadow-lg">
+            <button onClick={handleSearch} className="bg-emerald-400 hover:bg-emerald-300 text-[#0d3d2e] px-6 py-2.5 rounded-xl font-semibold text-xs transition-colors shadow-md">
               {lang === 'lo' ? 'ຄົ້ນຫາ' : 'Search'}
             </button>
-          </div>
-          <div className="flex flex-wrap justify-center gap-6 mt-10 text-xs text-white/60">
-            <span>🔐 {lang === 'lo' ? 'ຢືນຢັນຕົວຕົນ' : 'ID Verified Users'}</span>
-            <span>⭐ {lang === 'lo' ? 'ຄະແນນຄວາມໜ້າເຊື່ອຖື' : 'Trust Ratings'}</span>
-            <span>💰 {lang === 'lo' ? 'ກະເປົາເງິນປອດໄພ' : 'Secure eWallet'}</span>
-            <span>🌏 EN & Lao</span>
           </div>
         </div>
       </section>
 
       {/* Category pills */}
-      <section className="py-8 bg-card relative z-10 -mt-8 mx-0 sm:mx-4 rounded-t-3xl sm:rounded-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.08)] border border-border/50">
-        <div className="flex justify-center flex-wrap gap-3 sm:gap-8 px-2 sm:px-4 max-w-4xl mx-auto">
-          {categories.map((cat, i) =>
-          <Link
-            key={cat.key}
-            to={`/explore?cat=${cat.key}`}
-            className="flex flex-col items-center gap-2.5 group cursor-pointer w-16 sm:w-24">
-              <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-[1.25rem] bg-background shadow-sm flex items-center justify-center text-2xl sm:text-4xl group-hover:scale-[1.05] group-hover:shadow-xl transition-all duration-300 border border-border group-hover:border-primary/40 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <span className="relative z-10 group-hover:-translate-y-0.5 transition-transform duration-300">{cat.emoji}</span>
-              </div>
-              <span className="text-[10px] sm:text-xs font-bold text-muted-foreground group-hover:text-primary transition-colors text-center leading-tight">
-                {t.categories[i]}
-              </span>
-            </Link>
-          )}
+      <section className="py-5 bg-card relative z-10 -mt-6 mx-0 sm:mx-4 rounded-t-2xl sm:rounded-2xl shadow-[0_-6px_20px_rgba(0,0,0,0.06)] border border-border/40">
+        <div className="flex justify-center flex-wrap gap-2 sm:gap-6 px-2 sm:px-4 max-w-3xl mx-auto">
+          {categories.map((cat, i) => {
+            const { Icon, gradient } = cat;
+            return (
+              <Link
+                key={cat.key}
+                to={`/explore?cat=${cat.key}`}
+                className="flex flex-col items-center gap-1.5 group cursor-pointer w-12 sm:w-16"
+              >
+                <div
+                  className={`w-10 h-10 sm:w-13 sm:h-13 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-sm group-hover:scale-105 group-hover:shadow-md transition-all duration-200 relative overflow-hidden`}
+                >
+                  <div className="absolute inset-0 bg-white/15 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-xl" />
+                  <Icon
+                    size={18}
+                    className="relative z-10 text-white drop-shadow group-hover:-translate-y-px transition-transform duration-200"
+                    strokeWidth={1.8}
+                  />
+                </div>
+                <span className="text-[9px] sm:text-[10px] font-medium text-muted-foreground group-hover:text-primary transition-colors text-center leading-tight">
+                  {t.categories[i]}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
-      {/* Trust strip */}
-      <section className="py-5 bg-gradient-to-r from-secondary/5 to-primary/5 border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 flex flex-wrap justify-center gap-6 sm:gap-12">
-          {[
-          { icon: '🔐', en: 'Verified Hosts', lo: 'ເຈົ້າພາບຢືນຢັນ' },
-          { icon: '⭐', en: 'Trust Ratings', lo: 'ຄະແນນຄວາມໜ້າເຊື່ອຖື' },
-          { icon: '💰', en: 'Secure eWallet', lo: 'ກະເປົາເງິນປອດໄພ' },
-          { icon: '🌏', en: 'EN & Lao', lo: 'ອັງກິດ & ລາວ' }].
-          map((f) =>
-          <div key={f.en} className="flex items-center gap-2 text-sm">
-              <span className="text-xl">{f.icon}</span>
-              <span className="font-medium text-muted-foreground">{lang === 'lo' ? f.lo : f.en}</span>
-            </div>
-          )}
-        </div>
-      </section>
+
 
       {/* Featured Listings */}
-      <section className="py-10 max-w-6xl mx-auto px-4">
-        <div className="flex items-center justify-between mb-5">
+      <section className="py-7 max-w-5xl mx-auto px-4">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold">{t.featListTitle}</h2>
-            <p className="text-sm text-muted-foreground mt-0.5">{listings.length} {t.resultsFound}</p>
+            <h2 className="text-base sm:text-lg font-semibold">{t.featListTitle}</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">{listings.length} {t.resultsFound}</p>
           </div>
-          <Link to="/explore" className="flex items-center gap-1 text-primary font-semibold text-sm hover:underline">
-            {t.seeAll} <ArrowRight size={14} />
+          <Link to="/explore" className="flex items-center gap-1 text-primary font-medium text-xs hover:underline">
+            {t.seeAll} <ArrowRight size={12} />
           </Link>
         </div>
         {listings.length > 0 ?
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {listings.map((l) => <ListingCard key={l.id} listing={l} t={t} lang={lang} />)}
           </div> :
-
-        <div className="text-center py-12 text-muted-foreground">
-            <p className="text-4xl mb-3">🏠</p>
-            <p>No listings yet. Be the first to create one!</p>
+        <div className="text-center py-10 text-muted-foreground">
+            <p className="text-3xl mb-2">🏠</p>
+            <p className="text-xs">No listings yet. Be the first to create one!</p>
           </div>
         }
       </section>
 
       {/* Features grid */}
-      <section className="py-12 bg-gradient-to-b from-muted/40 to-background">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-xl sm:text-2xl font-bold text-center mb-1">{t.featTitle}</h2>
-          <p className="text-center text-muted-foreground mb-8 font-lao text-sm">{t.featSub}</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <section className="py-8 bg-gradient-to-b from-muted/30 to-background">
+        <div className="max-w-5xl mx-auto px-4">
+          <h2 className="text-sm sm:text-base font-semibold text-center mb-0.5">{t.featTitle}</h2>
+          <p className="text-center text-muted-foreground mb-5 font-lao text-xs">{t.featSub}</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {t.features.map((f, i) =>
-            <div key={i} className="text-center p-5 rounded-2xl bg-card hover:shadow-lg transition-all duration-300 border border-border hover:border-primary/20 group cursor-default">
-                <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">{f.icon}</div>
-                <h3 className="font-semibold mb-1 text-sm text-foreground">{f.title}</h3>
-                <p className="text-muted-foreground text-xs leading-relaxed">{f.desc}</p>
+            <div key={i} className="text-center p-4 rounded-xl bg-card hover:shadow-md transition-all duration-200 border border-border hover:border-primary/20 group cursor-default">
+                <div className="text-2xl mb-2 group-hover:scale-105 transition-transform">{f.icon}</div>
+                <h3 className="font-medium mb-0.5 text-xs text-foreground">{f.title}</h3>
+                <p className="text-muted-foreground text-[10px] leading-relaxed">{f.desc}</p>
               </div>
             )}
           </div>
@@ -152,15 +141,15 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="py-14 bg-gradient-to-r from-[#1a6b62] to-[#0d3d2e] text-white text-center">
-        <div className="max-w-2xl mx-auto px-5">
-          <h2 className="text-2xl sm:text-3xl font-black mb-3">{t.ctaTitle}</h2>
-          <p className="opacity-85 mb-8 text-sm sm:text-base">{t.ctaDesc}</p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-sm mx-auto sm:max-w-none">
-            <Link to="/feed" className="bg-white text-primary px-8 py-3 rounded-xl font-bold text-sm hover:opacity-95 transition-opacity shadow-lg">
+      <section className="py-10 bg-gradient-to-r from-[#1a6b62] to-[#0d3d2e] text-white text-center">
+        <div className="max-w-xl mx-auto px-5">
+          <h2 className="text-lg sm:text-xl font-bold mb-2">{t.ctaTitle}</h2>
+          <p className="opacity-70 mb-6 text-xs sm:text-sm">{t.ctaDesc}</p>
+          <div className="flex flex-col sm:flex-row gap-2 justify-center max-w-xs mx-auto sm:max-w-none">
+            <Link to="/feed" className="bg-white text-primary px-6 py-2.5 rounded-lg font-semibold text-xs hover:opacity-95 transition-opacity shadow-md">
               {t.getStarted}
             </Link>
-            <Link to="/explore" className="border-2 border-white/60 text-white px-8 py-3 rounded-xl font-bold text-sm hover:bg-white/10 transition-colors">
+            <Link to="/explore" className="border border-white/50 text-white px-6 py-2.5 rounded-lg font-semibold text-xs hover:bg-white/10 transition-colors">
               {t.explore}
             </Link>
           </div>
