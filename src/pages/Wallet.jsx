@@ -46,6 +46,7 @@ export default function Wallet() {
   const [bookings, setBookings] = useState([]);
   const [profilesByEmail, setProfilesByEmail] = useState({});
   const [actionType, setActionType] = useState('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [exchangeRates, setExchangeRates] = useState({
     usdBuy: 0, usdSell: 0,
     thbBuy: 0, thbSell: 0,
@@ -110,6 +111,17 @@ export default function Wallet() {
   useEffect(() => {
     loadExchangeRates();
   }, []);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await Promise.all([
+      refreshProfile && refreshProfile(),
+      loadTx(),
+      loadExchangeRates()
+    ]);
+    setIsRefreshing(false);
+    toast.success(lang === 'lo' ? 'ອັບເດດຍອດເງິນສຳເລັດແລ້ວ' : 'Wallet refreshed');
+  };
 
   const requireVerified = () => {
     if (!profile?.is_verified && !profile?.is_pro) {
@@ -202,9 +214,15 @@ export default function Wallet() {
                 {profile?.first_name} {profile?.last_name}
               </p>
             </div>
-            <span className="text-[20px] text-white drop-shadow-sm opacity-95 brand-logo">
+            <button 
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className={`text-[20px] text-white drop-shadow-sm opacity-95 brand-logo transition-transform hover:scale-105 active:scale-95 flex items-center gap-2 ${isRefreshing ? 'animate-pulse' : ''}`}
+              title={lang === 'lo' ? 'ໂຫຼດໃໝ່' : 'Refresh Wallet'}
+            >
               iTimeYou
-            </span>
+              <RefreshCw size={14} className={`opacity-70 ${isRefreshing ? 'animate-spin' : ''}`} />
+            </button>
           </div>
 
           {/* Balance label */}
