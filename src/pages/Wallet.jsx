@@ -202,7 +202,7 @@ export default function Wallet() {
                 {profile?.first_name} {profile?.last_name}
               </p>
             </div>
-            <span className="text-[18px] font-serif italic tracking-wider text-white drop-shadow-sm opacity-95">
+            <span className="text-[20px] text-white drop-shadow-sm opacity-95 brand-logo">
               iTimeYou
             </span>
           </div>

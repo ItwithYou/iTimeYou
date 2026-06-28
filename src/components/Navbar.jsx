@@ -31,7 +31,7 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
         {/* Logo and Premium Button */}
         <div className="flex items-center gap-1 sm:gap-2">
           <Link to="/" className="flex items-center flex-shrink-0" aria-label="iTimeYou Home">
-            <span className="text-xl font-black text-primary tracking-tight">iTimeYou</span>
+            <span className="text-xl text-primary brand-logo">iTimeYou</span>
           </Link>
           <CreateDropdownButton lang={lang} />
         </div>

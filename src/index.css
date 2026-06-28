@@ -13,6 +13,15 @@
   letter-spacing: -0.01em;
 }
 
+/* Highly memorable, artistic luxury font for the iTimeYou brand logo */
+.brand-logo {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  padding-right: 0.05em; /* Prevent italic clipping */
+}
+
 @layer base {
   :root {
     --font-sans: 'Inter', 'Phetsarath OT', 'Phetsarath', sans-serif;

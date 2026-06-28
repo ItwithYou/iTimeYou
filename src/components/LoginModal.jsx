@@ -148,7 +148,7 @@ export default function LoginModal({ isOpen, onClose }) {
           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
 
           <div className="text-center mb-8">
-            <div className="text-5xl font-black text-primary tracking-tight mb-1">iTimeYou</div>
+            <div className="text-6xl text-primary mb-2 brand-logo drop-shadow-md">iTimeYou</div>
             <div className="text-xs text-muted-foreground uppercase tracking-widest font-semibold mt-2">Log In or Sign Up</div>
           </div>
 

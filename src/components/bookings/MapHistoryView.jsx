@@ -133,7 +133,7 @@ export default function MapHistoryView({ bookings, lang, currentUser }) {
         
         {/* Branding watermark for the shared image */}
         {isCapturing && (
-          <div className="absolute bottom-6 right-6 z-[400] text-white/50 font-serif italic text-3xl font-black drop-shadow-lg">
+          <div className="absolute bottom-6 right-6 z-[400] text-white/50 text-4xl drop-shadow-lg brand-logo">
             iTimeYou
           </div>
         )}
