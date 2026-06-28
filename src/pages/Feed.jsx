@@ -43,30 +43,37 @@ export default function Feed() {
 
   useEffect(() => { loadPosts(); }, []);
 
-  // Temporary fix for the wrong screenshot image
+  // Aggressive fix: replace ALL bad screenshot images in posts and listings
   useEffect(() => {
     const fixImage = async () => {
-      if (localStorage.getItem('fixed_yakuci_image_v5')) return;
-      localStorage.setItem('fixed_yakuci_image_v5', 'true');
-      
-      const posts = await firebaseClient.entities.Post.list('-created_date', 100);
+      if (localStorage.getItem('fixed_yakuci_image_v6')) return;
+      localStorage.setItem('fixed_yakuci_image_v6', 'true');
+
+      const isBad = (url) => url && (
+        url.includes('green_hills') ||
+        url === '/mountain.jpg' ||
+        url.includes('green_hills_alt')
+      );
+      const fix = (url) => isBad(url) ? '/mountain_view.jpg' : url;
+
+      const posts = await firebaseClient.entities.Post.list('-created_date', 200);
       for (const p of posts) {
-        if (p.photo_url?.includes('green_hills') || p.photo_urls?.some(u => u.includes('green_hills'))) {
-          const newUrls = (p.photo_urls || []).map(u => u.includes('green_hills') ? '/mountain_view.jpg' : u);
+        if (isBad(p.photo_url) || (p.photo_urls || []).some(isBad)) {
+          const newUrls = (p.photo_urls || []).map(fix);
           await firebaseClient.entities.Post.update(p.id, {
             photo_urls: newUrls,
-            photo_url: newUrls[0] || p.photo_url
+            photo_url: fix(p.photo_url) || newUrls[0]
           });
         }
       }
 
-      const listings = await firebaseClient.entities.Listing.list('-created_date', 100);
+      const listings = await firebaseClient.entities.Listing.list('-created_date', 200);
       for (const l of listings) {
-        if (l.image_url?.includes('green_hills') || l.image_urls?.some(u => u.includes('green_hills'))) {
-          const newUrls = (l.image_urls || []).map(u => u.includes('green_hills') ? '/mountain_view.jpg' : u);
+        if (isBad(l.image_url) || (l.image_urls || []).some(isBad)) {
+          const newUrls = (l.image_urls || []).map(fix);
           await firebaseClient.entities.Listing.update(l.id, {
             image_urls: newUrls,
-            image_url: newUrls[0] || l.image_url
+            image_url: fix(l.image_url) || newUrls[0]
           });
         }
       }
@@ -77,8 +84,8 @@ export default function Feed() {
   // Automated one-time seeder for premium demo data — Yakuci admin posts
   useEffect(() => {
     const seedData = async () => {
-      if (localStorage.getItem('seeded_yakuci_v13')) return;
-      localStorage.setItem('seeded_yakuci_v13', 'true');
+      if (localStorage.getItem('seeded_yakuci_v14')) return;
+      localStorage.setItem('seeded_yakuci_v14', 'true');
 
       // Clean up old demo posts
       try {
