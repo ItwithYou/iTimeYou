@@ -208,10 +208,10 @@ export default function Wallet() {
 
           {/* Big balance number — premium tabular font */}
           <div className="flex items-end gap-1.5 mb-1">
-            <span className="wallet-num bg-gradient-to-r from-white via-white to-white/90 bg-clip-text text-[34px] sm:text-[42px] font-light leading-none text-transparent break-all drop-shadow-sm tracking-tight">
+            <span className="wallet-num text-[28px] sm:text-[34px] font-[200] leading-none text-white/95 break-all tracking-tight drop-shadow-none">
               {totalLak.toLocaleString()}
             </span>
-            <span className="pb-1.5 text-[10px] sm:text-xs font-medium text-white/80 tracking-widest">LAK</span>
+            <span className="pb-1 text-[10px] sm:text-xs font-light text-white/70 tracking-widest">LAK</span>
           </div>
 
 
