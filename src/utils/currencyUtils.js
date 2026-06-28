@@ -53,5 +53,8 @@ export const translateSuffix = (suffix, lang) => {
   if (s === 'MONTH') return 'ເດືອນ';
   if (s === 'SERVICE') return 'ບໍລິການ';
   if (s === 'PERSON' || s === 'PAX') return 'ຄົນ';
+  if (s === 'FLIGHT') return 'ຖ້ຽວບິນ';
+  if (s === 'TABLE') return 'ໂຕະ';
+  if (s === 'TICKET') return 'ປີ້';
   return suffix;
 };

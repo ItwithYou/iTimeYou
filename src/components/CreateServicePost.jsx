@@ -57,26 +57,46 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
 
   const selectService = (svc) => {
     setService(svc);
-    setDuration(1);
+    setDuration(svc.minTime || 1);
     setWhen('');
     setTimeFrom('');
     setTimeTo('');
   };
 
   const handlePost = async () => {
-    if (!text.trim() && photoFiles.length === 0) return;
-    // Validate date is not in the past
-    if (when) {
-      if (isDateTimeInPast(when)) {
-        toast.error(lang === 'lo' ? 'ບໍ່ສາມາດເລືອກວັນເວລາທີ່ຜ່ານມາແລ້ວ' : 'Cannot select a past date/time');
+    if (!text.trim() && photoFiles.length === 0) {
+      toast.error(lang === 'lo' ? 'ກະລຸນາໃສ່ຂໍ້ຄວາມ ຫຼື ຮູບພາບ' : 'Please enter text or photos');
+      return;
+    }
+    
+    // Validation for service posts
+    if (service.isService) {
+      if (!price || parseFloat(price) <= 0) {
+        toast.error(lang === 'lo' ? 'ກະລຸນາໃສ່ລາຄາ' : 'Please enter a price');
+        return;
+      }
+      if (!location) {
+        toast.error(lang === 'lo' ? 'ກະລຸນາໃສ່ສະຖານທີ່' : 'Please enter a location');
+        return;
+      }
+      if (service.whenType && !when) {
+        toast.error(lang === 'lo' ? 'ກະລຸນາເລືອກວັນເວລາ' : 'Please select a date/time');
+        return;
+      }
+      // Validate date is not in the past
+      if (when) {
+        if (isDateTimeInPast(when)) {
+          toast.error(lang === 'lo' ? 'ບໍ່ສາມາດເລືອກວັນເວລາທີ່ຜ່ານມາແລ້ວ' : 'Cannot select a past date/time');
+          return;
+        }
+      }
+      // Validate end time is after start time
+      if (timeFrom && timeTo && timeTo <= timeFrom) {
+        toast.error(lang === 'lo' ? 'ເວລາສິ້ນສຸດຕ້ອງຫຼັງເວລາເລີ່ມ' : 'End time must be after start time');
         return;
       }
     }
-    // Validate end time is after start time
-    if (timeFrom && timeTo && timeTo <= timeFrom) {
-      toast.error(lang === 'lo' ? 'ເວລາສິ້ນສຸດຕ້ອງຫຼັງເວລາເລີ່ມ' : 'End time must be after start time');
-      return;
-    }
+
     setPosting(true);
     try {
       let photo_url = '';
@@ -104,7 +124,7 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
         service_type: lang === 'lo' ? service.lo : service.en,
         service_type_emoji: service.icon,
         service_price: price ? parseFloat(price) : 0,
-        service_currency: currency,
+        service_currency: currency + (service.priceUnit || '').toUpperCase(),
         service_duration: duration,
         service_duration_unit: 'hours',
         service_when: serviceTimeSlot ? `${when} · ${serviceTimeSlot}` : when,
@@ -205,24 +225,26 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
         </div>
 
         {/* Offer vs Request Toggle */}
-        <div className="flex gap-2 mb-2">
-          <button
-            onClick={() => setPostType('offer')}
-            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all border ${
-              postType === 'offer' ? 'bg-primary text-primary-foreground border-primary shadow-sm' : 'bg-muted/50 text-muted-foreground border-border hover:border-primary/50'
-            }`}
-          >
-            {lang === 'lo' ? 'ຂ້ອຍໃຫ້ບໍລິການ (Offer)' : 'I am Offering'}
-          </button>
-          <button
-            onClick={() => setPostType('request')}
-            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all border ${
-              postType === 'request' ? 'bg-amber-500 text-white border-amber-500 shadow-sm' : 'bg-muted/50 text-muted-foreground border-border hover:border-amber-500/50'
-            }`}
-          >
-            {lang === 'lo' ? 'ຂ້ອຍຕ້ອງການບໍລິການ (Request)' : 'I am Looking for'}
-          </button>
-        </div>
+        {service.isService && (
+          <div className="flex gap-2 mb-2">
+            <button
+              onClick={() => setPostType('offer')}
+              className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all border ${
+                postType === 'offer' ? 'bg-primary text-primary-foreground border-primary shadow-sm' : 'bg-muted/50 text-muted-foreground border-border hover:border-primary/50'
+              }`}
+            >
+              {lang === 'lo' ? 'ຂ້ອຍໃຫ້ບໍລິການ (Offer)' : 'I am Offering'}
+            </button>
+            <button
+              onClick={() => setPostType('request')}
+              className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all border ${
+                postType === 'request' ? 'bg-amber-500 text-white border-amber-500 shadow-sm' : 'bg-muted/50 text-muted-foreground border-border hover:border-amber-500/50'
+              }`}
+            >
+              {lang === 'lo' ? 'ຂ້ອຍຕ້ອງການບໍລິການ (Request)' : 'I am Looking for'}
+            </button>
+          </div>
+        )}
 
         {/* Photo previews - Facebook style grid */}
         {photoPreviews.length > 0 && (
@@ -254,147 +276,152 @@ export default function CreateServicePost({ profile, currentUser, lang, t, onPos
           </div>
         </div>
 
-        {/* Time + When + Price */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-          {/* Duration */}
-          <div>
-            <label className="block text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
-              <Clock size={11} />
-              {lang === 'lo' ? service.timeLabelLo : service.timeLabel}
-            </label>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setDuration(d => Math.max(service.minTime, d - (service.minTime === 0.5 ? 0.5 : 1)))}
-                className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-sm font-bold hover:bg-muted transition-colors"
-              >−</button>
-              <span className="flex-1 text-center font-bold text-sm bg-muted/50 rounded-lg py-1.5 border border-border">
-                {duration} <span className="text-xs font-normal text-muted-foreground">{service.timeUnit}</span>
-              </span>
-              <button
-                onClick={() => setDuration(d => Math.min(service.maxTime, d + (service.minTime === 0.5 ? 0.5 : 1)))}
-                className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-sm font-bold hover:bg-muted transition-colors"
-              >+</button>
+        {/* Service specific fields */}
+        {service.isService && (
+          <>
+            {/* Time + When + Price */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+              {/* Duration */}
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+                  <Clock size={11} />
+                  {lang === 'lo' ? service.timeLabelLo : service.timeLabel}
+                </label>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setDuration(d => Math.max(service.minTime, d - (service.minTime === 0.5 ? 0.5 : 1)))}
+                    className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-sm font-bold hover:bg-muted transition-colors"
+                  >−</button>
+                  <span className="flex-1 text-center font-bold text-sm bg-muted/50 rounded-lg py-1.5 border border-border">
+                    {duration} <span className="text-xs font-normal text-muted-foreground">{service.timeUnit}</span>
+                  </span>
+                  <button
+                    onClick={() => setDuration(d => Math.min(service.maxTime, d + (service.minTime === 0.5 ? 0.5 : 1)))}
+                    className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-sm font-bold hover:bg-muted transition-colors"
+                  >+</button>
+                </div>
+              </div>
+
+              {/* When */}
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+                  <Calendar size={11} />
+                  {lang === 'lo' ? service.whenLabelLo : service.whenLabel}
+                </label>
+                <input
+                  type={service.whenType}
+                  value={when}
+                  onChange={e => setWhen(e.target.value)}
+                  min={service.whenType === 'date' ? getTodayISO() : getNowDatetimeLocal()}
+                  className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
+                />
+              </div>
+
+              {/* Price */}
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+                  <DollarSign size={11} />
+                  {lang === 'lo' ? 'ລາຄາ' : 'Price'}
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">{currency === 'LAK' ? '₭' : '$'}</span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={price}
+                    onChange={e => setPrice(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full border border-border rounded-xl pl-7 pr-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                  {lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}
+                </label>
+                <MobileSelect
+                  value={currency}
+                  onChange={setCurrency}
+                  options={CURRENCIES}
+                  placeholder={lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}
+                  label={lang === 'lo' ? 'ເລືອກສະກຸນເງິນ' : 'Select Currency'}
+                />
+              </div>
             </div>
-          </div>
 
-          {/* When */}
-          <div>
-            <label className="block text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
-              <Calendar size={11} />
-              {lang === 'lo' ? service.whenLabelLo : service.whenLabel}
-            </label>
-            <input
-              type={service.whenType}
-              value={when}
-              onChange={e => setWhen(e.target.value)}
-              min={service.whenType === 'date' ? getTodayISO() : getNowDatetimeLocal()}
-              className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
-            />
-          </div>
-
-          {/* Price */}
-          <div>
-            <label className="block text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
-              <DollarSign size={11} />
-              {lang === 'lo' ? 'ລາຄາ' : 'Price'}
-            </label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">{currency === 'LAK' ? '₭' : '$'}</span>
-              <input
-                type="number"
-                min="0"
-                value={price}
-                onChange={e => setPrice(e.target.value)}
-                placeholder="0.00"
-                className="w-full border border-border rounded-xl pl-7 pr-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-              {lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}
-            </label>
-            <MobileSelect
-              value={currency}
-              onChange={setCurrency}
-              options={CURRENCIES}
-              placeholder={lang === 'lo' ? 'ສະກຸນເງິນ' : 'Currency'}
-              label={lang === 'lo' ? 'ເລືອກສະກຸນເງິນ' : 'Select Currency'}
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-            {lang === 'lo' ? 'ສະຖານທີ່ບໍລິການ' : 'Service Location'}
-          </label>
-          <div className="flex gap-2">
-            <input
-              value={location}
-              onChange={e => setLocation(e.target.value)}
-              placeholder={lang === 'lo' ? 'ວາງ Google Maps link ຫຼື ໃສ່ຊື່ສະຖານທີ່' : 'Paste Google Maps link or enter place name'}
-              className="flex-1 border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
-            />
-            <button
-              type="button"
-              onClick={() => {
-                if (!navigator.geolocation) {
-                  toast.error(lang === 'lo' ? 'ບຣາວເຊີບໍ່ຮອງຮັບ GPS' : 'Browser does not support GPS');
-                  return;
-                }
-                toast.info(lang === 'lo' ? 'ກຳລັງຊອກຫາຕຳແໜ່ງ...' : 'Getting location...');
-                navigator.geolocation.getCurrentPosition(
-                  (pos) => {
-                    const { latitude, longitude } = pos.coords;
-                    const mapUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
-                    setLocation(mapUrl);
-                    toast.success(lang === 'lo' ? 'ໄດ້ຕຳແໜ່ງແລ້ວ ✅' : 'Location set ✅');
-                  },
-                  () => {
-                    toast.error(lang === 'lo' ? 'ບໍ່ສາມາດເຂົ້າເຖິງຕຳແໜ່ງໄດ້' : 'Could not access location');
-                  },
-                  { enableHighAccuracy: true, timeout: 10000 }
-                );
-              }}
-              className="flex items-center gap-1.5 px-3 py-2 border border-border rounded-xl text-xs font-semibold text-primary hover:bg-primary/5 active:bg-primary/10 transition-colors flex-shrink-0 min-h-[40px]"
-            >
-              <LocateFixed size={14} />
-              <span className="hidden sm:inline">{lang === 'lo' ? 'ຕຳແໜ່ງປັດຈຸບັນ' : 'My Location'}</span>
-              <span className="sm:hidden">📍</span>
-            </button>
-          </div>
-          <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
-            <MapPin size={11} />
-            {lang === 'lo' ? 'ໃສ່ຊື່ສະຖານທີ່, ວາງ Google Maps link, ຫຼື ກົດ GPS ເພື່ອແຊຣ໌ຕຳແໜ່ງປັດຈຸບັນ' : 'Enter a place name, paste a Google Maps link, or tap GPS to share your current location'}
-          </p>
-        </div>
-
-        {service.timeUnit === 'hours' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                {lang === 'lo' ? 'ເວລາເລີ່ມ' : 'Start Time'}
+                {lang === 'lo' ? 'ສະຖານທີ່ບໍລິການ' : 'Service Location'}
               </label>
-              <input
-                type="time"
-                value={timeFrom}
-                onChange={e => setTimeFrom(e.target.value)}
-                className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
-              />
+              <div className="flex gap-2">
+                <input
+                  value={location}
+                  onChange={e => setLocation(e.target.value)}
+                  placeholder={lang === 'lo' ? 'ວາງ Google Maps link ຫຼື ໃສ່ຊື່ສະຖານທີ່' : 'Paste Google Maps link or enter place name'}
+                  className="flex-1 border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!navigator.geolocation) {
+                      toast.error(lang === 'lo' ? 'ບຣາວເຊີບໍ່ຮອງຮັບ GPS' : 'Browser does not support GPS');
+                      return;
+                    }
+                    toast.info(lang === 'lo' ? 'ກຳລັງຊອກຫາຕຳແໜ່ງ...' : 'Getting location...');
+                    navigator.geolocation.getCurrentPosition(
+                      (pos) => {
+                        const { latitude, longitude } = pos.coords;
+                        const mapUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+                        setLocation(mapUrl);
+                        toast.success(lang === 'lo' ? 'ໄດ້ຕຳແໜ່ງແລ້ວ ✅' : 'Location set ✅');
+                      },
+                      () => {
+                        toast.error(lang === 'lo' ? 'ບໍ່ສາມາດເຂົ້າເຖິງຕຳແໜ່ງໄດ້' : 'Could not access location');
+                      },
+                      { enableHighAccuracy: true, timeout: 10000 }
+                    );
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-2 border border-border rounded-xl text-xs font-semibold text-primary hover:bg-primary/5 active:bg-primary/10 transition-colors flex-shrink-0 min-h-[40px]"
+                >
+                  <LocateFixed size={14} />
+                  <span className="hidden sm:inline">{lang === 'lo' ? 'ຕຳແໜ່ງປັດຈຸບັນ' : 'My Location'}</span>
+                  <span className="sm:hidden">📍</span>
+                </button>
+              </div>
+              <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
+                <MapPin size={11} />
+                {lang === 'lo' ? 'ໃສ່ຊື່ສະຖານທີ່, ວາງ Google Maps link, ຫຼື ກົດ GPS ເພື່ອແຊຣ໌ຕຳແໜ່ງປັດຈຸບັນ' : 'Enter a place name, paste a Google Maps link, or tap GPS to share your current location'}
+              </p>
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                {lang === 'lo' ? 'ເວລາສິ້ນສຸດ' : 'End Time'}
-              </label>
-              <input
-                type="time"
-                value={timeTo}
-                onChange={e => setTimeTo(e.target.value)}
-                className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
-              />
-            </div>
-          </div>
+
+            {service.timeUnit === 'hours' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                    {lang === 'lo' ? 'ເວລາເລີ່ມ' : 'Start Time'}
+                  </label>
+                  <input
+                    type="time"
+                    value={timeFrom}
+                    onChange={e => setTimeFrom(e.target.value)}
+                    className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                    {lang === 'lo' ? 'ເວລາສິ້ນສຸດ' : 'End Time'}
+                  </label>
+                  <input
+                    type="time"
+                    value={timeTo}
+                    onChange={e => setTimeTo(e.target.value)}
+                    className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/50 transition-colors"
+                  />
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Summary pill */}

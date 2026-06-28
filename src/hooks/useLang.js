@@ -125,19 +125,20 @@ const translations = {
 
 export const PERSONAL_CATS = [
   { key: 'all', icon: '🌍', en: 'All', lo: 'ທັງໝົດ', descEn: 'View all posts', descLo: 'ເບິ່ງໂພສທັງໝົດ' },
-  { key: 'talking', icon: '💬', en: 'Talk', lo: 'ລົມກັນ', descEn: 'Chat & share ideas', descLo: 'ລົມກັນ & ແລກປ່ຽນ' },
-  { key: 'home', icon: '🏠', en: 'Home', lo: 'ເຮືອນ', descEn: 'Find a place to stay', descLo: 'ຊອກຫາທີ່ພັກ' },
-  { key: 'food', icon: '🍽️', en: 'Eat at Home', lo: 'ກິນເຂົ້າເຮືອນ', descEn: 'Share home cooked meals', descLo: 'ແບ່ງປັນອາຫານເຮືອນ' },
-  { key: 'guide', icon: '🗺️', en: 'Guide', lo: 'ພາທ່ຽວ', descEn: 'Local guides and tours', descLo: 'ພາທ່ຽວທ້ອງຖິ່ນ' }
+  { key: 'social', icon: '📸', en: 'Social', lo: 'ສັງຄົມ', descEn: 'Share a moment', descLo: 'ແບ່ງປັນຮູບພາບ ຫຼື ຂໍ້ຄວາມ', isService: false },
+  { key: 'talking', icon: '💬', en: 'Talk', lo: 'ລົມກັນ', descEn: 'Chat & share ideas', descLo: 'ລົມກັນ & ແລກປ່ຽນ', isService: true, timeUnit: 'hours', minTime: 0.5, maxTime: 5, timeLabel: 'Hours', timeLabelLo: 'ຊົ່ວໂມງ', whenType: 'date', whenLabel: 'Date', whenLabelLo: 'ວັນທີ', priceUnit: '/hour', priceUnitLo: '/ຊົ່ວໂມງ' },
+  { key: 'home', icon: '🏠', en: 'Home', lo: 'ເຮືອນ', descEn: 'Find a place to stay', descLo: 'ຊອກຫາທີ່ພັກ', isService: true, timeUnit: 'guests', minTime: 1, maxTime: 10, timeLabel: 'Guests', timeLabelLo: 'ຄົນ', whenType: 'date', whenLabel: 'Check-in', whenLabelLo: 'ວັນເຂົ້າພັກ', priceUnit: '/person', priceUnitLo: '/ຄົນ' },
+  { key: 'food', icon: '🍽️', en: 'Eat at Home', lo: 'ກິນເຂົ້າເຮືອນ', descEn: 'Share home cooked meals', descLo: 'ແບ່ງປັນອາຫານເຮືອນ', isService: true, timeUnit: 'guests', minTime: 1, maxTime: 10, timeLabel: 'Guests', timeLabelLo: 'ຄົນ', whenType: 'datetime-local', whenLabel: 'Date & Time', whenLabelLo: 'ວັນ ແລະ ເວລາ', priceUnit: '/person', priceUnitLo: '/ຄົນ' },
+  { key: 'guide', icon: '🗺️', en: 'Guide', lo: 'ພາທ່ຽວ', descEn: 'Local guides and tours', descLo: 'ພາທ່ຽວທ້ອງຖິ່ນ', isService: true, timeUnit: 'days', minTime: 1, maxTime: 14, timeLabel: 'Days', timeLabelLo: 'ມື້', whenType: 'date', whenLabel: 'Start Date', whenLabelLo: 'ວັນເລີ່ມຕົ້ນ', priceUnit: '/day', priceUnitLo: '/ມື້' }
 ];
 
 export const BUSINESS_CATS = [
   { key: 'all', icon: '🌍', en: 'All', lo: 'ທັງໝົດ', descEn: 'View all listings', descLo: 'ເບິ່ງລາຍການທັງໝົດ' },
-  { key: 'tours', icon: '🚌', en: 'Tours', lo: 'ທົວ', descEn: 'Professional tour packages', descLo: 'ແພັກເກັດທົວມືອາຊີບ' },
-  { key: 'hotels', icon: '🏨', en: 'Hotels', lo: 'ໂຮງແຮມ', descEn: 'Book hotel rooms', descLo: 'ຈອງຫ້ອງພັກໂຮງແຮມ' },
-  { key: 'flights', icon: '✈️', en: 'Flights', lo: 'ປີ້ຍົນ', descEn: 'Flight tickets', descLo: 'ປີ້ຍົນໂດຍສານ' },
-  { key: 'restaurants', icon: '🍽', en: 'Restaurants', lo: 'ຮ້ານອາຫານ', descEn: 'Dining and food', descLo: 'ຮ້ານອາຫານ & ເຄື່ອງດື່ມ' },
-  { key: 'seminars', icon: '📈', en: 'Seminars', lo: 'ສໍາມະນາ', descEn: 'Business events & seminars', descLo: 'ງານສໍາມະນາ & ທຸລະກິດ' }
+  { key: 'tours', icon: '🚌', en: 'Tours', lo: 'ທົວ', descEn: 'Professional tour packages', descLo: 'ແພັກເກັດທົວມືອາຊີບ', priceUnit: '/person', priceUnitLo: '/ຄົນ', hasGuests: true },
+  { key: 'hotels', icon: '🏨', en: 'Hotels', lo: 'ໂຮງແຮມ', descEn: 'Book hotel rooms', descLo: 'ຈອງຫ້ອງພັກໂຮງແຮມ', priceUnit: '/night', priceUnitLo: '/ຄືນ', hasGuests: true, hasBeds: true, hasBaths: true },
+  { key: 'flights', icon: '✈️', en: 'Flights', lo: 'ປີ້ຍົນ', descEn: 'Flight tickets', descLo: 'ປີ້ຍົນໂດຍສານ', priceUnit: '/flight', priceUnitLo: '/ຖ້ຽວບິນ', hasGuests: true },
+  { key: 'restaurants', icon: '🍽', en: 'Restaurants', lo: 'ຮ້ານອາຫານ', descEn: 'Dining and food', descLo: 'ຮ້ານອາຫານ & ເຄື່ອງດື່ມ', priceUnit: '/table', priceUnitLo: '/ໂຕະ', hasGuests: true },
+  { key: 'seminars', icon: '📈', en: 'Seminars', lo: 'ສໍາມະນາ', descEn: 'Business events & seminars', descLo: 'ງານສໍາມະນາ & ທຸລະກິດ', priceUnit: '/ticket', priceUnitLo: '/ປີ້', hasGuests: true }
 ];
 
 export default function useLang() {

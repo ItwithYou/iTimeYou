@@ -232,14 +232,16 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
         </div>
         <div className="flex flex-col items-end gap-1.5">
           <div className="flex items-center gap-1.5">
-            {post.post_type === 'request' ? (
-              <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 font-bold border border-amber-200 shadow-sm">
-                {lang === 'lo' ? 'ຕ້ອງການບໍລິການ' : 'Looking For'}
-              </span>
-            ) : (
-              <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 font-bold border border-emerald-200 shadow-sm">
-                {lang === 'lo' ? 'ໃຫ້ບໍລິການ' : 'Offering'}
-              </span>
+            {post.category !== 'social' && (
+              post.post_type === 'request' ? (
+                <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 font-bold border border-amber-200 shadow-sm">
+                  {lang === 'lo' ? 'ຕ້ອງການບໍລິການ' : 'Looking For'}
+                </span>
+              ) : (
+                <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 font-bold border border-emerald-200 shadow-sm">
+                  {lang === 'lo' ? 'ໃຫ້ບໍລິການ' : 'Offering'}
+                </span>
+              )
             )}
             {post.category && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100/80 text-orange-800 text-xs font-bold border border-orange-200 shadow-sm ml-2.5">

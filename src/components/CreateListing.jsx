@@ -67,12 +67,20 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted,
   };
 
   const handlePost = async () => {
-    if (!title.trim() || !description.trim() || !price) {
-      toast.error(lang === 'lo' ? 'ກະລຸນາປ້ອນຂໍ້ມູນໃຫ້ຄົບ' : 'Please fill in required fields');
+    if (!title.trim() || !titleLao.trim()) {
+      toast.error('Title is required');
+      return;
+    }
+    if (!city.trim() || !country.trim()) {
+      toast.error('City and Country are required');
       return;
     }
     if (photoFiles.length === 0) {
-      toast.error(lang === 'lo' ? 'ກະລຸນາແນບຮູບພາບ' : 'Please attach a photo');
+      toast.error('At least one photo is required');
+      return;
+    }
+    if (!price || parseFloat(price) <= 0) {
+      toast.error('Please enter a valid price');
       return;
     }
 
@@ -82,6 +90,7 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted,
       const image_urls = uploads.map(u => u.file_url).filter(Boolean);
       const image_url = image_urls[0] || '';
 
+      const cat = BUSINESS_CATS.find(c => c.key === category) || {};
       await firebaseClient.entities.Listing.create({
         title: title.trim(),
         title_lao: titleLao.trim() || title.trim(),
@@ -90,6 +99,7 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted,
         image_url,
         image_urls,
         price: parseFloat(price) || 0,
+        currency: 'USD' + (cat.priceUnit || '/night').toUpperCase(),
         cleaning_fee: parseFloat(cleaningFee) || 0,
         service_fee: parseFloat(serviceFee) || 0,
         category,
@@ -243,26 +253,43 @@ export default function CreateListing({ profile, currentUser, lang, t, onPosted,
         </div>
 
         {/* Guests, Beds, Baths */}
-        <div className="grid grid-cols-3 gap-3">
-          <div>
-            <label className="block text-xs font-semibold text-muted-foreground mb-1">Max Guests</label>
-            <input type="number" min="1" value={guests} onChange={e => setGuests(parseInt(e.target.value) || 1)} className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/30" />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-muted-foreground mb-1">Beds</label>
-            <input type="number" min="1" value={beds} onChange={e => setBeds(parseInt(e.target.value) || 1)} className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/30" />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-muted-foreground mb-1">Baths</label>
-            <input type="number" min="1" value={baths} onChange={e => setBaths(parseInt(e.target.value) || 1)} className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/30" />
-          </div>
-        </div>
+        {(() => {
+          const cat = BUSINESS_CATS.find(c => c.key === category) || {};
+          return (
+            cat.hasGuests || cat.hasBeds || cat.hasBaths
+          ) ? (
+            <div className="grid grid-cols-3 gap-3">
+              {cat.hasGuests && (
+                <div>
+                  <label className="block text-xs font-semibold text-muted-foreground mb-1">Max Guests</label>
+                  <input type="number" min="1" value={guests} onChange={e => setGuests(parseInt(e.target.value) || 1)} className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/30" />
+                </div>
+              )}
+              {cat.hasBeds && (
+                <div>
+                  <label className="block text-xs font-semibold text-muted-foreground mb-1">Beds</label>
+                  <input type="number" min="1" value={beds} onChange={e => setBeds(parseInt(e.target.value) || 1)} className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/30" />
+                </div>
+              )}
+              {cat.hasBaths && (
+                <div>
+                  <label className="block text-xs font-semibold text-muted-foreground mb-1">Baths</label>
+                  <input type="number" min="1" value={baths} onChange={e => setBaths(parseInt(e.target.value) || 1)} className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/30" />
+                </div>
+              )}
+            </div>
+          ) : null;
+        })()}
 
         {/* Pricing */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label className="block text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
-              <DollarSign size={11} /> Price per Night (USD)
+              <DollarSign size={11} /> 
+              {(() => {
+                const cat = BUSINESS_CATS.find(c => c.key === category);
+                return `Price ${lang === 'lo' && cat?.priceUnitLo ? cat.priceUnitLo : (cat?.priceUnit || '/night')} (USD)`;
+              })()}
             </label>
             <input type="number" min="0" value={price} onChange={e => setPrice(e.target.value)} placeholder="0.00" className="w-full border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-muted/30" />
           </div>
