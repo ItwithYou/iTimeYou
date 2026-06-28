@@ -52,7 +52,7 @@ export default function Feed() {
       const posts = await firebaseClient.entities.Post.list('-created_date', 100);
       for (const p of posts) {
         if (p.photo_url?.includes('green_hills') || p.photo_urls?.some(u => u.includes('green_hills'))) {
-          const newUrls = (p.photo_urls || []).map(u => u.includes('green_hills') ? '/mountain.jpg' : u);
+          const newUrls = (p.photo_urls || []).map(u => u.includes('green_hills') ? '/mountain_view.jpg' : u);
           await firebaseClient.entities.Post.update(p.id, {
             photo_urls: newUrls,
             photo_url: newUrls[0] || p.photo_url
@@ -63,7 +63,7 @@ export default function Feed() {
       const listings = await firebaseClient.entities.Listing.list('-created_date', 100);
       for (const l of listings) {
         if (l.image_url?.includes('green_hills') || l.image_urls?.some(u => u.includes('green_hills'))) {
-          const newUrls = (l.image_urls || []).map(u => u.includes('green_hills') ? '/mountain.jpg' : u);
+          const newUrls = (l.image_urls || []).map(u => u.includes('green_hills') ? '/mountain_view.jpg' : u);
           await firebaseClient.entities.Listing.update(l.id, {
             image_urls: newUrls,
             image_url: newUrls[0] || l.image_url
@@ -77,8 +77,8 @@ export default function Feed() {
   // Automated one-time seeder for premium demo data — Yakuci admin posts
   useEffect(() => {
     const seedData = async () => {
-      if (localStorage.getItem('seeded_yakuci_v12')) return;
-      localStorage.setItem('seeded_yakuci_v12', 'true');
+      if (localStorage.getItem('seeded_yakuci_v13')) return;
+      localStorage.setItem('seeded_yakuci_v13', 'true');
 
       // Clean up old demo posts
       try {
@@ -169,13 +169,13 @@ export default function Feed() {
           text_en: 'Local Luang Prabang guide! I know every corner of the old town, hidden temples, and secret local eateries that tourists usually miss. Book today! 🗺️🛵',
           text_lo: 'ຮັບພາທ່ຽວຫຼວງພະບາງ! ຮູ້ຈັກທຸກມຸມເມືອງເກົ່າ, ວັດວາອາຮາມ, ແລະ ຮ້ານອາຫານລັບໆ ທີ່ນັກທ່ອງທ່ຽວບໍ່ຄ່ອຍຮູ້. ຈອງມື້ນີ້! 🗺️🛵',
           photo_urls: [
-            '/mountain.jpg',
+            '/mountain_view.jpg',
             'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80',
             'https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=800&q=80',
             'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?auto=format&fit=crop&w=800&q=80',
             'https://images.unsplash.com/photo-1517400508447-f8dd518b86db?auto=format&fit=crop&w=800&q=80'
           ],
-          photo_url: '/mountain.jpg',
+          photo_url: '/mountain_view.jpg',
           service_price: 25, service_type: 'Local Guide', service_location: 'Luang Prabang', service_currency: 'USD/day',
         },
       ];
