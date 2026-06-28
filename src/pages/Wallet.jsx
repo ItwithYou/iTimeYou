@@ -184,24 +184,20 @@ export default function Wallet() {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_42%)]" />
 
         <div className="relative">
-          {/* Brand row — user avatar initial + label */}
-          <div className="mb-6 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/25 ring-1 ring-white/40 backdrop-blur-sm flex-shrink-0">
-                <span className="text-[15px] font-medium text-white leading-none">
+          {/* Brand row — Fancy Brand Left, User Right */}
+          <div className="mb-6 flex items-start justify-between">
+            <span className="text-[18px] font-serif italic tracking-wider text-white drop-shadow-sm opacity-95">
+              iTimeYou
+            </span>
+            <div className="flex items-center gap-2 text-right">
+              <p className="text-[11px] font-light tracking-[0.1em] uppercase text-white/90 max-w-[120px] truncate leading-none">
+                {profile?.first_name} {profile?.last_name}
+              </p>
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 ring-1 ring-white/40 backdrop-blur-sm flex-shrink-0">
+                <span className="text-[13px] font-medium text-white leading-none">
                   {(profile?.first_name?.[0] || '?').toUpperCase()}
                 </span>
               </div>
-              <div>
-                <p className="text-[10px] font-light tracking-[0.18em] uppercase text-white/60 leading-none mb-0.5">iTimeYou</p>
-                <p className="text-[12px] font-normal tracking-[0.08em] uppercase text-white/90 leading-none">
-                  {profile?.first_name} {profile?.last_name}
-                </p>
-              </div>
-            </div>
-            {/* Chip emblem */}
-            <div className="h-7 w-10 rounded-[5px] bg-gradient-to-br from-white/60 to-white/30 ring-1 ring-white/20 backdrop-blur-sm flex items-end justify-end p-1">
-              <div className="w-3 h-3 rounded-full border border-white/50" />
             </div>
           </div>
 
