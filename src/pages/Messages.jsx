@@ -20,13 +20,13 @@ export default function Messages() {
   useEffect(() => {
     if (!currentUser) return;
     firebaseClient.entities.Conversation.list('-updated_date', 30).then(async convs => {
-      const myConvs = convs.filter(c => c.participants?.includes(currentUser.email));
+      const myConvs = currentUser.role === 'admin' ? convs : convs.filter(c => c.participants?.includes(currentUser.email));
       const allProfiles = await firebaseClient.entities.UserProfile.list('-created_date', 100);
       const map = {};
       allProfiles.forEach(p => { map[p.user_email] = p; });
       setProfiles(map);
 
-      // Only show user-to-user chats in the sidebar list (hide support chats with admin)
+      // Show user-to-user chats in the sidebar list (admins see all)
       const sidebarConvs = currentUser.role === 'admin' 
         ? myConvs 
         : myConvs.filter(c => {
@@ -45,10 +45,18 @@ export default function Messages() {
     });
   }, [currentUser]);
 
-  // Scroll to bottom when messages change
+  // Mark read and scroll
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    
+    // Mark unread messages as read
+    if (!messages.length || !currentUser) return;
+    const unreadMsgs = messages.filter(m => !m.is_read && m.sender_email !== currentUser.email);
+    if (unreadMsgs.length > 0) {
+      unreadMsgs.forEach(m => firebaseClient.entities.Message.update(m.id, { is_read: true }));
+      setMessages(prev => prev.map(m => unreadMsgs.find(u => u.id === m.id) ? { ...m, is_read: true } : m));
+    }
+  }, [messages, currentUser]);
 
   const openConversation = async (conv) => {
     setActiveConv(conv);
@@ -102,6 +110,7 @@ export default function Messages() {
       conversation_id: activeConv.id,
       sender_email: currentUser.email,
       text,
+      is_read: false,
     });
     await firebaseClient.entities.Conversation.update(activeConv.id, {
       last_message: text,
@@ -125,6 +134,7 @@ export default function Messages() {
           sender_email: currentUser.email,
           text,
           msg_type: 'location',
+          is_read: false,
         });
         await firebaseClient.entities.Conversation.update(activeConv.id, {
           last_message: lang === 'lo' ? '📍 ສ່ງສະຖານທີ່' : '📍 Location shared',
@@ -334,14 +344,14 @@ export default function Messages() {
 
                 return (
                   <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[75%] rounded-2xl text-sm overflow-hidden ${
+                    <div className={`max-w-[75%] rounded-[20px] text-[14px] overflow-hidden shadow-sm ${
                       isMine
-                        ? 'bg-primary text-primary-foreground rounded-br-sm'
-                        : 'bg-card border border-border rounded-bl-sm'
+                        ? 'bg-primary text-primary-foreground rounded-br-[4px]'
+                        : 'bg-card border border-border rounded-bl-[4px]'
                     }`}>
                       {isLoc && mapsUrl ? (
                         // Location message
-                        <div className="p-3">
+                        <div className="p-3.5">
                           <div className="flex items-center gap-1.5 font-semibold text-xs mb-2">
                             <MapPin size={12} /> {lang === 'lo' ? 'ທີ່ຢູ່' : 'Location'}
                           </div>
@@ -357,16 +367,26 @@ export default function Messages() {
                         </div>
                       ) : msg.msg_type === 'booking_card' ? (
                         // Booking confirmation message card
-                        <div className="p-3">
-                          <p className="whitespace-pre-line text-sm leading-relaxed">{msg.text}</p>
+                        <div className="p-3.5">
+                          <p className="whitespace-pre-line text-[14px] leading-relaxed font-light">{msg.text}</p>
                         </div>
                       ) : (
                         <div className="px-4 py-2.5">
-                          <p className="whitespace-pre-line">{msg.text}</p>
+                          <p className="whitespace-pre-line font-light leading-[1.4]">{msg.text}</p>
                         </div>
                       )}
-                      <div className={`px-4 pb-2 text-[10px] opacity-50 ${isLoc || msg.msg_type === 'booking_card' ? 'px-3' : ''}`}>
-                        {formatTimestampDMY(msg.created_date)}
+                      
+                      <div className={`flex items-center justify-end gap-1 px-3 pb-2 -mt-1 text-[9px] uppercase tracking-wider font-medium opacity-60`}>
+                        <span>{formatTimestampDMY(msg.created_date)}</span>
+                        {isMine && (
+                          <span className="flex items-center ml-1">
+                            {msg.is_read ? (
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-3.5 h-3.5 text-blue-200"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5 M10.5 12.75l6 6 9-13.5" /></svg>
+                            ) : (
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                            )}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
