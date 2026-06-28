@@ -53,11 +53,17 @@ export default function Wallet() {
     updatedAt: '',
   });
   const [ratesLoaded, setRatesLoaded] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const lakBalance = profile?.wallet_balance_lak || 0;
   const usdBalance = profile?.wallet_balance_usd || 0;
   const thbBalance = profile?.wallet_balance_thb || 0;
   const cnyBalance = profile?.wallet_balance_cny || 0;
   const totalLak = getTotalLakBalance(profile, exchangeRates);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const loadTx = async () => {
     if (currentUser) {
@@ -215,9 +221,13 @@ export default function Wallet() {
           </div>
 
 
-          {/* Masked number only */}
+          {/* Real-time Clock */}
           <div className="mt-6 flex items-center justify-end">
-            <p className="wallet-num text-[10px] tracking-[0.3em] text-white/40">•••• 2026</p>
+            <p className="font-mono text-[9px] tracking-widest text-white/50 uppercase">
+              {currentTime.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+              <span className="mx-1.5 opacity-40">•</span>
+              {currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </p>
           </div>
 
           {/* Currency pills */}
