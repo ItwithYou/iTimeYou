@@ -184,21 +184,21 @@ export default function Wallet() {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_42%)]" />
 
         <div className="relative">
-          {/* Brand row — Fancy Brand Left, User Right */}
+          {/* Brand row — User Left, Fancy Brand Right */}
           <div className="mb-6 flex items-start justify-between">
-            <span className="text-[18px] font-serif italic tracking-wider text-white drop-shadow-sm opacity-95">
-              iTimeYou
-            </span>
-            <div className="flex items-center gap-2 text-right">
-              <p className="text-[11px] font-light tracking-[0.1em] uppercase text-white/90 max-w-[120px] truncate leading-none">
-                {profile?.first_name} {profile?.last_name}
-              </p>
+            <div className="flex items-center gap-2 text-left">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 ring-1 ring-white/40 backdrop-blur-sm flex-shrink-0">
                 <span className="text-[13px] font-medium text-white leading-none">
                   {(profile?.first_name?.[0] || '?').toUpperCase()}
                 </span>
               </div>
+              <p className="text-[11px] font-light tracking-[0.1em] uppercase text-white/90 max-w-[120px] truncate leading-none mt-0.5">
+                {profile?.first_name} {profile?.last_name}
+              </p>
             </div>
+            <span className="text-[18px] font-serif italic tracking-wider text-white drop-shadow-sm opacity-95">
+              iTimeYou
+            </span>
           </div>
 
           {/* Balance label */}
