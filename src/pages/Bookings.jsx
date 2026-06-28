@@ -5,6 +5,7 @@ import { firebaseClient } from '@/api/firebaseClient';
 import { MapPin, Calendar, Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import ServiceBookingDetailModal from '../components/bookings/ServiceBookingDetailModal';
 import StayBookingDetailModal from '../components/bookings/StayBookingDetailModal';
+import MapHistoryView from '../components/bookings/MapHistoryView';
 import { toast } from 'sonner';
 import { formatServiceWhen, formatTimestampDMY } from '../utils/dateUtils';
 
@@ -248,8 +249,14 @@ export default function Bookings() {
   const currentServiceBookings = serviceTab === 'my_bookings' ? myServiceBookings : incomingServiceBookings;
 
   const pendingBookings = currentServiceBookings.filter((b) => b.status === 'pending' || b.status === 'confirmed');
-  const completedBookings = currentServiceBookings.filter((b) => b.status === 'completed' || b.status === 'cancelled');
-  const visibleBookings = tab === 'pending' ? pendingBookings : completedBookings;
+  const completedBookings = currentServiceBookings.filter((b) => b.status === 'completed');
+  const cancelledBookings = currentServiceBookings.filter((b) => b.status === 'cancelled');
+  
+  let visibleBookings = [];
+  if (tab === 'pending') visibleBookings = pendingBookings;
+  else if (tab === 'completed') visibleBookings = completedBookings;
+  else if (tab === 'cancelled') visibleBookings = cancelledBookings;
+  else visibleBookings = currentServiceBookings; // For map view, use all current
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
@@ -276,105 +283,106 @@ export default function Bookings() {
         </button>
       </div>
 
-      {/* Pending / Completed Sub-tabs */}
-      <div className="flex gap-6 border-b border-border mb-6 px-2">
+      {/* Status Sub-tabs */}
+      <div className="flex gap-4 sm:gap-6 border-b border-border/50 mb-6 px-1 sm:px-2 overflow-x-auto no-scrollbar pb-1">
         <button
           onClick={() => setTab('pending')}
-          className={`pb-3 text-sm font-bold relative transition-colors ${tab === 'pending' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+          className={`pb-3 text-xs sm:text-sm font-bold relative transition-colors whitespace-nowrap ${tab === 'pending' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >
           ⏳ {lang === 'lo' ? 'ລໍຖ້າດຳເນີນການ' : 'Pending'}
-          {pendingBookings.length > 0 && <span className="ml-1.5 text-[10px] bg-amber-500 text-white rounded-full px-2 py-0.5">{pendingBookings.length}</span>}
+          {pendingBookings.length > 0 && <span className="ml-1.5 text-[9px] bg-amber-500 text-white rounded-full px-1.5 py-0.5">{pendingBookings.length}</span>}
           {tab === 'pending' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-foreground rounded-t-full" />}
         </button>
         <button
           onClick={() => setTab('completed')}
-          className={`pb-3 text-sm font-bold relative transition-colors ${tab === 'completed' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+          className={`pb-3 text-xs sm:text-sm font-bold relative transition-colors whitespace-nowrap ${tab === 'completed' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >
           ✅ {lang === 'lo' ? 'ສຳເລັດແລ້ວ' : 'Completed'}
-          {completedBookings.length > 0 && <span className="ml-1.5 text-[10px] bg-primary text-white rounded-full px-2 py-0.5">{completedBookings.length}</span>}
+          {completedBookings.length > 0 && <span className="ml-1.5 text-[9px] bg-emerald-500 text-white rounded-full px-1.5 py-0.5">{completedBookings.length}</span>}
           {tab === 'completed' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-foreground rounded-t-full" />}
+        </button>
+        <button
+          onClick={() => setTab('cancelled')}
+          className={`pb-3 text-xs sm:text-sm font-bold relative transition-colors whitespace-nowrap ${tab === 'cancelled' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          ❌ {lang === 'lo' ? 'ຍົກເລີກ' : 'Cancelled'}
+          {cancelledBookings.length > 0 && <span className="ml-1.5 text-[9px] bg-destructive text-white rounded-full px-1.5 py-0.5">{cancelledBookings.length}</span>}
+          {tab === 'cancelled' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-foreground rounded-t-full" />}
+        </button>
+        <button
+          onClick={() => setTab('map')}
+          className={`pb-3 text-xs sm:text-sm font-bold relative transition-colors whitespace-nowrap ml-auto ${tab === 'map' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          🗺️ {lang === 'lo' ? 'ແຜນທີ່' : 'Map View'}
+          {tab === 'map' && <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-primary rounded-t-full" />}
         </button>
       </div>
 
-      {/* Transaction list */}
-      {visibleBookings.length > 0 ? (
-        <div className="space-y-4">
+      {/* View Content */}
+      {tab === 'map' ? (
+        <MapHistoryView bookings={visibleBookings} lang={lang} currentUser={currentUser} />
+      ) : visibleBookings.length > 0 ? (
+        <div className="space-y-3">
           {visibleBookings.map((b) => {
             const st = statusConfig[b.status] || statusConfig.pending;
-            const Icon = st.icon;
             const isIncoming = serviceTab === 'incoming_requests';
-            const statusColor = b.status === 'completed' ? 'border-l-blue-500' : b.status === 'confirmed' ? 'border-l-emerald-500' : b.status === 'cancelled' ? 'border-l-red-500' : 'border-l-amber-500';
+            const statusColor = b.status === 'completed' ? 'bg-emerald-500' : b.status === 'confirmed' ? 'bg-blue-500' : b.status === 'cancelled' ? 'bg-destructive' : 'bg-amber-500';
 
             return (
               <button
                 key={b.id}
                 onClick={() => setSelectedServiceBooking(b)}
-                className={`w-full text-left bg-card rounded-2xl border border-border shadow-sm hover:shadow-md transition-all cursor-pointer overflow-hidden border-l-[6px] ${statusColor}`}
+                className="w-full text-left bg-card rounded-[20px] p-4 flex gap-4 items-center group transition-colors hover:bg-muted/30 border border-border/50"
               >
-                <div className="p-4 sm:p-5">
-                  <div className="flex items-start justify-between gap-3 mb-4">
-                    <div className="flex items-center gap-3.5">
-                      {b.image ? (
-                        <img src={b.image} alt={b.service_type} className="w-14 h-14 rounded-xl object-cover shadow-sm border border-border flex-shrink-0" />
-                      ) : (
-                        <div className="w-14 h-14 bg-muted/50 rounded-xl flex items-center justify-center text-2xl shadow-sm border border-border flex-shrink-0">
-                          {b.booking_kind === 'stay' ? '🏠' : '🛎️'}
-                        </div>
-                      )}
-                      <div>
-                        <p className="font-bold text-base line-clamp-1">{b.service_type || 'Service Transaction'}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {isIncoming
-                            ? `${lang === 'lo' ? 'ລູກຄ້າ:' : 'Client:'} ${b.booker_name || b.booker_email}`
-                            : `${lang === 'lo' ? 'ຜູ້ໃຫ້ບໍລິການ:' : 'Provider:'} ${b.poster_name || b.poster_email}`}
-                        </p>
-                      </div>
-                    </div>
-                    <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border flex-shrink-0 ${st.cls}`}>
-                      <Icon size={12} /> {st.label}
-                    </span>
+                {b.image ? (
+                  <img src={b.image} alt={b.service_type} className="w-16 h-16 rounded-[14px] object-cover shadow-sm flex-shrink-0 group-hover:scale-105 transition-transform" />
+                ) : (
+                  <div className="w-16 h-16 bg-muted rounded-[14px] flex items-center justify-center text-2xl shadow-sm flex-shrink-0 group-hover:scale-105 transition-transform">
+                    {b.booking_kind === 'stay' ? '🏠' : '🛎️'}
                   </div>
-
-                  <div className="flex flex-wrap gap-4 text-[13px] text-muted-foreground mb-4">
-                    {b.service_when && (
-                      <span className="flex items-center gap-1.5 font-medium">
-                        <Calendar size={14} className="text-primary/70" /> {formatServiceWhen(b.service_when)}
-                      </span>
-                    )}
-                    {b.service_duration > 0 && (
-                      <span className="flex items-center gap-1.5 font-medium">
-                        <Clock size={14} className="text-primary/70" /> {b.service_duration}{b.booking_kind === 'stay' ? ' nights' : 'h'}
-                      </span>
-                    )}
-                    {b.service_location && (
-                      <span className="flex items-center gap-1.5 font-medium truncate max-w-[200px]">
-                        <MapPin size={14} className="text-primary/70" /> {b.service_location}
-                      </span>
-                    )}
+                )}
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <p className="font-semibold text-[15px] truncate text-foreground">{b.service_type || 'Service Transaction'}</p>
+                    <div className={`w-2 h-2 rounded-full ${statusColor} shadow-sm shrink-0`} title={st.label} />
+                  </div>
+                  
+                  <div className="text-[12px] text-muted-foreground flex flex-col gap-0.5">
+                    <span className="truncate">
+                      {isIncoming ? (lang === 'lo' ? 'ລູກຄ້າ: ' : 'Client: ') : (lang === 'lo' ? 'ຜູ້ໃຫ້ບໍລິການ: ' : 'Provider: ')}
+                      <span className="font-medium text-foreground/80">{isIncoming ? (b.booker_name || b.booker_email) : (b.poster_name || b.poster_email)}</span>
+                    </span>
+                    <span className="flex items-center gap-1.5 opacity-80">
+                      <Calendar size={12} /> {formatTimestampDMY(b.created_date)}
+                    </span>
                   </div>
                 </div>
 
-                <div className="bg-muted/30 px-4 sm:px-5 py-3 border-t border-dashed border-border flex items-center justify-between">
-                  <span className="text-xs font-semibold text-muted-foreground">{formatTimestampDMY(b.created_date)}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-muted-foreground uppercase">{lang === 'lo' ? 'ລາຄາລວມ' : 'TOTAL'}</span>
-                    <span className="text-lg font-black text-foreground">{b.price} {b.currency || 'USD'}</span>
-                  </div>
+                <div className="flex flex-col items-end justify-center shrink-0">
+                  <span className="text-sm font-bold text-foreground">
+                    {b.price?.toLocaleString()}
+                  </span>
+                  <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">{b.currency || 'LAK'}</span>
                 </div>
               </button>
             );
           })}
         </div>
       ) : (
-        <div className="text-center py-20 text-muted-foreground bg-muted/20 rounded-3xl border border-border border-dashed">
-          <p className="text-5xl mb-4">{tab === 'pending' ? '⏳' : '✅'}</p>
-          <h3 className="text-lg font-bold mb-2">
+        <div className="text-center py-20 text-muted-foreground bg-card rounded-[24px] border border-border/50">
+          <p className="text-4xl mb-4">{tab === 'pending' ? '⏳' : tab === 'completed' ? '✅' : '❌'}</p>
+          <h3 className="text-[15px] font-bold mb-2">
             {tab === 'pending'
               ? lang === 'lo' ? 'ຍັງບໍ່ມີທຸລະກຳທີ່ລໍຖ້າ' : 'No pending transactions'
-              : lang === 'lo' ? 'ຍັງບໍ່ມີທຸລະກຳທີ່ສຳເລັດ' : 'No completed transactions'}
+              : tab === 'completed'
+              ? lang === 'lo' ? 'ຍັງບໍ່ມີທຸລະກຳທີ່ສຳເລັດ' : 'No completed transactions'
+              : lang === 'lo' ? 'ບໍ່ມີທຸລະກຳທີ່ຍົກເລີກ' : 'No cancelled transactions'}
           </h3>
-          <p className="text-sm mb-6 max-w-sm mx-auto">{lang === 'lo' ? 'ຊອກຫາການບໍລິການໃນ Feed ເພື່ອເລີ່ມຕົ້ນທຸລະກຳໃໝ່' : 'Browse services in the Feed to start a new transaction'}</p>
-          <Link to="/feed" className="inline-block bg-primary text-primary-foreground px-8 py-3 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:opacity-90 hover:scale-105 transition-all">{t.feed}</Link>
+          <p className="text-xs mb-6 max-w-[250px] mx-auto opacity-70">
+            {lang === 'lo' ? 'ຊອກຫາການບໍລິການໃນ Feed ເພື່ອເລີ່ມຕົ້ນທຸລະກຳໃໝ່' : 'Browse services in the Feed to start a new transaction'}
+          </p>
+          <Link to="/feed" className="inline-block bg-primary text-primary-foreground px-6 py-2.5 rounded-full text-xs font-bold shadow-md hover:shadow-lg transition-all">{t.feed}</Link>
         </div>
       )}
 
