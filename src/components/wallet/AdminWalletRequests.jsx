@@ -22,6 +22,7 @@ const adminTabs = [
   { key: 'rates', label: 'Rates' },
   { key: 'account', label: 'Account' },
   { key: 'stays', label: 'Stays Payout' },
+  { key: 'balances', label: 'Balances' },
 ];
 
 const statusStyles = {
@@ -109,6 +110,28 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
   const [selectedAppeal, setSelectedAppeal] = useState(null);
   const [resolutionNotes, setResolutionNotes] = useState('');
   const [processingTxs, setProcessingTxs] = useState(new Set());
+  const [userProfiles, setUserProfiles] = useState([]);
+  const [loadingProfiles, setLoadingProfiles] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'balances' && userProfiles.length === 0) {
+      setLoadingProfiles(true);
+      firebaseClient.entities.UserProfile.list('-created_date', 1000).then((res) => {
+        setUserProfiles(res);
+        setLoadingProfiles(false);
+      });
+    }
+  }, [activeTab, userProfiles.length]);
+
+  const systemTotals = useMemo(() => {
+    return userProfiles.reduce((acc, user) => {
+      acc.lak += Number(user.wallet_balance_lak || 0);
+      acc.usd += Number(user.wallet_balance_usd || 0);
+      acc.thb += Number(user.wallet_balance_thb || 0);
+      acc.cny += Number(user.wallet_balance_cny || 0);
+      return acc;
+    }, { lak: 0, usd: 0, thb: 0, cny: 0 });
+  }, [userProfiles]);
 
   const pendingTopups = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'topup');
   const pendingWithdraws = transactions.filter((tx) => tx.status === 'pending' && tx.request_kind === 'withdraw');
@@ -409,7 +432,62 @@ export default function AdminWalletRequests({ currentUser, transactions, booking
         ))}
       </div>
 
-      {activeTab === 'rates' ? (
+      {activeTab === 'balances' ? (
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-card border rounded-xl p-4 shadow-sm">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Total LAK</p>
+              <p className="text-xl sm:text-2xl font-[200] mt-1 text-primary">{systemTotals.lak.toLocaleString()}</p>
+            </div>
+            <div className="bg-card border rounded-xl p-4 shadow-sm">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Total USD</p>
+              <p className="text-xl sm:text-2xl font-[200] mt-1 text-primary">{systemTotals.usd.toLocaleString()}</p>
+            </div>
+            <div className="bg-card border rounded-xl p-4 shadow-sm">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Total THB</p>
+              <p className="text-xl sm:text-2xl font-[200] mt-1 text-primary">{systemTotals.thb.toLocaleString()}</p>
+            </div>
+            <div className="bg-card border rounded-xl p-4 shadow-sm">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Total CNY</p>
+              <p className="text-xl sm:text-2xl font-[200] mt-1 text-primary">{systemTotals.cny.toLocaleString()}</p>
+            </div>
+          </div>
+          
+          <div className="bg-card rounded-xl border border-border overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-muted/50 border-b border-border text-muted-foreground uppercase text-[10px] font-bold tracking-wider">
+                  <tr>
+                    <th className="px-4 py-3">User</th>
+                    <th className="px-4 py-3 text-right">LAK</th>
+                    <th className="px-4 py-3 text-right">USD</th>
+                    <th className="px-4 py-3 text-right">THB</th>
+                    <th className="px-4 py-3 text-right">CNY</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {loadingProfiles ? (
+                    <tr><td colSpan="5" className="text-center py-6 text-muted-foreground text-xs uppercase tracking-widest">Loading...</td></tr>
+                  ) : (
+                    userProfiles.map(u => (
+                      <tr key={u.id} className="hover:bg-muted/30 transition-colors">
+                        <td className="px-4 py-3">
+                          <p className="font-semibold text-foreground text-xs sm:text-sm">{u.first_name || '-'} {u.last_name}</p>
+                          <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">{u.user_email || u.email}</p>
+                        </td>
+                        <td className="px-4 py-3 text-right text-xs font-medium">{(Number(u.wallet_balance_lak)||0).toLocaleString()}</td>
+                        <td className="px-4 py-3 text-right text-xs font-medium">{(Number(u.wallet_balance_usd)||0).toLocaleString()}</td>
+                        <td className="px-4 py-3 text-right text-xs font-medium">{(Number(u.wallet_balance_thb)||0).toLocaleString()}</td>
+                        <td className="px-4 py-3 text-right text-xs font-medium">{(Number(u.wallet_balance_cny)||0).toLocaleString()}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      ) : activeTab === 'rates' ? (
         <AdminExchangeRates currentUser={currentUser} lang={lang} />
       ) : activeTab === 'appeals' ? (
         <div className="space-y-4">
