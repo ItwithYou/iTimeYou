@@ -66,8 +66,8 @@ export default function Feed() {
   // Automated one-time seeder for premium demo data — Yakuci admin posts
   useEffect(() => {
     const seedData = async () => {
-      if (localStorage.getItem('seeded_yakuci_v11')) return;
-      localStorage.setItem('seeded_yakuci_v11', 'true');
+      if (localStorage.getItem('seeded_yakuci_v12')) return;
+      localStorage.setItem('seeded_yakuci_v12', 'true');
 
       // Clean up old demo posts
       try {
@@ -87,6 +87,24 @@ export default function Feed() {
       const ADMIN_NAME = 'Yakuci';
 
       const DEMO_POSTS = [
+        {
+          category: 'talking',
+          text: 'ສະບາຍດີ! ພວກເຮົານັກສຶກສາສາວມະຫາວິທະຍາໄລ ຕ້ອງການໝູ່ລົມ ຫຼື ປຶກສາຫາລືແລກປ່ຽນບົດຮຽນ ທີ່ຮ້ານນັ່ງຊິວໆ, ບັນຍາກາດດີໆ ພ້ອມກັບດື່ມເບຍລາວເຢັນໆ. ໃຜສົນໃຈຢາກລົມນຳກັນ ທັກມາໄດ້ເລີຍ! 🍻✨',
+          text_en: 'Hello! We are a group of university girls looking for friends or professionals to talk and discuss various topics. We know a very nice place with a great atmosphere to chill and drink cold Beerlao together. Let\'s hang out! 🍻✨',
+          text_lo: 'ສະບາຍດີ! ພວກເຮົານັກສຶກສາສາວມະຫາວິທະຍາໄລ ຕ້ອງການໝູ່ລົມ ຫຼື ປຶກສາຫາລືແລກປ່ຽນບົດຮຽນ ທີ່ຮ້ານນັ່ງຊິວໆ, ບັນຍາກາດດີໆ ພ້ອມກັບດື່ມເບຍລາວເຢັນໆ. ໃຜສົນໃຈຢາກລົມນຳກັນ ທັກມາໄດ້ເລີຍ! 🍻✨',
+          photo_urls: [
+            'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1543007630-9710e4a00a20?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=800&q=80'
+          ],
+          photo_url: 'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=800&q=80',
+          service_price: 15, service_type: 'Casual Talk & Drinks', service_location: 'Vientiane Capital', service_currency: 'USD/hour',
+        },
         {
           category: 'talking',
           text: 'ສະບາຍດີ! ມີໃຜຢາກຝຶກພາສາອັງກິດບໍ່? ຂ້ອຍເປັນຄູສອນພາສາອັງກິດ ຮັບລົມກັນເປັນພາສາອັງກິດເພື່ອຝຶກການເວົ້າ. ມາລົມກັນ! 💬✨',
