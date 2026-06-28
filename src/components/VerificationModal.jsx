@@ -53,7 +53,7 @@ export default function VerificationModal({ profile, t, lang, onClose, onSubmitt
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[100] flex items-center justify-center p-4" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onTouchEnd={e => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[100] flex items-center justify-center p-4">
       <div className="bg-card rounded-[24px] p-4 sm:p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-border overscroll-contain" onMouseDown={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-3 sticky top-0 bg-card z-10 pb-2 border-b border-border">
           <h2 className="text-[15px] sm:text-lg font-bold">{t.verifyTitle}</h2>

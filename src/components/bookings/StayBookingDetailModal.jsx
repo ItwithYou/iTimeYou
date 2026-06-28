@@ -38,7 +38,7 @@ export default function StayBookingDetailModal({ booking, currentUser, lang, onC
   const canMarkCompleted = currentUser?.role === 'admin' && booking.status !== 'completed' && booking.status !== 'cancelled';
 
   return (
-    <div className="fixed inset-0 z-[150] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onTouchEnd={e => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="fixed inset-0 z-[150] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
       <div className="bg-card w-full sm:max-w-lg rounded-2xl p-5 border border-border shadow-2xl max-h-[85vh] overflow-y-auto overscroll-contain hide-scrollbar relative" onMouseDown={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}>
         <div className="sticky top-[-20px] pt-4 pb-3 mb-4 bg-card z-10 flex items-center justify-between border-b border-border">
           <h3 className="font-bold text-base">{lang === 'lo' ? 'ລາຍລະອຽດການຈອງທີ່ພັກ' : 'Stay Booking Details'}</h3>

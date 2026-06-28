@@ -222,7 +222,7 @@ export default function WalletActionModal({ type, currentUser, profile, lang, on
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-md p-4" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-md p-4">
       <div className="bg-card rounded-[24px] w-full sm:max-w-md p-4 sm:p-6 shadow-2xl border border-border flex flex-col max-h-[90vh] sm:max-h-[85vh] overflow-hidden" onMouseDown={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4 flex-shrink-0">
           <h3 className="font-bold text-[15px] sm:text-lg">{titleMap[type]}</h3>

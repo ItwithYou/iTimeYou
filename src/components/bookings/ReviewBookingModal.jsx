@@ -78,7 +78,7 @@ export default function ReviewBookingModal({ booking, currentUser, lang, onClose
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onTouchEnd={e => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4">
       <div className="bg-card w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 border border-border shadow-2xl max-h-[90vh] overflow-y-auto overscroll-contain" onMouseDown={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-lg">{lang === 'lo' ? 'ໃຫ້ຄະແນນ ແລະ ຄຳຕິຊົມ' : 'Leave a Review'}</h3>

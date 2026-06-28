@@ -194,7 +194,7 @@ ${lang === 'lo' ? 'ລໍຖ້າ ✅' : 'Looking forward to it! ✅'}`,
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-md p-4" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-md p-4">
       <div
         className="bg-card rounded-[24px] w-full sm:max-w-sm p-5 sm:p-7 shadow-2xl border border-border max-h-[85vh] overflow-y-auto overscroll-contain"
         onMouseDown={e => e.stopPropagation()}
