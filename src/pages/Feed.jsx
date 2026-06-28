@@ -46,18 +46,29 @@ export default function Feed() {
   // Temporary fix for the wrong screenshot image
   useEffect(() => {
     const fixImage = async () => {
-      if (localStorage.getItem('fixed_yakuci_image_v4')) return;
-      localStorage.setItem('fixed_yakuci_image_v4', 'true');
+      if (localStorage.getItem('fixed_yakuci_image_v5')) return;
+      localStorage.setItem('fixed_yakuci_image_v5', 'true');
       
       const posts = await firebaseClient.entities.Post.list('-created_date', 100);
-      const targetPost = posts.find(p => p.text?.includes('ຮັບພາທ່ຽວຫຼວງພະບາງ!'));
-      if (targetPost) {
-        const newUrls = [...(targetPost.photo_urls || [])];
-        newUrls[0] = '/green_hills.png';
-        await firebaseClient.entities.Post.update(targetPost.id, {
-          photo_urls: newUrls,
-          photo_url: '/green_hills.png'
-        });
+      for (const p of posts) {
+        if (p.photo_url?.includes('green_hills') || p.photo_urls?.some(u => u.includes('green_hills'))) {
+          const newUrls = (p.photo_urls || []).map(u => u.includes('green_hills') ? '/mountain.jpg' : u);
+          await firebaseClient.entities.Post.update(p.id, {
+            photo_urls: newUrls,
+            photo_url: newUrls[0] || p.photo_url
+          });
+        }
+      }
+
+      const listings = await firebaseClient.entities.Listing.list('-created_date', 100);
+      for (const l of listings) {
+        if (l.image_url?.includes('green_hills') || l.image_urls?.some(u => u.includes('green_hills'))) {
+          const newUrls = (l.image_urls || []).map(u => u.includes('green_hills') ? '/mountain.jpg' : u);
+          await firebaseClient.entities.Listing.update(l.id, {
+            image_urls: newUrls,
+            image_url: newUrls[0] || l.image_url
+          });
+        }
       }
     };
     fixImage();
