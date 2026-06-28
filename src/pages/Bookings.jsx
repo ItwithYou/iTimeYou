@@ -94,7 +94,14 @@ export default function Bookings() {
           };
         });
 
-      setServiceBookings([...services, ...stays].sort((a, b) => new Date(b.created_date) - new Date(a.created_date)));
+      const allBookings = [...services, ...stays].sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+      setServiceBookings(allBookings);
+
+      // Default to map view if there is a travel track
+      const coordsCount = allBookings.filter(b => b.city || b.service_location).length;
+      if (coordsCount > 1) {
+        setTab('map');
+      }
     } catch (err) {
       console.error('Failed to load bookings:', err);
     }
