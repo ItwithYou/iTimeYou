@@ -25,9 +25,9 @@ export default function CategoryTabs({ activeType, activeCat, onSelectCat, lang 
 
   return (
     <div className="w-full mb-6 px-1 sm:px-4">
-      <div className="bg-card/40 backdrop-blur-xl border border-border/50 shadow-lg shadow-black/5 rounded-2xl sm:rounded-3xl p-3 sm:p-6 mx-auto max-w-4xl relative overflow-hidden">
+      <div className="bg-card/40 backdrop-blur-xl border border-border/50 shadow-lg shadow-black/5 rounded-2xl sm:rounded-3xl p-3 sm:p-6 mx-auto max-w-4xl relative">
         {/* Subtle glass reflection effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent dark:from-white/5 opacity-50 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent dark:from-white/5 opacity-50 pointer-events-none rounded-2xl sm:rounded-3xl" />
         
         <div className="flex justify-between sm:justify-center sm:gap-10 relative z-10 w-full px-0 sm:px-4">
           {categories.map(cat => {
