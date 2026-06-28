@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import { firebaseClient } from '@/api/firebaseClient';
-import { ArrowUp, ArrowDown, Send, ArrowDownLeft, Shield, ChevronRight, ExternalLink, RefreshCw } from 'lucide-react';
+import { Shield, ChevronRight, ExternalLink, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import WalletActionModal from '../components/wallet/WalletActionModal';
 import AdminWalletRequests from '../components/wallet/AdminWalletRequests';
@@ -10,11 +10,25 @@ import { getTotalLakBalance } from '../utils/wallet';
 import { formatTimestampDMY } from '../utils/dateUtils';
 
 const typeConfig = {
-  topup:    { icon: '⬆️', color: 'text-success', sign: '+' },
-  received: { icon: '📥', color: 'text-success', sign: '+' },
-  withdraw: { icon: '⬇️', color: 'text-destructive', sign: '' },
-  payment:  { icon: '🏠', color: 'text-destructive', sign: '' },
-  send:     { icon: '📤', color: 'text-destructive', sign: '' },
+  topup:    { iconKey: 'topup',    color: 'text-success',     bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
+  received: { iconKey: 'received', color: 'text-success',     bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
+  withdraw: { iconKey: 'withdraw', color: 'text-destructive', bg: 'bg-red-50 dark:bg-red-900/20' },
+  payment:  { iconKey: 'payment',  color: 'text-destructive', bg: 'bg-rose-50 dark:bg-rose-900/20' },
+  send:     { iconKey: 'send',     color: 'text-destructive', bg: 'bg-orange-50 dark:bg-orange-900/20' },
+};
+
+// Clean minimal SVG icons
+const TxIcon = ({ iconKey, className = '' }) => {
+  const base = `w-5 h-5 ${className}`;
+  if (iconKey === 'topup' || iconKey === 'received')
+    return <svg className={base} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>;
+  if (iconKey === 'withdraw')
+    return <svg className={base} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>;
+  if (iconKey === 'send')
+    return <svg className={base} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>;
+  if (iconKey === 'payment')
+    return <svg className={base} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>;
+  return <svg className={base} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zM8 12h8M14 9l3 3-3 3"/></svg>;
 };
 
 const statusLabelMap = {
@@ -116,12 +130,33 @@ export default function Wallet() {
     );
   }
 
-  const actions = [
-    { icon: ArrowUp, label: t.topUp, key: 'topup' },
-    { icon: ArrowDown, label: t.withdraw, key: 'withdraw' },
-    { icon: Send, label: t.send, key: 'send' },
-    { icon: ArrowDownLeft, label: t.receive, key: 'receive' },
-    { icon: RefreshCw, label: lang === 'lo' ? 'ແລກປ່ຽນ' : 'Exchange', key: 'exchange' },
+  // Clean minimal SVG action icons
+  const actionDefs = [
+    {
+      key: 'topup',
+      label: t.topUp,
+      icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>,
+    },
+    {
+      key: 'withdraw',
+      label: t.withdraw,
+      icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>,
+    },
+    {
+      key: 'send',
+      label: t.send,
+      icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>,
+    },
+    {
+      key: 'receive',
+      label: t.receive,
+      icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M12 2v14"/><path d="M5 10l7 7 7-7"/><path d="M2 20h20"/></svg>,
+    },
+    {
+      key: 'exchange',
+      label: lang === 'lo' ? 'ແລກປ່ຽນ' : 'Exchange',
+      icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>,
+    },
   ];
 
   return (
@@ -149,20 +184,29 @@ export default function Wallet() {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_42%)]" />
 
         <div className="relative">
-          {/* Brand row */}
-          <div className="mb-8 flex items-center justify-between">
-            <span className="text-[14px] font-light tracking-[0.2em] uppercase text-white drop-shadow-sm opacity-90">
-              iTimeYou
-            </span>
+          {/* Brand row — user avatar initial + label */}
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/25 ring-1 ring-white/40 backdrop-blur-sm flex-shrink-0">
+                <span className="text-[15px] font-medium text-white leading-none">
+                  {(profile?.first_name?.[0] || '?').toUpperCase()}
+                </span>
+              </div>
+              <div>
+                <p className="text-[10px] font-light tracking-[0.18em] uppercase text-white/60 leading-none mb-0.5">iTimeYou</p>
+                <p className="text-[12px] font-normal tracking-[0.08em] uppercase text-white/90 leading-none">
+                  {profile?.first_name} {profile?.last_name}
+                </p>
+              </div>
+            </div>
+            {/* Chip emblem */}
+            <div className="h-7 w-10 rounded-[5px] bg-gradient-to-br from-white/60 to-white/30 ring-1 ring-white/20 backdrop-blur-sm flex items-end justify-end p-1">
+              <div className="w-3 h-3 rounded-full border border-white/50" />
+            </div>
           </div>
 
-          {/* Chip + balance label */}
-          <div className="mb-3 flex items-center gap-3">
-            <div className="flex h-6 items-center justify-center rounded bg-gradient-to-br from-white/90 to-white/70 px-2.5 shadow-[0_2px_10px_rgba(0,0,0,0.1)] ring-1 ring-black/5">
-              <span className="text-[9px] font-medium tracking-widest text-[#088F8A] uppercase">
-                iTimeYou
-              </span>
-            </div>
+          {/* Balance label */}
+          <div className="mb-2 flex items-center gap-2">
             <p className="text-[10px] font-normal uppercase tracking-[0.25em] text-white/60">{t.balance}</p>
           </div>
 
@@ -175,11 +219,8 @@ export default function Wallet() {
           </div>
 
 
-          {/* Owner + masked number */}
-          <div className="mt-6 flex items-center justify-between">
-            <p className="text-[11px] font-normal uppercase tracking-[0.15em] text-white/80">
-              {profile?.first_name} {profile?.last_name}
-            </p>
+          {/* Masked number only */}
+          <div className="mt-6 flex items-center justify-end">
             <p className="wallet-num text-[10px] tracking-[0.3em] text-white/40">•••• 2026</p>
           </div>
 
@@ -202,17 +243,17 @@ export default function Wallet() {
 
       {/* Actions */}
       <div className="mb-6 flex justify-between px-1">
-        {actions.map((btn) => (
+        {actionDefs.map((btn) => (
           <button
             key={btn.key}
             onClick={() => { if (requireVerified()) setActionType(btn.key); }}
             className="group flex flex-col items-center gap-2"
           >
-            <div className="flex h-[52px] w-[52px] sm:h-[60px] sm:w-[60px] items-center justify-center rounded-full bg-gradient-to-b from-card to-muted/30 border border-[#0ABAB5]/20 shadow-[0_4px_12px_-4px_rgba(10,186,181,0.15)] transition-all duration-300 group-hover:shadow-[0_8px_16px_-6px_rgba(10,186,181,0.3)] group-hover:-translate-y-1 group-active:scale-95 group-active:translate-y-0 relative overflow-hidden">
-              <div className="absolute inset-0 bg-[#0ABAB5]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <btn.icon size={22} strokeWidth={1.5} className="text-[#0ABAB5] relative z-10 drop-shadow-sm" />
+            <div className="flex h-[52px] w-[52px] sm:h-[58px] sm:w-[58px] items-center justify-center rounded-full bg-card border border-[#0ABAB5]/15 shadow-[0_2px_12px_-4px_rgba(10,186,181,0.2)] transition-all duration-300 group-hover:shadow-[0_6px_18px_-6px_rgba(10,186,181,0.35)] group-hover:-translate-y-1 group-active:scale-95 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-b from-[#0ABAB5]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <span className="text-[#0ABAB5] relative z-10">{btn.icon}</span>
             </div>
-            <span className="text-[10px] sm:text-[11px] font-medium text-foreground/70 group-hover:text-foreground leading-tight text-center tracking-wide transition-colors">{btn.label}</span>
+            <span className="text-[9.5px] sm:text-[10.5px] font-light text-foreground/60 group-hover:text-foreground leading-tight text-center tracking-wider transition-colors">{btn.label}</span>
           </button>
         ))}
       </div>
@@ -263,9 +304,9 @@ export default function Wallet() {
             {transactions.map(tx => {
               const cfg = typeConfig[tx.type] || { icon: '💱', color: 'text-foreground', sign: '' };
               return (
-                <div key={tx.id} className="flex items-center gap-3 px-4 py-3.5">
-                  <div className="w-10 h-10 bg-muted rounded-xl flex items-center justify-center text-lg flex-shrink-0">
-                    {cfg.icon}
+                <div key={tx.id} className="flex items-center gap-3.5 px-4 py-3.5">
+                  <div className={`w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 ${cfg.bg || 'bg-muted'}`}>
+                    <TxIcon iconKey={cfg.iconKey || 'send'} className={cfg.color.replace('text-success', 'text-emerald-600 dark:text-emerald-400').replace('text-destructive', 'text-rose-500')} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm truncate">
