@@ -46,15 +46,18 @@ export default function Feed() {
   // Aggressive fix: replace ALL bad screenshot images in posts and listings
   useEffect(() => {
     const fixImage = async () => {
-      if (localStorage.getItem('fixed_yakuci_image_v6')) return;
-      localStorage.setItem('fixed_yakuci_image_v6', 'true');
+      if (localStorage.getItem('fixed_yakuci_image_v7')) return;
+      localStorage.setItem('fixed_yakuci_image_v7', 'true');
 
+      // The good replacement: a real green-mountain photo (no local screenshot file).
+      const GOOD = 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80';
       const isBad = (url) => url && (
         url.includes('green_hills') ||
         url === '/mountain.jpg' ||
+        url === '/mountain_view.jpg' ||
         url.includes('green_hills_alt')
       );
-      const fix = (url) => isBad(url) ? '/mountain_view.jpg' : url;
+      const fix = (url) => isBad(url) ? GOOD : url;
 
       const posts = await firebaseClient.entities.Post.list('-created_date', 200);
       for (const p of posts) {
@@ -176,13 +179,13 @@ export default function Feed() {
           text_en: 'Local Luang Prabang guide! I know every corner of the old town, hidden temples, and secret local eateries that tourists usually miss. Book today! 🗺️🛵',
           text_lo: 'ຮັບພາທ່ຽວຫຼວງພະບາງ! ຮູ້ຈັກທຸກມຸມເມືອງເກົ່າ, ວັດວາອາຮາມ, ແລະ ຮ້ານອາຫານລັບໆ ທີ່ນັກທ່ອງທ່ຽວບໍ່ຄ່ອຍຮູ້. ຈອງມື້ນີ້! 🗺️🛵',
           photo_urls: [
-            '/mountain_view.jpg',
+            'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80',
             'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80',
             'https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=800&q=80',
             'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?auto=format&fit=crop&w=800&q=80',
             'https://images.unsplash.com/photo-1517400508447-f8dd518b86db?auto=format&fit=crop&w=800&q=80'
           ],
-          photo_url: '/mountain_view.jpg',
+          photo_url: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80',
           service_price: 25, service_type: 'Local Guide', service_location: 'Luang Prabang', service_currency: 'USD/day',
         },
       ];
