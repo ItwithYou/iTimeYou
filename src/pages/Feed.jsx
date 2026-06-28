@@ -43,6 +43,26 @@ export default function Feed() {
 
   useEffect(() => { loadPosts(); }, []);
 
+  // Temporary fix for the wrong screenshot image
+  useEffect(() => {
+    const fixImage = async () => {
+      if (localStorage.getItem('fixed_yakuci_image_v4')) return;
+      localStorage.setItem('fixed_yakuci_image_v4', 'true');
+      
+      const posts = await firebaseClient.entities.Post.list('-created_date', 100);
+      const targetPost = posts.find(p => p.text?.includes('ຮັບພາທ່ຽວຫຼວງພະບາງ!'));
+      if (targetPost) {
+        const newUrls = [...(targetPost.photo_urls || [])];
+        newUrls[0] = '/green_hills.png';
+        await firebaseClient.entities.Post.update(targetPost.id, {
+          photo_urls: newUrls,
+          photo_url: '/green_hills.png'
+        });
+      }
+    };
+    fixImage();
+  }, []);
+
   // Automated one-time seeder for premium demo data — Yakuci admin posts
   useEffect(() => {
     const seedData = async () => {
