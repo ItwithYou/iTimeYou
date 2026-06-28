@@ -61,7 +61,11 @@ export default function LoginModal({ isOpen, onClose }) {
 
   const go = () => {
     onClose?.();
-    if (location.pathname === '/') navigate('/feed');
+    if (location.pathname === '/') {
+      window.location.href = '/feed';
+    } else {
+      window.location.reload();
+    }
   };
 
   const handleGoogle = async () => {
