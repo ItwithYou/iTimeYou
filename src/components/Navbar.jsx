@@ -114,6 +114,11 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
           <Link to="/notifications" className="relative p-2" aria-label="Notifications">
             <Bell size={20} className={location.pathname === '/notifications' ? 'text-primary' : 'text-muted-foreground'} aria-hidden="true" />
           </Link>
+          {currentUser?.role === 'admin' && (
+            <Link to="/admin/verification" className="relative p-2" aria-label="Admin verification">
+              <ShieldCheck size={20} className={location.pathname === '/admin/verification' ? 'text-primary' : 'text-emerald-600'} aria-hidden="true" />
+            </Link>
+          )}
           {currentUser ? (
             <Link to={`/profile/${profile?.id || ''}`} aria-label="Your profile">
               <img
