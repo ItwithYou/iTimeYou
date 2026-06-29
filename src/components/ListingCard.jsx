@@ -9,7 +9,7 @@ import PhotoGrid from './PhotoGrid';
 import useProfile from '../hooks/useProfile';
 import { coverImage } from '../utils/img';
 import { useAppContext } from '../lib/AppContext';
-import { convertAndFormatPrice, translateSuffix } from '../utils/currencyUtils';
+import { convertAndFormatPrice, priceUnitFor } from '../utils/currencyUtils';
 
 export default function ListingCard({ listing, t, lang }) {
   const { currentUser } = useProfile();
@@ -206,11 +206,12 @@ export default function ListingCard({ listing, t, lang }) {
                  <span className="font-serif text-[11px] sm:text-[15px] font-medium text-rose-500 tracking-wide whitespace-nowrap flex items-baseline">
                    {(() => {
                      const formatted = convertAndFormatPrice(listing.price, listing.currency, preferredCurrency, exchangeRates);
-                     const [pricePart, suffixPart] = formatted.split('/');
+                     const pricePart = formatted.split('/')[0];
+                     const unit = priceUnitFor(listing.category, lang); // /flight, /night, /hour, ...
                      return (
                        <>
                          <span>{pricePart}</span>
-                         {suffixPart && <span className="text-[8px] sm:text-[10px] opacity-70 ml-0.5 font-bold uppercase tracking-widest leading-none">/{translateSuffix(suffixPart, lang)}</span>}
+                         {unit && <span className="text-[8px] sm:text-[10px] opacity-70 ml-0.5 font-bold uppercase tracking-widest leading-none">{unit}</span>}
                        </>
                      );
                    })()}

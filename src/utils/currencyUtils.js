@@ -1,3 +1,15 @@
+import { PERSONAL_CATS, BUSINESS_CATS } from '../hooks/useLang';
+
+// The correct price unit for a category (flights -> /flight, hotels -> /night,
+// talk -> /hour, ...). Always derived from the category so the unit is always
+// sensible regardless of what the stored `currency` string says.
+export const priceUnitFor = (category, lang) => {
+  const all = [...PERSONAL_CATS, ...BUSINESS_CATS];
+  const c = all.find((x) => x.key === category);
+  if (!c) return lang === 'lo' ? '/ຄືນ' : '/night';
+  return lang === 'lo' ? (c.priceUnitLo || c.priceUnit) : c.priceUnit;
+};
+
 export const convertAndFormatPrice = (amount, originalCurrency, preferredCurrency, exchangeRates) => {
   if (!amount && amount !== 0) return '0';
   

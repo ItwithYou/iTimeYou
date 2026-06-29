@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useOutletContext, useParams, Link, useNavigate } from 'react-router-dom';
 import { coverImage } from '../utils/img';
+import { priceUnitFor } from '../utils/currencyUtils';
 import MobileDatePicker from '../components/MobileDatePicker';
 import { firebaseClient } from '@/api/firebaseClient';
 import { Star, MapPin, Users, Bed, Bath, Check, MessageCircle, User } from 'lucide-react';
@@ -248,7 +249,7 @@ export default function ListingDetail() {
             {!booked ? (
               <>
                 <div className="text-2xl font-bold text-primary mb-1">
-                  ${listing.price} <span className="text-base font-normal text-muted-foreground">{t.perNight}</span>
+                  ${listing.price} <span className="text-base font-normal text-muted-foreground">{priceUnitFor(listing.category, lang)}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3 my-4">
                   <div>
