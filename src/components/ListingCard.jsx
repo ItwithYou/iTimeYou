@@ -182,43 +182,52 @@ export default function ListingCard({ listing, t, lang }) {
         </div>
       )}
 
-      {/* Action Bar */}
+      {/* Action Bar — two clean rows so price & Book never overflow */}
       {!editing && (
-        <div className="flex items-center justify-between px-4 py-3 bg-muted/10">
-          <div className="flex items-center gap-4">
+        <div className="px-4 py-3 bg-muted/10 space-y-2.5">
+          {/* Row 1: save + rating */}
+          <div className="flex items-center justify-between gap-3">
              <button
                onClick={(e) => { e.preventDefault(); setSaved(!saved); }}
-               className="flex items-center gap-1.5 text-sm text-muted-foreground active:text-primary transition-colors font-medium"
+               className="flex items-center gap-1.5 text-sm text-muted-foreground active:text-primary transition-colors font-medium whitespace-nowrap flex-shrink-0"
              >
                <Heart size={18} className={saved ? 'fill-red-500 text-red-500' : ''} />
                {saved ? (lang === 'lo' ? 'ບັນທຶກແລ້ວ' : 'Saved') : (lang === 'lo' ? 'ບັນທຶກ' : 'Save')}
              </button>
-             <div className="flex items-center gap-1 text-amber-500 text-sm">
-               <Star size={16} className="fill-amber-400" />
+             <div className="flex items-center gap-1 text-amber-500 text-sm whitespace-nowrap min-w-0">
+               <Star size={16} className="fill-amber-400 flex-shrink-0" />
                <span className="font-bold">{(listing.rating || 0).toFixed(1)}</span>
-               {listing.review_count > 0 && <span className="text-muted-foreground text-xs">({listing.review_count} {t.reviews})</span>}
+               {listing.review_count > 0 && <span className="text-muted-foreground text-xs truncate">({listing.review_count} {t.reviews})</span>}
              </div>
           </div>
-          
-          <div className="flex items-center gap-3">
-             <div className="flex flex-col items-end whitespace-nowrap">
-               <div className="bg-gradient-to-tr from-rose-50 to-white border border-rose-100/60 shadow-sm rounded-lg px-2 py-1 sm:px-2.5 flex items-center justify-center">
-                 <span className="font-serif text-[11px] sm:text-[15px] font-medium text-rose-500 tracking-wide whitespace-nowrap flex items-baseline">
-                   {(() => {
-                     const formatted = convertAndFormatPrice(listing.price, listing.currency, preferredCurrency, exchangeRates);
-                     const pricePart = formatted.split('/')[0];
-                     const unit = priceUnitFor(listing.category, lang); // /flight, /night, /hour, ...
-                     return (
-                       <>
-                         <span>{pricePart}</span>
-                         {unit && <span className="text-[8px] sm:text-[10px] opacity-70 ml-0.5 font-bold uppercase tracking-widest leading-none">{unit}</span>}
-                       </>
-                     );
-                   })()}
-                 </span>
+
+          {/* Row 2: price + Book */}
+          <div className="flex items-center justify-between gap-3">
+             <div className="min-w-0 flex-1">
+               <div className="inline-flex max-w-full items-baseline gap-1 rounded-lg border border-primary/15 bg-primary/5 px-2.5 py-1.5">
+                 {(() => {
+                   const formatted = convertAndFormatPrice(listing.price, listing.currency, preferredCurrency, exchangeRates);
+                   let pricePart = formatted.split('/')[0].trim();
+                   // Compact millions so LAK prices stay short: 2,675,400 LAK -> 2.68M LAK
+                   const m = pricePart.match(/([\d][\d,]{6,})/);
+                   if (m) {
+                     const num = parseFloat(m[1].replace(/,/g, ''));
+                     if (isFinite(num) && num >= 1000000) {
+                       const compact = (num / 1000000).toFixed(num >= 10000000 ? 1 : 2).replace(/\.?0+$/, '') + 'M';
+                       pricePart = pricePart.replace(m[1], compact);
+                     }
+                   }
+                   const unit = priceUnitFor(listing.category, lang); // /flight, /night, /hour, ...
+                   return (
+                     <>
+                       <span className="wallet-num text-[14px] sm:text-[15px] font-bold text-primary truncate">{pricePart}</span>
+                       {unit && <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-primary/60 flex-shrink-0">{unit}</span>}
+                     </>
+                   );
+                 })()}
                </div>
              </div>
-             <Link to={`/listing/${listing.id}`} className="bg-primary text-primary-foreground px-4 py-2 rounded-xl text-sm font-semibold shadow-sm hover:opacity-90 transition-opacity">
+             <Link to={`/listing/${listing.id}`} className="flex-shrink-0 bg-primary text-primary-foreground px-5 py-2 rounded-xl text-sm font-semibold shadow-sm hover:opacity-90 active:scale-95 transition-all">
                {lang === 'lo' ? 'ຈອງ' : 'Book'}
              </Link>
           </div>

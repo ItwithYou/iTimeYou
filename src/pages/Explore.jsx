@@ -83,7 +83,7 @@ export default function Explore() {
 
       const getImages = (cat, idx) => {
         return Array.from({ length: 5 }).map((_, i) => 
-          `https://picsum.photos/seed/${cat}-${idx}-${i}/800/800`
+          `https://picsum.photos/seed/${cat}-${idx}-${i}/500/375`
         );
       };
 

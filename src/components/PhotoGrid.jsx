@@ -73,7 +73,9 @@ function Tile({ src, onClick, className = '', overlay, onRemove, index }) {
         src={src}
         alt=""
         loading="lazy"
-        className="w-full h-full object-cover active:scale-[0.98] transition-transform duration-200"
+        decoding="async"
+        fetchpriority="low"
+        className="w-full h-full object-cover bg-muted active:scale-[0.98] transition-transform duration-200"
         onError={(e) => { e.target.style.display = 'none'; }}
       />
       {overlay && (

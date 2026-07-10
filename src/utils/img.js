@@ -14,7 +14,7 @@ function seedFrom(item = {}) {
 
 // A reliable, UNIQUE photo per item (Lorem Picsum CDN — always loads).
 function uniquePhoto(item) {
-  return `https://picsum.photos/seed/itimeyou-${seedFrom(item)}/800/600`;
+  return `https://picsum.photos/seed/itimeyou-${seedFrom(item)}/500/375`;
 }
 
 // Reliable unique photo from any string seed (e.g. a failing image src).
