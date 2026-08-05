@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Heart, MessageCircle, Share2, Send, MoreHorizontal, Pencil, Trash2, X, Check, MapPin, Image as ImageIcon } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Send, MoreHorizontal, Pencil, Trash2, X, Check, MapPin, Image as ImageIcon, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import PhotoGrid from './PhotoGrid';
@@ -10,7 +10,7 @@ import { firebaseClient } from '@/api/firebaseClient';
 import { PERSONAL_CATS } from '../hooks/useLang';
 import moment from 'moment';
 import { formatTimestampDMY } from '../utils/dateUtils';
-import { convertAndFormatPrice, translateSuffix } from '../utils/currencyUtils';
+import { convertAndFormatPrice, translateSuffix, compactPrice } from '../utils/currencyUtils';
 
 export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, authorProfile: initialAuthorProfile }) {
   const { profile, currentUser, refreshProfile, exchangeRates, preferredCurrency } = useAppContext();
@@ -43,6 +43,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
   const [comments, setComments] = useState([]);
   const [commentProfiles, setCommentProfiles] = useState({});
   const [showComments, setShowComments] = useState(false);
+  const [textExpanded, setTextExpanded] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [liked, setLiked] = useState(Array.isArray(post.likes) && post.likes.includes(currentUserEmail));
   const [serviceActive, setServiceActive] = useState(post.service_active !== false);
@@ -223,11 +224,17 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
           >
             {authorProfile ? `${authorProfile.first_name} ${authorProfile.last_name}`.trim() : (post.author_name || 'User')}
           </button>
-          <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
-            <span>{moment(new Date(post.created_date)).fromNow()}</span>
-            <span>•</span>
-            <span>{formatTimestampDMY(post.created_date)}</span>
-            {authorProfile && <span>• {(authorProfile.friends || []).length} {lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'followers'}</span>}
+          <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground whitespace-nowrap overflow-hidden">
+            <span className="flex-shrink-0">{moment(new Date(post.created_date)).fromNow()}</span>
+            {/* Full date only on bigger screens — phones stay clean */}
+            <span className="hidden sm:inline">•</span>
+            <span className="hidden sm:inline">{formatTimestampDMY(post.created_date)}</span>
+            {authorProfile && (
+              <span className="inline-flex items-center gap-0.5 flex-shrink-0" title={lang === 'lo' ? 'ຜູ້ຕິດຕາມ' : 'followers'}>
+                <span>•</span>
+                <Users size={11} className="ml-0.5" /> {(authorProfile.friends || []).length}
+              </span>
+            )}
           </div>
         </div>
         <div className="flex flex-col items-end gap-1.5">
@@ -316,11 +323,23 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
           </div>
         </div>
       ) : (
-        <div className="px-4 pb-3 text-sm leading-relaxed text-foreground">
-          {lang === 'lo'
-            ? (post.text_lo || post.text)
-            : (post.text_en || post.text)}
-        </div>
+        (() => {
+          const displayText = lang === 'lo' ? (post.text_lo || post.text) : (post.text_en || post.text);
+          const isLong = (displayText || '').length > 140;
+          return (
+            <div className="px-4 pb-3 text-sm leading-relaxed text-foreground">
+              <p className={!textExpanded && isLong ? 'line-clamp-3' : ''}>{displayText}</p>
+              {isLong && (
+                <button
+                  onClick={() => setTextExpanded(!textExpanded)}
+                  className="mt-1 text-xs font-bold text-primary active:opacity-70"
+                >
+                  {textExpanded ? (lang === 'lo' ? 'ຫຍໍ້ລົງ ▲' : 'See less ▲') : (lang === 'lo' ? 'ອ່ານຕໍ່ ▼' : 'See more ▼')}
+                </button>
+              )}
+            </div>
+          );
+        })()
       )}
 
       {/* Photos */}
@@ -401,7 +420,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
               <div className="bg-gradient-to-tr from-rose-50 to-white border border-rose-100/60 shadow-sm rounded-md px-2 py-0.5 flex items-center justify-center whitespace-nowrap">
                  <span className="font-serif text-[11px] sm:text-[14px] font-medium text-rose-500 tracking-wide flex items-baseline">
                    {(() => {
-                     const formatted = convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates);
+                     const formatted = compactPrice(convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates));
                      const [pricePart, suffixPart] = formatted.split('/');
                      return (
                        <>
@@ -443,7 +462,7 @@ export default function PostCard({ post, currentUserEmail, t, lang, onRefresh, a
             <div className="bg-white/95 text-rose-500 px-2.5 py-1 rounded-lg shadow-sm border border-white/20 flex items-center whitespace-nowrap">
               <span className="font-serif font-medium text-[11px] sm:text-[14px] tracking-wide flex items-baseline">
                 {(() => {
-                  const formatted = convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates);
+                  const formatted = compactPrice(convertAndFormatPrice(post.service_price, post.service_currency, preferredCurrency, exchangeRates));
                   const [pricePart, suffixPart] = formatted.split('/');
                   return (
                     <>

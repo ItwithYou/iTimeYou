@@ -10,6 +10,18 @@ export const priceUnitFor = (category, lang) => {
   return lang === 'lo' ? (c.priceUnitLo || c.priceUnit) : c.priceUnit;
 };
 
+// Shorten 7+ digit prices so they never overflow on phones:
+// "2,675,400 LAK" -> "2.68M LAK". Values under 1M pass through unchanged.
+export const compactPrice = (str) => {
+  if (!str) return str;
+  const m = String(str).match(/([\d][\d,]{6,})/);
+  if (!m) return str;
+  const num = parseFloat(m[1].replace(/,/g, ''));
+  if (!isFinite(num) || num < 1000000) return str;
+  const compact = (num / 1000000).toFixed(num >= 10000000 ? 1 : 2).replace(/\.?0+$/, '') + 'M';
+  return String(str).replace(m[1], compact);
+};
+
 export const convertAndFormatPrice = (amount, originalCurrency, preferredCurrency, exchangeRates) => {
   if (!amount && amount !== 0) return '0';
   

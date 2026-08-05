@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Star, MapPin, Heart, MoreHorizontal, Pencil, Trash2, Check, X, Image as ImageIcon } from 'lucide-react';
+import { Star, MapPin, Heart, MoreHorizontal, Pencil, Trash2, Check, X, Image as ImageIcon, Users, BedDouble, Bath } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { firebaseClient } from '@/api/firebaseClient';
 import moment from 'moment';
@@ -159,12 +159,27 @@ export default function ListingCard({ listing, t, lang }) {
         </div>
       ) : (
         <div className="px-4 pb-3 text-sm leading-relaxed text-foreground">
-           {lang === 'lo' && listing.description_lao ? listing.description_lao : listing.description}
+           {/* Clamp long descriptions on phones so cards stay scannable */}
+           <p className="line-clamp-2 sm:line-clamp-3">
+             {lang === 'lo' && listing.description_lao ? listing.description_lao : listing.description}
+           </p>
            {(listing.guests > 0 || listing.beds > 0) && (
-             <div className="mt-2 text-xs text-muted-foreground font-medium flex items-center gap-2">
-               {listing.guests > 0 && <span>{listing.guests} {t.guests}</span>}
-               {listing.beds > 0 && <span>• {listing.beds} {t.beds}</span>}
-               {listing.baths > 0 && <span>• {listing.baths} {t.bath}</span>}
+             <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+               {listing.guests > 0 && (
+                 <span className="inline-flex items-center gap-1 rounded-full bg-muted/60 px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                   <Users size={12} /> {listing.guests}
+                 </span>
+               )}
+               {listing.beds > 0 && (
+                 <span className="inline-flex items-center gap-1 rounded-full bg-muted/60 px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                   <BedDouble size={12} /> {listing.beds}
+                 </span>
+               )}
+               {listing.baths > 0 && (
+                 <span className="inline-flex items-center gap-1 rounded-full bg-muted/60 px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                   <Bath size={12} /> {listing.baths}
+                 </span>
+               )}
              </div>
            )}
         </div>
