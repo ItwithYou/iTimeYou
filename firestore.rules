@@ -1,0 +1,129 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ───────── helpers ─────────
+    function signedIn() { return request.auth != null; }
+    function myEmail() { return request.auth.token.email; }
+    function isAdmin() { return signedIn() && myEmail() in ['norecord88@gmail.com']; }
+    function owns(field) { return signedIn() && resource.data[field] == myEmail(); }
+    function createsAsSelf(field) { return signedIn() && request.resource.data[field] == myEmail(); }
+    function onlyChanges(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+    }
+
+    // ───────── user profiles ─────────
+    // Public read (app lists profiles). Owner manages own profile.
+    // Other users may ONLY toggle the friends list (follow feature).
+    match /userProfiles/{id} {
+      allow read: if true;
+      allow create: if createsAsSelf('user_email');
+      allow update: if isAdmin()
+                    || owns('user_email')
+                    || (signedIn() && onlyChanges(['friends', 'updated_date']));
+      allow delete: if isAdmin() || owns('user_email');
+    }
+
+    // ───────── auth directory ─────────
+    // Each user writes only their own doc; role stays 'user' unless admin.
+    match /users/{uid} {
+      allow read: if true;
+      allow write: if isAdmin()
+                   || (signedIn() && request.auth.uid == uid
+                       && request.resource.data.get('role', 'user') == 'user');
+    }
+
+    // ───────── posts ─────────
+    // Author/admin manage; others may only like.
+    match /posts/{id} {
+      allow read: if true;
+      allow create: if createsAsSelf('author_email');
+      allow update: if isAdmin()
+                    || owns('author_email')
+                    || (signedIn() && onlyChanges(['likes', 'like_count', 'comment_count', 'updated_date']));
+      allow delete: if isAdmin() || owns('author_email');
+    }
+
+    // ───────── listings ─────────
+    match /listings/{id} {
+      allow read: if true;
+      allow create: if signedIn();
+      allow update, delete: if isAdmin() || owns('host_email');
+    }
+
+    // ───────── comments / reviews ─────────
+    match /comments/{id} {
+      allow read: if true;
+      allow create: if createsAsSelf('author_email');
+      allow update, delete: if isAdmin() || owns('author_email');
+    }
+    match /reviews/{id} {
+      allow read: if true;
+      allow create: if createsAsSelf('reviewer_email') || createsAsSelf('author_email');
+      allow update, delete: if isAdmin();
+    }
+
+    // ───────── chat ─────────
+    match /conversations/{id} {
+      allow read: if true; // app filters client-side
+      allow create: if signedIn() && myEmail() in request.resource.data.participants;
+      allow update: if isAdmin() || (signedIn() && myEmail() in resource.data.participants);
+      allow delete: if isAdmin();
+    }
+    match /messages/{id} {
+      allow read: if true; // app filters client-side
+      allow create: if createsAsSelf('sender_email');
+      allow update, delete: if isAdmin();
+    }
+
+    // ───────── bookings ─────────
+    match /serviceBookings/{id} {
+      allow read: if true;
+      allow create: if createsAsSelf('booker_email');
+      allow update: if isAdmin() || owns('booker_email') || owns('poster_email');
+      allow delete: if isAdmin();
+    }
+    match /bookings/{id} {
+      allow read: if true;
+      allow create: if createsAsSelf('guest_email');
+      allow update: if isAdmin() || owns('guest_email') || owns('host_email');
+      allow delete: if isAdmin();
+    }
+
+    // ───────── wallet ─────────
+    // Users create their own requests; only admin changes status/decides.
+    match /walletTransactions/{id} {
+      allow read: if true;
+      allow create: if isAdmin() || createsAsSelf('user_email');
+      allow update, delete: if isAdmin();
+    }
+    match /walletAccountSettings/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /exchangeRateSettings/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ───────── notifications ─────────
+    // Any signed-in user may notify another (booking/wallet events);
+    // only the recipient (or admin) can mark as read / delete.
+    match /notifications/{id} {
+      allow read: if true;
+      allow create: if signedIn();
+      allow update, delete: if isAdmin() || owns('user_email');
+    }
+
+    // ───────── password resets ─────────
+    match /passwordResets/{id} {
+      allow read, create, update: if signedIn();
+      allow delete: if isAdmin();
+    }
+
+    // Deny anything not listed above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
