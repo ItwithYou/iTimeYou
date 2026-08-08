@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { BrandLockup } from '../components/BrandLogo';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAppContext } from '../lib/AppContext';
 import { firebaseClient } from '@/api/firebaseClient';
@@ -220,7 +221,7 @@ export default function Wallet() {
               className={`text-[20px] text-white drop-shadow-sm opacity-95 brand-logo transition-transform hover:scale-105 active:scale-95 flex items-center gap-2 ${isRefreshing ? 'animate-pulse' : ''}`}
               title={lang === 'lo' ? 'ໂຫຼດໃໝ່' : 'Refresh Wallet'}
             >
-              iTimeYou
+              <BrandLockup markSize={22} textSize={17} reversed />
               <RefreshCw size={14} className={`opacity-70 ${isRefreshing ? 'animate-spin' : ''}`} />
             </button>
           </div>

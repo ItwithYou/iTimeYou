@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { BrandLockup } from './BrandLogo';
 import { firebaseClient, auth } from '@/api/firebaseClient';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -152,7 +153,7 @@ export default function LoginModal({ isOpen, onClose }) {
           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
 
           <div className="text-center mb-8">
-            <div className="text-6xl text-primary mb-2 brand-logo drop-shadow-md">iTimeYou</div>
+            <div className="mb-2 flex justify-center"><BrandLockup markSize={52} textSize={38} tagline /></div>
             <div className="text-xs text-muted-foreground uppercase tracking-widest font-semibold mt-2">Log In or Sign Up</div>
           </div>
 

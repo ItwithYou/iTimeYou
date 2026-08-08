@@ -1,4 +1,5 @@
 import { Outlet, useLocation, Navigate } from 'react-router-dom';
+import { BrandLockup } from './BrandLogo';
 import { useState, useEffect } from 'react';
 import { firebaseClient } from '@/api/firebaseClient';
 import Navbar from './Navbar';
@@ -144,7 +145,7 @@ export default function Layout() {
         <div className="text-center">
           {/* Logo */}
           <div className="mb-10">
-            <span className="text-6xl text-white brand-logo drop-shadow-lg">iTimeYou</span>
+            <BrandLockup markSize={64} textSize={44} reversed tagline />
           </div>
           
           <p className="text-white/60 text-xs tracking-widest mb-1 lao-text font-semibold">ສັງຄົມ · ທ່ຽວ · ວັດທະນະທໍາ · ທີ່ພັກ</p>

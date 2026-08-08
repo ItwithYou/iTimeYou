@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { BrandLockup } from './BrandLogo';
 import { firebaseClient } from '@/api/firebaseClient';
 import { toast } from 'sonner';
 
@@ -38,7 +39,7 @@ export default function Footer({ t, lang }) {
       <div className="max-w-6xl mx-auto px-6 pt-12 pb-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
-            <div className="text-3xl text-primary mb-3 brand-logo drop-shadow-sm">iTimeYou</div>
+            <div className="mb-3"><BrandLockup markSize={34} textSize={26} tagline /></div>
             <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">{t.heroDesc}</p>
           </div>
           <div>

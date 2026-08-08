@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { BrandLockup } from './BrandLogo';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Compass, Calendar, Wallet, MessageCircle, Bell, ShieldCheck, HelpCircle } from 'lucide-react';
 import LangToggle from './LangToggle';
@@ -31,7 +32,7 @@ export default function Navbar({ profile, currentUser, t, lang, setLang }) {
         {/* Logo and Premium Button */}
         <div className="flex items-center gap-1 sm:gap-2">
           <Link to="/" className="flex items-center flex-shrink-0" aria-label="iTimeYou Home">
-            <span className="text-xl text-primary brand-logo">iTimeYou</span>
+            <BrandLockup markSize={28} textSize={21} />
           </Link>
           <CreateDropdownButton lang={lang} />
         </div>
