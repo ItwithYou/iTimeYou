@@ -6,6 +6,7 @@ import React, { Suspense } from 'react';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import Layout from './components/Layout';
+import { useLiveFavicon } from './components/BrandLogo';
 
 const LoginModal = React.lazy(() => import('./components/LoginModal'));
 const AdminVerification = React.lazy(() => import('./pages/AdminVerification'));
@@ -95,6 +96,7 @@ const GlobalLoginModal = () => {
 };
 
 function App() {
+  useLiveFavicon(); // browser-tab icon shows the real hour on the spiral
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
